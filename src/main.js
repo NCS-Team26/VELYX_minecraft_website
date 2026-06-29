@@ -1004,6 +1004,8 @@ function initTheme() {
       theme === "dark" ? "라이트 모드로 전환" : "다크 모드로 전환",
     );
     document.querySelectorAll('meta[name="theme-color"]').forEach((m) => {
+      // Drop the media filter so the pinned theme's color always wins.
+      m.removeAttribute("media");
       m.setAttribute("content", theme === "dark" ? "#0d1411" : "#f5f5f7");
     });
   };
