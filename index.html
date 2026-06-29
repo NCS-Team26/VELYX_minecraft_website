@@ -23,12 +23,15 @@
           <a href="#plugins">Plugins</a>
           <a href="#rules">Rules</a>
           <a href="#join">Join</a>
+          <button class="nav-login" type="button" data-open-login>로그인</button>
         </nav>
       </header>
 
       <main id="top">
         <section class="hero" aria-labelledby="hero-title">
-          <img class="hero-image" src="/assets/hero-world.png" alt="" />
+          <div class="hero-scene" aria-hidden="true">
+            <canvas id="minecraft-scene"></canvas>
+          </div>
           <div class="hero-shade"></div>
           <div class="hero-content">
             <p class="eyebrow">멘헤라 생야생 서버</p>
@@ -155,10 +158,50 @@
               <code>nfoifsb.kr</code>
               <button type="button" data-copy-address>복사</button>
             </div>
-            <p class="join-note" data-copy-feedback>멀티플레이 서버 주소에 그대로 넣으면 돼.</p>
+            <p class="join-note" data-copy-feedback>
+              멀티플레이 서버 주소에 그대로 넣으면 돼.
+            </p>
           </div>
         </section>
       </main>
+
+      <dialog class="login-dialog" data-login-dialog>
+        <form class="login-panel" method="dialog" data-login-form>
+          <button class="dialog-close" type="button" data-close-login aria-label="로그인 창 닫기">
+            ×
+          </button>
+          <p class="eyebrow">Player login</p>
+          <h2>서버 로그인</h2>
+          <label>
+            <span>마인크래프트 닉네임</span>
+            <input
+              name="nickname"
+              type="text"
+              autocomplete="nickname"
+              placeholder="닉네임 입력"
+              required
+            />
+          </label>
+          <label>
+            <span>비밀번호</span>
+            <input
+              name="password"
+              type="password"
+              autocomplete="current-password"
+              placeholder="비밀번호 입력"
+              required
+            />
+          </label>
+          <label class="remember-row">
+            <input name="remember" type="checkbox" checked />
+            <span>닉네임 기억하기</span>
+          </label>
+          <button class="login-submit" type="submit">로그인</button>
+          <p class="login-message" data-login-message>
+            웹 로그인 UI만 먼저 연결해둔 상태야.
+          </p>
+        </form>
+      </dialog>
     </div>
     <script type="module" src="/src/main.js"></script>
   </body>
