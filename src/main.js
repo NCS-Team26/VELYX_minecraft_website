@@ -171,19 +171,37 @@ function createPixelTexture(palette, size = 16, salt = 0) {
   return texture;
 }
 
+function createRadialTexture(center, edge, size = 128) {
+  const canvas = document.createElement("canvas");
+  canvas.width = size;
+  canvas.height = size;
+  const context = canvas.getContext("2d");
+  const gradient = context.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+  gradient.addColorStop(0, center);
+  gradient.addColorStop(0.48, center);
+  gradient.addColorStop(1, edge);
+  context.fillStyle = gradient;
+  context.fillRect(0, 0, size, size);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  return texture;
+}
+
 function createMaterials() {
   const textures = {
-    grassTop: createPixelTexture(["#78b45a", "#6aa84d", "#8bc864", "#5d9842", "#93cf73"], 16, 1),
-    grassSide: createPixelTexture(["#6fa64d", "#5d8f3d", "#7bb35a", "#8c6643", "#755336"], 16, 2),
+    grassTop: createPixelTexture(["#6fbb5f", "#5fa84e", "#91d172", "#4f963f", "#a4de84"], 16, 1),
+    grassSide: createPixelTexture(["#5d9a45", "#4f7f35", "#73ae55", "#94683e", "#6f4d31"], 16, 2),
     dirt: createPixelTexture(["#7d5638", "#8d6444", "#6b472f", "#9b7151", "#5c3f2c"], 16, 3),
-    stone: createPixelTexture(["#89918d", "#717a77", "#9aa19d", "#68706d", "#a8aeaa"], 16, 4),
+    stone: createPixelTexture(["#8f9b97", "#707b78", "#a9b0ac", "#5f6966", "#bec5bf"], 16, 4),
     sand: createPixelTexture(["#d8c178", "#cbb36c", "#e6d08d", "#bfa865"], 16, 5),
     trunk: createPixelTexture(["#5c3a25", "#6d472e", "#4a2f1f", "#7a5134"], 16, 6),
     plank: createPixelTexture(["#b98245", "#9d6b38", "#c89455", "#8d5d31"], 16, 7),
     roof: createPixelTexture(["#5d382d", "#6d4636", "#4f2f27", "#80533e"], 16, 8),
-    blossom: createPixelTexture(["#f3bfd0", "#f7d3df", "#d987ab", "#f0a6c1", "#ffffff"], 16, 9),
-    leaves: createPixelTexture(["#88bf61", "#75a94f", "#9acd76", "#5e8f3d"], 16, 10),
+    blossom: createPixelTexture(["#ffb9d4", "#ffd8e6", "#d986b0", "#f09fc4", "#fff4f8"], 16, 9),
+    leaves: createPixelTexture(["#83bd57", "#6ca244", "#a1d872", "#578c37"], 16, 10),
     waterFoam: createPixelTexture(["#dff9ff", "#aee9ff", "#75d4f2", "#4ab6df"], 16, 11),
+    lily: createPixelTexture(["#4b9b54", "#63bd68", "#387d43", "#7ed77c"], 16, 12),
   };
 
   const standard = (texture, options = {}) =>
@@ -217,9 +235,10 @@ function createMaterials() {
     lantern: new THREE.MeshStandardMaterial({
       color: 0xffc15a,
       emissive: 0xff9d2e,
-      emissiveIntensity: 1.8,
+      emissiveIntensity: 2.65,
       roughness: 0.35,
     }),
+    lily: standard(textures.lily, { roughness: 0.74 }),
     glass: new THREE.MeshPhysicalMaterial({
       color: 0xbdefff,
       roughness: 0.05,
@@ -227,7 +246,29 @@ function createMaterials() {
       transparent: true,
       opacity: 0.6,
     }),
-    cloud: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.58 }),
+    cloud: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.5, emissive: 0xe8f9ff, emissiveIntensity: 0.08 }),
+    waterEdge: new THREE.MeshBasicMaterial({
+      color: 0xaaf3ff,
+      transparent: true,
+      opacity: 0.38,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    }),
+    softShadow: new THREE.MeshBasicMaterial({
+      color: 0x102412,
+      map: createRadialTexture("rgba(0, 0, 0, 0.42)", "rgba(0, 0, 0, 0)", 128),
+      transparent: true,
+      opacity: 0.5,
+      depthWrite: false,
+    }),
+    lanternGlow: new THREE.SpriteMaterial({
+      map: createRadialTexture("rgba(255, 197, 93, 0.74)", "rgba(255, 151, 61, 0)", 128),
+      color: 0xffc46a,
+      transparent: true,
+      opacity: 0.74,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    }),
   };
 }
 
@@ -329,11 +370,15 @@ function makeCloud(material, x, y, z, scale = 1) {
 
 function makeLantern(world, materials, x, y, z) {
   const lantern = makeBlock(materials.lantern, x, y, z, 0.34, 0.34, 0.34);
-  const glow = new THREE.PointLight(0xffb759, 2.1, 8.5, 2.1);
+  const glow = new THREE.PointLight(0xffb759, 2.8, 9.5, 2.05);
   glow.position.set(x, y + 0.18, z);
   glow.castShadow = false;
-  world.add(lantern, glow);
-  return glow;
+
+  const halo = new THREE.Sprite(materials.lanternGlow.clone());
+  halo.position.set(x, y + 0.14, z);
+  halo.scale.set(2.8, 2.8, 1);
+  world.add(lantern, glow, halo);
+  return { light: glow, halo };
 }
 
 function addHouse(world, materials, groundY) {
@@ -451,9 +496,9 @@ function createWaterMaterial() {
     side: THREE.DoubleSide,
     uniforms: {
       uTime: { value: 0 },
-      uDeep: { value: new THREE.Color(0x1b84b7) },
-      uShallow: { value: new THREE.Color(0x91ecff) },
-      uSun: { value: new THREE.Color(0xfff1bf) },
+      uDeep: { value: new THREE.Color(0x086a9b) },
+      uShallow: { value: new THREE.Color(0x83edff) },
+      uSun: { value: new THREE.Color(0xfff0b8) },
     },
     vertexShader: `
       uniform float uTime;
@@ -463,9 +508,10 @@ function createWaterMaterial() {
       void main() {
         vUv = uv;
         vec3 pos = position;
-        float waveA = sin((pos.x * 0.75 + uTime * 1.65)) * 0.08;
-        float waveB = cos((pos.y * 1.18 - uTime * 1.18)) * 0.055;
-        pos.z += waveA + waveB;
+        float waveA = sin((pos.x * 0.75 + uTime * 1.65)) * 0.075;
+        float waveB = cos((pos.y * 1.18 - uTime * 1.18)) * 0.052;
+        float waveC = sin((pos.x + pos.y) * 1.42 + uTime * 0.85) * 0.028;
+        pos.z += waveA + waveB + waveC;
         vWave = waveA + waveB;
         gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
       }
@@ -480,12 +526,16 @@ function createWaterMaterial() {
 
       void main() {
         float ripple = sin((vUv.x + vUv.y) * 34.0 + uTime * 2.4) * 0.5 + 0.5;
+        ripple += sin((vUv.x * 21.0 - vUv.y * 15.0) - uTime * 1.6) * 0.18;
         float band = smoothstep(0.0, 1.0, vUv.y);
-        vec3 water = mix(uDeep, uShallow, band * 0.72 + vWave * 1.4);
-        float glint = pow(max(0.0, sin(vUv.x * 28.0 - uTime * 2.2) * cos(vUv.y * 18.0 + uTime)), 8.0);
-        water += uSun * glint * 0.62;
-        water += vec3(0.04, 0.11, 0.13) * ripple * 0.12;
-        gl_FragColor = vec4(water, 0.66);
+        float fresnel = pow(1.0 - smoothstep(0.0, 1.0, abs(vUv.y - 0.52) * 1.55), 2.0);
+        vec3 water = mix(uDeep, uShallow, band * 0.8 + vWave * 1.6 + ripple * 0.08);
+        float glintA = pow(max(0.0, sin(vUv.x * 34.0 - uTime * 2.25) * cos(vUv.y * 19.0 + uTime)), 9.0);
+        float glintB = pow(max(0.0, sin((vUv.x + vUv.y) * 52.0 + uTime * 1.7)), 16.0);
+        water += uSun * (glintA * 0.72 + glintB * 0.42);
+        water += vec3(0.07, 0.2, 0.22) * ripple * 0.14;
+        water = mix(water, vec3(0.82, 0.98, 1.0), fresnel * 0.16);
+        gl_FragColor = vec4(water, 0.76);
       }
     `,
   });
@@ -514,6 +564,199 @@ function addSunRays(world) {
   return rays;
 }
 
+function createSkyDome() {
+  const sky = new THREE.Mesh(
+    new THREE.SphereGeometry(76, 32, 16),
+    new THREE.ShaderMaterial({
+      side: THREE.BackSide,
+      depthWrite: false,
+      uniforms: {
+        uTop: { value: new THREE.Color(0x88cff7) },
+        uHorizon: { value: new THREE.Color(0xffe5bd) },
+        uLow: { value: new THREE.Color(0xdaf8ff) },
+      },
+      vertexShader: `
+        varying vec3 vWorldPosition;
+
+        void main() {
+          vec4 worldPosition = modelMatrix * vec4(position, 1.0);
+          vWorldPosition = worldPosition.xyz;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform vec3 uTop;
+        uniform vec3 uHorizon;
+        uniform vec3 uLow;
+        varying vec3 vWorldPosition;
+
+        void main() {
+          float h = normalize(vWorldPosition).y * 0.5 + 0.5;
+          vec3 color = mix(uLow, uHorizon, smoothstep(0.18, 0.46, h));
+          color = mix(color, uTop, smoothstep(0.48, 1.0, h));
+          gl_FragColor = vec4(color, 1.0);
+        }
+      `,
+    }),
+  );
+  sky.renderOrder = -10;
+  return sky;
+}
+
+function createSunDisc() {
+  const texture = createRadialTexture("rgba(255, 246, 190, 0.95)", "rgba(255, 210, 99, 0)", 256);
+  const sun = new THREE.Sprite(
+    new THREE.SpriteMaterial({
+      map: texture,
+      color: 0xffefb0,
+      transparent: true,
+      opacity: 0.86,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    }),
+  );
+  sun.position.set(-24, 20, -20);
+  sun.scale.set(18, 18, 1);
+  return sun;
+}
+
+function createCausticsMaterial() {
+  return new THREE.ShaderMaterial({
+    transparent: true,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+    uniforms: {
+      uTime: { value: 0 },
+      uColor: { value: new THREE.Color(0xcefaff) },
+    },
+    vertexShader: `
+      varying vec2 vUv;
+
+      void main() {
+        vUv = uv;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }
+    `,
+    fragmentShader: `
+      uniform float uTime;
+      uniform vec3 uColor;
+      varying vec2 vUv;
+
+      void main() {
+        vec2 uv = vUv * vec2(2.4, 1.7);
+        float a = sin(uv.x * 34.0 + sin(uv.y * 13.0 + uTime * 1.4) * 2.8 - uTime * 2.2);
+        float b = cos(uv.y * 39.0 + cos(uv.x * 9.0 - uTime * 0.9) * 2.0 + uTime * 1.6);
+        float line = smoothstep(0.88, 1.0, a * b);
+        float fade = smoothstep(0.03, 0.18, vUv.x) * smoothstep(0.97, 0.78, vUv.x);
+        fade *= smoothstep(0.03, 0.18, vUv.y) * smoothstep(0.97, 0.78, vUv.y);
+        gl_FragColor = vec4(uColor, line * fade * 0.34);
+      }
+    `,
+  });
+}
+
+function addLakeCaustics(world) {
+  const material = createCausticsMaterial();
+  const caustics = new THREE.Mesh(new THREE.PlaneGeometry(17.8, 12.5, 1, 1), material);
+  caustics.rotation.x = -Math.PI / 2;
+  caustics.position.set(0.5, -1.93, 2.55);
+  caustics.renderOrder = 2;
+  world.add(caustics);
+  return caustics;
+}
+
+function addSoftShadow(world, material, x, y, z, sx, sz, opacity = 0.42) {
+  const shadow = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), material.clone());
+  shadow.rotation.x = -Math.PI / 2;
+  shadow.position.set(x, y + 0.012, z);
+  shadow.scale.set(sx, sz, 1);
+  shadow.material.opacity = opacity;
+  shadow.renderOrder = 1;
+  world.add(shadow);
+  return shadow;
+}
+
+function makeLampPost(world, materials, x, y, z) {
+  world.add(makeBlock(materials.trunk, x, y + 0.78, z, 0.22, 1.65, 0.22));
+  world.add(makeBlock(materials.plank, x + 0.38, y + 1.48, z, 0.86, 0.18, 0.18));
+  return makeLantern(world, materials, x + 0.86, y + 1.24, z);
+}
+
+function addShaderDetails(world, materials, surface) {
+  const lanterns = [];
+  const waterEdges = [];
+
+  [
+    [-8.2, -1.15, -3.2],
+    [-8.2, -1.15, 7.8],
+    [9.2, -1.15, -2.8],
+    [9.2, -1.15, 7.6],
+  ].forEach(([x, y, z]) => {
+    const edge = makeBlock(materials.waterEdge.clone(), x, y, z, 0.08, 0.05, 1.9, { cast: false, receive: false });
+    waterEdges.push(edge);
+    world.add(edge);
+  });
+
+  [
+    [-2.4, 0.2, 8.9],
+    [2.4, 0.2, 8.8],
+    [8.4, 0.35, 5.3],
+    [-9.1, 0.15, 1.2],
+  ].forEach(([x, y, z]) => {
+    lanterns.push(makeLampPost(world, materials, x, y, z));
+  });
+
+  [
+    [-6.4, -1.48, -0.8, 0.62, 0.08, 0.52],
+    [-4.1, -1.5, 1.1, 0.48, 0.08, 0.48],
+    [5.7, -1.49, 4.6, 0.7, 0.08, 0.42],
+    [7.1, -1.48, 1.0, 0.5, 0.08, 0.62],
+  ].forEach(([x, y, z, sx, sy, sz]) => {
+    world.add(makeBlock(materials.lily, x, y, z, sx, sy, sz, { cast: false, receive: true }));
+  });
+
+  [
+    [-7.5, -1.05, 9.8, 0.8, 0.35, 0.6],
+    [11.4, 1.2, 9.1, 0.85, 0.55, 0.74],
+    [-12.2, 0.1, -7.4, 0.78, 0.42, 0.7],
+    [2.4, -1.2, -4.5, 0.6, 0.32, 0.5],
+    [15.4, 2.0, 3.4, 0.7, 0.42, 0.62],
+  ].forEach(([x, y, z, sx, sy, sz]) => {
+    world.add(makeBlock(materials.stone, x, y, z, sx, sy, sz, { receive: true }));
+  });
+
+  [
+    [-8.8, -0.2, -5.5, 5.8, 3.8, 0.28],
+    [10.5, -0.1, -4.1, 6.2, 4.2, 0.3],
+    [14.8, 1.2, 8.1, 5.5, 3.7, 0.24],
+    [-14.2, 0.9, 8.2, 5.0, 3.2, 0.24],
+    [-14.0, 0.1, -0.8, 8.0, 5.5, 0.22],
+  ].forEach(([x, y, z, sx, sz, opacity]) => {
+    addSoftShadow(world, materials.softShadow, x + 1.1, y, z + 0.75, sx, sz, opacity);
+  });
+
+  for (let i = 0; i < 18; i += 1) {
+    const x = Math.floor(seededNoise(i, 42, 30) * 34 - 17);
+    const z = Math.floor(seededNoise(i, 51, 31) * 27 - 10);
+    if (isLakeTile(x, z)) continue;
+    const ground = (surface.get(`${x},${z}`) ?? 0) - 0.08;
+    world.add(
+      makeBlock(
+        materials.stone,
+        x + seededNoise(i, 3, 32) * 0.42,
+        ground + 0.08,
+        z + seededNoise(i, 4, 33) * 0.42,
+        0.24 + seededNoise(i, 5, 34) * 0.34,
+        0.12,
+        0.24 + seededNoise(i, 6, 35) * 0.3,
+        { cast: false, receive: true },
+      ),
+    );
+  }
+
+  return { lanterns, waterEdges };
+}
+
 function initMinecraftScene() {
   const canvas = document.querySelector("#minecraft-scene");
   if (!(canvas instanceof HTMLCanvasElement)) return;
@@ -527,17 +770,19 @@ function initMinecraftScene() {
   });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.65));
   renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.shadowMap.type = THREE.PCFShadowMap;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.16;
+  renderer.toneMappingExposure = 1.04;
 
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0xbce7ff);
-  scene.fog = new THREE.FogExp2(0xbde9ff, 0.022);
+  scene.background = new THREE.Color(0x9fdcff);
+  scene.fog = new THREE.FogExp2(0xa9e2ff, 0.015);
 
-  const camera = new THREE.PerspectiveCamera(46, 1, 0.1, 140);
-  camera.position.set(12.5, 7.2, 15.8);
+  const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 160);
+  camera.position.set(11.8, 7.0, 15.4);
+
+  scene.add(createSkyDome(), createSunDisc());
 
   const world = new THREE.Group();
   scene.add(world);
@@ -551,10 +796,12 @@ function initMinecraftScene() {
   water.position.set(0.5, -2.03, 2.55);
   water.receiveShadow = true;
   world.add(water);
+  const caustics = addLakeCaustics(world);
 
   addBridge(world, materials, -0.55);
   addHouse(world, materials, 0.25);
   const foliage = addFoliage(world, materials, surface);
+  const shaderDetails = addShaderDetails(world, materials, surface);
 
   const treeSpecs = [
     [-8.8, -5.5, 1.0, true],
@@ -583,10 +830,12 @@ function initMinecraftScene() {
   world.add(petals);
   const sunRays = addSunRays(world);
 
-  const sun = new THREE.DirectionalLight(0xfff3d3, 4.1);
-  sun.position.set(-12, 18, 10);
+  const sun = new THREE.DirectionalLight(0xffedc0, 5.2);
+  sun.position.set(-16, 22, 12);
   sun.castShadow = true;
   sun.shadow.mapSize.set(2048, 2048);
+  sun.shadow.bias = -0.00018;
+  sun.shadow.normalBias = 0.045;
   sun.shadow.camera.left = -25;
   sun.shadow.camera.right = 25;
   sun.shadow.camera.top = 25;
@@ -594,13 +843,13 @@ function initMinecraftScene() {
   sun.shadow.camera.near = 1;
   sun.shadow.camera.far = 70;
   scene.add(sun);
-  scene.add(new THREE.HemisphereLight(0xe6f6ff, 0x5b7047, 1.25));
+  scene.add(new THREE.HemisphereLight(0xdff7ff, 0x4b6b36, 1.0));
 
-  const fill = new THREE.DirectionalLight(0x8fc9ff, 1.1);
-  fill.position.set(12, 8, -9);
+  const fill = new THREE.DirectionalLight(0x7bbcff, 0.72);
+  fill.position.set(12, 7, -11);
   scene.add(fill);
 
-  const clock = new THREE.Clock();
+  const startTime = performance.now();
   let frameId = 0;
 
   function resize() {
@@ -612,7 +861,7 @@ function initMinecraftScene() {
   }
 
   function animate() {
-    const elapsed = clock.getElapsedTime();
+    const elapsed = (performance.now() - startTime) / 1000;
     resize();
 
     if (!reduceMotion) {
@@ -622,6 +871,7 @@ function initMinecraftScene() {
       camera.lookAt(0.35, 0.85, 2.2);
 
       waterMaterial.uniforms.uTime.value = elapsed;
+      caustics.material.uniforms.uTime.value = elapsed;
       clouds.forEach((cloud, index) => {
         cloud.position.x += 0.006 + index * 0.0018;
         if (cloud.position.x > 24) cloud.position.x = -24;
@@ -640,6 +890,17 @@ function initMinecraftScene() {
 
       sunRays.children.forEach((ray, index) => {
         ray.material.opacity = 0.1 + Math.sin(elapsed * 0.38 + index) * 0.025;
+      });
+
+      shaderDetails.lanterns.forEach((lantern, index) => {
+        const pulse = 1 + Math.sin(elapsed * 1.6 + index * 0.9) * 0.045;
+        lantern.halo.scale.set(2.75 * pulse, 2.75 * pulse, 1);
+        lantern.halo.material.opacity = 0.62 + Math.sin(elapsed * 1.2 + index) * 0.08;
+        lantern.light.intensity = 2.5 + Math.sin(elapsed * 1.45 + index) * 0.24;
+      });
+
+      shaderDetails.waterEdges.forEach((edge, index) => {
+        edge.material.opacity = 0.28 + Math.sin(elapsed * 0.95 + index * 1.8) * 0.08;
       });
 
       animatePetals(petals, elapsed);
