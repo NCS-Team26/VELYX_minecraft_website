@@ -16,5 +16,8 @@
     "@aws-sdk/lib-storage": "^3.1075.0",
     "mime-types": "^3.0.2",
     "vite": "^7.0.0"
+  },
+  "dependencies": {
+    "three": "^0.185.0"
   }
 }
