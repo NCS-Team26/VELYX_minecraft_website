@@ -20,7 +20,11 @@ html {
 body {
   margin: 0;
   min-width: 320px;
-  background: #f5f5f7;
+  background:
+    radial-gradient(circle at 12% 6%, rgba(95, 190, 120, 0.1), transparent 32%),
+    radial-gradient(circle at 88% 18%, rgba(90, 165, 225, 0.1), transparent 34%),
+    linear-gradient(180deg, #eef5f0 0%, #f5f5f7 24%, #f4f6f8 68%, #eaf2ee 100%);
+  background-attachment: fixed;
 }
 
 button,
@@ -1050,5 +1054,116 @@ input:focus-visible,
 @media (max-width: 820px) {
   .feature-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+/* ===== color bands — break the flat white rhythm ===== */
+
+/* dark forest stats band */
+.stats-band {
+  width: 100%;
+  margin: 12px 0;
+  padding: 60px 0;
+  background:
+    radial-gradient(circle at 16% 22%, rgba(95, 205, 125, 0.2), transparent 42%),
+    radial-gradient(circle at 84% 78%, rgba(80, 160, 225, 0.18), transparent 46%),
+    linear-gradient(150deg, #1f4030 0%, #0e2317 100%);
+  color: #fff;
+}
+
+.stats-inner {
+  width: min(1120px, calc(100% - 32px));
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.stats-inner article {
+  padding: 22px 14px;
+  text-align: center;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+}
+
+.stats-inner strong {
+  display: block;
+  font-size: clamp(34px, 5vw, 54px);
+  font-weight: 850;
+  line-height: 1;
+  background: linear-gradient(180deg, #ffffff, #b9ecc8);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.stats-inner span {
+  display: block;
+  margin-top: 12px;
+  color: rgba(255, 255, 255, 0.66);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+/* soft-green feature band (full bleed behind the constrained section) */
+.feature-band {
+  width: 100%;
+  background: linear-gradient(
+    180deg,
+    rgba(120, 200, 145, 0.16),
+    rgba(245, 245, 247, 0) 78%
+  );
+}
+
+/* bold forest CTA for the join card */
+.join-card {
+  background:
+    radial-gradient(circle at 80% 0%, rgba(95, 205, 125, 0.18), transparent 46%),
+    linear-gradient(155deg, #244733 0%, #112318 100%);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  box-shadow: 0 30px 80px rgba(15, 40, 26, 0.32);
+}
+
+.join-card h2 {
+  color: #fff;
+}
+
+.join-card .eyebrow {
+  color: #93e2a6;
+}
+
+.join-card .eyebrow::before {
+  background: linear-gradient(90deg, #93e2a6, #5aa971);
+}
+
+.join-card .join-note {
+  color: rgba(255, 255, 255, 0.64);
+}
+
+.join-card .address-row {
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.join-card .address-row code {
+  color: #1d1d1f;
+}
+
+.join-card img {
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.4);
+}
+
+/* warm accent on the showcase frame so the world image pops */
+.showcase {
+  border: 1px solid rgba(120, 180, 140, 0.4);
+  box-shadow:
+    0 30px 80px rgba(20, 60, 35, 0.18),
+    0 0 0 6px rgba(120, 200, 145, 0.08);
+}
+
+@media (max-width: 640px) {
+  .stats-inner {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
