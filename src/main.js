@@ -31,7 +31,20 @@ function fallbackCopy(text) {
   return copied;
 }
 
-async function copyAddress() {
+function flashButton(button) {
+  if (!button || button.dataset.flashing) return;
+  const original = button.innerHTML;
+  button.dataset.flashing = "1";
+  button.innerHTML = "복사됨 ✓";
+  window.setTimeout(() => {
+    button.innerHTML = original;
+    delete button.dataset.flashing;
+  }, 1400);
+}
+
+async function copyAddress(event) {
+  // Capture now: event.currentTarget is null once dispatch ends (before any await resolves).
+  const button = event?.currentTarget;
   let copied = false;
 
   try {
@@ -52,6 +65,7 @@ async function copyAddress() {
   }
 
   if (copied) {
+    flashButton(button);
     if (copyFeedback) copyFeedback.textContent = "복사 완료. 마크 서버 주소에 붙여넣으면 돼.";
   } else if (copyFeedback) {
     copyFeedback.textContent = `복사가 막히면 직접 입력: ${SERVER_ADDRESS}`;
@@ -760,6 +774,12 @@ function addShaderDetails(world, materials, surface) {
 function initMinecraftScene() {
   const canvas = document.querySelector("#minecraft-scene");
   if (!(canvas instanceof HTMLCanvasElement)) return;
+
+  // Skip the heavy WebGL scene on Data Saver — the CSS gradient sky stands in.
+  if (navigator.connection?.saveData) {
+    canvas.remove();
+    return;
+  }
 
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const renderer = new THREE.WebGLRenderer({
