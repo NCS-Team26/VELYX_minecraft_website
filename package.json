@@ -1,0 +1,20 @@
+{
+  "name": "nfoifsb-minecraft-site",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "vite build",
+    "deploy:aws": "npm run build && node scripts/aws-deploy.mjs",
+    "preview": "vite preview --host 127.0.0.1"
+  },
+  "devDependencies": {
+    "@aws-sdk/client-cloudfront": "^3.1075.0",
+    "@aws-sdk/client-s3": "^3.1075.0",
+    "@aws-sdk/client-sts": "^3.1075.0",
+    "@aws-sdk/lib-storage": "^3.1075.0",
+    "mime-types": "^3.0.2",
+    "vite": "^7.0.0"
+  }
+}

@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="nfoifsb.kr Minecraft survival server website with live status, plugins, rules, and join information."
+    />
+    <meta name="theme-color" content="#f5f5f7" />
+    <link rel="icon" type="image/png" href="/assets/server-icon.png" />
+    <title>nfoifsb.kr - Minecraft Server</title>
+  </head>
+  <body>
+    <div id="app">
+      <header class="site-nav" aria-label="Primary navigation">
+        <a class="brand" href="#top" aria-label="nfoifsb home">
+          <img src="/assets/server-icon.png" alt="" />
+          <span>nfoifsb</span>
+        </a>
+        <nav class="nav-links" aria-label="Page sections">
+          <a href="#status">Status</a>
+          <a href="#plugins">Plugins</a>
+          <a href="#rules">Rules</a>
+          <a href="#join">Join</a>
+        </nav>
+      </header>
+
+      <main id="top">
+        <section class="hero" aria-labelledby="hero-title">
+          <img class="hero-image" src="/assets/hero-world.png" alt="" />
+          <div class="hero-shade"></div>
+          <div class="hero-content">
+            <p class="eyebrow">멘헤라 생야생 서버</p>
+            <h1 id="hero-title">nfoifsb.kr</h1>
+            <p class="hero-copy">Paper 26.1.2 기반의 조용하고 선명한 생존 월드.</p>
+            <div class="hero-actions">
+              <button class="primary-action" type="button" data-copy-address>
+                <span aria-hidden="true">⧉</span>
+                서버 주소 복사
+              </button>
+              <a class="secondary-action" href="#status">
+                <span aria-hidden="true">●</span>
+                서버 상태 보기
+              </a>
+            </div>
+          </div>
+        </section>
+
+        <section class="status-band" id="status" aria-labelledby="status-title">
+          <div class="section-heading">
+            <p class="eyebrow">Live status</p>
+            <h2 id="status-title">지금 접속 가능한지 바로 확인.</h2>
+          </div>
+
+          <div class="status-layout">
+            <article class="status-panel">
+              <div class="status-topline">
+                <span class="status-dot" data-status-dot></span>
+                <span data-status-label>상태 확인 중</span>
+              </div>
+              <strong data-player-count>-- / 10</strong>
+              <span class="status-note">현재 접속자 / 최대 인원</span>
+              <div class="meter" aria-hidden="true">
+                <span data-player-meter></span>
+              </div>
+            </article>
+
+            <div class="detail-grid" aria-label="Server details">
+              <article>
+                <span>Address</span>
+                <strong>nfoifsb.kr</strong>
+              </article>
+              <article>
+                <span>Version</span>
+                <strong data-version>Paper 26.1.2</strong>
+              </article>
+              <article>
+                <span>World Border</span>
+                <strong>59,999,968</strong>
+              </article>
+              <article>
+                <span>Memory</span>
+                <strong>4 GB</strong>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section class="world-section" aria-labelledby="world-title">
+          <div class="world-copy">
+            <p class="eyebrow">Survival first</p>
+            <h2 id="world-title">기본은 생존, 필요한 도구는 딱 맞게.</h2>
+            <p>
+              월드 보더는 사실상 최대치로 열어두고, 10명 기준으로 서버를 맞춰뒀어.
+              건축과 탐험은 자유롭게, 운영은 Paper 기반으로 가볍게.
+            </p>
+          </div>
+          <figure class="showcase">
+            <img src="/assets/hero-world.png" alt="Cherry blossom voxel world landscape" />
+          </figure>
+        </section>
+
+        <section class="plugin-section" id="plugins" aria-labelledby="plugin-title">
+          <div class="section-heading">
+            <p class="eyebrow">Server stack</p>
+            <h2 id="plugin-title">플러그인은 필요한 것만.</h2>
+          </div>
+          <div class="plugin-grid">
+            <article>
+              <span>WorldEdit</span>
+              <strong>건축 편집</strong>
+            </article>
+            <article>
+              <span>Essentials</span>
+              <strong>기본 명령어</strong>
+            </article>
+            <article>
+              <span>LuckPerms</span>
+              <strong>권한 관리</strong>
+            </article>
+            <article>
+              <span>ViaVersion</span>
+              <strong>버전 호환</strong>
+            </article>
+            <article>
+              <span>Chunky</span>
+              <strong>청크 관리</strong>
+            </article>
+            <article>
+              <span>DiscordPulse</span>
+              <strong>디스코드 연동</strong>
+            </article>
+          </div>
+        </section>
+
+        <section class="rules-section" id="rules" aria-labelledby="rules-title">
+          <div>
+            <p class="eyebrow">Rules</p>
+            <h2 id="rules-title">서버가 오래 가는 쪽으로.</h2>
+          </div>
+          <ol class="rules-list">
+            <li>남의 건축물, 상자, 농장은 허락 없이 건드리지 않기.</li>
+            <li>렉 유발 장치와 과한 월드에딧 작업은 운영자에게 먼저 말하기.</li>
+            <li>분쟁은 채팅으로 오래 끌지 말고 운영자 호출하기.</li>
+          </ol>
+        </section>
+
+        <section class="join-section" id="join" aria-labelledby="join-title">
+          <div class="join-card">
+            <img src="/assets/server-icon.png" alt="" />
+            <p class="eyebrow">Join</p>
+            <h2 id="join-title">Minecraft Java에서 바로 추가.</h2>
+            <div class="address-row">
+              <code>nfoifsb.kr</code>
+              <button type="button" data-copy-address>복사</button>
+            </div>
+            <p class="join-note" data-copy-feedback>멀티플레이 서버 주소에 그대로 넣으면 돼.</p>
+          </div>
+        </section>
+      </main>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
