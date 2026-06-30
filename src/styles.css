@@ -151,12 +151,21 @@ a {
 
 .nav-login {
   min-width: 64px;
+  max-width: 180px;
   min-height: 30px;
   padding: 0 13px;
   border-radius: 999px;
   color: var(--bg-solid);
   background: var(--text);
   cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nav-login.is-authenticated {
+  color: #fff;
+  background: #2f7a3f;
 }
 
 .nav-toggle {
@@ -641,7 +650,7 @@ a {
 }
 
 .login-dialog {
-  width: min(420px, calc(100% - 28px));
+  width: min(440px, calc(100% - 28px));
   padding: 0;
   border: 0;
   border-radius: 8px;
@@ -668,6 +677,14 @@ a {
 .login-panel h2 {
   font-size: 34px;
   line-height: 1;
+}
+
+.login-copy {
+  margin: -6px 0 2px;
+  color: var(--text-soft);
+  font-size: 15px;
+  line-height: 1.5;
+  font-weight: 650;
 }
 
 .login-panel label {
@@ -714,6 +731,87 @@ a {
   background: #0071e3;
 }
 
+.google-login-slot {
+  display: grid;
+  justify-content: center;
+  min-height: 44px;
+}
+
+.google-login-fallback {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: min(100%, 360px);
+  min-height: 44px;
+  padding: 0 18px;
+  border-radius: 999px;
+  color: var(--text-faint);
+  background: var(--inset);
+  border: 1px solid var(--border);
+  font-weight: 750;
+}
+
+.login-profile {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  min-height: 68px;
+  padding: 12px;
+  border-radius: 8px;
+  background: var(--inset);
+  border: 1px solid var(--border);
+}
+
+.login-profile[hidden],
+.login-avatar[hidden],
+.login-signout[hidden] {
+  display: none;
+}
+
+.login-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--chip);
+  object-fit: cover;
+}
+
+.login-user {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.login-user strong,
+.login-user span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.login-user strong {
+  font-size: 15px;
+  line-height: 1.2;
+}
+
+.login-user span {
+  color: var(--text-faint);
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.login-signout {
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  color: var(--text);
+  background: var(--chip);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 750;
+}
+
 .login-message {
   min-height: 20px;
   margin: 0;
@@ -721,6 +819,10 @@ a {
   font-size: 13px;
   font-weight: 650;
   text-align: center;
+}
+
+.login-message.is-error {
+  color: #d92d20;
 }
 
 .dialog-close {
@@ -852,6 +954,15 @@ a {
   .login-panel {
     padding: 28px 20px 24px;
   }
+
+  .login-profile {
+    grid-template-columns: 44px minmax(0, 1fr);
+  }
+
+  .login-signout {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
 }
 
 /* --- icons --- */
@@ -977,6 +1088,7 @@ input:focus-visible,
 .nav-login:focus-visible,
 .primary-action:focus-visible,
 .login-submit:focus-visible,
+.login-signout:focus-visible,
 .address-row button:focus-visible {
   outline-offset: 3px;
 }
@@ -1005,6 +1117,7 @@ input:focus-visible,
 .secondary-action,
 .nav-login,
 .login-submit,
+.login-signout,
 .address-row button {
   transition:
     transform 180ms ease,
@@ -1014,6 +1127,7 @@ input:focus-visible,
 
 .primary-action:hover,
 .login-submit:hover,
+.login-signout:hover,
 .address-row button:hover,
 .nav-login:hover {
   transform: translateY(-2px);
@@ -1029,6 +1143,7 @@ input:focus-visible,
 .secondary-action:active,
 .nav-login:active,
 .login-submit:active,
+.login-signout:active,
 .address-row button:active {
   transform: translateY(0);
 }

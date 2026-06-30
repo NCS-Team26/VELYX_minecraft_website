@@ -367,41 +367,24 @@
       </footer>
 
       <dialog class="login-dialog" data-login-dialog>
-        <form class="login-panel" method="dialog" data-login-form>
+        <div class="login-panel" role="document" data-login-panel>
           <button class="dialog-close" type="button" data-close-login aria-label="로그인 창 닫기">
             &times;
           </button>
-          <p class="eyebrow">Player login</p>
-          <h2>서버 로그인</h2>
-          <label>
-            <span>마인크래프트 닉네임</span>
-            <input
-              name="nickname"
-              type="text"
-              autocomplete="nickname"
-              placeholder="닉네임 입력"
-              required
-            />
-          </label>
-          <label>
-            <span>비밀번호</span>
-            <input
-              name="password"
-              type="password"
-              autocomplete="current-password"
-              placeholder="비밀번호 입력"
-              required
-            />
-          </label>
-          <label class="remember-row">
-            <input name="remember" type="checkbox" checked />
-            <span>닉네임 기억하기</span>
-          </label>
-          <button class="login-submit" type="submit">로그인</button>
-          <p class="login-message" data-login-message>
-            웹 로그인 UI만 먼저 연결해둔 상태야.
-          </p>
-        </form>
+          <p class="eyebrow">Google login</p>
+          <h2>Google 계정으로 로그인</h2>
+          <p class="login-copy">서버 웹사이트에서 사용할 Google 계정을 연결하세요.</p>
+          <div class="google-login-slot" data-google-login></div>
+          <div class="login-profile" data-login-profile hidden>
+            <img class="login-avatar" src="" alt="" referrerpolicy="no-referrer" data-login-avatar hidden />
+            <div class="login-user">
+              <strong data-login-profile-name></strong>
+              <span data-login-profile-email></span>
+            </div>
+            <button class="login-signout" type="button" data-google-logout>로그아웃</button>
+          </div>
+          <p class="login-message" data-login-message>Google 로그인 버튼을 준비하고 있습니다.</p>
+        </div>
       </dialog>
     </div>
     <script type="module" src="/src/main.js"></script>

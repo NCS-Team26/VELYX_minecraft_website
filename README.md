@@ -9,7 +9,7 @@
 - Three.js 기반 3D 마인크래프트 히어로 씬 (Data Saver / 모션 최소화 시 자동 폴백)
 - mcstatus.io API 실시간 서버 상태 (접속자 수, 버전, 온라인 표시)
 - 서버 주소 클립보드 복사 (`복사됨 ✓` 피드백)
-- 마인크래프트 닉네임 로그인 UI (localStorage 닉네임 기억)
+- Google 계정 로그인 UI (Google Identity Services, localStorage 프로필 기억)
 - 스크롤 등장 애니메이션, hover 인터랙션, 모바일 햄버거 메뉴
 - 접근성: `prefers-reduced-motion` 존중, 키보드 포커스 링, 본문 건너뛰기 링크
 - SEO/공유: Open Graph · Twitter Card · JSON-LD 메타
@@ -26,6 +26,32 @@ npm run dev
 ```text
 http://127.0.0.1:5173/
 ```
+
+## Google 로그인 설정
+
+Google 로그인 버튼을 활성화하려면 Google Cloud Console에서 OAuth 2.0 클라이언트 ID를 만든 뒤 환경변수에 넣어야 합니다.
+
+1. Google Cloud Console에서 `API 및 서비스` > `사용자 인증 정보` > `OAuth 클라이언트 ID`를 생성합니다.
+2. 애플리케이션 유형은 `웹 애플리케이션`을 선택합니다.
+3. 승인된 JavaScript 원본에 로컬 개발 주소와 배포 주소를 추가합니다.
+
+```text
+http://127.0.0.1:5173
+https://<cloudfront_domain_name>
+https://www.nfoifsb.kr
+```
+
+4. `.env.example`을 참고해 `.env`를 만들고 클라이언트 ID를 넣습니다.
+
+```powershell
+Copy-Item .env.example .env
+```
+
+```env
+VITE_GOOGLE_CLIENT_ID=your-google-oauth-client-id.apps.googleusercontent.com
+```
+
+현재 사이트는 정적 프론트엔드라 Google ID 토큰을 브라우저에서 받아 프로필 표시용으로만 사용합니다. 서버 API와 연결해 권한 처리를 할 경우에는 서버에서 ID 토큰 서명을 검증해야 합니다.
 
 ## 빌드
 
