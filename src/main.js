@@ -10,21 +10,12 @@ const playerCount = document.querySelector("[data-player-count]");
 const playerMeter = document.querySelector("[data-player-meter]");
 const versionLabel = document.querySelector("[data-version]");
 const copyFeedback = document.querySelector("[data-copy-feedback]");
-const loginDialog = document.querySelector("[data-login-dialog]");
-const loginPanel = document.querySelector("[data-login-panel]");
-const loginMessage = document.querySelector("[data-login-message]");
 const loginButton = document.querySelector("[data-open-login]");
-const googleLoginSlot = document.querySelector("[data-google-login]");
-const loginProfile = document.querySelector("[data-login-profile]");
-const loginAvatar = document.querySelector("[data-login-avatar]");
-const loginProfileName = document.querySelector("[data-login-profile-name]");
-const loginProfileEmail = document.querySelector("[data-login-profile-email]");
-const googleLogoutButton = document.querySelector("[data-google-logout]");
-const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
-const GOOGLE_SCRIPT_SRC = "https://accounts.google.com/gsi/client";
+const LOGIN_URL = "/login.html";
 const AUTH_STORAGE_KEY = "nfoifsb.googleUser";
+const AUTH_EVENT_KEY = "nfoifsb.authEvent";
 
-let googleScriptPromise;
+let sessionUser = null;
 
 function fallbackCopy(text) {
   const textarea = document.createElement("textarea");
@@ -111,12 +102,6 @@ async function refreshStatus() {
   }
 }
 
-function setLoginMessage(message, tone = "info") {
-  if (!loginMessage) return;
-  loginMessage.textContent = message;
-  loginMessage.classList.toggle("is-error", tone === "error");
-}
-
 function readStoredUser() {
   try {
     const raw = localStorage.getItem(AUTH_STORAGE_KEY);
@@ -126,190 +111,73 @@ function readStoredUser() {
   }
 }
 
-function writeStoredUser(user) {
-  try {
-    localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(user));
-  } catch {
-    // The UI still works when storage is unavailable.
-  }
-}
+function renderAuthState(user = sessionUser || readStoredUser()) {
+  if (!loginButton) return;
 
-function clearStoredUser() {
-  try {
-    localStorage.removeItem(AUTH_STORAGE_KEY);
-    localStorage.removeItem("nfoifsb.nickname");
-  } catch {
-    // Sign-out still updates this session even if storage is unavailable.
-  }
-}
-
-function decodeJwtPayload(token) {
-  const payload = token.split(".")[1];
-  if (!payload) throw new Error("Missing Google credential payload.");
-
-  const base64 = payload.replace(/-/g, "+").replace(/_/g, "/");
-  const padded = base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), "=");
-  const bytes = Uint8Array.from(atob(padded), (char) => char.charCodeAt(0));
-  return JSON.parse(new TextDecoder().decode(bytes));
-}
-
-function getGoogleUserFromCredential(credential) {
-  const payload = decodeJwtPayload(credential);
-  if (payload.aud !== googleClientId) throw new Error("Google credential audience mismatch.");
-  if (Number(payload.exp) * 1000 < Date.now()) throw new Error("Google credential expired.");
-
-  return {
-    email: payload.email || "",
-    name: payload.name || payload.email || "Google 사용자",
-    picture: payload.picture || "",
-    sub: payload.sub || "",
-    signedInAt: new Date().toISOString(),
-  };
-}
-
-function renderGoogleFallback(label) {
-  if (!googleLoginSlot) return;
-  const button = document.createElement("button");
-  button.className = "google-login-fallback";
-  button.type = "button";
-  button.disabled = true;
-  button.textContent = label;
-  googleLoginSlot.replaceChildren(button);
-}
-
-function renderAuthState(user) {
   if (user) {
     const displayName = user.name || user.email || "Google 사용자";
     loginButton.textContent = displayName;
     loginButton.classList.add("is-authenticated");
-    loginButton.setAttribute("aria-label", `${displayName} 계정 정보 열기`);
-
-    if (loginProfile) loginProfile.hidden = false;
-    if (loginProfileName) loginProfileName.textContent = displayName;
-    if (loginProfileEmail) loginProfileEmail.textContent = user.email || "";
-
-    if (loginAvatar) {
-      loginAvatar.hidden = !user.picture;
-      if (user.picture) loginAvatar.setAttribute("src", user.picture);
-    }
-
-    if (googleLogoutButton) googleLogoutButton.hidden = false;
-    setLoginMessage(`${displayName} 계정으로 로그인되어 있습니다.`);
+    loginButton.setAttribute("aria-label", `${displayName} 로그인 창 열기`);
     return;
   }
 
   loginButton.textContent = "로그인";
   loginButton.classList.remove("is-authenticated");
   loginButton.setAttribute("aria-label", "로그인");
-  if (loginProfile) loginProfile.hidden = true;
-  if (loginAvatar) {
-    loginAvatar.hidden = true;
-    loginAvatar.removeAttribute("src");
+}
+
+function openLoginWindow(event) {
+  const width = 460;
+  const height = 720;
+  const left = Math.max(0, Math.round(window.screenX + (window.outerWidth - width) / 2));
+  const top = Math.max(0, Math.round(window.screenY + (window.outerHeight - height) / 2));
+  const features = `popup=yes,width=${width},height=${height},left=${left},top=${top}`;
+  const popup = window.open(LOGIN_URL, "nfoifsb-login", features);
+
+  if (popup) {
+    event?.preventDefault();
+    popup.focus();
   }
-  if (loginProfileName) loginProfileName.textContent = "";
-  if (loginProfileEmail) loginProfileEmail.textContent = "";
-  if (googleLogoutButton) googleLogoutButton.hidden = true;
-  setLoginMessage("Google 계정으로 로그인해 주세요.");
 }
 
-function loadGoogleIdentityScript() {
-  if (window.google?.accounts?.id) return Promise.resolve();
-  if (googleScriptPromise) return googleScriptPromise;
-
-  googleScriptPromise = new Promise((resolve, reject) => {
-    const script = document.createElement("script");
-    script.src = GOOGLE_SCRIPT_SRC;
-    script.async = true;
-    script.defer = true;
-    script.onload = () => resolve();
-    script.onerror = () => reject(new Error("Google Identity Services script failed to load."));
-    document.head.appendChild(script);
-  }).then(() => {
-    if (!window.google?.accounts?.id) {
-      throw new Error("Google Identity Services is unavailable.");
-    }
-  });
-
-  return googleScriptPromise;
-}
-
-function renderGoogleButton() {
-  if (!googleLoginSlot || !window.google?.accounts?.id) return;
-
-  googleLoginSlot.replaceChildren();
-  window.google.accounts.id.initialize({
-    client_id: googleClientId,
-    callback: (response) => {
-      try {
-        const user = getGoogleUserFromCredential(response.credential);
-        writeStoredUser(user);
-        renderAuthState(user);
-        window.setTimeout(() => loginDialog?.close(), 650);
-      } catch {
-        setLoginMessage("Google 로그인 정보를 확인하지 못했습니다. 다시 시도해 주세요.", "error");
-      }
-    },
-    auto_select: false,
-  });
-
-  const slotWidth = Math.round(googleLoginSlot.getBoundingClientRect().width || 320);
-  const buttonWidth = Math.min(360, Math.max(260, slotWidth));
-  window.google.accounts.id.renderButton(googleLoginSlot, {
-    type: "standard",
-    theme: "outline",
-    size: "large",
-    shape: "pill",
-    text: "signin_with",
-    logo_alignment: "left",
-    locale: "ko",
-    width: buttonWidth,
-  });
-}
-
-function initGoogleLogin() {
-  const savedUser = readStoredUser();
-  renderAuthState(savedUser);
-
-  if (!googleClientId) {
-    renderGoogleFallback("Google 로그인 설정 필요");
-    setLoginMessage("VITE_GOOGLE_CLIENT_ID를 설정하면 Google 로그인이 활성화됩니다.", "error");
-    return;
+function applyAuthEvent(eventData) {
+  if (eventData?.type === "login") {
+    sessionUser = eventData.user || null;
+  } else if (eventData?.type === "logout") {
+    sessionUser = null;
   }
 
-  loadGoogleIdentityScript()
-    .then(renderGoogleButton)
-    .catch(() => {
-      renderGoogleFallback("Google 로그인 로드 실패");
-      setLoginMessage("Google 로그인 버튼을 불러오지 못했습니다.", "error");
-    });
+  renderAuthState();
 }
 
 function initLogin() {
-  if (!loginDialog || !loginPanel || !loginButton) return;
+  if (!loginButton) return;
 
-  loginButton.addEventListener("click", () => {
-    if (typeof loginDialog.showModal === "function") {
-      loginDialog.showModal();
-    } else {
-      loginDialog.setAttribute("open", "");
+  renderAuthState();
+  loginButton.addEventListener("click", openLoginWindow);
+
+  window.addEventListener("message", (event) => {
+    if (event.origin !== window.location.origin) return;
+    if (event.data?.source !== "nfoifsb-login") return;
+    applyAuthEvent(event.data);
+  });
+
+  window.addEventListener("storage", (event) => {
+    if (event.key === AUTH_STORAGE_KEY) {
+      if (event.newValue) sessionUser = null;
+      renderAuthState();
+      return;
+    }
+
+    if (event.key === AUTH_EVENT_KEY && event.newValue) {
+      try {
+        applyAuthEvent(JSON.parse(event.newValue));
+      } catch {
+        renderAuthState();
+      }
     }
   });
-
-  document.querySelector("[data-close-login]")?.addEventListener("click", () => {
-    loginDialog.close();
-  });
-
-  loginDialog.addEventListener("click", (event) => {
-    if (event.target === loginDialog) loginDialog.close();
-  });
-
-  googleLogoutButton?.addEventListener("click", () => {
-    window.google?.accounts?.id?.disableAutoSelect();
-    clearStoredUser();
-    renderAuthState(null);
-  });
-
-  initGoogleLogin();
 }
 
 function initTheme() {

@@ -9,7 +9,8 @@
 - Three.js 기반 3D 마인크래프트 히어로 씬 (Data Saver / 모션 최소화 시 자동 폴백)
 - mcstatus.io API 실시간 서버 상태 (접속자 수, 버전, 온라인 표시)
 - 서버 주소 클립보드 복사 (`복사됨 ✓` 피드백)
-- Google 계정 로그인 UI (Google Identity Services, localStorage 프로필 기억)
+- 새 창으로 열리는 로그인 전용 화면 (`login.html`)
+- Google 계정 로그인 UI, 회원가입/비밀번호 찾기/자동 로그인 버튼
 - 스크롤 등장 애니메이션, hover 인터랙션, 모바일 햄버거 메뉴
 - 접근성: `prefers-reduced-motion` 존중, 키보드 포커스 링, 본문 건너뛰기 링크
 - SEO/공유: Open Graph · Twitter Card · JSON-LD 메타
@@ -51,7 +52,7 @@ Copy-Item .env.example .env
 VITE_GOOGLE_CLIENT_ID=your-google-oauth-client-id.apps.googleusercontent.com
 ```
 
-현재 사이트는 정적 프론트엔드라 Google ID 토큰을 브라우저에서 받아 프로필 표시용으로만 사용합니다. 서버 API와 연결해 권한 처리를 할 경우에는 서버에서 ID 토큰 서명을 검증해야 합니다.
+현재 사이트는 정적 프론트엔드라 Google ID 토큰과 일반 로그인 폼 입력을 브라우저 표시용으로만 사용합니다. 서버 API와 연결해 권한 처리를 할 경우에는 서버에서 ID 토큰 서명과 계정 정보를 검증해야 합니다.
 
 ## 빌드
 

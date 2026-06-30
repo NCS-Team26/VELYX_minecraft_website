@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex" />
+    <meta name="theme-color" content="#122218" />
+    <link rel="icon" type="image/png" href="/assets/server-icon.png" />
+    <title>로그인 - nfoifsb.kr</title>
+  </head>
+  <body>
+    <main class="auth-page" aria-labelledby="auth-title">
+      <section class="auth-panel">
+        <a class="auth-brand" href="/" aria-label="nfoifsb.kr 메인으로 이동">
+          <img src="/assets/server-icon.png" alt="" />
+          <span>nfoifsb.kr</span>
+        </a>
+
+        <div class="auth-heading">
+          <p class="auth-eyebrow">Player account</p>
+          <h1 id="auth-title" data-auth-title>로그인</h1>
+          <p data-auth-copy>서버 웹사이트에서 사용할 계정으로 로그인하세요.</p>
+        </div>
+
+        <div class="auth-profile" data-auth-profile hidden>
+          <img class="auth-avatar" src="" alt="" referrerpolicy="no-referrer" data-auth-avatar hidden />
+          <div>
+            <strong data-auth-name></strong>
+            <span data-auth-email></span>
+          </div>
+          <button class="auth-ghost" type="button" data-signout>로그아웃</button>
+        </div>
+
+        <form class="auth-form" data-auth-view="login" data-login-form>
+          <label>
+            <span>이메일</span>
+            <input name="email" type="email" autocomplete="email" placeholder="player@example.com" required />
+          </label>
+          <label>
+            <span>비밀번호</span>
+            <input
+              name="password"
+              type="password"
+              autocomplete="current-password"
+              placeholder="비밀번호 입력"
+              required
+            />
+          </label>
+          <button class="auto-login-button" type="button" aria-pressed="false" data-auto-login>
+            자동 로그인 꺼짐
+          </button>
+          <button class="auth-primary" type="submit">로그인</button>
+        </form>
+
+        <form class="auth-form" data-auth-view="signup" data-signup-form hidden>
+          <label>
+            <span>닉네임</span>
+            <input name="nickname" type="text" autocomplete="nickname" placeholder="마크 닉네임" required />
+          </label>
+          <label>
+            <span>이메일</span>
+            <input name="email" type="email" autocomplete="email" placeholder="player@example.com" required />
+          </label>
+          <label>
+            <span>비밀번호</span>
+            <input name="password" type="password" autocomplete="new-password" placeholder="비밀번호 만들기" required />
+          </label>
+          <button class="auth-primary" type="submit">회원가입</button>
+        </form>
+
+        <form class="auth-form" data-auth-view="reset" data-reset-form hidden>
+          <label>
+            <span>가입한 이메일</span>
+            <input name="email" type="email" autocomplete="email" placeholder="player@example.com" required />
+          </label>
+          <button class="auth-primary" type="submit">비밀번호 찾기</button>
+        </form>
+
+        <div class="auth-secondary-actions" aria-label="계정 작업">
+          <button type="button" data-mode-button="signup">회원가입</button>
+          <button type="button" data-mode-button="reset">비밀번호 찾기</button>
+          <button type="button" data-mode-button="login" hidden>로그인으로 돌아가기</button>
+        </div>
+
+        <div class="auth-divider"><span>또는</span></div>
+        <div class="google-login-slot" data-google-login></div>
+        <p class="auth-message" data-auth-message>Google 로그인 버튼을 준비하고 있습니다.</p>
+      </section>
+    </main>
+    <script type="module" src="/src/login.js"></script>
+  </body>
+</html>
