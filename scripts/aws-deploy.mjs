@@ -280,8 +280,8 @@ function objectKey(root, file) {
 }
 
 function cacheControl(key) {
-  if (key === "index.html") return "no-cache,no-store,must-revalidate";
-  if (/^assets\/index-[A-Za-z0-9_-]+\.(css|js)$/.test(key)) {
+  if (key.endsWith(".html")) return "no-cache,no-store,must-revalidate";
+  if (/^assets\/.+-[A-Za-z0-9_-]+\.(css|js)$/.test(key)) {
     return "public,max-age=31536000,immutable";
   }
   return "public,max-age=3600";

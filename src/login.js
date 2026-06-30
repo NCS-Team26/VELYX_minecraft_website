@@ -78,7 +78,7 @@ function renderAutoLogin() {
   if (!autoLoginButton) return;
   const enabled = readAutoLogin();
   autoLoginButton.setAttribute("aria-pressed", String(enabled));
-  autoLoginButton.textContent = enabled ? "자동 로그인 켜짐" : "자동 로그인 꺼짐";
+  autoLoginButton.setAttribute("aria-label", enabled ? "자동 로그인 끄기" : "자동 로그인 켜기");
 }
 
 function readStoredUser() {

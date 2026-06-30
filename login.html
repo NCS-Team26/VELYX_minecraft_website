@@ -46,9 +46,16 @@
               required
             />
           </label>
-          <button class="auto-login-button" type="button" aria-pressed="false" data-auto-login>
-            자동 로그인 꺼짐
-          </button>
+          <div class="auto-login-row">
+            <button
+              class="auto-login-button"
+              type="button"
+              aria-label="자동 로그인 켜기"
+              aria-pressed="false"
+              data-auto-login
+            ></button>
+            <span>자동 로그인</span>
+          </div>
           <button class="auth-primary" type="submit">로그인</button>
         </form>
 

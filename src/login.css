@@ -197,7 +197,6 @@ a {
 
 .auth-primary,
 .auth-ghost,
-.auto-login-button,
 .auth-secondary-actions button,
 .google-login-fallback {
   min-height: 42px;
@@ -216,8 +215,7 @@ a {
 }
 
 .auth-ghost,
-.auth-secondary-actions button,
-.auto-login-button {
+.auth-secondary-actions button {
   color: var(--text);
   background: var(--field);
   border: 1px solid var(--border);
@@ -229,15 +227,44 @@ a {
   font-size: 13px;
 }
 
-.auto-login-button {
-  width: 100%;
+.auto-login-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  width: fit-content;
+  min-height: 30px;
   color: var(--text-soft);
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.auto-login-button {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  min-height: 0;
+  border-radius: 6px;
+  color: #07140d;
+  background: var(--field);
+  border: 1px solid var(--border);
+  cursor: pointer;
 }
 
 .auto-login-button[aria-pressed="true"] {
-  color: #07140d;
-  background: linear-gradient(180deg, #93d2ff, var(--blue));
+  background: linear-gradient(180deg, #9be6ad, var(--green));
   border-color: transparent;
+  box-shadow: 0 8px 16px rgba(55, 194, 102, 0.18);
+}
+
+.auto-login-button[aria-pressed="true"]::after {
+  content: "";
+  width: 10px;
+  height: 6px;
+  border-left: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: translateY(-1px) rotate(-45deg);
 }
 
 .auth-secondary-actions {
@@ -327,17 +354,24 @@ input:focus-visible {
 
 .auth-primary:hover,
 .auth-ghost:hover,
-.auto-login-button:hover,
 .auth-secondary-actions button:hover {
   transform: translateY(-2px);
   filter: brightness(1.06);
 }
 
+.auto-login-button:hover {
+  border-color: rgba(155, 230, 173, 0.7);
+  filter: brightness(1.08);
+}
+
 .auth-primary:active,
 .auth-ghost:active,
-.auto-login-button:active,
 .auth-secondary-actions button:active {
   transform: translateY(0);
+}
+
+.auto-login-button:active {
+  transform: scale(0.94);
 }
 
 @media (max-width: 460px) {

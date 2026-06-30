@@ -96,6 +96,29 @@ npm run deploy:aws
 https://<cloudfront_domain_name>
 ```
 
+## GitHub Actions 자동 배포
+
+`.github/workflows/deploy-aws.yml` 워크플로가 `main` 브랜치에 push될 때 자동으로 `npm run deploy:aws`를 실행합니다. GitHub의 `Settings` > `Secrets and variables` > `Actions`에 아래 Repository secrets를 등록해야 합니다.
+
+필수:
+
+```text
+AWS_ACCESS_KEY_ID
+AWS_SECRET_ACCESS_KEY
+```
+
+선택:
+
+```text
+AWS_REGION              # 기본값: ap-northeast-2
+VITE_GOOGLE_CLIENT_ID   # Google 로그인 버튼 활성화
+SITE_BUCKET             # 고정 S3 버킷명을 쓰고 싶을 때
+SITE_DOMAIN             # 예: www.nfoifsb.kr
+CERTIFICATE_ARN         # SITE_DOMAIN 사용 시 필수, us-east-1 ACM 인증서 ARN
+```
+
+수동으로 다시 배포하고 싶으면 GitHub `Actions` 탭에서 `Deploy website to AWS` 워크플로를 `Run workflow`로 실행할 수 있습니다.
+
 ## www.nfoifsb.kr 연결
 
 `www.nfoifsb.kr`까지 붙이려면 CloudFront용 ACM 인증서가 필요합니다. 인증서는 반드시 `us-east-1` 리전에 만들어야 합니다.
