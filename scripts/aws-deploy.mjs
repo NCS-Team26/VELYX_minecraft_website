@@ -146,7 +146,10 @@ async function findDistribution() {
   do {
     const page = await cloudfront.send(new ListDistributionsCommand({ Marker: marker }));
     const items = page.DistributionList?.Items || [];
-    const found = items.find((item) => item.Comment === distributionComment);
+    const found = items.find((item) => {
+      const aliases = item.Aliases?.Items || [];
+      return (siteDomain && aliases.includes(siteDomain)) || item.Comment === distributionComment;
+    });
     if (found) return found;
     marker = page.DistributionList?.NextMarker;
   } while (marker);

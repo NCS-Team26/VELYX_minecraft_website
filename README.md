@@ -109,11 +109,11 @@ arn:aws:iam::358982198253:role/GitHubActionsMincraftServerWebsiteDeployRole
 선택:
 
 ```text
-AWS_REGION              # 기본값: ap-northeast-2
+AWS_REGION              # 기본값: ap-northeast-1
 VITE_GOOGLE_CLIENT_ID   # Google 로그인 버튼 활성화
-SITE_BUCKET             # 기본값: nfoifsb-minecraft-site-358982198253
-SITE_DOMAIN             # 예: www.nfoifsb.kr
-CERTIFICATE_ARN         # SITE_DOMAIN 사용 시 필수, us-east-1 ACM 인증서 ARN
+SITE_BUCKET             # 기본값: menhera-minecraft-server-website
+SITE_DOMAIN             # 기본값: www.nfoifsb.kr
+CERTIFICATE_ARN         # 기본값: www.nfoifsb.kr용 us-east-1 ACM 인증서 ARN
 ```
 
 `SITE_BUCKET`을 기본값이 아닌 이름으로 바꾸려면 AWS IAM Role 정책의 S3 bucket ARN도 같이 바꿔야 합니다.
