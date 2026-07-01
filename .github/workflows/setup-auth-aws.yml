@@ -1,18 +1,15 @@
-name: Deploy website to AWS
+name: Setup auth backend on AWS
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
 
 concurrency:
-  group: aws-production-deploy
+  group: aws-auth-setup
   cancel-in-progress: false
 
 jobs:
-  deploy:
-    name: Build and deploy
+  setup-auth:
+    name: Create auth DB/API
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -21,11 +18,10 @@ jobs:
     env:
       AWS_REGION: ${{ secrets.AWS_REGION || 'ap-northeast-1' }}
       AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION || 'ap-northeast-1' }}
-      CERTIFICATE_ARN: ${{ secrets.CERTIFICATE_ARN || 'arn:aws:acm:us-east-1:358982198253:certificate/4ee2b26e-b3fb-4856-84c4-62030cb5ce62' }}
-      SITE_BUCKET: ${{ secrets.SITE_BUCKET || 'menhera-minecraft-server-website' }}
       SITE_DOMAIN: ${{ secrets.SITE_DOMAIN || 'www.nfoifsb.kr' }}
-      VITE_GOOGLE_CLIENT_ID: ${{ secrets.VITE_GOOGLE_CLIENT_ID }}
-      VITE_AUTH_API_BASE: ${{ secrets.VITE_AUTH_API_BASE }}
+      AUTH_STACK_NAME: ${{ secrets.AUTH_STACK_NAME || 'nfoifsb-auth' }}
+      AUTH_ALLOWED_ORIGINS: ${{ secrets.AUTH_ALLOWED_ORIGINS || 'https://www.nfoifsb.kr,http://127.0.0.1:5173,http://localhost:5173' }}
+      AUTH_PEPPER: ${{ secrets.AUTH_PEPPER }}
 
     steps:
       - name: Checkout repository
@@ -46,13 +42,20 @@ jobs:
           role-to-assume: arn:aws:iam::358982198253:role/GitHubActionsMincraftServerWebsiteDeployRole
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Build and deploy to AWS
-        run: npm run deploy:aws
+      - name: Create or update auth backend
+        run: npm run auth:setup:aws
 
-      - name: Upload deploy output
+      - name: Show Vite auth env
+        run: |
+          echo "Add this value as the VITE_AUTH_API_BASE repository secret before production deploy:" >> "$GITHUB_STEP_SUMMARY"
+          cat .env.auth.generated >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload auth setup output
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: deploy-output
-          path: deploy-output.json
+          name: auth-output
+          path: |
+            auth-output.json
+            .env.auth.generated
           if-no-files-found: ignore

@@ -10,7 +10,7 @@
 - mcstatus.io API 실시간 서버 상태 (접속자 수, 버전, 온라인 표시)
 - 서버 주소 클립보드 복사 (`복사됨 ✓` 피드백)
 - 같은 탭에서 열리는 로그인 전용 화면 (`login.html`)
-- Google 계정 로그인 UI, 회원가입/비밀번호 찾기/자동 로그인 버튼
+- Google 계정 로그인 UI, DB 기반 회원가입/로그인/비밀번호 찾기, 자동 로그인 버튼
 - 로그인 후 캐릭터 인증, 인벤토리 확인 UI, Minecraft Player API 연동
 - 스크롤 등장 애니메이션, hover 인터랙션, 모바일 햄버거 메뉴
 - 접근성: `prefers-reduced-motion` 존중, 키보드 포커스 링, 본문 건너뛰기 링크
@@ -54,6 +54,26 @@ VITE_GOOGLE_CLIENT_ID=your-google-oauth-client-id.apps.googleusercontent.com
 ```
 
 현재 사이트는 정적 프론트엔드라 Google ID 토큰과 일반 로그인 폼 입력을 브라우저 표시용으로만 사용합니다. 서버 API와 연결해 권한 처리를 할 경우에는 서버에서 ID 토큰 서명과 계정 정보를 검증해야 합니다.
+
+## 회원가입 DB와 보안 설정
+
+실제 회원가입은 브라우저에 DB 키를 넣지 않고 AWS Lambda API를 통해 처리합니다.
+
+```powershell
+npm run auth:setup:aws
+```
+
+이 스크립트는 DynamoDB 사용자 테이블, Lambda 함수, IAM 권한, HTTP API Gateway를 생성하거나 업데이트합니다. 비밀번호는 Lambda에서 PBKDF2-SHA256, 사용자별 salt, Lambda 환경변수의 `AUTH_PEPPER`로 해시되어 저장됩니다. DynamoDB는 서버 측 암호화가 켜지고, Lambda에는 해당 테이블 접근 권한만 부여됩니다.
+
+로컬에서 AWS 자격 증명이 없다면 GitHub Actions의 `Setup auth backend on AWS` 워크플로를 수동 실행할 수 있습니다. 실행 후 출력되는 값을 Repository secret에 넣습니다.
+
+```text
+VITE_AUTH_API_BASE=https://<api-id>.execute-api.<region>.amazonaws.com
+```
+
+프론트엔드는 `VITE_AUTH_API_BASE`가 있으면 실제 API로 회원가입/로그인을 처리합니다. 이 값은 공개 API URL이며, DB 키나 pepper 같은 비밀값은 절대 `VITE_*` 환경변수에 넣지 마세요.
+
+자세한 API 형식은 `docs/auth-api.md`를 참고하세요.
 
 ## 캐릭터 인증과 인벤토리 API
 

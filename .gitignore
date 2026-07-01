@@ -11,3 +11,4 @@ terraform.tfstate.backup
 vite-dev*.log
 source-assets
 deploy-output.json
+auth-output.json

@@ -7,9 +7,12 @@ const PLAYER_PROFILES_KEY = "nfoifsb.playerProfiles";
 const PLAYER_INVENTORY_CACHE_KEY = "nfoifsb.playerInventoryCache";
 const GOOGLE_SCRIPT_SRC = "https://accounts.google.com/gsi/client";
 const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
+const authApiBase = (import.meta.env.VITE_AUTH_API_BASE || "").replace(/\/$/, "");
 const playerApiBase = (import.meta.env.VITE_PLAYER_API_BASE || "").replace(/\/$/, "");
+const isLocalHost = ["localhost", "127.0.0.1", "::1"].includes(window.location.hostname);
 const allowLocalPlayerPreview =
-  !playerApiBase && ["localhost", "127.0.0.1", "::1"].includes(window.location.hostname);
+  !playerApiBase && isLocalHost;
+const allowLocalAuthPreview = !authApiBase && isLocalHost;
 
 const title = document.querySelector("[data-auth-title]");
 const copy = document.querySelector("[data-auth-copy]");
@@ -185,6 +188,7 @@ function renderAuthState(user = readStoredUser()) {
   if (!user) {
     renderSignedInControls(false);
     profile.hidden = true;
+    profile.classList.remove("has-avatar");
     if (avatar) {
       avatar.hidden = true;
       avatar.removeAttribute("src");
@@ -198,6 +202,7 @@ function renderAuthState(user = readStoredUser()) {
   renderSignedInControls(true);
   const displayName = user.name || user.email || "로그인 사용자";
   profile.hidden = false;
+  profile.classList.toggle("has-avatar", Boolean(user.picture));
   if (title) title.textContent = "계정 연결됨";
   if (copy) copy.textContent = "인증한 계정으로 캐릭터 정보를 확인할 수 있습니다.";
   if (profileName) profileName.textContent = displayName;
@@ -249,6 +254,38 @@ function createLocalUser({ email, name, provider }) {
     provider,
     signedInAt: new Date().toISOString(),
   };
+}
+
+function authUserFromResponse(payload) {
+  const user = payload?.user || {};
+  return {
+    email: user.email || "",
+    name: user.name || user.email || "로그인 사용자",
+    picture: user.picture || "",
+    provider: user.provider || "site",
+    signedInAt: user.signedInAt || new Date().toISOString(),
+    sessionToken: payload?.session?.token || "",
+    sessionExpiresAt: payload?.session?.expiresAt || "",
+  };
+}
+
+async function postAuth(path, body) {
+  if (!authApiBase) {
+    throw new Error("회원가입 API가 아직 연결되지 않았습니다.");
+  }
+
+  const response = await fetch(`${authApiBase}${path}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(payload?.message || "요청을 처리하지 못했습니다.");
+  }
+  return payload;
 }
 
 function clearPasswordFields(form) {
@@ -799,7 +836,7 @@ modeButtons.forEach((button) => {
   });
 });
 
-loginForm?.addEventListener("submit", (event) => {
+loginForm?.addEventListener("submit", async (event) => {
   event.preventDefault();
   const formData = new FormData(loginForm);
   const email = String(formData.get("email") || "").trim();
@@ -810,14 +847,28 @@ loginForm?.addEventListener("submit", (event) => {
     return;
   }
 
-  const user = createLocalUser({ email, name: email.split("@")[0], provider: "site" });
-  persistUser(user);
-  renderAuthState(user);
-  clearPasswordFields(loginForm);
-  setMessage("로그인되었습니다.", "success");
+  try {
+    const user = authApiBase
+      ? authUserFromResponse(await postAuth("/auth/login", { email, password }))
+      : allowLocalAuthPreview
+        ? createLocalUser({ email, name: email.split("@")[0], provider: "site-preview" })
+        : null;
+
+    if (!user) {
+      setMessage("회원가입 API 설정이 필요합니다. VITE_AUTH_API_BASE를 연결해 주세요.", "error");
+      return;
+    }
+
+    persistUser(user);
+    renderAuthState(user);
+    clearPasswordFields(loginForm);
+    setMessage("로그인되었습니다.", "success");
+  } catch (error) {
+    setMessage(error.message || "로그인하지 못했습니다.", "error");
+  }
 });
 
-signupForm?.addEventListener("submit", (event) => {
+signupForm?.addEventListener("submit", async (event) => {
   event.preventDefault();
   const formData = new FormData(signupForm);
   const nickname = String(formData.get("nickname") || "").trim();
@@ -829,15 +880,34 @@ signupForm?.addEventListener("submit", (event) => {
     return;
   }
 
-  const user = createLocalUser({ email, name: nickname, provider: "site" });
-  persistUser(user);
-  renderAuthState(user);
-  signupForm.reset();
-  setMode("login");
-  setMessage("회원가입 후 로그인되었습니다.", "success");
+  if (password.length < 8) {
+    setMessage("비밀번호는 8자 이상으로 입력해 주세요.", "error");
+    return;
+  }
+
+  try {
+    const user = authApiBase
+      ? authUserFromResponse(await postAuth("/auth/signup", { nickname, email, password }))
+      : allowLocalAuthPreview
+        ? createLocalUser({ email, name: nickname, provider: "site-preview" })
+        : null;
+
+    if (!user) {
+      setMessage("회원가입 API 설정이 필요합니다. VITE_AUTH_API_BASE를 연결해 주세요.", "error");
+      return;
+    }
+
+    persistUser(user);
+    signupForm.reset();
+    setMode("login");
+    renderAuthState(user);
+    setMessage("회원가입 후 로그인되었습니다.", "success");
+  } catch (error) {
+    setMessage(error.message || "회원가입하지 못했습니다.", "error");
+  }
 });
 
-resetForm?.addEventListener("submit", (event) => {
+resetForm?.addEventListener("submit", async (event) => {
   event.preventDefault();
   const formData = new FormData(resetForm);
   const email = String(formData.get("email") || "").trim();
@@ -847,7 +917,17 @@ resetForm?.addEventListener("submit", (event) => {
     return;
   }
 
-  setMessage(`${email} 주소로 비밀번호 재설정 요청을 준비했습니다.`, "success");
+  try {
+    if (authApiBase) {
+      await postAuth("/auth/reset", { email });
+    } else if (!allowLocalAuthPreview) {
+      setMessage("회원가입 API 설정이 필요합니다. VITE_AUTH_API_BASE를 연결해 주세요.", "error");
+      return;
+    }
+    setMessage(`${email} 주소로 비밀번호 재설정 요청을 준비했습니다.`, "success");
+  } catch (error) {
+    setMessage(error.message || "비밀번호 재설정 요청을 처리하지 못했습니다.", "error");
+  }
 });
 
 signoutButton?.addEventListener("click", () => {
