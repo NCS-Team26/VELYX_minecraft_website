@@ -1,6 +1,9 @@
 name: Deploy website to AWS
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       allow_aws_costs:
@@ -28,14 +31,14 @@ jobs:
       SITE_DOMAIN: ${{ secrets.SITE_DOMAIN || 'www.nfoifsb.kr' }}
       VITE_GOOGLE_CLIENT_ID: ${{ secrets.VITE_GOOGLE_CLIENT_ID }}
       VITE_AUTH_API_BASE: ${{ secrets.VITE_AUTH_API_BASE }}
-      ALLOW_AWS_COSTS: ${{ inputs.allow_aws_costs }}
+      ALLOW_AWS_COSTS: ${{ github.event_name == 'workflow_dispatch' && inputs.allow_aws_costs || '1' }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Stop unless AWS costs are explicitly allowed
-        if: ${{ inputs.allow_aws_costs != '1' }}
+        if: ${{ env.ALLOW_AWS_COSTS != '1' }}
         run: |
           echo "AWS deploy is blocked. Re-run with allow_aws_costs=1 only when intentional."
           exit 1
