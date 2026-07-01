@@ -266,14 +266,91 @@ function initTheme() {
   const toggles = document.querySelectorAll("[data-theme-toggle]");
   if (!toggles.length) return;
 
+  const presets = [
+    {
+      id: "forest",
+      label: "숲",
+      meta: "#0d1411",
+      swatchA: "#13221a",
+      swatchB: "#93e2a6",
+    },
+    {
+      id: "cave",
+      label: "동굴",
+      meta: "#101111",
+      swatchA: "#151716",
+      swatchB: "#94d7c8",
+    },
+    {
+      id: "amethyst",
+      label: "자수정",
+      meta: "#16121c",
+      swatchA: "#241d2d",
+      swatchB: "#c6a6ff",
+    },
+    {
+      id: "ember",
+      label: "불빛",
+      meta: "#17130f",
+      swatchA: "#241b14",
+      swatchB: "#ffb06a",
+    },
+    {
+      id: "ocean",
+      label: "바다",
+      meta: "#0d171a",
+      swatchA: "#17282d",
+      swatchB: "#76dbe4",
+    },
+  ];
+  const presetById = new Map(presets.map((preset) => [preset.id, preset]));
   const root = document.documentElement;
   const systemDark = window.matchMedia("(prefers-color-scheme: dark)");
+  let savedPreset = "";
+  try {
+    savedPreset = localStorage.getItem("nfoifsb.themePreset") || "";
+  } catch {
+    savedPreset = "";
+  }
+  let activePreset = presetById.has(savedPreset) ? savedPreset : "forest";
   const resolved = () =>
     root.getAttribute("data-theme") || (systemDark.matches ? "dark" : "light");
+
+  const ensurePalette = () => {
+    document.querySelectorAll(".footer-theme-row").forEach((row) => {
+      if (row.querySelector("[data-theme-palette]")) return;
+
+      const customizer = document.createElement("div");
+      customizer.className = "footer-theme-customizer";
+      customizer.dataset.themeCustomizer = "";
+
+      const label = document.createElement("span");
+      label.textContent = "색상";
+      customizer.append(label);
+
+      const palette = document.createElement("div");
+      palette.className = "theme-palette";
+      palette.dataset.themePalette = "";
+      presets.forEach((preset) => {
+        const button = document.createElement("button");
+        button.className = "theme-preset-button";
+        button.type = "button";
+        button.dataset.themePreset = preset.id;
+        button.style.setProperty("--swatch-a", preset.swatchA);
+        button.style.setProperty("--swatch-b", preset.swatchB);
+        button.setAttribute("aria-label", `${preset.label} 다크모드 색상`);
+        button.setAttribute("title", preset.label);
+        palette.append(button);
+      });
+      customizer.append(palette);
+      row.append(customizer);
+    });
+  };
 
   const sync = () => {
     const theme = resolved();
     const nextTheme = theme === "dark" ? "light" : "dark";
+    root.setAttribute("data-theme-preset", activePreset);
     toggles.forEach((toggle) => {
       toggle.dataset.theme = theme;
       toggle.setAttribute("aria-pressed", String(theme === "dark"));
@@ -289,12 +366,21 @@ function initTheme() {
           theme === "dark" ? "어두운 화면에서 밝은 화면으로 전환" : "밝은 화면에서 어두운 화면으로 전환";
       });
     });
+    document.querySelectorAll(".theme-preset-button[data-theme-preset]").forEach((button) => {
+      const pressed = button.dataset.themePreset === activePreset;
+      button.setAttribute("aria-pressed", String(pressed));
+    });
     document.querySelectorAll('meta[name="theme-color"]').forEach((m) => {
       // Drop the media filter so the pinned theme's color always wins.
       m.removeAttribute("media");
-      m.setAttribute("content", theme === "dark" ? "#0d1411" : "#f5f5f7");
+      m.setAttribute(
+        "content",
+        theme === "dark" ? presetById.get(activePreset)?.meta || "#0d1411" : "#f5f5f7",
+      );
     });
   };
+
+  ensurePalette();
 
   toggles.forEach((toggle) => {
     toggle.addEventListener("click", () => {
@@ -304,6 +390,23 @@ function initTheme() {
         localStorage.setItem("nfoifsb.theme", next);
       } catch {
         // Toggle still works for this session without persistence.
+      }
+      sync();
+    });
+  });
+
+  document.querySelectorAll(".theme-preset-button[data-theme-preset]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const nextPreset = button.dataset.themePreset;
+      if (!presetById.has(nextPreset)) return;
+      activePreset = nextPreset;
+      root.setAttribute("data-theme", "dark");
+      root.setAttribute("data-theme-preset", activePreset);
+      try {
+        localStorage.setItem("nfoifsb.theme", "dark");
+        localStorage.setItem("nfoifsb.themePreset", activePreset);
+      } catch {
+        // Palette still works for this session without persistence.
       }
       sync();
     });
