@@ -106,6 +106,7 @@ function renderStatusData(data, options = {}) {
 
   statusDot?.classList.toggle("is-online", online);
   statusDot?.classList.toggle("is-cached", Boolean(options.cached));
+  statusDot?.closest(".status-panel")?.classList.toggle("is-online", online);
   if (statusLabel) {
     statusLabel.textContent = options.cached ? "캐시된 상태" : online ? "온라인" : "오프라인";
   }
@@ -359,6 +360,18 @@ function initPageNavigation() {
   setActivePage(getCurrentPageKey());
 }
 
+function initAnimationStagger() {
+  const animatedGroups = document.querySelectorAll(
+    ".detail-grid, .plugin-grid, .feature-grid, .section-dashboard, .rules-list, .rules-tools, .join-steps, .stats-inner, .gallery-strip",
+  );
+
+  animatedGroups.forEach((group) => {
+    Array.from(group.children).forEach((child, index) => {
+      child.style.setProperty("--item-index", index);
+    });
+  });
+}
+
 function initScrollReveal() {
   const targets = document.querySelectorAll("[data-reveal]");
   if (!targets.length) return;
@@ -419,6 +432,7 @@ document.querySelectorAll("[data-copy-address]").forEach((button) => {
 initTheme();
 initNav();
 initPageNavigation();
+initAnimationStagger();
 initScrollReveal();
 initLogin();
 deferSceneLoad();
