@@ -1,5 +1,21 @@
 # Auth API
 
+The default development setup uses a local file-backed auth API so signup and
+login work without creating AWS resources.
+
+```powershell
+npm run dev:local
+```
+
+Local endpoints:
+
+```env
+VITE_AUTH_API_BASE=http://127.0.0.1:4174
+```
+
+Local auth data is stored in `.local/auth/` and is ignored by git. The local
+pepper key is generated on first run and is only for development.
+
 The website uses `VITE_AUTH_API_BASE` for real account signup and login.
 
 ```env
@@ -9,6 +25,15 @@ VITE_AUTH_API_BASE=https://api-id.execute-api.ap-northeast-1.amazonaws.com
 Do not put database keys or auth pepper values in Vite variables. `VITE_*` values are public in the browser.
 
 ## AWS Resources
+
+AWS setup is blocked by default so it cannot accidentally create billable
+resources. To intentionally use AWS, set `ALLOW_AWS_COSTS=1` for the command or
+GitHub Actions workflow run.
+
+```powershell
+$env:ALLOW_AWS_COSTS="1"
+npm run auth:setup:aws
+```
 
 `npm run auth:setup:aws` creates or updates:
 

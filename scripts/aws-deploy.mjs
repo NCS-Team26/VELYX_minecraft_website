@@ -1,3 +1,4 @@
+import { requireAwsCostOptIn } from "./require-aws-cost-opt-in.mjs";
 import {
   CloudFrontClient,
   CreateDistributionCommand,
@@ -30,6 +31,8 @@ import {
   writeFileSync,
 } from "node:fs";
 import { extname, join, relative, sep } from "node:path";
+
+requireAwsCostOptIn("AWS website deploy");
 
 const region = process.env.AWS_REGION || process.env.AWS_DEFAULT_REGION || "ap-northeast-2";
 const distDir = join(process.cwd(), "dist");

@@ -20,7 +20,7 @@
 
 ```powershell
 npm install
-npm run dev
+npm run dev:local
 ```
 
 로컬 주소:
@@ -28,6 +28,10 @@ npm run dev
 ```text
 http://127.0.0.1:5173/
 ```
+
+`npm run dev:local`은 사이트와 회원가입/로그인 로컬 API를 같이 실행합니다.
+회원가입 데이터와 로컬 pepper 키는 `.local/auth/`에 저장되고 git에는 올라가지 않습니다.
+AWS 리소스를 만들지 않으므로 이 개발 모드에서는 AWS 비용이 발생하지 않습니다.
 
 ## Google 로그인 설정
 
@@ -60,6 +64,14 @@ VITE_GOOGLE_CLIENT_ID=your-google-oauth-client-id.apps.googleusercontent.com
 실제 회원가입은 브라우저에 DB 키를 넣지 않고 AWS Lambda API를 통해 처리합니다.
 
 ```powershell
+npm run auth:setup:aws
+```
+
+AWS 생성/배포 명령은 기본적으로 막혀 있습니다. 정말 AWS 리소스를 만들 때만 아래처럼
+명시적으로 허용하세요.
+
+```powershell
+$env:ALLOW_AWS_COSTS="1"
 npm run auth:setup:aws
 ```
 

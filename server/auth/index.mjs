@@ -1,9 +1,14 @@
 import { createHmac, pbkdf2Sync, randomBytes, timingSafeEqual } from "node:crypto";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { dirname, join } from "node:path";
 import { DynamoDBClient, GetItemCommand, PutItemCommand, UpdateItemCommand } from "@aws-sdk/client-dynamodb";
 
 const client = new DynamoDBClient({});
 const tableName = process.env.USERS_TABLE;
-const authPepper = process.env.AUTH_PEPPER;
+const authStore = process.env.AUTH_STORE || (tableName ? "dynamodb" : "file");
+const authPepper = process.env.AUTH_PEPPER || (authStore === "file" ? "local-dev-pepper-change-before-production" : "");
+const localUsersFile =
+  process.env.AUTH_LOCAL_USERS_FILE || join(process.cwd(), ".local", "auth", "users.json");
 const sessionTtlSeconds = Number(process.env.SESSION_TTL_SECONDS || 60 * 60 * 24 * 14);
 const allowedOrigins = (process.env.AUTH_ALLOWED_ORIGINS || "")
   .split(",")
@@ -54,6 +59,20 @@ function userKey(email) {
   return `EMAIL#${email}`;
 }
 
+async function readLocalUsers() {
+  try {
+    return JSON.parse(await readFile(localUsersFile, "utf8"));
+  } catch (error) {
+    if (error.code === "ENOENT") return {};
+    throw error;
+  }
+}
+
+async function writeLocalUsers(users) {
+  await mkdir(dirname(localUsersFile), { recursive: true });
+  await writeFile(localUsersFile, `${JSON.stringify(users, null, 2)}\n`);
+}
+
 function hashPassword(password, salt) {
   return pbkdf2Sync(`${password}:${authPepper}`, salt, passwordIterations, 32, "sha256").toString("base64");
 }
@@ -85,6 +104,11 @@ function publicUser(item) {
 }
 
 async function getUser(email) {
+  if (authStore === "file") {
+    const users = await readLocalUsers();
+    return users[userKey(email)] || null;
+  }
+
   const result = await client.send(
     new GetItemCommand({
       TableName: tableName,
@@ -95,6 +119,56 @@ async function getUser(email) {
     }),
   );
   return result.Item || null;
+}
+
+async function putUser(item) {
+  if (authStore === "file") {
+    const users = await readLocalUsers();
+    const key = item.pk.S;
+    if (users[key]) {
+      const error = new Error("User already exists.");
+      error.name = "ConditionalCheckFailedException";
+      throw error;
+    }
+    users[key] = item;
+    await writeLocalUsers(users);
+    return;
+  }
+
+  await client.send(
+    new PutItemCommand({
+      TableName: tableName,
+      Item: item,
+      ConditionExpression: "attribute_not_exists(pk)",
+    }),
+  );
+}
+
+async function markResetRequested(email, requestedAt) {
+  if (authStore === "file") {
+    const users = await readLocalUsers();
+    const key = userKey(email);
+    if (users[key]) {
+      users[key].resetRequestedAt = { S: requestedAt };
+      users[key].updatedAt = { S: requestedAt };
+      await writeLocalUsers(users);
+    }
+    return;
+  }
+
+  await client.send(
+    new UpdateItemCommand({
+      TableName: tableName,
+      Key: {
+        pk: { S: userKey(email) },
+      },
+      UpdateExpression: "SET resetRequestedAt = :now",
+      ConditionExpression: "attribute_exists(pk)",
+      ExpressionAttributeValues: {
+        ":now": { S: requestedAt },
+      },
+    }),
+  );
 }
 
 async function handleSignup(body, origin) {
@@ -127,13 +201,7 @@ async function handleSignup(body, origin) {
   };
 
   try {
-    await client.send(
-      new PutItemCommand({
-        TableName: tableName,
-        Item: item,
-        ConditionExpression: "attribute_not_exists(pk)",
-      }),
-    );
+    await putUser(item);
   } catch (error) {
     if (error.name === "ConditionalCheckFailedException") {
       return response(409, { message: "이미 가입된 이메일입니다." }, origin);
@@ -176,19 +244,7 @@ async function handleReset(body, origin) {
 
   const now = new Date().toISOString();
   try {
-    await client.send(
-      new UpdateItemCommand({
-        TableName: tableName,
-        Key: {
-          pk: { S: userKey(email) },
-        },
-        UpdateExpression: "SET resetRequestedAt = :now",
-        ConditionExpression: "attribute_exists(pk)",
-        ExpressionAttributeValues: {
-          ":now": { S: now },
-        },
-      }),
-    );
+    await markResetRequested(email, now);
   } catch (error) {
     if (error.name !== "ConditionalCheckFailedException") throw error;
   }
@@ -205,7 +261,11 @@ export async function handler(event) {
     return response(204, {}, origin);
   }
 
-  if (!tableName || !authPepper) {
+  if (!["dynamodb", "file"].includes(authStore)) {
+    return response(500, { message: "Auth store is not supported." }, origin);
+  }
+
+  if ((authStore === "dynamodb" && !tableName) || !authPepper) {
     return response(500, { message: "Auth service is not configured." }, origin);
   }
 

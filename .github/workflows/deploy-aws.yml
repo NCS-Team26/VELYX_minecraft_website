@@ -1,10 +1,12 @@
 name: Deploy website to AWS
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
+    inputs:
+      allow_aws_costs:
+        description: "Type 1 to allow AWS resource updates and possible charges"
+        required: true
+        default: "0"
 
 concurrency:
   group: aws-production-deploy
@@ -26,10 +28,17 @@ jobs:
       SITE_DOMAIN: ${{ secrets.SITE_DOMAIN || 'www.nfoifsb.kr' }}
       VITE_GOOGLE_CLIENT_ID: ${{ secrets.VITE_GOOGLE_CLIENT_ID }}
       VITE_AUTH_API_BASE: ${{ secrets.VITE_AUTH_API_BASE }}
+      ALLOW_AWS_COSTS: ${{ inputs.allow_aws_costs }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Stop unless AWS costs are explicitly allowed
+        if: ${{ inputs.allow_aws_costs != '1' }}
+        run: |
+          echo "AWS deploy is blocked. Re-run with allow_aws_costs=1 only when intentional."
+          exit 1
 
       - name: Set up Node.js
         uses: actions/setup-node@v4

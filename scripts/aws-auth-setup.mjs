@@ -1,3 +1,4 @@
+import { requireAwsCostOptIn } from "./require-aws-cost-opt-in.mjs";
 import {
   ApiGatewayV2Client,
   CreateApiCommand,
@@ -31,6 +32,8 @@ import { GetCallerIdentityCommand, STSClient } from "@aws-sdk/client-sts";
 import { randomBytes } from "node:crypto";
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+
+requireAwsCostOptIn("AWS auth backend setup");
 
 const region = process.env.AWS_REGION || process.env.AWS_DEFAULT_REGION || "ap-northeast-2";
 const stackName = process.env.AUTH_STACK_NAME || "nfoifsb-auth";

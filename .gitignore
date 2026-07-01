@@ -3,6 +3,7 @@ dist
 .env
 .env.*
 !.env.example
+.local
 .terraform
 .terraform.lock.hcl
 terraform.tfstate

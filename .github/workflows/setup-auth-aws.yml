@@ -2,6 +2,11 @@ name: Setup auth backend on AWS
 
 on:
   workflow_dispatch:
+    inputs:
+      allow_aws_costs:
+        description: "Type 1 to allow AWS resource updates and possible charges"
+        required: true
+        default: "0"
 
 concurrency:
   group: aws-auth-setup
@@ -22,10 +27,17 @@ jobs:
       AUTH_STACK_NAME: ${{ secrets.AUTH_STACK_NAME || 'nfoifsb-auth' }}
       AUTH_ALLOWED_ORIGINS: ${{ secrets.AUTH_ALLOWED_ORIGINS || 'https://www.nfoifsb.kr,http://127.0.0.1:5173,http://localhost:5173' }}
       AUTH_PEPPER: ${{ secrets.AUTH_PEPPER }}
+      ALLOW_AWS_COSTS: ${{ inputs.allow_aws_costs }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Stop unless AWS costs are explicitly allowed
+        if: ${{ inputs.allow_aws_costs != '1' }}
+        run: |
+          echo "AWS auth setup is blocked. Re-run with allow_aws_costs=1 only when intentional."
+          exit 1
 
       - name: Set up Node.js
         uses: actions/setup-node@v4

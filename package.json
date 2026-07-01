@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 127.0.0.1",
+    "dev:local": "node scripts/dev-local.mjs",
+    "auth:dev": "node server/auth/local-server.mjs",
     "build": "vite build",
     "auth:setup:aws": "node scripts/aws-auth-setup.mjs",
     "deploy:aws": "npm run build && node scripts/aws-deploy.mjs",

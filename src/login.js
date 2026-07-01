@@ -7,9 +7,10 @@ const PLAYER_PROFILES_KEY = "nfoifsb.playerProfiles";
 const PLAYER_INVENTORY_CACHE_KEY = "nfoifsb.playerInventoryCache";
 const GOOGLE_SCRIPT_SRC = "https://accounts.google.com/gsi/client";
 const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
-const authApiBase = (import.meta.env.VITE_AUTH_API_BASE || "").replace(/\/$/, "");
 const playerApiBase = (import.meta.env.VITE_PLAYER_API_BASE || "").replace(/\/$/, "");
 const isLocalHost = ["localhost", "127.0.0.1", "::1"].includes(window.location.hostname);
+const localAuthApiBase = isLocalHost ? "http://127.0.0.1:4174" : "";
+const authApiBase = (import.meta.env.VITE_AUTH_API_BASE || localAuthApiBase).replace(/\/$/, "");
 const allowLocalPlayerPreview =
   !playerApiBase && isLocalHost;
 const allowLocalAuthPreview = !authApiBase && isLocalHost;
@@ -274,13 +275,22 @@ async function postAuth(path, body) {
     throw new Error("회원가입 API가 아직 연결되지 않았습니다.");
   }
 
-  const response = await fetch(`${authApiBase}${path}`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(body),
-  });
+  let response;
+  try {
+    response = await fetch(`${authApiBase}${path}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+  } catch (error) {
+    if (authApiBase === localAuthApiBase) {
+      throw new Error("로컬 회원가입 서버가 꺼져 있습니다. npm run dev:local로 다시 실행해 주세요.");
+    }
+    throw error;
+  }
+
   const payload = await response.json().catch(() => ({}));
   if (!response.ok) {
     throw new Error(payload?.message || "요청을 처리하지 못했습니다.");
