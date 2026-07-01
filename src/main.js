@@ -375,7 +375,7 @@ function initTheme() {
       m.removeAttribute("media");
       m.setAttribute(
         "content",
-        theme === "dark" ? presetById.get(activePreset)?.meta || "#0d1411" : "#f5f5f7",
+        theme === "dark" ? presetById.get(activePreset)?.meta || "#0d1411" : "#e8efeb",
       );
     });
   };
@@ -531,11 +531,19 @@ function loadScene() {
 }
 
 function deferSceneLoad() {
-  if ("requestIdleCallback" in window) {
-    window.requestIdleCallback(loadScene, { timeout: 2000 });
-  } else {
-    window.addEventListener("load", loadScene, { once: true });
-  }
+  const canvas = document.querySelector("#minecraft-scene");
+  if (!(canvas instanceof HTMLCanvasElement)) return;
+
+  const schedule = () => {
+    if ("requestIdleCallback" in window) {
+      window.requestIdleCallback(loadScene, { timeout: 1200 });
+    } else {
+      window.setTimeout(loadScene, 250);
+    }
+  };
+
+  if (document.readyState === "complete") schedule();
+  else window.addEventListener("load", schedule, { once: true });
 }
 
 document.querySelectorAll("[data-copy-address]").forEach((button) => {

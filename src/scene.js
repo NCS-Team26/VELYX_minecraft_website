@@ -658,17 +658,22 @@ export function initMinecraftScene(canvas) {
   if (!(canvas instanceof HTMLCanvasElement)) return;
 
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const lowPower =
+    window.innerWidth < 760 ||
+    navigator.hardwareConcurrency <= 4 ||
+    navigator.deviceMemory <= 4;
   const renderer = new THREE.WebGLRenderer({
     canvas,
-    antialias: true,
+    antialias: !lowPower,
     alpha: true,
-    preserveDrawingBuffer: true,
+    powerPreference: "high-performance",
+    preserveDrawingBuffer: false,
   });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.65));
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, lowPower ? 1.15 : 1.35));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.LinearToneMapping;
   renderer.toneMappingExposure = 1.0;
-  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.enabled = !lowPower;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
   const scene = new THREE.Scene();
@@ -697,8 +702,8 @@ export function initMinecraftScene(canvas) {
 
   const sun = new THREE.DirectionalLight(0xfff1c7, 3.35);
   sun.position.set(-26, 36, 24);
-  sun.castShadow = true;
-  sun.shadow.mapSize.set(2048, 2048);
+  sun.castShadow = !lowPower;
+  sun.shadow.mapSize.set(lowPower ? 512 : 1024, lowPower ? 512 : 1024);
   sun.shadow.bias = -0.00008;
   sun.shadow.normalBias = 0.02;
   sun.shadow.camera.left = -42;
@@ -716,18 +721,26 @@ export function initMinecraftScene(canvas) {
 
   const startTime = performance.now();
   let frameId = 0;
+  let lastFrameAt = 0;
+  let lastWidth = 0;
+  let lastHeight = 0;
+  let isVisible = !document.hidden;
+  const frameInterval = lowPower ? 1000 / 30 : 1000 / 45;
 
   function resize() {
     const { clientWidth, clientHeight } = canvas;
     if (clientWidth === 0 || clientHeight === 0) return;
+    if (clientWidth === lastWidth && clientHeight === lastHeight) return;
 
+    lastWidth = clientWidth;
+    lastHeight = clientHeight;
     renderer.setSize(clientWidth, clientHeight, false);
     camera.aspect = clientWidth / clientHeight;
     camera.fov = camera.aspect < 0.85 ? 58 : 52;
     camera.updateProjectionMatrix();
   }
 
-  function animate() {
+  function renderFrame(timestamp = performance.now()) {
     const elapsed = (performance.now() - startTime) / 1000;
     resize();
     frameCamera(camera, canvas, elapsed, reduceMotion);
@@ -741,15 +754,41 @@ export function initMinecraftScene(canvas) {
     }
 
     renderer.render(scene, camera);
+  }
+
+  function animate(timestamp) {
+    if (!isVisible) {
+      frameId = window.requestAnimationFrame(animate);
+      return;
+    }
+
+    if (timestamp - lastFrameAt >= frameInterval) {
+      lastFrameAt = timestamp;
+      renderFrame(timestamp);
+    }
+
     frameId = window.requestAnimationFrame(animate);
   }
 
-  window.addEventListener("resize", resize);
-  animate();
+  function handleVisibility() {
+    isVisible = !document.hidden;
+    if (isVisible) lastFrameAt = 0;
+  }
+
+  function handleResize() {
+    resize();
+    if (reduceMotion) renderFrame();
+  }
+
+  window.addEventListener("resize", handleResize);
+  document.addEventListener("visibilitychange", handleVisibility);
+  if (reduceMotion) renderFrame();
+  else animate(performance.now());
 
   return () => {
     window.cancelAnimationFrame(frameId);
-    window.removeEventListener("resize", resize);
+    window.removeEventListener("resize", handleResize);
+    document.removeEventListener("visibilitychange", handleVisibility);
     renderer.dispose();
   };
 }
