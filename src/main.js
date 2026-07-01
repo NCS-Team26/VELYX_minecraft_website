@@ -263,24 +263,32 @@ function initLogin() {
 }
 
 function initTheme() {
-  const toggle = document.querySelector("[data-theme-toggle]");
-  if (!toggle) return;
+  const toggles = document.querySelectorAll("[data-theme-toggle]");
+  if (!toggles.length) return;
 
   const root = document.documentElement;
-  const icons = toggle.querySelectorAll("[data-theme-icon]");
   const systemDark = window.matchMedia("(prefers-color-scheme: dark)");
   const resolved = () =>
     root.getAttribute("data-theme") || (systemDark.matches ? "dark" : "light");
 
   const sync = () => {
     const theme = resolved();
-    icons.forEach((ic) => {
-      ic.hidden = ic.dataset.themeIcon !== theme;
+    const nextTheme = theme === "dark" ? "light" : "dark";
+    toggles.forEach((toggle) => {
+      toggle.dataset.theme = theme;
+      toggle.setAttribute("aria-pressed", String(theme === "dark"));
+      toggle.setAttribute("aria-label", theme === "dark" ? "라이트모드로 전환" : "다크모드로 전환");
+      toggle.querySelectorAll("[data-theme-icon]").forEach((ic) => {
+        ic.hidden = ic.dataset.themeIcon !== nextTheme;
+      });
+      toggle.querySelectorAll("[data-theme-label]").forEach((label) => {
+        label.textContent = theme === "dark" ? "라이트모드" : "다크모드";
+      });
+      toggle.querySelectorAll("[data-theme-description]").forEach((description) => {
+        description.textContent =
+          theme === "dark" ? "어두운 화면에서 밝은 화면으로 전환" : "밝은 화면에서 어두운 화면으로 전환";
+      });
     });
-    toggle.setAttribute(
-      "aria-label",
-      theme === "dark" ? "라이트 모드로 전환" : "다크 모드로 전환",
-    );
     document.querySelectorAll('meta[name="theme-color"]').forEach((m) => {
       // Drop the media filter so the pinned theme's color always wins.
       m.removeAttribute("media");
@@ -288,15 +296,17 @@ function initTheme() {
     });
   };
 
-  toggle.addEventListener("click", () => {
-    const next = resolved() === "dark" ? "light" : "dark";
-    root.setAttribute("data-theme", next);
-    try {
-      localStorage.setItem("nfoifsb.theme", next);
-    } catch {
-      // Toggle still works for this session without persistence.
-    }
-    sync();
+  toggles.forEach((toggle) => {
+    toggle.addEventListener("click", () => {
+      const next = resolved() === "dark" ? "light" : "dark";
+      root.setAttribute("data-theme", next);
+      try {
+        localStorage.setItem("nfoifsb.theme", next);
+      } catch {
+        // Toggle still works for this session without persistence.
+      }
+      sync();
+    });
   });
 
   // Follow OS changes only while the user hasn't pinned a theme.
