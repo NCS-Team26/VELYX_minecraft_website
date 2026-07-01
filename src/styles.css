@@ -651,6 +651,28 @@ a {
   animation: meter-shine 2.8s ease-in-out infinite;
 }
 
+.player-heads {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 22px;
+}
+
+.player-head {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  image-rendering: pixelated;
+  background: var(--inset);
+  box-shadow: 0 2px 8px rgba(15, 30, 25, 0.16);
+}
+
+.player-chart {
+  width: 100%;
+  height: 72px;
+  margin: 6px 0 4px;
+}
+
 .detail-grid,
 .plugin-grid {
   display: grid;

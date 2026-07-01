@@ -17,10 +17,14 @@ const latencyLabel = document.querySelector("[data-latency]");
 const statusHealth = document.querySelector("[data-status-health]");
 const playerSummary = document.querySelector("[data-player-summary]");
 const motdLabel = document.querySelector("[data-motd]");
+const playerHeads = document.querySelector("[data-player-heads]");
+const playerChart = document.querySelector("[data-player-chart]");
 const sectionLinks = document.querySelectorAll("[data-section-link]");
 const AUTH_STORAGE_KEY = "nfoifsb.googleUser";
 const AUTH_EVENT_KEY = "nfoifsb.authEvent";
 const STATUS_CACHE_KEY = "nfoifsb.statusCache";
+const PLAYER_HISTORY_KEY = "nfoifsb.playerHistory";
+const PLAYER_HISTORY_MAX = 48;
 const PAGE_LINKS = new Map([
   ["/status.html", "status"],
   ["/plugins.html", "plugins"],
@@ -96,6 +100,97 @@ function getMotdText(data) {
   return String(value || "서버 메시지가 비어 있습니다.").replace(/<[^>]*>/g, "");
 }
 
+function renderPlayerHeads(data) {
+  if (!playerHeads) return;
+  const list = Array.isArray(data?.players?.list) ? data.players.list : [];
+  playerHeads.replaceChildren();
+  if (!list.length) {
+    playerHeads.hidden = true;
+    return;
+  }
+  playerHeads.hidden = false;
+  // Cap the row so a full server never floods the panel.
+  list.slice(0, 24).forEach((player) => {
+    const name = player?.name_clean || player?.name || "player";
+    const id = player?.uuid || name;
+    const img = document.createElement("img");
+    img.className = "player-head";
+    img.src = `https://mc-heads.net/avatar/${encodeURIComponent(id)}/36`;
+    img.alt = name;
+    img.title = name;
+    img.loading = "lazy";
+    img.width = 36;
+    img.height = 36;
+    playerHeads.appendChild(img);
+  });
+}
+
+function readPlayerHistory() {
+  try {
+    const raw = localStorage.getItem(PLAYER_HISTORY_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+// Record one live sample; cached reads must not pollute the trend.
+function pushPlayerHistory(online) {
+  if (!Number.isFinite(online)) return;
+  try {
+    const history = readPlayerHistory();
+    history.push({ t: Date.now(), online });
+    while (history.length > PLAYER_HISTORY_MAX) history.shift();
+    localStorage.setItem(PLAYER_HISTORY_KEY, JSON.stringify(history));
+  } catch {
+    // Chart is decorative; skip persistence when storage is unavailable.
+  }
+}
+
+function renderPlayerChart() {
+  if (!(playerChart instanceof HTMLCanvasElement)) return;
+  const ctx = playerChart.getContext("2d");
+  if (!ctx) return;
+
+  const history = readPlayerHistory();
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const w = playerChart.clientWidth || 320;
+  const h = playerChart.clientHeight || 64;
+  playerChart.width = w * dpr;
+  playerChart.height = h * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, w, h);
+  if (history.length < 2) return;
+
+  const max = Math.max(1, ...history.map((s) => s.online));
+  const n = history.length;
+  const x = (i) => (i / (n - 1)) * (w - 4) + 2;
+  const y = (v) => h - 4 - (v / max) * (h - 10);
+  const line = () => {
+    ctx.beginPath();
+    history.forEach((s, i) => (i ? ctx.lineTo(x(i), y(s.online)) : ctx.moveTo(x(i), y(s.online))));
+  };
+
+  line();
+  ctx.lineTo(x(n - 1), h);
+  ctx.lineTo(x(0), h);
+  ctx.closePath();
+  ctx.fillStyle = "rgba(76, 154, 94, 0.16)";
+  ctx.fill();
+
+  line();
+  ctx.strokeStyle = "#3f8a54";
+  ctx.lineWidth = 2;
+  ctx.lineJoin = "round";
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.arc(x(n - 1), y(history[n - 1].online), 3, 0, Math.PI * 2);
+  ctx.fillStyle = "#3f8a54";
+  ctx.fill();
+}
+
 function renderStatusData(data, options = {}) {
   const online = Boolean(data?.online);
   const playersOnline = data?.players?.online ?? 0;
@@ -127,6 +222,8 @@ function renderStatusData(data, options = {}) {
   }
   if (playerSummary) playerSummary.textContent = `${playersOnline}명 접속 / ${playersMax} 슬롯`;
   if (motdLabel) motdLabel.textContent = getMotdText(data);
+  renderPlayerHeads(data);
+  renderPlayerChart();
 }
 
 async function copyAddress(event) {
@@ -170,6 +267,7 @@ async function refreshStatus() {
     const data = await response.json();
     const latencyMs = Math.round(performance.now() - startedAt);
     writeStatusCache(data, latencyMs);
+    if (data?.online) pushPlayerHistory(data?.players?.online ?? 0);
     renderStatusData(data, { cached: false, latencyMs, timestamp: Date.now() });
   } catch {
     const cached = readStatusCache();

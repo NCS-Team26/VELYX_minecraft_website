@@ -140,6 +140,7 @@
               <div class="meter" aria-hidden="true">
                 <span data-player-meter></span>
               </div>
+              <div class="player-heads" data-player-heads hidden aria-label="접속 중인 플레이어"></div>
             </article>
 
             <div class="detail-grid" aria-label="Server details">
@@ -198,6 +199,11 @@
               <span>Message of the day</span>
               <strong>Server MOTD</strong>
               <p data-motd>서버 메시지를 불러오고 있습니다.</p>
+            </article>
+            <article class="dashboard-card dashboard-wide">
+              <span>Player history</span>
+              <canvas class="player-chart" data-player-chart width="480" height="72" aria-hidden="true"></canvas>
+              <p>최근 접속자 추이를 자동으로 기록해서 보여줍니다.</p>
             </article>
           </div>
         </section>
