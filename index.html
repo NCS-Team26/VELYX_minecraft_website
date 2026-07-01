@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="nfoifsb.kr Minecraft survival server website with live status, plugins, rules, and join information."
+      content="nfoifsb.kr 경제 야생 Minecraft 서버. 채굴, 농사, 거래, 토지 보호, 유저 상점이 맞물리는 생존 월드."
     />
     <meta name="theme-color" content="#0d1411" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0d1411" media="(prefers-color-scheme: dark)" />
@@ -13,23 +13,23 @@
 
     <!-- Social share -->
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="nfoifsb.kr — Minecraft 생존 서버" />
+    <meta property="og:title" content="nfoifsb.kr — 경제 야생 Minecraft 서버" />
     <meta
       property="og:description"
-      content="Paper 26.1.2 기반의 조용하고 선명한 생존 월드. 서버 상태와 접속 정보를 한 곳에서."
+      content="채굴과 농사로 벌고, 유저 상점에서 거래하고, 토지를 지키며 성장하는 경제 야생 서버."
     />
     <meta property="og:url" content="https://nfoifsb.kr/" />
     <meta property="og:image" content="https://nfoifsb.kr/assets/hero-world.png" />
     <meta property="og:locale" content="ko_KR" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="nfoifsb.kr — Minecraft 생존 서버" />
+    <meta name="twitter:title" content="nfoifsb.kr — 경제 야생 Minecraft 서버" />
     <meta
       name="twitter:description"
-      content="Paper 26.1.2 기반의 조용하고 선명한 생존 월드."
+      content="채굴, 농사, 거래, 토지 보호가 맞물리는 경제 야생 월드."
     />
     <meta name="twitter:image" content="https://nfoifsb.kr/assets/hero-world.png" />
 
-    <title>nfoifsb.kr - Minecraft Server</title>
+    <title>nfoifsb.kr - 경제 야생 Minecraft 서버</title>
 
     <script>
       // Apply saved theme before first paint to avoid a flash.
@@ -53,7 +53,7 @@
         "@type": "WebSite",
         "name": "nfoifsb.kr",
         "url": "https://nfoifsb.kr/",
-        "description": "Paper 26.1.2 기반의 Minecraft 생존 서버. 서버 상태와 접속 정보 제공.",
+        "description": "채굴, 농사, 거래, 토지 보호가 맞물리는 Minecraft 경제 야생 서버.",
         "inLanguage": "ko"
       }
     </script>
@@ -78,7 +78,7 @@
         </button>
         <nav class="nav-links" id="primary-nav" aria-label="Site pages">
           <a href="/status.html" data-section-link="status">Status</a>
-          <a href="/plugins.html" data-section-link="plugins">Plugins</a>
+          <a href="/plugins.html" data-section-link="plugins">Economy</a>
           <a href="/rules.html" data-section-link="rules">Rules</a>
           <a href="/join.html" data-section-link="join">Join</a>
           <a class="nav-login" href="/login.html" data-open-login>Login</a>
@@ -92,23 +92,23 @@
           </div>
           <div class="hero-shade"></div>
           <div class="hero-content">
-            <p class="eyebrow">멘헤라 생야생 서버</p>
+            <p class="eyebrow">Economy survival</p>
             <h1 id="hero-title">nfoifsb.kr</h1>
-            <p class="hero-copy">Paper 26.1.2 기반의 조용하고 선명한 생존 월드.</p>
+            <p class="hero-copy">캐고, 팔고, 사고, 지키는 흐름이 살아 있는 경제 야생 서버.</p>
             <ul class="hero-meta" aria-label="서버 요약">
               <li><span class="hero-meta-dot" aria-hidden="true"></span>Paper 26.1.2</li>
-              <li>최대 10인</li>
-              <li>24/7 상시</li>
-              <li>월드보더 6천만</li>
+              <li>유저 상점</li>
+              <li>토지 보호</li>
+              <li>거래 중심 생존</li>
             </ul>
             <div class="hero-actions">
               <button class="primary-action" type="button" data-copy-address>
                 <span aria-hidden="true">⧉</span>
-                서버 주소 복사
+                주소 복사
               </button>
               <a class="secondary-action" href="/status.html">
-                <span aria-hidden="true">●</span>
-                서버 상태 보기
+                <span aria-hidden="true">↗</span>
+                상태 보기
               </a>
             </div>
           </div>
@@ -202,21 +202,88 @@
         <section class="stats-band" aria-label="서버 한눈에">
           <div class="stats-inner" data-reveal>
             <article>
-              <strong>10</strong>
-              <span>최대 슬롯</span>
+              <strong>Shop</strong>
+              <span>유저 상점</span>
             </article>
             <article>
-              <strong>6천만</strong>
-              <span>월드 보더</span>
+              <strong>Trade</strong>
+              <span>직거래와 경매</span>
             </article>
             <article>
-              <strong>24/7</strong>
-              <span>상시 운영</span>
+              <strong>Claim</strong>
+              <span>토지 보호</span>
             </article>
             <article>
-              <strong>4 GB</strong>
-              <span>서버 메모리</span>
+              <strong>Rank</strong>
+              <span>경제 성장</span>
             </article>
+          </div>
+        </section>
+
+        <section class="economy-section" aria-labelledby="economy-title">
+          <div class="section-heading" data-reveal>
+            <p class="eyebrow">Economy loop</p>
+            <h2 id="economy-title"><span>야생에서 번 돈이</span> <span>다음 목표가 되는 서버.</span></h2>
+            <p class="screen-copy">
+              광질, 농사, 사냥, 건축 재료 수집이 전부 시장으로 연결되고, 시장에서 번 돈은 다시
+              토지, 상점, 장비, 공동 프로젝트로 돌아갑니다.
+            </p>
+          </div>
+
+          <div class="economy-grid" data-reveal>
+            <article>
+              <span>01</span>
+              <strong>벌기</strong>
+              <p>광물, 작물, 몹 드롭, 희귀 재료를 모아 상점이나 유저 거래로 현금화합니다.</p>
+            </article>
+            <article>
+              <span>02</span>
+              <strong>팔기</strong>
+              <p>개인 상점과 경매장에서 가격을 정하고, 수요가 높은 아이템으로 시장을 만듭니다.</p>
+            </article>
+            <article>
+              <span>03</span>
+              <strong>지키기</strong>
+              <p>번 돈으로 거점과 창고를 보호하고, 거래 구역을 안정적으로 운영합니다.</p>
+            </article>
+            <article>
+              <span>04</span>
+              <strong>확장하기</strong>
+              <p>마을, 도로, 공용 농장, 이벤트 보상처럼 여러 명이 함께 쓰는 경제를 키웁니다.</p>
+            </article>
+          </div>
+
+          <div class="market-board" data-reveal>
+            <div class="market-copy">
+              <p class="eyebrow">Market board</p>
+              <h3>초반 시장 예시</h3>
+              <p>
+                실제 가격은 서버 상황에 맞춰 조정되지만, 웹사이트에서는 신규 유저가 어떤 품목을
+                사고팔 수 있는지 바로 감을 잡을 수 있게 보여줍니다.
+              </p>
+            </div>
+            <div class="market-list" aria-label="시장 품목 예시">
+              <article>
+                <span>광물</span>
+                <strong>다이아몬드</strong>
+                <em>희귀 자원</em>
+              </article>
+              <article>
+                <span>농산물</span>
+                <strong>밀 · 당근 · 감자</strong>
+                <em>안정 수익</em>
+              </article>
+              <article>
+                <span>건축</span>
+                <strong>목재 · 석재 · 유리</strong>
+                <em>상시 수요</em>
+              </article>
+              <article>
+                <span>서비스</span>
+                <strong>건축 의뢰 · 운송</strong>
+                <em>유저 거래</em>
+              </article>
+            </div>
           </div>
         </section>
 
@@ -224,7 +291,7 @@
         <section class="feature-section" aria-labelledby="feature-title">
           <div class="section-heading" data-reveal>
             <p class="eyebrow">Why here</p>
-            <h2 id="feature-title">작지만, 오래 가는 서버.</h2>
+            <h2 id="feature-title">경제는 선명하게, 야생은 그대로.</h2>
           </div>
           <div class="feature-grid" data-reveal>
             <article>
@@ -232,23 +299,23 @@
                 <path d="M4 20s8-2 12-8 4-8 4-8-2 8-8 12c-3 3-8 4-8 4z" />
                 <path d="M4 20l8-8" />
               </svg>
-              <h3>가벼운 운영</h3>
-              <p>Paper 26.1.2 기반으로 가볍게. 10인 규모에 맞춰 군더더기 없이 돌아가.</p>
+              <h3>노가다가 보상으로 연결</h3>
+              <p>광질과 농사가 단순 반복으로 끝나지 않고, 판매와 투자로 이어지는 구조입니다.</p>
             </article>
             <article>
               <svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2-6-2z" />
                 <path d="M9 4v14M15 6v14" />
               </svg>
-              <h3>넓은 월드</h3>
-              <p>월드 보더를 사실상 최대치(6천만)로 열어둬서 탐험과 건축이 자유로워.</p>
+              <h3>유저가 만드는 시세</h3>
+              <p>상점, 직거래, 경매가 함께 돌아가서 아이템 가치가 플레이어 활동에 따라 움직입니다.</p>
             </article>
             <article>
               <svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M21 12.8A8 8 0 1 1 11.2 3a6 6 0 0 0 9.8 9.8z" />
               </svg>
-              <h3>조용한 분위기</h3>
-              <p>멘헤라 생야생. 과한 장치 없이 차분하게, 분쟁은 운영자가 빠르게 정리해.</p>
+              <h3>보호되는 재산</h3>
+              <p>상점, 창고, 거점은 보호 기준을 명확히 두고 운영해 거래 리스크를 줄입니다.</p>
             </article>
           </div>
         </section>
@@ -257,10 +324,10 @@
         <section class="world-section" aria-labelledby="world-title">
           <div class="world-copy" data-reveal>
             <p class="eyebrow">Survival first</p>
-            <h2 id="world-title">기본은 생존, 필요한 도구만 딱 맞게.</h2>
+            <h2 id="world-title">거점은 내 자산, 탐험은 시장의 원료.</h2>
             <p>
-              월드 보더는 사실상 최대치로 열어두고, 10명 기준으로 서버를 맞춰뒀어.
-              건축과 탐험은 자유롭게, 운영은 Paper 기반으로 가볍게.
+              월드는 넓게 열어두되 경제의 중심은 스폰과 유저 상점가에 모입니다. 멀리 나가 희귀
+              자원을 캐고, 거점에서 생산하고, 시장에서 팔아 다음 목표를 세우는 구조입니다.
             </p>
           </div>
           <figure class="showcase" data-reveal>
@@ -271,16 +338,16 @@
         <section class="gallery-band" aria-label="월드 미리보기">
           <div class="gallery-strip" data-reveal>
             <figure class="gallery-pos-1">
-              <img src="/assets/hero-world.png" alt="벚꽃 마을 전경" loading="lazy" />
-              <figcaption>벚꽃 마을</figcaption>
+              <img src="/assets/hero-world.png" alt="상업 지구 전경" loading="lazy" />
+              <figcaption>상업 지구</figcaption>
             </figure>
             <figure class="gallery-pos-2">
-              <img src="/assets/hero-world.png" alt="중앙 호수와 다리" loading="lazy" />
-              <figcaption>호수와 다리</figcaption>
+              <img src="/assets/hero-world.png" alt="생산 거점과 다리" loading="lazy" />
+              <figcaption>생산 거점</figcaption>
             </figure>
             <figure class="gallery-pos-3">
-              <img src="/assets/hero-world.png" alt="언덕 너머 탐험 지역" loading="lazy" />
-              <figcaption>탐험 지역</figcaption>
+              <img src="/assets/hero-world.png" alt="자원 탐험 지역" loading="lazy" />
+              <figcaption>자원 탐험</figcaption>
             </figure>
           </div>
         </section>
@@ -288,8 +355,8 @@
         <div class="plugin-band">
         <section class="plugin-section" id="plugins" aria-labelledby="plugin-title">
           <div class="section-heading" data-reveal>
-            <p class="eyebrow">Server stack</p>
-            <h2 id="plugin-title">플러그인은 필요한 것만.</h2>
+            <p class="eyebrow">Economy stack</p>
+            <h2 id="plugin-title">경제 서버에 필요한 축만 선명하게.</h2>
           </div>
           <div class="plugin-grid" data-reveal>
             <article>
@@ -297,34 +364,34 @@
                 <path d="M4 20h4l10-10-4-4L4 16z" />
                 <path d="M14 6l4 4" />
               </svg>
-              <span>WorldEdit</span>
-              <strong>건축 편집</strong>
-              <p>대규모 건축을 명령어로 빠르게 복사·이동·생성.</p>
+              <span>Vault</span>
+              <strong>지갑 기반</strong>
+              <p>돈, 권한, 상점 플러그인을 연결하는 경제 기반을 만듭니다.</p>
             </article>
             <article>
               <svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
                 <rect x="3" y="4" width="18" height="16" rx="2" />
                 <path d="M7 9l3 3-3 3M13 15h4" />
               </svg>
-              <span>Essentials</span>
-              <strong>기본 명령어</strong>
-              <p>홈, 워프, 스폰 등 생존에 필요한 기본기를 한 번에.</p>
+              <span>EssentialsX</span>
+              <strong>돈과 워프</strong>
+              <p>기본 명령어, 스폰, 워프, 잔액 확인 같은 생활 편의를 제공합니다.</p>
             </article>
             <article>
               <svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M12 3l8 3v6c0 5-3.5 7.5-8 9-4.5-1.5-8-4-8-9V6z" />
               </svg>
-              <span>LuckPerms</span>
-              <strong>권한 관리</strong>
-              <p>역할별 권한을 세밀하게 나눠 서버를 안전하게.</p>
+              <span>QuickShop</span>
+              <strong>유저 상점</strong>
+              <p>상자 기반 상점으로 플레이어가 직접 물건을 사고팔 수 있습니다.</p>
             </article>
             <article>
               <svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M7 4L4 7l3 3M4 7h12M17 14l3 3-3 3M20 17H8" />
               </svg>
-              <span>ViaVersion</span>
-              <strong>버전 호환</strong>
-              <p>다양한 클라이언트 버전에서 끊김 없이 접속.</p>
+              <span>AuctionHouse</span>
+              <strong>경매장</strong>
+              <p>희귀 아이템과 대량 재료를 공개 시장에서 거래할 수 있게 합니다.</p>
             </article>
             <article>
               <svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
@@ -333,39 +400,39 @@
                 <rect x="3" y="14" width="7" height="7" rx="1" />
                 <rect x="14" y="14" width="7" height="7" rx="1" />
               </svg>
-              <span>Chunky</span>
-              <strong>청크 관리</strong>
-              <p>월드 청크를 미리 생성해 렉 없이 매끄럽게.</p>
+              <span>GriefPrevention</span>
+              <strong>토지 보호</strong>
+              <p>상점, 창고, 거점을 보호해 경제 재산을 지킬 수 있게 합니다.</p>
             </article>
             <article>
               <svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M21 12a8 8 0 0 1-11.5 7.2L3 21l1.8-6.5A8 8 0 1 1 21 12z" />
               </svg>
-              <span>DiscordPulse</span>
-              <strong>디스코드 연동</strong>
-              <p>서버 상태와 채팅을 디스코드에서 바로 확인.</p>
+              <span>Jobs</span>
+              <strong>직업 보상</strong>
+              <p>채굴, 농사, 사냥, 벌목 같은 야생 활동에 자연스러운 보상을 붙입니다.</p>
             </article>
           </div>
           <div class="section-dashboard plugin-dashboard" data-reveal>
             <article class="dashboard-card">
-              <span>Build</span>
-              <strong>WorldEdit + Chunky</strong>
-              <p>대형 건축과 월드 사전 생성 작업을 빠르게 처리합니다.</p>
+              <span>Wallet</span>
+              <strong>돈은 서버 안에서 순환</strong>
+              <p>판매, 보상, 거래, 보호 비용이 하나의 경제 흐름으로 연결됩니다.</p>
             </article>
             <article class="dashboard-card">
-              <span>Access</span>
-              <strong>LuckPerms</strong>
-              <p>관리자, 멤버, 게스트 권한을 분리해서 서버를 안전하게 운영합니다.</p>
+              <span>Commerce</span>
+              <strong>상점가와 경매장</strong>
+              <p>고정 가격 상점과 공개 경매를 함께 둬 초보와 고인물 모두 거래할 수 있습니다.</p>
             </article>
             <article class="dashboard-card">
-              <span>Compatibility</span>
-              <strong>ViaVersion</strong>
-              <p>여러 클라이언트 버전에서 접속 안정성을 유지합니다.</p>
+              <span>Protection</span>
+              <strong>재산 보호 우선</strong>
+              <p>상점, 창고, 거점 보호를 경제 서버의 기본 규칙으로 둡니다.</p>
             </article>
             <article class="dashboard-card dashboard-wide">
               <span>Ops note</span>
-              <strong>플러그인 운영 기준</strong>
-              <p>생존 경험을 크게 바꾸는 기능보다 성능, 권한, 편의성 중심의 플러그인을 우선합니다.</p>
+              <strong>경제 밸런스 운영 기준</strong>
+              <p>돈이 너무 쉽게 풀리지 않도록 보상과 판매 가격은 천천히 조정하고, 유저 거래를 우선합니다.</p>
             </article>
           </div>
         </section>
@@ -374,28 +441,28 @@
         <section class="rules-section" id="rules" aria-labelledby="rules-title">
           <div data-reveal>
             <p class="eyebrow">Rules</p>
-            <h2 id="rules-title">서버가 오래 가는 쪽으로.</h2>
+            <h2 id="rules-title">경제가 망가지지 않는 쪽으로.</h2>
           </div>
           <ol class="rules-list" data-reveal>
-            <li>남의 건축물, 상자, 농장은 허락 없이 건드리지 않기.</li>
-            <li>큰 폭발 장치나 과한 레드스톤 작업은 운영자에게 먼저 말하기.</li>
-            <li>분쟁은 채팅으로 오래 끌지 말고 운영자를 호출하기.</li>
+            <li>상점, 창고, 보호된 토지는 허락 없이 건드리지 않기.</li>
+            <li>버그 복사, 시세 악용, 자동화 남용처럼 경제를 무너뜨리는 행동 금지.</li>
+            <li>거래 분쟁은 스크린샷과 시간, 좌표를 남기고 운영자에게 전달하기.</li>
           </ol>
           <div class="rules-tools" data-reveal>
             <article>
               <span>01</span>
-              <strong>보호 기준</strong>
-              <p>건축물, 상자, 농장, 레드스톤 장치는 소유자 허락 없이 건드리지 않습니다.</p>
+              <strong>상점 보호</strong>
+              <p>상점, 표지판, 거래 상자는 경제 재산으로 보고 훼손과 약탈을 강하게 제한합니다.</p>
             </article>
             <article>
               <span>02</span>
-              <strong>신고 정보</strong>
-              <p>좌표, 시간, 상황 설명을 남기면 운영자가 훨씬 빠르게 확인할 수 있습니다.</p>
+              <strong>공정 거래</strong>
+              <p>약속한 물품과 금액을 바꾸거나, 취소한 거래를 강제로 진행하지 않습니다.</p>
             </article>
             <article>
               <span>03</span>
-              <strong>제재 흐름</strong>
-              <p>경고, 임시 제한, 영구 제한 순서로 처리하며 고의 파괴는 바로 제한될 수 있습니다.</p>
+              <strong>밸런스 조정</strong>
+              <p>가격과 보상은 서버 상황에 따라 조정될 수 있으며, 변경 전후 안내를 남깁니다.</p>
             </article>
           </div>
         </section>
@@ -405,30 +472,30 @@
             <div class="join-card">
               <img src="/assets/server-icon.png" alt="" />
               <p class="eyebrow">Join</p>
-              <h2 id="join-title">Minecraft Java에서 바로 추가.</h2>
+              <h2 id="join-title">접속해서 첫 거래까지 빠르게.</h2>
               <div class="address-row">
                 <code>nfoifsb.kr</code>
                 <button type="button" data-copy-address>복사</button>
               </div>
               <p class="join-note" data-copy-feedback>
-                멀티플레이 서버 주소에 그대로 넣으면 돼.
+                Minecraft Java 멀티플레이 서버 주소에 그대로 넣으면 됩니다.
               </p>
             </div>
             <div class="join-steps">
               <article>
                 <span>1</span>
-                <strong>Minecraft Java 실행</strong>
-                <p>멀티플레이 메뉴에서 서버 추가 화면으로 이동합니다.</p>
+                <strong>스폰에서 규칙 확인</strong>
+                <p>접속 후 스폰 안내와 경제 규칙을 먼저 확인합니다.</p>
               </article>
               <article>
                 <span>2</span>
-                <strong>주소 입력</strong>
-                <p><code>nfoifsb.kr</code>을 서버 주소에 입력하고 저장합니다.</p>
+                <strong>초반 자금 만들기</strong>
+                <p>광질, 농사, 사냥으로 팔 수 있는 재료를 모읍니다.</p>
               </article>
               <article>
                 <span>3</span>
-                <strong>상태 확인 후 접속</strong>
-                <p>Status 화면에서 온라인 여부와 현재 접속자 수를 확인합니다.</p>
+                <strong>상점과 거래 시작</strong>
+                <p>상점가와 경매장을 확인하고, 남는 재료는 유저에게 판매합니다.</p>
               </article>
             </div>
           </div>
@@ -441,7 +508,7 @@
             <img src="/assets/server-icon.png" alt="" />
             nfoifsb.kr
           </span>
-          <span>Paper 26.1.2 · 멘헤라 생야생 서버</span>
+          <span>Paper 26.1.2 · 경제 야생 서버</span>
           <a href="#top">맨 위로 ↑</a>
         </div>
         <div class="footer-theme-row">

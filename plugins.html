@@ -5,12 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="nfoifsb.kr Minecraft server plugin stack and operation notes."
+      content="nfoifsb.kr 경제 야생 서버의 지갑, 상점, 경매, 토지 보호, 직업 보상 구성."
     />
     <meta name="theme-color" content="#0d1411" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0d1411" media="(prefers-color-scheme: dark)" />
     <link rel="icon" type="image/png" href="/assets/server-icon.png" />
-    <title>Plugins - nfoifsb.kr</title>
+    <title>Economy - nfoifsb.kr</title>
     <script>
       (function () {
         try {
@@ -46,7 +46,7 @@
         </button>
         <nav class="nav-links" id="primary-nav" aria-label="Site pages">
           <a href="/status.html" data-section-link="status">Status</a>
-          <a href="/plugins.html" data-section-link="plugins">Plugins</a>
+          <a href="/plugins.html" data-section-link="plugins">Economy</a>
           <a href="/rules.html" data-section-link="rules">Rules</a>
           <a href="/join.html" data-section-link="join">Join</a>
           <a class="nav-login" href="/login.html" data-open-login>Login</a>
@@ -57,10 +57,10 @@
         <div class="plugin-band">
           <section class="plugin-section page-screen" aria-labelledby="plugin-title">
             <div class="section-heading" data-reveal>
-              <p class="eyebrow">Server stack</p>
-              <h1 id="plugin-title">플러그인 화면</h1>
+              <p class="eyebrow">Economy stack</p>
+              <h1 id="plugin-title">경제 시스템</h1>
               <p class="screen-copy">
-                서버의 핵심 기능은 생존 경험을 흐리지 않는 선에서 성능, 권한, 호환성 중심으로 구성했습니다.
+                생존의 기본 재미는 유지하고, 아이템이 돈과 거래로 이어지도록 경제 기능을 배치했습니다.
               </p>
             </div>
 
@@ -70,34 +70,34 @@
                   <path d="M4 20h4l10-10-4-4L4 16z" />
                   <path d="M14 6l4 4" />
                 </svg>
-                <span>WorldEdit</span>
-                <strong>건축 편집</strong>
-                <p>대규모 건축을 명령어로 빠르게 복사, 이동, 생성합니다.</p>
+                <span>Vault</span>
+                <strong>경제 연결</strong>
+                <p>잔액, 권한, 상점 플러그인이 같은 지갑을 바라보도록 연결합니다.</p>
               </article>
               <article>
                 <svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
                   <rect x="3" y="4" width="18" height="16" rx="2" />
                   <path d="M7 9l3 3-3 3M13 15h4" />
                 </svg>
-                <span>Essentials</span>
-                <strong>기본 명령어</strong>
-                <p>홈, 텔레포트, 스폰 등 생존 서버에 필요한 기본기를 제공합니다.</p>
+                <span>EssentialsX</span>
+                <strong>기본 생활</strong>
+                <p>스폰, 워프, 홈, 잔액 확인처럼 경제 야생에 필요한 기본 흐름을 담당합니다.</p>
               </article>
               <article>
                 <svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M12 3l8 3v6c0 5-3.5 7.5-8 9-4.5-1.5-8-4-8-9V6z" />
                 </svg>
-                <span>LuckPerms</span>
-                <strong>권한 관리</strong>
-                <p>관리자, 멤버, 게스트 권한을 분리해 서버를 안전하게 운영합니다.</p>
+                <span>QuickShop</span>
+                <strong>유저 상점</strong>
+                <p>상자와 표지판 기반 상점으로 플레이어가 직접 가격을 정하고 판매합니다.</p>
               </article>
               <article>
                 <svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M7 4L4 7l3 3M4 7h12M17 14l3 3-3 3M20 17H8" />
                 </svg>
-                <span>ViaVersion</span>
-                <strong>버전 호환</strong>
-                <p>여러 클라이언트 버전에서 접속 안정성을 유지합니다.</p>
+                <span>AuctionHouse</span>
+                <strong>공개 경매</strong>
+                <p>희귀 아이템, 인챈트 장비, 대량 재료를 공개 시장에 올릴 수 있습니다.</p>
               </article>
               <article>
                 <svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
@@ -106,40 +106,73 @@
                   <rect x="3" y="14" width="7" height="7" rx="1" />
                   <rect x="14" y="14" width="7" height="7" rx="1" />
                 </svg>
-                <span>Chunky</span>
-                <strong>청크 관리</strong>
-                <p>월드 청크를 미리 생성해 탐험 중 끊김을 줄입니다.</p>
+                <span>GriefPrevention</span>
+                <strong>토지 보호</strong>
+                <p>거점, 창고, 상점가를 보호해서 자산 손실과 분쟁을 줄입니다.</p>
               </article>
               <article>
                 <svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M21 12a8 8 0 0 1-11.5 7.2L3 21l1.8-6.5A8 8 0 1 1 21 12z" />
                 </svg>
-                <span>DiscordPulse</span>
-                <strong>디스코드 연동</strong>
-                <p>서버 상태와 채팅 흐름을 디스코드에서 확인할 수 있게 연결합니다.</p>
+                <span>Jobs</span>
+                <strong>직업 보상</strong>
+                <p>채굴, 농사, 벌목, 사냥 같은 야생 활동에 자연스러운 수입을 붙입니다.</p>
               </article>
+            </div>
+
+            <div class="market-board" data-reveal>
+              <div class="market-copy">
+                <p class="eyebrow">Balance plan</p>
+                <h2>돈이 너무 빨리 풀리지 않게.</h2>
+                <p>
+                  초반에는 기본 재료와 식량 거래를 살리고, 중반부터 장비, 인챈트, 건축 의뢰가
+                  시장을 키우도록 가격과 보상을 천천히 조정합니다.
+                </p>
+              </div>
+              <div class="market-list" aria-label="경제 운영 축">
+                <article>
+                  <span>초반</span>
+                  <strong>식량 · 광물</strong>
+                  <em>기초 자금</em>
+                </article>
+                <article>
+                  <span>중반</span>
+                  <strong>장비 · 인챈트</strong>
+                  <em>전문화</em>
+                </article>
+                <article>
+                  <span>후반</span>
+                  <strong>건축 · 서비스</strong>
+                  <em>유저 경제</em>
+                </article>
+                <article>
+                  <span>운영</span>
+                  <strong>보상 · 회수</strong>
+                  <em>밸런스</em>
+                </article>
+              </div>
             </div>
 
             <div class="section-dashboard plugin-dashboard" data-reveal>
               <article class="dashboard-card">
-                <span>Build</span>
-                <strong>WorldEdit + Chunky</strong>
-                <p>건축 작업과 월드 사전 생성을 빠르게 처리합니다.</p>
+                <span>Wallet</span>
+                <strong>공통 지갑</strong>
+                <p>보상, 거래, 상점, 경매 수익이 같은 잔액으로 쌓입니다.</p>
               </article>
               <article class="dashboard-card">
-                <span>Access</span>
-                <strong>LuckPerms</strong>
-                <p>권한을 분리해서 운영 실수와 악용 가능성을 줄입니다.</p>
+                <span>Market</span>
+                <strong>상점가 중심</strong>
+                <p>스폰 주변에 유저 상점 흐름을 모아 신규 유저도 가격을 파악하기 쉽게 합니다.</p>
               </article>
               <article class="dashboard-card">
-                <span>Compatibility</span>
-                <strong>ViaVersion</strong>
-                <p>클라이언트 버전 차이로 인한 접속 문제를 줄입니다.</p>
+                <span>Safety</span>
+                <strong>거래 기록 우선</strong>
+                <p>거래 분쟁은 채팅 기록, 스크린샷, 좌표를 기준으로 확인합니다.</p>
               </article>
               <article class="dashboard-card dashboard-wide">
                 <span>Ops note</span>
-                <strong>플러그인 운영 기준</strong>
-                <p>생존 경험을 크게 바꾸는 기능보다 성능, 권한, 편의성 중심의 플러그인을 우선합니다.</p>
+                <strong>추가 플러그인 기준</strong>
+                <p>경제를 단번에 무너뜨리는 자동 판매, 과한 보상, 무제한 자원 생성 기능은 신중하게 적용합니다.</p>
               </article>
             </div>
           </section>
@@ -152,7 +185,7 @@
             <img src="/assets/server-icon.png" alt="" />
             nfoifsb.kr
           </span>
-          <span>Paper 26.1.2 · Minecraft 생존 서버</span>
+          <span>Paper 26.1.2 · 경제 야생 서버</span>
           <a href="#content">맨 위로</a>
         </div>
         <div class="footer-theme-row">

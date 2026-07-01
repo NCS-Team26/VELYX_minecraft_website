@@ -573,7 +573,7 @@ function initPageNavigation() {
 
 function initAnimationStagger() {
   const animatedGroups = document.querySelectorAll(
-    ".detail-grid, .plugin-grid, .feature-grid, .section-dashboard, .rules-list, .rules-tools, .join-steps, .stats-inner, .gallery-strip",
+    ".detail-grid, .plugin-grid, .feature-grid, .economy-grid, .market-list, .section-dashboard, .rules-list, .rules-tools, .join-steps, .stats-inner, .gallery-strip",
   );
 
   animatedGroups.forEach((group) => {
