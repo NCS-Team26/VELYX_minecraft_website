@@ -1,0 +1,31 @@
+name: AuroraLink
+version: ${version}
+main: kr.nfoifsb.auroralink.AuroraLinkPlugin
+api-version: "1.21"
+authors:
+  - Furu002
+description: Web-to-Minecraft bridge for nfoifsb economy survival.
+website: https://www.nfoifsb.kr/
+softdepend:
+  - Vault
+  - Essentials
+  - LuckPerms
+  - QuickShop
+  - AuctionHouse
+  - GriefPrevention
+commands:
+  webauth:
+    description: Link a website account with your Minecraft character.
+    usage: /webauth <code>
+    aliases:
+      - webverify
+      - linkweb
+  auroralink:
+    description: AuroraLink admin tools.
+    usage: /auroralink <reload|status>
+    aliases:
+      - alink
+permissions:
+  auroralink.admin:
+    description: Manage AuroraLink.
+    default: op

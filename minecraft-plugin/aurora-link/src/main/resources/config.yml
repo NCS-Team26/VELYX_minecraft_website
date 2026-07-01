@@ -1,0 +1,30 @@
+api:
+  enabled: true
+  host: "0.0.0.0"
+  port: 8787
+  base-path: "/minecraft"
+  allowed-origins:
+    - "https://www.nfoifsb.kr"
+    - "http://127.0.0.1:5173"
+    - "http://localhost:5173"
+  rate-limit-per-minute: 80
+  admin-token: "CHANGE_ME_TO_A_LONG_RANDOM_SECRET"
+
+verification:
+  code-expire-minutes: 10
+  web-token-days: 30
+
+actions:
+  daily-reward:
+    enabled: true
+    cooldown-hours: 20
+    money: 250.0
+    commands:
+      - "give %player% bread 16"
+  spark:
+    enabled: true
+    cooldown-seconds: 60
+  market-bell:
+    enabled: true
+    cooldown-minutes: 10
+    broadcast-format: "&b[Market] &f%player% &7sent a market ping from the website."

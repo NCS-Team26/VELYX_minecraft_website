@@ -31,6 +31,7 @@ jobs:
       SITE_DOMAIN: ${{ secrets.SITE_DOMAIN || 'www.nfoifsb.kr' }}
       VITE_GOOGLE_CLIENT_ID: ${{ secrets.VITE_GOOGLE_CLIENT_ID }}
       VITE_AUTH_API_BASE: ${{ secrets.VITE_AUTH_API_BASE }}
+      VITE_PLAYER_API_BASE: ${{ secrets.VITE_PLAYER_API_BASE }}
       ALLOW_AWS_COSTS: ${{ github.event_name == 'workflow_dispatch' && inputs.allow_aws_costs || '1' }}
 
     steps:

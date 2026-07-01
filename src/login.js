@@ -41,6 +41,9 @@ const verifyCommand = document.querySelector("[data-verify-command]");
 const checkCharacterButton = document.querySelector("[data-check-character]");
 const copyVerifyCommandButton = document.querySelector("[data-copy-verify-command]");
 const refreshInventoryButton = document.querySelector("[data-refresh-inventory]");
+const playerActionButtons = document.querySelectorAll("[data-player-action]");
+const webActionSummary = document.querySelector("[data-web-action-summary]");
+const webActionMessage = document.querySelector("[data-web-action-message]");
 const inventoryGrid = document.querySelector("[data-inventory-grid]");
 const inventoryEmpty = document.querySelector("[data-inventory-empty]");
 const inventorySummary = document.querySelector("[data-inventory-summary]");
@@ -368,7 +371,7 @@ function generateVerificationCode() {
 }
 
 function getVerifyCommand(code) {
-  return `/웹인증 ${code}`;
+  return `/webauth ${code}`;
 }
 
 function setCharacterStatus(text, tone = "idle") {
@@ -382,6 +385,32 @@ function setInventoryLoading(isLoading) {
   if (!refreshInventoryButton) return;
   refreshInventoryButton.disabled = isLoading || !readPlayerProfile()?.verified;
   refreshInventoryButton.textContent = isLoading ? "불러오는 중" : "새로고침";
+}
+
+function setWebActionMessage(text, tone = "info") {
+  if (!webActionMessage) return;
+  webActionMessage.textContent = text;
+  webActionMessage.classList.toggle("is-error", tone === "error");
+  webActionMessage.classList.toggle("is-success", tone === "success");
+}
+
+function renderWebActions(profile = readPlayerProfile()) {
+  const canUseActions = Boolean(profile?.verified && profile?.webToken);
+  playerActionButtons.forEach((button) => {
+    button.disabled = !canUseActions;
+  });
+  if (webActionSummary) {
+    webActionSummary.textContent = canUseActions
+      ? "서버 연결 준비됨"
+      : profile?.verified
+        ? "토큰 재확인 필요"
+        : "인증 후 사용";
+  }
+  if (!profile?.verified) {
+    setWebActionMessage("캐릭터 인증 후 웹사이트 버튼으로 서버에 액션을 보낼 수 있습니다.");
+  } else if (!profile?.webToken) {
+    setWebActionMessage("인증 확인 버튼을 눌러 웹 액션 토큰을 받아오세요.", "error");
+  }
 }
 
 function getInventoryItems(payload) {
@@ -517,6 +546,52 @@ async function fetchPlayerJson(path, options = {}) {
   }
 }
 
+async function postPlayerAction(action) {
+  const user = readStoredUser();
+  const profile = readPlayerProfile(user);
+  if (!profile?.verified) {
+    setWebActionMessage("먼저 캐릭터 인증을 완료해 주세요.", "error");
+    return;
+  }
+
+  if (!profile.webToken) {
+    setWebActionMessage("인증 확인을 다시 눌러 웹 액션 토큰을 받아오세요.", "error");
+    return;
+  }
+
+  if (!playerApiBase) {
+    if (allowLocalPlayerPreview) {
+      setWebActionMessage("로컬 미리보기에서는 버튼 모양만 확인됩니다. 실제 서버 API를 연결해 주세요.");
+      return;
+    }
+    setWebActionMessage("VITE_PLAYER_API_BASE가 아직 연결되지 않았습니다.", "error");
+    return;
+  }
+
+  playerActionButtons.forEach((button) => {
+    button.disabled = true;
+  });
+  setWebActionMessage("서버로 액션을 보내는 중...");
+
+  try {
+    const payload = await fetchPlayerJson(
+      `/players/${encodeURIComponent(profile.nickname)}/actions/${encodeURIComponent(action)}`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${profile.webToken}`,
+        },
+        body: JSON.stringify({ webToken: profile.webToken }),
+      },
+    );
+    setWebActionMessage(payload?.message || "서버 액션을 보냈습니다.", "success");
+  } catch (error) {
+    setWebActionMessage(error?.message || "서버 액션을 보내지 못했습니다.", "error");
+  } finally {
+    renderWebActions(profile);
+  }
+}
+
 async function requestPlayerVerification(nickname, user) {
   const apiPayload = await fetchPlayerJson("/verification/start", {
     method: "POST",
@@ -537,6 +612,7 @@ async function requestPlayerVerification(nickname, user) {
     code,
     uuid: apiPayload?.uuid || "",
     verified: Boolean(apiPayload?.verified),
+    webToken: apiPayload?.webToken || "",
     requestedAt: new Date().toISOString(),
   };
 }
@@ -558,6 +634,7 @@ async function checkPlayerVerification(profile, user) {
   return {
     ...profile,
     uuid: apiPayload?.uuid || profile.uuid || "",
+    webToken: apiPayload?.webToken || profile.webToken || "",
     verified: playerApiBase ? Boolean(apiPayload?.verified) : allowLocalPlayerPreview,
     verifiedAt:
       apiPayload?.verified || allowLocalPlayerPreview ? new Date().toISOString() : profile.verifiedAt,
@@ -607,6 +684,7 @@ function renderCharacterPanel(user = readStoredUser()) {
     characterPanel.hidden = true;
     renderVerifyCard(null);
     renderInventory(null);
+    renderWebActions(null);
     setCharacterStatus("인증 대기");
     return;
   }
@@ -622,6 +700,7 @@ function renderCharacterPanel(user = readStoredUser()) {
   renderVerifyCard(profile);
   setCharacterStatus(profile?.verified ? "인증 완료" : profile ? "인증 확인 필요" : "인증 대기", profile?.verified ? "success" : "idle");
   if (refreshInventoryButton) refreshInventoryButton.disabled = !profile?.verified;
+  renderWebActions(profile);
 
   const cached = getCachedInventory(user);
   if (cached?.payload && cached.nickname === profile?.nickname) {
@@ -794,6 +873,7 @@ characterForm?.addEventListener("submit", async (event) => {
   writePlayerProfile(profile, user);
   renderVerifyCard(profile);
   renderInventory(null);
+  renderWebActions(profile);
   setCharacterStatus(profile.verified ? "인증 완료" : "인증 확인 필요", profile.verified ? "success" : "idle");
   if (refreshInventoryButton) refreshInventoryButton.disabled = !profile.verified;
   if (profile.verified) loadPlayerInventory(profile, user);
@@ -812,6 +892,7 @@ checkCharacterButton?.addEventListener("click", async () => {
   const nextProfile = await checkPlayerVerification(profile, user);
   writePlayerProfile(nextProfile, user);
   renderVerifyCard(nextProfile);
+  renderWebActions(nextProfile);
   setCharacterStatus(
     nextProfile.verified ? "인증 완료" : "아직 미인증",
     nextProfile.verified ? "success" : "error",
@@ -838,6 +919,13 @@ refreshInventoryButton?.addEventListener("click", () => {
   const user = readStoredUser();
   const profile = readPlayerProfile(user);
   if (profile?.verified) loadPlayerInventory(profile, user);
+});
+
+playerActionButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    const action = button.dataset.playerAction;
+    if (action) postPlayerAction(action);
+  });
 });
 
 modeButtons.forEach((button) => {

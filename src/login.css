@@ -526,6 +526,98 @@ a {
   white-space: nowrap;
 }
 
+.web-actions {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background:
+    linear-gradient(135deg, rgba(147, 226, 166, 0.12), transparent 58%),
+    var(--field);
+}
+
+.web-actions-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.web-actions-heading div {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+}
+
+.web-actions-heading span,
+.web-action-button span {
+  color: var(--text-faint);
+  font-size: 12px;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.web-actions-heading strong {
+  color: var(--text);
+  font-size: 15px;
+}
+
+.web-action-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.web-action-button {
+  display: grid;
+  min-width: 0;
+  gap: 5px;
+  min-height: 78px;
+  padding: 12px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.07);
+  cursor: pointer;
+}
+
+.web-action-button strong {
+  min-width: 0;
+  overflow: hidden;
+  font-size: 14px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.web-action-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+
+.web-action-button:not(:disabled):hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.web-action-message {
+  min-height: 20px;
+  margin: 0;
+  color: var(--text-faint);
+  font-size: 13px;
+  font-weight: 650;
+  line-height: 1.45;
+  text-align: center;
+}
+
+.web-action-message.is-error {
+  color: var(--danger);
+}
+
+.web-action-message.is-success {
+  color: var(--accent);
+}
+
 .inventory-toolbar {
   display: flex;
   align-items: center;
@@ -621,6 +713,7 @@ input:focus-visible {
 
 .auth-primary,
 .auth-ghost,
+.web-action-button,
 .auto-login-button,
 .auth-secondary-actions button {
   transition:
@@ -632,6 +725,7 @@ input:focus-visible {
 
 .auth-primary:hover,
 .auth-ghost:hover,
+.web-action-button:not(:disabled):hover,
 .auth-secondary-actions button:hover {
   transform: translateY(-2px);
   filter: brightness(1.08);
@@ -715,7 +809,8 @@ input:focus-visible {
   }
 
   .verify-actions,
-  .character-stats {
+  .character-stats,
+  .web-action-grid {
     grid-template-columns: 1fr;
   }
 
