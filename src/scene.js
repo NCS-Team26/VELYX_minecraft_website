@@ -635,22 +635,27 @@ function addSky(scene, materials) {
   scene.add(sky, sun);
 }
 
+// Minecraft title-screen panorama: camera slowly orbits the world center,
+// always looking inward, with a faint vertical sway. reduceMotion pins a frame.
+const PANORAMA_CENTER = new THREE.Vector3(-1, 1.4, 4);
+
 function frameCamera(camera, canvas, elapsed, reduceMotion) {
   const aspect = canvas.clientWidth / Math.max(canvas.clientHeight, 1);
   const portrait = aspect < 0.85;
-  const base = portrait ? new THREE.Vector3(10, 6.4, 24) : new THREE.Vector3(13.5, 6.1, 22);
-  const target = portrait ? new THREE.Vector3(-1.2, 1.4, 4.8) : new THREE.Vector3(-2, 1.2, 5.2);
+  const radius = portrait ? 26 : 24;
+  const height = portrait ? 7.6 : 6.9;
 
-  if (!reduceMotion) {
-    base.x += Math.sin(elapsed * 0.12) * 0.55;
-    base.y += Math.sin(elapsed * 0.24) * 0.08;
-    base.z += Math.cos(elapsed * 0.1) * 0.45;
-    target.x += Math.sin(elapsed * 0.1) * 0.28;
-    target.z += Math.cos(elapsed * 0.08) * 0.28;
-  }
+  // Slow panorama drift like the vanilla menu, but held to a front-facing arc:
+  // a full 360 here would swing the camera behind the hills and clip terrain.
+  const angle = reduceMotion ? 0.1 : 0.1 + Math.sin(elapsed * 0.06) * 0.62;
+  const sway = reduceMotion ? 0 : Math.sin(elapsed * 0.22) * 0.45;
 
-  camera.position.copy(base);
-  camera.lookAt(target);
+  camera.position.set(
+    PANORAMA_CENTER.x + Math.sin(angle) * radius,
+    height + sway,
+    PANORAMA_CENTER.z + Math.cos(angle) * radius,
+  );
+  camera.lookAt(PANORAMA_CENTER);
 }
 
 // canvas is resolved and guarded (saveData / existence) by the caller in main.js.
