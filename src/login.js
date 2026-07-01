@@ -3,8 +3,13 @@ import "./login.css";
 const AUTH_STORAGE_KEY = "nfoifsb.googleUser";
 const AUTH_EVENT_KEY = "nfoifsb.authEvent";
 const AUTH_AUTO_KEY = "nfoifsb.autoLogin";
+const PLAYER_PROFILES_KEY = "nfoifsb.playerProfiles";
+const PLAYER_INVENTORY_CACHE_KEY = "nfoifsb.playerInventoryCache";
 const GOOGLE_SCRIPT_SRC = "https://accounts.google.com/gsi/client";
 const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
+const playerApiBase = (import.meta.env.VITE_PLAYER_API_BASE || "").replace(/\/$/, "");
+const allowLocalPlayerPreview =
+  !playerApiBase && ["localhost", "127.0.0.1", "::1"].includes(window.location.hostname);
 
 const title = document.querySelector("[data-auth-title]");
 const copy = document.querySelector("[data-auth-copy]");
@@ -19,7 +24,25 @@ const autoLoginButton = document.querySelector("[data-auto-login]");
 const loginForm = document.querySelector("[data-login-form]");
 const signupForm = document.querySelector("[data-signup-form]");
 const resetForm = document.querySelector("[data-reset-form]");
+const authViews = document.querySelectorAll("[data-auth-view]");
+const authSecondaryActions = document.querySelector(".auth-secondary-actions");
+const authDivider = document.querySelector(".auth-divider");
 const modeButtons = document.querySelectorAll("[data-mode-button]");
+const characterPanel = document.querySelector("[data-character-panel]");
+const characterForm = document.querySelector("[data-character-form]");
+const characterStatus = document.querySelector("[data-character-status]");
+const verifyCard = document.querySelector("[data-verify-card]");
+const verifyCode = document.querySelector("[data-verify-code]");
+const verifyCommand = document.querySelector("[data-verify-command]");
+const checkCharacterButton = document.querySelector("[data-check-character]");
+const copyVerifyCommandButton = document.querySelector("[data-copy-verify-command]");
+const refreshInventoryButton = document.querySelector("[data-refresh-inventory]");
+const inventoryGrid = document.querySelector("[data-inventory-grid]");
+const inventoryEmpty = document.querySelector("[data-inventory-empty]");
+const inventorySummary = document.querySelector("[data-inventory-summary]");
+const characterLevel = document.querySelector("[data-character-level]");
+const characterHealth = document.querySelector("[data-character-health]");
+const characterLocation = document.querySelector("[data-character-location]");
 
 let googleScriptPromise;
 let googleMessage = "Google 로그인 버튼을 준비하고 있습니다.";
@@ -39,6 +62,18 @@ function setGoogleMessage(text, tone = "info") {
   if (loginForm && !loginForm.hidden) {
     setMessage(text, tone);
   }
+}
+
+function renderSignedInControls(isSignedIn) {
+  if (isSignedIn) {
+    authViews.forEach((view) => {
+      view.hidden = true;
+    });
+  }
+
+  if (authSecondaryActions) authSecondaryActions.hidden = isSignedIn;
+  if (authDivider) authDivider.hidden = isSignedIn;
+  if (googleLoginSlot) googleLoginSlot.hidden = isSignedIn;
 }
 
 function readAutoLogin() {
@@ -128,6 +163,7 @@ function persistUser(user) {
   }
 
   publishAuthEvent("login", user);
+  renderCharacterPanel(user);
 }
 
 function clearUser() {
@@ -147,6 +183,7 @@ function renderAuthState(user = readStoredUser()) {
   if (!profile) return;
 
   if (!user) {
+    renderSignedInControls(false);
     profile.hidden = true;
     if (avatar) {
       avatar.hidden = true;
@@ -154,11 +191,15 @@ function renderAuthState(user = readStoredUser()) {
     }
     if (profileName) profileName.textContent = "";
     if (profileEmail) profileEmail.textContent = "";
+    renderCharacterPanel(null);
     return;
   }
 
+  renderSignedInControls(true);
   const displayName = user.name || user.email || "로그인 사용자";
   profile.hidden = false;
+  if (title) title.textContent = "계정 연결됨";
+  if (copy) copy.textContent = "인증한 계정으로 캐릭터 정보를 확인할 수 있습니다.";
   if (profileName) profileName.textContent = displayName;
   if (profileEmail) profileEmail.textContent = user.email || user.provider || "";
 
@@ -166,6 +207,8 @@ function renderAuthState(user = readStoredUser()) {
     avatar.hidden = !user.picture;
     if (user.picture) avatar.setAttribute("src", user.picture);
   }
+
+  renderCharacterPanel(user);
 }
 
 function setMode(mode) {
@@ -214,6 +257,361 @@ function clearPasswordFields(form) {
     .forEach((input) => {
       input.value = "";
     });
+}
+
+function getUserKey(user) {
+  return String(user?.sub || user?.email || user?.name || "local-player").toLowerCase();
+}
+
+function readJsonStorage(key, fallback) {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function writeJsonStorage(key, value) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    // The current page can still render the state without persistence.
+  }
+}
+
+function readPlayerProfiles() {
+  return readJsonStorage(PLAYER_PROFILES_KEY, {});
+}
+
+function readPlayerProfile(user = readStoredUser()) {
+  const profiles = readPlayerProfiles();
+  return profiles[getUserKey(user)] || null;
+}
+
+function writePlayerProfile(profile, user = readStoredUser()) {
+  const profiles = readPlayerProfiles();
+  profiles[getUserKey(user)] = profile;
+  writeJsonStorage(PLAYER_PROFILES_KEY, profiles);
+}
+
+function readInventoryCache() {
+  return readJsonStorage(PLAYER_INVENTORY_CACHE_KEY, {});
+}
+
+function writeInventoryCache(profile, payload, user = readStoredUser()) {
+  const cache = readInventoryCache();
+  cache[getUserKey(user)] = {
+    nickname: profile.nickname,
+    payload,
+    timestamp: Date.now(),
+  };
+  writeJsonStorage(PLAYER_INVENTORY_CACHE_KEY, cache);
+}
+
+function getCachedInventory(user = readStoredUser()) {
+  return readInventoryCache()[getUserKey(user)] || null;
+}
+
+function generateVerificationCode() {
+  const cryptoValues = new Uint32Array(1);
+  window.crypto?.getRandomValues?.(cryptoValues);
+  const value = cryptoValues[0] || Math.floor(Math.random() * 900000);
+  return String((value % 900000) + 100000);
+}
+
+function getVerifyCommand(code) {
+  return `/웹인증 ${code}`;
+}
+
+function setCharacterStatus(text, tone = "idle") {
+  if (!characterStatus) return;
+  characterStatus.textContent = text;
+  characterStatus.classList.toggle("is-verified", tone === "success");
+  characterStatus.classList.toggle("is-error", tone === "error");
+}
+
+function setInventoryLoading(isLoading) {
+  if (!refreshInventoryButton) return;
+  refreshInventoryButton.disabled = isLoading || !readPlayerProfile()?.verified;
+  refreshInventoryButton.textContent = isLoading ? "불러오는 중" : "새로고침";
+}
+
+function getInventoryItems(payload) {
+  if (Array.isArray(payload?.items)) return payload.items;
+  if (Array.isArray(payload?.inventory)) return payload.inventory;
+  return [];
+}
+
+function normalizeSlotItem(item, index) {
+  return {
+    slot: Number.isFinite(item?.slot) ? item.slot : index,
+    name: String(item?.name || item?.type || "알 수 없는 아이템"),
+    count: Math.max(1, Number(item?.count || item?.amount || 1)),
+    color: item?.color || getItemColor(String(item?.name || item?.type || "")),
+  };
+}
+
+function getItemColor(name) {
+  const key = name.toLowerCase();
+  if (key.includes("diamond") || name.includes("다이아")) return "#55d9e8";
+  if (key.includes("emerald") || name.includes("에메랄드")) return "#31c96b";
+  if (key.includes("gold") || name.includes("금")) return "#f5c84b";
+  if (key.includes("iron") || name.includes("철")) return "#c9d0d5";
+  if (key.includes("wood") || name.includes("나무")) return "#9a6439";
+  if (key.includes("stone") || name.includes("돌")) return "#8f9693";
+  if (key.includes("apple") || name.includes("사과")) return "#d94f45";
+  if (key.includes("potion") || name.includes("포션")) return "#b05cff";
+  return "#83b36a";
+}
+
+function buildFallbackInventory(profile) {
+  const seed = Array.from(profile.nickname || "player").reduce(
+    (sum, char) => sum + char.charCodeAt(0),
+    0,
+  );
+  const baseItems = [
+    { slot: 0, name: "다이아몬드 검", count: 1, color: "#55d9e8" },
+    { slot: 1, name: "철 곡괭이", count: 1, color: "#c9d0d5" },
+    { slot: 2, name: "횃불", count: 32 + (seed % 24), color: "#f5c84b" },
+    { slot: 3, name: "구운 돼지고기", count: 12 + (seed % 8), color: "#d68a54" },
+    { slot: 4, name: "참나무 원목", count: 24 + (seed % 32), color: "#9a6439" },
+    { slot: 9, name: "방패", count: 1, color: "#8f9693" },
+    { slot: 10, name: "물 양동이", count: 1, color: "#4da3ff" },
+    { slot: 11, name: "에메랄드", count: 3 + (seed % 9), color: "#31c96b" },
+    { slot: 18, name: "엔더 진주", count: 2 + (seed % 4), color: "#46a082" },
+    { slot: 27, name: "황금 사과", count: 1, color: "#f5c84b" },
+  ];
+
+  return {
+    level: 12 + (seed % 28),
+    health: `${16 + (seed % 5)} / 20`,
+    location: `${100 + (seed % 420)}, ${62 + (seed % 8)}, ${-180 - (seed % 360)}`,
+    items: baseItems,
+    updatedAt: new Date().toISOString(),
+    source: "local-preview",
+  };
+}
+
+function renderInventory(payload = null) {
+  if (!inventoryGrid) return;
+
+  const profile = readPlayerProfile();
+  const items = getInventoryItems(payload).map(normalizeSlotItem);
+  const bySlot = new Map(items.map((item) => [item.slot, item]));
+  inventoryGrid.replaceChildren();
+
+  for (let slot = 0; slot < 36; slot += 1) {
+    const item = bySlot.get(slot);
+    const cell = document.createElement("div");
+    cell.className = `inventory-slot${item ? "" : " is-empty"}`;
+    cell.setAttribute("role", "listitem");
+    cell.setAttribute("aria-label", item ? `${item.name} ${item.count}개` : `빈 슬롯 ${slot + 1}`);
+
+    if (item) {
+      const icon = document.createElement("span");
+      icon.className = "inventory-item-icon";
+      icon.style.setProperty("--item-color", item.color);
+      icon.title = item.name;
+      cell.append(icon);
+
+      if (item.count > 1) {
+        const count = document.createElement("span");
+        count.className = "inventory-item-count";
+        count.textContent = String(item.count);
+        cell.append(count);
+      }
+    }
+
+    inventoryGrid.append(cell);
+  }
+
+  const updatedAt = payload?.updatedAt ? new Date(payload.updatedAt) : new Date();
+  const updatedLabel = new Intl.DateTimeFormat("ko-KR", {
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(updatedAt);
+
+  if (inventorySummary) {
+    inventorySummary.textContent = profile?.verified
+      ? `${items.length}개 슬롯 · ${updatedLabel}`
+      : "인증 후 표시";
+  }
+  if (inventoryEmpty) {
+    inventoryEmpty.textContent = profile?.verified
+      ? items.length
+        ? `${profile.nickname} 인벤토리 동기화 완료`
+        : "비어 있는 인벤토리입니다."
+      : "캐릭터 인증 후 표시됩니다.";
+  }
+  if (characterLevel) characterLevel.textContent = payload?.level ?? "--";
+  if (characterHealth) characterHealth.textContent = payload?.health ?? "--";
+  if (characterLocation) characterLocation.textContent = payload?.location ?? "--";
+}
+
+async function fetchPlayerJson(path, options = {}) {
+  if (!playerApiBase) return null;
+
+  const controller = new AbortController();
+  const timer = window.setTimeout(() => controller.abort(), 6000);
+  try {
+    const response = await fetch(`${playerApiBase}${path}`, {
+      ...options,
+      signal: controller.signal,
+      headers: {
+        "Content-Type": "application/json",
+        ...(options.headers || {}),
+      },
+    });
+    if (!response.ok) throw new Error(`player api ${response.status}`);
+    return await response.json();
+  } finally {
+    window.clearTimeout(timer);
+  }
+}
+
+async function requestPlayerVerification(nickname, user) {
+  const apiPayload = await fetchPlayerJson("/verification/start", {
+    method: "POST",
+    body: JSON.stringify({
+      nickname,
+      account: {
+        email: user?.email || "",
+        name: user?.name || "",
+        provider: user?.provider || "site",
+        sub: user?.sub || "",
+      },
+    }),
+  }).catch(() => null);
+
+  const code = String(apiPayload?.code || generateVerificationCode());
+  return {
+    nickname,
+    code,
+    uuid: apiPayload?.uuid || "",
+    verified: Boolean(apiPayload?.verified),
+    requestedAt: new Date().toISOString(),
+  };
+}
+
+async function checkPlayerVerification(profile, user) {
+  const apiPayload = await fetchPlayerJson("/verification/check", {
+    method: "POST",
+    body: JSON.stringify({
+      nickname: profile.nickname,
+      code: profile.code,
+      account: {
+        email: user?.email || "",
+        provider: user?.provider || "site",
+        sub: user?.sub || "",
+      },
+    }),
+  }).catch(() => null);
+
+  return {
+    ...profile,
+    uuid: apiPayload?.uuid || profile.uuid || "",
+    verified: playerApiBase ? Boolean(apiPayload?.verified) : allowLocalPlayerPreview,
+    verifiedAt:
+      apiPayload?.verified || allowLocalPlayerPreview ? new Date().toISOString() : profile.verifiedAt,
+  };
+}
+
+async function loadPlayerInventory(profile, user = readStoredUser()) {
+  if (!profile?.verified) {
+    renderInventory(null);
+    return;
+  }
+
+  setInventoryLoading(true);
+  try {
+    const apiPayload = await fetchPlayerJson(
+      `/players/${encodeURIComponent(profile.nickname)}/inventory`,
+      { method: "GET" },
+    ).catch(() => null);
+    const payload = apiPayload || (allowLocalPlayerPreview ? buildFallbackInventory(profile) : null);
+    if (!payload) {
+      setCharacterStatus("API 연결 필요", "error");
+      renderInventory(null);
+      return;
+    }
+    writeInventoryCache(profile, payload, user);
+    renderInventory(payload);
+  } finally {
+    setInventoryLoading(false);
+  }
+}
+
+function renderVerifyCard(profile) {
+  if (!verifyCard) return;
+
+  verifyCard.hidden = !profile;
+  if (!profile) return;
+
+  const command = getVerifyCommand(profile.code);
+  if (verifyCode) verifyCode.textContent = profile.code;
+  if (verifyCommand) verifyCommand.textContent = command;
+}
+
+function renderCharacterPanel(user = readStoredUser()) {
+  if (!characterPanel) return;
+
+  if (!user) {
+    characterPanel.hidden = true;
+    renderVerifyCard(null);
+    renderInventory(null);
+    setCharacterStatus("인증 대기");
+    return;
+  }
+
+  characterPanel.hidden = false;
+  const profile = readPlayerProfile(user);
+  const nicknameInput = characterForm?.elements?.nickname;
+
+  if (nicknameInput && profile?.nickname) {
+    nicknameInput.value = profile.nickname;
+  }
+
+  renderVerifyCard(profile);
+  setCharacterStatus(profile?.verified ? "인증 완료" : profile ? "인증 확인 필요" : "인증 대기", profile?.verified ? "success" : "idle");
+  if (refreshInventoryButton) refreshInventoryButton.disabled = !profile?.verified;
+
+  const cached = getCachedInventory(user);
+  if (cached?.payload && cached.nickname === profile?.nickname) {
+    renderInventory(cached.payload);
+  } else {
+    renderInventory(null);
+  }
+
+  if (profile?.verified) {
+    loadPlayerInventory(profile, user);
+  }
+}
+
+async function copyText(text) {
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+  } catch {
+    // Use the fallback below.
+  }
+
+  try {
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.setAttribute("readonly", "");
+    textarea.style.position = "fixed";
+    textarea.style.opacity = "0";
+    document.body.append(textarea);
+    textarea.select();
+    const copied = document.execCommand("copy");
+    textarea.remove();
+    return copied;
+  } catch {
+    return false;
+  }
 }
 
 function decodeJwtPayload(token) {
@@ -329,6 +727,72 @@ autoLoginButton?.addEventListener("click", () => {
   setMessage(nextEnabled ? "자동 로그인이 켜졌습니다." : "자동 로그인이 꺼졌습니다.");
 });
 
+characterForm?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const user = readStoredUser();
+  if (!user) {
+    setMessage("먼저 로그인해 주세요.", "error");
+    return;
+  }
+
+  const formData = new FormData(characterForm);
+  const nickname = String(formData.get("nickname") || "").trim();
+  if (!nickname) {
+    setCharacterStatus("닉네임 필요", "error");
+    return;
+  }
+
+  setCharacterStatus("코드 생성 중");
+  const profile = await requestPlayerVerification(nickname, user);
+  writePlayerProfile(profile, user);
+  renderVerifyCard(profile);
+  renderInventory(null);
+  setCharacterStatus(profile.verified ? "인증 완료" : "인증 확인 필요", profile.verified ? "success" : "idle");
+  if (refreshInventoryButton) refreshInventoryButton.disabled = !profile.verified;
+  if (profile.verified) loadPlayerInventory(profile, user);
+  setMessage(`${nickname} 캐릭터 인증 코드를 만들었습니다.`, "success");
+});
+
+checkCharacterButton?.addEventListener("click", async () => {
+  const user = readStoredUser();
+  const profile = readPlayerProfile(user);
+  if (!user || !profile) {
+    setCharacterStatus("인증 대기", "error");
+    return;
+  }
+
+  setCharacterStatus("인증 확인 중");
+  const nextProfile = await checkPlayerVerification(profile, user);
+  writePlayerProfile(nextProfile, user);
+  renderVerifyCard(nextProfile);
+  setCharacterStatus(
+    nextProfile.verified ? "인증 완료" : "아직 미인증",
+    nextProfile.verified ? "success" : "error",
+  );
+  if (refreshInventoryButton) refreshInventoryButton.disabled = !nextProfile.verified;
+
+  if (nextProfile.verified) {
+    await loadPlayerInventory(nextProfile, user);
+    setMessage(`${nextProfile.nickname} 캐릭터가 인증되었습니다.`, "success");
+  } else {
+    setMessage("서버에서 아직 캐릭터 인증을 확인하지 못했습니다.", "error");
+  }
+});
+
+copyVerifyCommandButton?.addEventListener("click", async () => {
+  const profile = readPlayerProfile();
+  if (!profile?.code) return;
+
+  const copied = await copyText(getVerifyCommand(profile.code));
+  setMessage(copied ? "인증 명령어를 복사했습니다." : "명령어 복사에 실패했습니다.", copied ? "success" : "error");
+});
+
+refreshInventoryButton?.addEventListener("click", () => {
+  const user = readStoredUser();
+  const profile = readPlayerProfile(user);
+  if (profile?.verified) loadPlayerInventory(profile, user);
+});
+
 modeButtons.forEach((button) => {
   button.addEventListener("click", () => {
     setMode(button.dataset.modeButton || "login");
@@ -388,11 +852,12 @@ resetForm?.addEventListener("submit", (event) => {
 
 signoutButton?.addEventListener("click", () => {
   clearUser();
+  setMode("login");
   renderAuthState(null);
   setMessage("로그아웃되었습니다.");
 });
 
 renderAutoLogin();
-renderAuthState();
 setMode("login");
+renderAuthState();
 initGoogleLogin();
