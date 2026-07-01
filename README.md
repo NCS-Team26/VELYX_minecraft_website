@@ -97,6 +97,22 @@ VITE_PLAYER_API_BASE=https://api.example.com/minecraft
 
 Paper 플러그인이나 별도 백엔드는 `docs/minecraft-player-api.md`의 `/verification/start`, `/verification/check`, `/players/{nickname}/inventory` 형식에 맞추면 됩니다.
 
+이 저장소에는 Paper 서버용 커스텀 브릿지 플러그인 **AuroraLink**도 포함되어 있습니다.
+AuroraLink는 캐릭터 인증, 인벤토리 조회, 출석 보상, 웹 핑, 장터 알림을 웹사이트 버튼과 연결합니다.
+
+```powershell
+cd minecraft-plugin\aurora-link
+.\gradlew.bat build
+```
+
+빌드 결과 JAR:
+
+```text
+minecraft-plugin/aurora-link/build/libs/AuroraLink-0.1.0.jar
+```
+
+설치와 API 보안 설정은 `docs/aurora-link-plugin.md`를 참고하세요.
+
 ## 빌드
 
 ```powershell
@@ -154,6 +170,8 @@ arn:aws:iam::358982198253:role/GitHubActionsMincraftServerWebsiteDeployRole
 ```text
 AWS_REGION              # 기본값: ap-northeast-1
 VITE_GOOGLE_CLIENT_ID   # Google 로그인 버튼 활성화
+VITE_AUTH_API_BASE      # 회원가입/로그인 API 주소
+VITE_PLAYER_API_BASE    # AuroraLink 플레이어 API 주소, 예: https://api.nfoifsb.kr/minecraft
 SITE_BUCKET             # 기본값: menhera-minecraft-server-website
 SITE_DOMAIN             # 기본값: www.nfoifsb.kr
 CERTIFICATE_ARN         # 기본값: www.nfoifsb.kr용 us-east-1 ACM 인증서 ARN

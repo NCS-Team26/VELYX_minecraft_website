@@ -115,7 +115,7 @@
           <div class="verify-card" data-verify-card hidden>
             <span>서버 인증 코드</span>
             <strong data-verify-code>------</strong>
-            <code data-verify-command>/웹인증 ------</code>
+            <code data-verify-command>/webauth ------</code>
             <div class="verify-actions">
               <button class="auth-ghost" type="button" data-check-character>인증 확인</button>
               <button class="auth-ghost" type="button" data-copy-verify-command>명령어 복사</button>
@@ -135,6 +135,32 @@
               <span>좌표</span>
               <strong data-character-location>--</strong>
             </div>
+          </div>
+
+          <div class="web-actions" aria-label="웹 서버 액션">
+            <div class="web-actions-heading">
+              <div>
+                <span>웹 액션</span>
+                <strong data-web-action-summary>인증 후 사용</strong>
+              </div>
+            </div>
+            <div class="web-action-grid">
+              <button class="web-action-button" type="button" data-player-action="daily-reward" disabled>
+                <span>Daily</span>
+                <strong>출석 보상</strong>
+              </button>
+              <button class="web-action-button" type="button" data-player-action="spark" disabled>
+                <span>Ping</span>
+                <strong>서버 핑</strong>
+              </button>
+              <button class="web-action-button" type="button" data-player-action="market-bell" disabled>
+                <span>Market</span>
+                <strong>장터 알림</strong>
+              </button>
+            </div>
+            <p class="web-action-message" data-web-action-message>
+              캐릭터 인증 후 웹사이트 버튼으로 서버에 액션을 보낼 수 있습니다.
+            </p>
           </div>
 
           <div class="inventory-toolbar">
