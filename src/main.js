@@ -11,8 +11,18 @@ const playerMeter = document.querySelector("[data-player-meter]");
 const versionLabel = document.querySelector("[data-version]");
 const copyFeedback = document.querySelector("[data-copy-feedback]");
 const loginButton = document.querySelector("[data-open-login]");
+const cacheState = document.querySelector("[data-cache-state]");
+const lastChecked = document.querySelector("[data-last-checked]");
+const latencyLabel = document.querySelector("[data-latency]");
+const statusHealth = document.querySelector("[data-status-health]");
+const playerSummary = document.querySelector("[data-player-summary]");
+const motdLabel = document.querySelector("[data-motd]");
+const sectionLinks = document.querySelectorAll("[data-section-link]");
 const AUTH_STORAGE_KEY = "nfoifsb.googleUser";
 const AUTH_EVENT_KEY = "nfoifsb.authEvent";
+const STATUS_CACHE_KEY = "nfoifsb.statusCache";
+const NAV_HASH_KEY = "nfoifsb.activeSection";
+const SECTION_HASHES = new Set(["#status", "#plugins", "#rules", "#join"]);
 
 let sessionUser = null;
 
@@ -40,6 +50,78 @@ function flashButton(button) {
     button.innerHTML = original;
     delete button.dataset.flashing;
   }, 1400);
+}
+
+function formatStatusTime(timestamp) {
+  if (!timestamp) return "시간 정보 없음";
+  return new Intl.DateTimeFormat("ko-KR", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  }).format(new Date(timestamp));
+}
+
+function readStatusCache() {
+  try {
+    const raw = localStorage.getItem(STATUS_CACHE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeStatusCache(data, latencyMs) {
+  try {
+    localStorage.setItem(
+      STATUS_CACHE_KEY,
+      JSON.stringify({
+        data,
+        latencyMs,
+        timestamp: Date.now(),
+      }),
+    );
+  } catch {
+    // Status rendering still works without persistence.
+  }
+}
+
+function getMotdText(data) {
+  const motd = data?.motd;
+  const value = motd?.clean ?? motd?.raw ?? motd?.html ?? "";
+  if (Array.isArray(value)) return value.filter(Boolean).join(" ");
+  return String(value || "서버 메시지가 비어 있습니다.").replace(/<[^>]*>/g, "");
+}
+
+function renderStatusData(data, options = {}) {
+  const online = Boolean(data?.online);
+  const playersOnline = data?.players?.online ?? 0;
+  const playersMax = data?.players?.max ?? 10;
+  const meterWidth = Math.min(100, Math.round((playersOnline / Math.max(playersMax, 1)) * 100));
+  const timestamp = options.timestamp || Date.now();
+  const latencyMs = options.latencyMs;
+
+  statusDot?.classList.toggle("is-online", online);
+  statusDot?.classList.toggle("is-cached", Boolean(options.cached));
+  if (statusLabel) {
+    statusLabel.textContent = options.cached ? "캐시된 상태" : online ? "온라인" : "오프라인";
+  }
+  if (playerCount) playerCount.textContent = `${playersOnline} / ${playersMax}`;
+  if (playerMeter) playerMeter.style.width = `${meterWidth}%`;
+  if (versionLabel) versionLabel.textContent = data?.version?.name_clean || "Paper 26.1.2";
+  if (cacheState) cacheState.textContent = options.cached ? "캐시값으로 표시 중" : "실시간 값 표시 중";
+  if (lastChecked) {
+    lastChecked.textContent = `${options.cached ? "캐시 저장" : "마지막 확인"}: ${formatStatusTime(timestamp)}`;
+  }
+  if (latencyLabel) latencyLabel.textContent = Number.isFinite(latencyMs) ? `${latencyMs} ms` : "-- ms";
+  if (statusHealth) {
+    statusHealth.textContent = online
+      ? "접속 가능한 상태입니다."
+      : options.cached
+        ? "실시간 확인 실패로 저장된 값을 보여줍니다."
+        : "현재 접속 가능 여부를 확인하지 못했습니다.";
+  }
+  if (playerSummary) playerSummary.textContent = `${playersOnline}명 접속 / ${playersMax} 슬롯`;
+  if (motdLabel) motdLabel.textContent = getMotdText(data);
 }
 
 async function copyAddress(event) {
@@ -76,26 +158,35 @@ async function refreshStatus() {
   // Abort a hung request so the status never sits in "확인 중" forever.
   const controller = new AbortController();
   const timer = window.setTimeout(() => controller.abort(), STATUS_TIMEOUT_MS);
+  const startedAt = performance.now();
   try {
     const response = await fetch(STATUS_API, { cache: "no-store", signal: controller.signal });
     if (!response.ok) throw new Error(`status ${response.status}`);
     const data = await response.json();
-
-    const online = Boolean(data.online);
-    const playersOnline = data.players?.online ?? 0;
-    const playersMax = data.players?.max ?? 10;
-    const meterWidth = Math.min(100, Math.round((playersOnline / Math.max(playersMax, 1)) * 100));
-
-    statusDot?.classList.toggle("is-online", online);
-    if (statusLabel) statusLabel.textContent = online ? "온라인" : "오프라인";
-    if (playerCount) playerCount.textContent = `${playersOnline} / ${playersMax}`;
-    if (playerMeter) playerMeter.style.width = `${meterWidth}%`;
-    if (versionLabel) versionLabel.textContent = data.version?.name_clean || "Paper 26.1.2";
+    const latencyMs = Math.round(performance.now() - startedAt);
+    writeStatusCache(data, latencyMs);
+    renderStatusData(data, { cached: false, latencyMs, timestamp: Date.now() });
   } catch {
-    statusDot?.classList.remove("is-online");
-    if (statusLabel) statusLabel.textContent = "상태 확인 실패";
-    if (playerCount) playerCount.textContent = "-- / 10";
-    if (playerMeter) playerMeter.style.width = "0%";
+    const cached = readStatusCache();
+    if (cached?.data) {
+      renderStatusData(cached.data, {
+        cached: true,
+        latencyMs: cached.latencyMs,
+        timestamp: cached.timestamp,
+      });
+    } else {
+      statusDot?.classList.remove("is-online");
+      statusDot?.classList.remove("is-cached");
+      if (statusLabel) statusLabel.textContent = "상태 확인 실패";
+      if (playerCount) playerCount.textContent = "-- / 10";
+      if (playerMeter) playerMeter.style.width = "0%";
+      if (cacheState) cacheState.textContent = "캐시 없음";
+      if (lastChecked) lastChecked.textContent = "저장된 상태 값이 없습니다.";
+      if (latencyLabel) latencyLabel.textContent = "-- ms";
+      if (statusHealth) statusHealth.textContent = "실시간 API와 캐시를 모두 사용할 수 없습니다.";
+      if (playerSummary) playerSummary.textContent = "--";
+      if (motdLabel) motdLabel.textContent = "서버 메시지를 확인하지 못했습니다.";
+    }
   } finally {
     window.clearTimeout(timer);
   }
@@ -243,6 +334,49 @@ function initNav() {
   });
 }
 
+function setActiveSection(hash) {
+  sectionLinks.forEach((link) => {
+    const active = link.getAttribute("href") === hash;
+    link.classList.toggle("is-active", active);
+    if (active) link.setAttribute("aria-current", "page");
+    else link.removeAttribute("aria-current");
+  });
+
+  if (SECTION_HASHES.has(hash)) {
+    try {
+      localStorage.setItem(NAV_HASH_KEY, hash);
+    } catch {
+      // Active nav still works without persistence.
+    }
+  }
+}
+
+function initSectionNavigation() {
+  if (!sectionLinks.length) return;
+
+  sectionLinks.forEach((link) => {
+    link.addEventListener("click", () => {
+      const hash = link.getAttribute("href");
+      if (SECTION_HASHES.has(hash)) setActiveSection(hash);
+    });
+  });
+
+  window.addEventListener("hashchange", () => {
+    setActiveSection(window.location.hash);
+  });
+
+  if (SECTION_HASHES.has(window.location.hash)) {
+    setActiveSection(window.location.hash);
+  } else {
+    try {
+      const storedHash = localStorage.getItem(NAV_HASH_KEY);
+      if (SECTION_HASHES.has(storedHash)) setActiveSection(storedHash);
+    } catch {
+      // No persisted active section available.
+    }
+  }
+}
+
 function initScrollReveal() {
   const targets = document.querySelectorAll("[data-reveal]");
   if (!targets.length) return;
@@ -302,6 +436,7 @@ document.querySelectorAll("[data-copy-address]").forEach((button) => {
 
 initTheme();
 initNav();
+initSectionNavigation();
 initScrollReveal();
 initLogin();
 deferSceneLoad();
