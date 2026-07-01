@@ -11,7 +11,6 @@ const playerMeter = document.querySelector("[data-player-meter]");
 const versionLabel = document.querySelector("[data-version]");
 const copyFeedback = document.querySelector("[data-copy-feedback]");
 const loginButton = document.querySelector("[data-open-login]");
-const LOGIN_URL = "/login.html";
 const AUTH_STORAGE_KEY = "nfoifsb.googleUser";
 const AUTH_EVENT_KEY = "nfoifsb.authEvent";
 
@@ -104,7 +103,9 @@ async function refreshStatus() {
 
 function readStoredUser() {
   try {
-    const raw = localStorage.getItem(AUTH_STORAGE_KEY);
+    const sessionUser = sessionStorage.getItem(AUTH_STORAGE_KEY);
+    const storedUser = localStorage.getItem(AUTH_STORAGE_KEY);
+    const raw = sessionUser || storedUser;
     return raw ? JSON.parse(raw) : null;
   } catch {
     return null;
@@ -118,27 +119,13 @@ function renderAuthState(user = sessionUser || readStoredUser()) {
     const displayName = user.name || user.email || "Google 사용자";
     loginButton.textContent = displayName;
     loginButton.classList.add("is-authenticated");
-    loginButton.setAttribute("aria-label", `${displayName} 로그인 창 열기`);
+    loginButton.setAttribute("aria-label", `${displayName} 로그인 화면 열기`);
     return;
   }
 
   loginButton.textContent = "로그인";
   loginButton.classList.remove("is-authenticated");
   loginButton.setAttribute("aria-label", "로그인");
-}
-
-function openLoginWindow(event) {
-  const width = 460;
-  const height = 720;
-  const left = Math.max(0, Math.round(window.screenX + (window.outerWidth - width) / 2));
-  const top = Math.max(0, Math.round(window.screenY + (window.outerHeight - height) / 2));
-  const features = `popup=yes,width=${width},height=${height},left=${left},top=${top}`;
-  const popup = window.open(LOGIN_URL, "nfoifsb-login", features);
-
-  if (popup) {
-    event?.preventDefault();
-    popup.focus();
-  }
 }
 
 function applyAuthEvent(eventData) {
@@ -155,7 +142,6 @@ function initLogin() {
   if (!loginButton) return;
 
   renderAuthState();
-  loginButton.addEventListener("click", openLoginWindow);
 
   window.addEventListener("message", (event) => {
     if (event.origin !== window.location.origin) return;
