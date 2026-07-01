@@ -1444,14 +1444,17 @@ input:focus-visible,
   margin: 0 auto;
   padding: 40px 0 56px;
   border-top: 1px solid var(--border);
+  color: var(--text-faint);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.footer-info-row {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 14px;
-  color: var(--text-faint);
-  font-size: 13px;
-  font-weight: 600;
 }
 
 .site-footer .footer-brand {
@@ -1477,11 +1480,10 @@ input:focus-visible,
 }
 
 .footer-theme-row {
-  flex-basis: 100%;
   display: flex;
   justify-content: center;
-  margin-top: 10px;
-  padding-top: 20px;
+  margin-top: 24px;
+  padding-top: 24px;
   border-top: 1px solid var(--border);
 }
 
@@ -1725,6 +1727,15 @@ input:focus-visible,
 }
 
 @media (max-width: 640px) {
+  .footer-info-row {
+    justify-content: center;
+    text-align: center;
+  }
+
+  .footer-theme-toggle {
+    width: min(100%, 260px);
+  }
+
   .gallery-strip {
     grid-template-columns: 1fr;
   }
