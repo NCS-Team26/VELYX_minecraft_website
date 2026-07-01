@@ -52,10 +52,16 @@ function createPixelTexture(palette, size = 16, salt = 0) {
   canvas.height = size;
   const context = canvas.getContext("2d");
 
+  context.fillStyle = palette[0];
+  context.fillRect(0, 0, size, size);
+
   for (let x = 0; x < size; x += 1) {
     for (let y = 0; y < size; y += 1) {
-      const speckle = hash2(x, y, salt + 20) > 0.82 ? 1 : 0;
-      context.fillStyle = pickColor(palette, x + speckle, y, salt);
+      const blockX = Math.floor(x / 2);
+      const blockY = Math.floor(y / 2);
+      const baseIndex = Math.floor(hash2(blockX, blockY, salt) * palette.length) % palette.length;
+      const highlight = hash2(x, y, salt + 20) > 0.92 ? 1 : 0;
+      context.fillStyle = palette[(baseIndex + highlight) % palette.length];
       context.fillRect(x, y, 1, 1);
     }
   }
@@ -84,20 +90,44 @@ function createSquareTexture(fill, edge, size = 64) {
   return texture;
 }
 
+function createGrassSideTexture() {
+  const canvas = document.createElement("canvas");
+  canvas.width = 16;
+  canvas.height = 16;
+  const context = canvas.getContext("2d");
+  const dirt = createPixelTexture(["#866043", "#79543a", "#6d4932", "#926947"], 16, 42);
+  context.drawImage(dirt.image, 0, 0);
+
+  const grass = ["#74b44b", "#63a13e", "#83c45b", "#568c35"];
+  for (let x = 0; x < 16; x += 1) {
+    const drip = 4 + Math.floor(hash2(x, 0, 43) * 4);
+    for (let y = 0; y < drip; y += 1) {
+      context.fillStyle = grass[Math.floor(hash2(x, y, 44) * grass.length) % grass.length];
+      context.fillRect(x, y, 1, 1);
+    }
+  }
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.magFilter = THREE.NearestFilter;
+  texture.minFilter = THREE.NearestMipmapNearestFilter;
+  texture.colorSpace = THREE.SRGBColorSpace;
+  return texture;
+}
+
 function createMaterials() {
   const textures = {
-    grassTop: createPixelTexture(["#5ca941", "#6fbe4e", "#84cc5b", "#4d9638", "#9ad86d"], 16, 1),
-    grassSide: createPixelTexture(["#5f8f3d", "#6a9b45", "#7d5a35", "#684a2c", "#8a673f"], 16, 2),
-    dirt: createPixelTexture(["#775132", "#8a6040", "#6a452a", "#9b704b", "#573a25"], 16, 3),
-    stone: createPixelTexture(["#777f7a", "#8b948f", "#656d69", "#a5aca7", "#555d59"], 16, 4),
-    sand: createPixelTexture(["#dbc77f", "#cdb66e", "#e8d990", "#bda462", "#f0df9d"], 16, 5),
-    oakLog: createPixelTexture(["#6f492f", "#5b3824", "#815638", "#4b2e1e"], 16, 6),
-    oakPlank: createPixelTexture(["#b8864a", "#c59355", "#9e6f3c", "#d0a060"], 16, 7),
-    leaves: createPixelTexture(["#3f7f36", "#4f9a41", "#66ad4a", "#2f6d2d", "#75bc58"], 16, 8),
-    birchLog: createPixelTexture(["#e7dfc5", "#f3edd8", "#d4c7a7", "#2c2c2c"], 16, 9),
-    spruce: createPixelTexture(["#294f32", "#35633c", "#203e2a", "#48784b"], 16, 10),
-    path: createPixelTexture(["#9d7447", "#8c653d", "#b08755", "#755437"], 16, 11),
-    glass: createPixelTexture(["#a9e9ff", "#d7f8ff", "#6fc9ed", "#ffffff"], 16, 12),
+    grassTop: createPixelTexture(["#6caf45", "#75b84d", "#5f9f3b", "#82c455", "#4f8d32"], 16, 1),
+    grassSide: createGrassSideTexture(),
+    dirt: createPixelTexture(["#866043", "#79543a", "#6d4932", "#926947", "#60412d"], 16, 3),
+    stone: createPixelTexture(["#7f7f7f", "#737373", "#8d8d8d", "#686868", "#9a9a9a"], 16, 4),
+    sand: createPixelTexture(["#d8c783", "#e2d18f", "#c8b673", "#eadb9a"], 16, 5),
+    oakLog: createPixelTexture(["#6b4b2e", "#765536", "#5d3f27", "#84613d"], 16, 6),
+    oakPlank: createPixelTexture(["#b8894d", "#c29358", "#a87842", "#d0a064"], 16, 7),
+    leaves: createPixelTexture(["#3f7d32", "#4d8f3b", "#5ba346", "#356d2d"], 16, 8),
+    birchLog: createPixelTexture(["#e3dec8", "#f0ead8", "#d3cab0", "#2f2f2b"], 16, 9),
+    spruce: createPixelTexture(["#2e5a35", "#244a2d", "#38693e", "#1f3d26"], 16, 10),
+    path: createPixelTexture(["#9a7449", "#8a643d", "#aa8353", "#745337"], 16, 11),
+    glass: createPixelTexture(["#9fd8ee", "#c6f2ff", "#7fc4dd", "#e6fbff"], 16, 12),
   };
 
   const standard = (texture, options = {}) =>
@@ -246,14 +276,14 @@ function addTerrain(world, materials) {
 
 function createWaterMaterial() {
   return new THREE.ShaderMaterial({
-    transparent: true,
-    depthWrite: false,
+    transparent: false,
+    depthWrite: true,
     side: THREE.DoubleSide,
     uniforms: {
       uTime: { value: 0 },
-      uDeep: { value: new THREE.Color(0x1e6fa7) },
-      uShallow: { value: new THREE.Color(0x6fd3ef) },
-      uSun: { value: new THREE.Color(0xffefb5) },
+      uDeep: { value: new THREE.Color(0x2e78b7) },
+      uShallow: { value: new THREE.Color(0x5fb2d8) },
+      uSun: { value: new THREE.Color(0xfff4c2) },
     },
     vertexShader: `
       uniform float uTime;
@@ -263,14 +293,10 @@ function createWaterMaterial() {
       void main() {
         vUv = uv;
         vec3 pos = position;
-        pos.z += sin((pos.x * 5.4 + pos.y * 3.2) + uTime * 1.45) * 0.018;
-        pos.z += cos((pos.x * 2.7 - pos.y * 4.8) - uTime * 1.1) * 0.014;
+        pos.y += sin((pos.x * 0.7 + pos.z * 0.45) + uTime * 0.8) * 0.008;
+        pos.y += cos((pos.x * 0.32 - pos.z * 0.52) - uTime * 0.6) * 0.006;
 
-        #ifdef USE_INSTANCING
-          vec4 worldPosition = modelMatrix * instanceMatrix * vec4(pos, 1.0);
-        #else
-          vec4 worldPosition = modelMatrix * vec4(pos, 1.0);
-        #endif
+        vec4 worldPosition = modelMatrix * vec4(pos, 1.0);
 
         vWorld = worldPosition.xyz;
         gl_Position = projectionMatrix * viewMatrix * worldPosition;
@@ -285,11 +311,11 @@ function createWaterMaterial() {
       varying vec3 vWorld;
 
       void main() {
-        float ripple = sin((vWorld.x + vWorld.z) * 6.5 + uTime * 2.0) * 0.5 + 0.5;
-        float streak = pow(max(0.0, sin(vWorld.x * 4.5 - uTime * 1.3) * cos(vWorld.z * 3.7 + uTime)), 9.0);
-        vec3 color = mix(uDeep, uShallow, 0.34 + ripple * 0.2);
-        color += uSun * streak * 0.28;
-        gl_FragColor = vec4(color, 0.72);
+        float broad = sin(vWorld.x * 0.28 + vWorld.z * 0.2 + uTime * 0.22) * 0.5 + 0.5;
+        float soft = sin(vWorld.x * 0.55 - vWorld.z * 0.38 + uTime * 0.28) * 0.5 + 0.5;
+        vec3 color = mix(uDeep, uShallow, 0.38 + broad * 0.08 + soft * 0.04);
+        color += uSun * 0.025;
+        gl_FragColor = vec4(color, 1.0);
       }
     `,
   });
@@ -297,18 +323,43 @@ function createWaterMaterial() {
 
 function addWater(world, waterTiles) {
   const material = createWaterMaterial();
-  const geometry = new THREE.PlaneGeometry(1, 1, 3, 3);
-  const mesh = new THREE.InstancedMesh(geometry, material, waterTiles.length);
-  const matrix = new THREE.Matrix4();
-  const rotation = new THREE.Quaternion().setFromEuler(new THREE.Euler(-Math.PI / 2, 0, 0));
-  const scale = new THREE.Vector3(1.02, 1.02, 1);
+  const positions = [];
+  const uvs = [];
+  const indices = [];
 
   waterTiles.forEach(([x, z], index) => {
-    matrix.compose(new THREE.Vector3(x, WATER_LEVEL, z), rotation, scale);
-    mesh.setMatrixAt(index, matrix);
+    const base = index * 4;
+    const left = x - 0.51;
+    const right = x + 0.51;
+    const back = z - 0.51;
+    const front = z + 0.51;
+
+    positions.push(
+      left,
+      WATER_LEVEL,
+      back,
+      right,
+      WATER_LEVEL,
+      back,
+      right,
+      WATER_LEVEL,
+      front,
+      left,
+      WATER_LEVEL,
+      front,
+    );
+    uvs.push(left * 0.06, back * 0.06, right * 0.06, back * 0.06, right * 0.06, front * 0.06, left * 0.06, front * 0.06);
+    indices.push(base, base + 1, base + 2, base, base + 2, base + 3);
   });
 
-  mesh.receiveShadow = false;
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+  geometry.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
+  geometry.setIndex(indices);
+  geometry.computeVertexNormals();
+
+  const mesh = new THREE.Mesh(geometry, material);
+  mesh.receiveShadow = true;
   mesh.renderOrder = 1;
   world.add(mesh);
   return material;
@@ -401,11 +452,11 @@ function addBirchTree(world, materials, surface, x, z) {
 function addTrees(world, materials, surface) {
   const trees = [];
   const treeSpecs = [
-    ["oak", -12, -5],
+    ["oak", -18, -7],
     ["oak", -20, 3],
     ["birch", -7, -11],
-    ["oak", 6, -8],
-    ["spruce", 15, -8],
+    ["oak", 4, -16],
+    ["spruce", 18, -13],
     ["oak", 20, 5],
     ["birch", 18, 22],
     ["spruce", -22, 14],
@@ -587,15 +638,15 @@ function addSky(scene, materials) {
 function frameCamera(camera, canvas, elapsed, reduceMotion) {
   const aspect = canvas.clientWidth / Math.max(canvas.clientHeight, 1);
   const portrait = aspect < 0.85;
-  const base = portrait ? new THREE.Vector3(9.5, 6.0, 22) : new THREE.Vector3(11.5, 5.3, 18);
-  const target = portrait ? new THREE.Vector3(-1, 1.5, 4.5) : new THREE.Vector3(-1.8, 1.35, 4);
+  const base = portrait ? new THREE.Vector3(10, 6.4, 24) : new THREE.Vector3(13.5, 6.1, 22);
+  const target = portrait ? new THREE.Vector3(-1.2, 1.4, 4.8) : new THREE.Vector3(-2, 1.2, 5.2);
 
   if (!reduceMotion) {
-    base.x += Math.sin(elapsed * 0.16) * 0.8;
-    base.y += Math.sin(elapsed * 0.35) * 0.12;
-    base.z += Math.cos(elapsed * 0.14) * 0.7;
-    target.x += Math.sin(elapsed * 0.12) * 0.45;
-    target.z += Math.cos(elapsed * 0.1) * 0.45;
+    base.x += Math.sin(elapsed * 0.12) * 0.55;
+    base.y += Math.sin(elapsed * 0.24) * 0.08;
+    base.z += Math.cos(elapsed * 0.1) * 0.45;
+    target.x += Math.sin(elapsed * 0.1) * 0.28;
+    target.z += Math.cos(elapsed * 0.08) * 0.28;
   }
 
   camera.position.copy(base);
@@ -615,8 +666,8 @@ export function initMinecraftScene(canvas) {
   });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.65));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.05;
+  renderer.toneMapping = THREE.LinearToneMapping;
+  renderer.toneMappingExposure = 1.0;
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
@@ -644,12 +695,12 @@ export function initMinecraftScene(canvas) {
     addCloud(world, materials.cloud, 2, 20, -48, 1.8),
   ];
 
-  const sun = new THREE.DirectionalLight(0xfff0c8, 4.6);
-  sun.position.set(-22, 34, 18);
+  const sun = new THREE.DirectionalLight(0xfff1c7, 3.35);
+  sun.position.set(-26, 36, 24);
   sun.castShadow = true;
   sun.shadow.mapSize.set(2048, 2048);
-  sun.shadow.bias = -0.00022;
-  sun.shadow.normalBias = 0.05;
+  sun.shadow.bias = -0.00008;
+  sun.shadow.normalBias = 0.02;
   sun.shadow.camera.left = -42;
   sun.shadow.camera.right = 42;
   sun.shadow.camera.top = 42;
@@ -657,10 +708,10 @@ export function initMinecraftScene(canvas) {
   sun.shadow.camera.near = 1;
   sun.shadow.camera.far = 90;
   scene.add(sun);
-  scene.add(new THREE.HemisphereLight(0xdff6ff, 0x49643a, 1.18));
+  scene.add(new THREE.HemisphereLight(0xe6f6ff, 0x587047, 1.55));
 
-  const fill = new THREE.DirectionalLight(0x7fb9ff, 0.42);
-  fill.position.set(20, 8, -14);
+  const fill = new THREE.DirectionalLight(0xa9d6ff, 0.58);
+  fill.position.set(22, 11, -18);
   scene.add(fill);
 
   const startTime = performance.now();
