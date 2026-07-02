@@ -31,7 +31,7 @@ resource "aws_cloudfront_response_headers_policy" "security" {
         "style-src 'self' 'unsafe-inline'",
         "img-src 'self' data: https://mc-heads.net https://*.googleusercontent.com",
         "font-src 'self' data:",
-        "connect-src 'self' https://api.mcstatus.io https://accounts.google.com https://*.execute-api.ap-northeast-1.amazonaws.com https://api.nfoifsb.kr",
+        "connect-src 'self' https://api.mcstatus.io https://accounts.google.com https://*.execute-api.ap-northeast-1.amazonaws.com https://api.nfoifsb.kr https://minecraftserver1.tail16d543.ts.net",
         "frame-src https://accounts.google.com",
         "form-action 'self'",
         "upgrade-insecure-requests",
