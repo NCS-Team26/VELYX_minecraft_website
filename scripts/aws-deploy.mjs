@@ -6,10 +6,12 @@ import {
   CreateOriginAccessControlCommand,
   CreateResponseHeadersPolicyCommand,
   GetDistributionConfigCommand,
+  GetResponseHeadersPolicyConfigCommand,
   ListDistributionsCommand,
   ListOriginAccessControlsCommand,
   ListResponseHeadersPoliciesCommand,
   UpdateDistributionCommand,
+  UpdateResponseHeadersPolicyCommand,
 } from "@aws-sdk/client-cloudfront";
 import {
   CreateBucketCommand,
@@ -236,7 +238,15 @@ async function findResponseHeadersPolicy(name) {
 async function ensureSecurityHeadersPolicy() {
   const existingId = await findResponseHeadersPolicy(securityHeadersPolicyName);
   if (existingId) {
-    log(`CloudFront response headers policy exists: ${existingId}`);
+    const current = await cloudfront.send(new GetResponseHeadersPolicyConfigCommand({ Id: existingId }));
+    await cloudfront.send(
+      new UpdateResponseHeadersPolicyCommand({
+        Id: existingId,
+        IfMatch: current.ETag,
+        ResponseHeadersPolicyConfig: securityHeadersPolicyConfig(),
+      }),
+    );
+    log(`Updated CloudFront response headers policy: ${existingId}`);
     return existingId;
   }
 
