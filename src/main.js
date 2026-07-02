@@ -581,7 +581,7 @@ function initPageNavigation() {
 
 function initAnimationStagger() {
   const animatedGroups = document.querySelectorAll(
-    ".detail-grid, .plugin-grid, .feature-grid, .economy-grid, .market-list, .stock-summary, .stock-list, .section-dashboard, .rules-list, .rules-tools, .join-steps, .stats-inner, .gallery-strip",
+    ".detail-grid, .plugin-grid, .feature-grid, .economy-grid, .market-list, .stock-heading, .stock-ticker, [data-stock-list], .section-dashboard, .rules-list, .rules-tools, .join-steps, .stats-inner, .gallery-strip",
   );
 
   animatedGroups.forEach((group) => {
@@ -610,6 +610,73 @@ function formatStockCompact(value) {
   if (Math.abs(number) >= 1000000) return `${(number / 1000000).toFixed(1)}M`;
   if (Math.abs(number) >= 1000) return `${(number / 1000).toFixed(1)}K`;
   return formatStockNumber(number);
+}
+
+function formatStockSigned(value) {
+  const number = Number(value);
+  if (!Number.isFinite(number)) return "--";
+  const sign = number >= 0 ? "+" : "";
+  return `${sign}${formatStockNumber(number)}`;
+}
+
+function formatStockTime(value) {
+  if (!value) return "실시간";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "실시간";
+  return new Intl.DateTimeFormat("ko-KR", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(date);
+}
+
+function stockCode(stock) {
+  return stock?.symbol || stock?.code || "";
+}
+
+function stockOpenPrice(stock) {
+  const open = Number(stock?.open24h);
+  if (Number.isFinite(open) && open > 0) return open;
+  const price = Number(stock?.price);
+  const change = Number(stock?.change24h);
+  if (Number.isFinite(price) && Number.isFinite(change) && change !== -100) {
+    return price / (1 + change / 100);
+  }
+  return Number.isFinite(price) ? price : 0;
+}
+
+function stockChangeValue(stock) {
+  const price = Number(stock?.price);
+  const open = stockOpenPrice(stock);
+  if (!Number.isFinite(price) || !Number.isFinite(open)) return 0;
+  return price - open;
+}
+
+function latestStockTime(stock) {
+  const history = Array.isArray(stock?.history) ? stock.history : [];
+  const last = history.at(-1);
+  return last?.time || last?.at || stock?.updatedAt || stock?.lastUpdatedAt;
+}
+
+function rangedStockSeries(series, range) {
+  const sizes = {
+    "1H": 6,
+    "6H": 14,
+    "24H": 32,
+  };
+  const size = sizes[range];
+  if (!size || series.length <= size) return series;
+  return series.slice(-size);
+}
+
+function sortStocks(stocks, sortMode) {
+  const sorted = [...stocks];
+  if (sortMode === "change") {
+    sorted.sort((left, right) => Number(right.change24h || 0) - Number(left.change24h || 0));
+  } else if (sortMode === "volume") {
+    sorted.sort((left, right) => Number(right.volume24h || 0) - Number(left.volume24h || 0));
+  }
+  return sorted;
 }
 
 function stockApiUrl(path) {
@@ -648,7 +715,7 @@ function fallbackStockSeries(stock, tick) {
   });
 }
 
-function stockSeries(stock, tick) {
+function stockSeries(stock, tick, range = "24H") {
   const history = Array.isArray(stock?.history) ? stock.history : [];
   const series = history
     .map((point) => ({
@@ -657,8 +724,8 @@ function stockSeries(stock, tick) {
     }))
     .filter((point) => Number.isFinite(point.price) && point.price > 0);
 
-  if (series.length >= 2) return series;
-  return fallbackStockSeries(stock, tick);
+  if (series.length >= 2) return rangedStockSeries(series, range);
+  return rangedStockSeries(fallbackStockSeries(stock, tick), range);
 }
 
 function buildFallbackMarket(tick) {
@@ -705,12 +772,12 @@ function createSvg(tag, attrs = {}) {
   return element;
 }
 
-function renderStockChart(svg, stock, tick) {
-  const series = stockSeries(stock, tick);
+function renderStockChart(svg, stock, tick, selectedRange = "24H") {
+  const series = stockSeries(stock, tick, selectedRange);
   const prices = series.map((point) => point.price);
   const min = Math.min(...prices) * 0.985;
   const max = Math.max(...prices) * 1.015;
-  const range = Math.max(1, max - min);
+  const priceRange = Math.max(1, max - min);
   const maxVolume = Math.max(1, ...series.map((point) => Number(point.volume) || 0));
   const left = 28;
   const right = 612;
@@ -722,7 +789,7 @@ function renderStockChart(svg, stock, tick) {
   const xStep = width / (series.length - 1);
 
   const toX = (index) => left + index * xStep;
-  const toY = (price) => top + ((max - price) / range) * height;
+  const toY = (price) => top + ((max - price) / priceRange) * height;
   const linePoints = series.map((point, index) => `${toX(index).toFixed(1)},${toY(point.price).toFixed(1)}`).join(" ");
   const areaPoints = `${left},${chartBottom} ${linePoints} ${right},${chartBottom}`;
 
@@ -803,40 +870,89 @@ function renderStockTape(tape, trades) {
   );
 }
 
-function renderStockRows(list, stocks, activeCode, onSelect) {
-  list.replaceChildren(
+function renderStockTicker(ticker, stocks, activeCode, onSelect) {
+  if (!ticker) return;
+  ticker.replaceChildren(
     ...stocks.map((stock) => {
-      const code = stock.symbol || stock.code;
-      const article = document.createElement("article");
-      article.dataset.stockCode = code;
-      article.className = code === activeCode ? "is-active" : "";
-      article.setAttribute("role", "button");
-      article.setAttribute("tabindex", "0");
-      article.setAttribute("aria-pressed", String(code === activeCode));
-
-      const text = document.createElement("div");
-      const title = document.createElement("strong");
-      title.textContent = code;
-      const name = document.createElement("span");
-      name.textContent = stock.name || code;
-      text.append(title, name);
-
-      const price = document.createElement("em");
+      const code = stockCode(stock);
       const change = Number(stock.change24h || 0);
-      price.textContent = formatStockNumber(stock.price);
-      price.classList.toggle("is-down", change < 0);
-      article.append(text, price);
+      const button = document.createElement("button");
+      button.type = "button";
+      button.dataset.stockCode = code;
+      button.className = code === activeCode ? "is-active" : "";
 
-      const select = () => onSelect(code);
-      article.addEventListener("click", select);
-      article.addEventListener("keydown", (event) => {
-        if (event.key !== "Enter" && event.key !== " ") return;
-        event.preventDefault();
-        select();
-      });
-      return article;
+      const label = document.createElement("strong");
+      label.textContent = code;
+      const price = document.createElement("span");
+      price.textContent = formatStockNumber(stock.price);
+      const delta = document.createElement("em");
+      delta.textContent = formatStockChange(change);
+      delta.classList.toggle("is-down", change < 0);
+
+      button.append(label, price, delta);
+      button.addEventListener("click", () => onSelect(code));
+      return button;
     }),
   );
+}
+
+function renderStockRows(list, stocks, activeCode, onSelect) {
+  const rows = stocks.map((stock) => {
+    const code = stockCode(stock);
+    const changePercent = Number(stock.change24h || 0);
+    const changeAmount = stockChangeValue(stock);
+    const high = Number(stock.high24h || stock.price);
+    const low = Number(stock.low24h || stock.price);
+    const row = document.createElement(list.tagName === "TBODY" ? "tr" : "article");
+    row.dataset.stockCode = code;
+    row.className = code === activeCode ? "is-active" : "";
+    row.setAttribute("role", "button");
+    row.setAttribute("tabindex", "0");
+    row.setAttribute("aria-pressed", String(code === activeCode));
+
+    const nameCell = document.createElement(list.tagName === "TBODY" ? "th" : "div");
+    if (nameCell.tagName === "TH") nameCell.scope = "row";
+    const title = document.createElement("strong");
+    title.textContent = code;
+    const name = document.createElement("span");
+    name.textContent = stock.name || code;
+    nameCell.append(title, name);
+
+    if (list.tagName !== "TBODY") {
+      const price = document.createElement("em");
+      price.textContent = formatStockNumber(stock.price);
+      price.classList.toggle("is-down", changePercent < 0);
+      row.append(nameCell, price);
+    } else {
+      const values = [
+        { text: formatStockNumber(stock.price), className: "stock-num" },
+        { text: formatStockNumber(high), className: "stock-num" },
+        { text: formatStockNumber(low), className: "stock-num" },
+        { text: formatStockSigned(changeAmount), className: changeAmount < 0 ? "is-down" : "is-up" },
+        { text: formatStockChange(changePercent), className: changePercent < 0 ? "is-down" : "is-up" },
+        { text: `${formatStockNumber(stock.volume24h)}주`, className: "stock-num" },
+        { text: formatStockTime(latestStockTime(stock)), className: "stock-time" },
+      ];
+      row.append(nameCell);
+      values.forEach((value) => {
+        const cell = document.createElement("td");
+        cell.textContent = value.text;
+        if (value.className) cell.className = value.className;
+        row.append(cell);
+      });
+    }
+
+    const select = () => onSelect(code);
+    row.addEventListener("click", select);
+    row.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      event.preventDefault();
+      select();
+    });
+    return row;
+  });
+
+  list.replaceChildren(...rows);
 }
 
 function initStockExchange() {
@@ -845,18 +961,28 @@ function initStockExchange() {
   const list = document.querySelector("[data-stock-list]");
   if (!root || !chart || !list) return;
 
+  const ticker = document.querySelector("[data-stock-ticker]");
   const price = document.querySelector("[data-stock-price]");
   const change = document.querySelector("[data-stock-change]");
   const symbol = document.querySelector("[data-stock-symbol]");
+  const stockName = document.querySelector("[data-stock-name]");
+  const high = document.querySelector("[data-stock-high]");
+  const low = document.querySelector("[data-stock-low]");
+  const quoteVolume = document.querySelector("[data-stock-quote-volume]");
   const indexValue = document.querySelector("[data-stock-index]");
   const indexChange = document.querySelector("[data-stock-index-change]");
   const volume = document.querySelector("[data-stock-volume]");
   const cap = document.querySelector("[data-stock-cap]");
   const session = document.querySelector("[data-stock-session]");
+  const updated = document.querySelectorAll("[data-stock-updated]");
+  const rangeButtons = document.querySelectorAll("[data-stock-range]");
+  const sortButtons = document.querySelectorAll("[data-stock-sort]");
   const tape = document.querySelector("[data-trade-tape]");
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   let market = buildFallbackMarket(0);
   let activeCode = market.stocks[0]?.symbol || market.stocks[0]?.code || "DMD";
+  let activeRange = "24H";
+  let activeSort = "market";
   let liveMarket = false;
   let tick = 0;
 
@@ -866,19 +992,24 @@ function initStockExchange() {
   };
 
   function render() {
-    const stocks = Array.isArray(market?.stocks) && market.stocks.length ? market.stocks : buildFallbackMarket(tick).stocks;
-    const stock = stocks.find((item) => (item.symbol || item.code) === activeCode) || stocks[0];
-    activeCode = stock.symbol || stock.code;
-    const result = renderStockChart(chart, stock, tick);
+    const rawStocks = Array.isArray(market?.stocks) && market.stocks.length ? market.stocks : buildFallbackMarket(tick).stocks;
+    const stocks = sortStocks(rawStocks, activeSort);
+    const stock = stocks.find((item) => stockCode(item) === activeCode) || stocks[0];
+    activeCode = stockCode(stock);
+    const result = renderStockChart(chart, stock, tick, activeRange);
     const marketMeta = market?.market || {};
 
     root.classList.toggle("is-live", liveMarket);
     if (symbol) symbol.textContent = activeCode;
+    if (stockName) stockName.textContent = stock.name || activeCode;
     if (price) price.textContent = formatStockNumber(result.price);
     if (change) {
       change.textContent = formatStockChange(result.change);
       change.classList.toggle("is-down", result.change < 0);
     }
+    if (high) high.textContent = formatStockNumber(stock.high24h || result.price);
+    if (low) low.textContent = formatStockNumber(stock.low24h || result.price);
+    if (quoteVolume) quoteVolume.textContent = `${formatStockNumber(stock.volume24h || result.volume)}주`;
     if (indexValue) indexValue.textContent = formatStockNumber(marketMeta.index);
     if (indexChange) {
       const value = Number(marketMeta.indexChange24h || 0);
@@ -888,7 +1019,17 @@ function initStockExchange() {
     if (volume) volume.textContent = `${formatStockNumber(marketMeta.volume24h || result.volume)}주`;
     if (cap) cap.textContent = `${formatStockCompact(marketMeta.marketCap)} 머니`;
     if (session) session.textContent = liveMarket ? marketMeta.session || "24H LIVE" : marketMeta.session || "API 대기";
+    updated.forEach((label) => {
+      label.textContent = liveMarket ? `갱신 ${formatStockTime(marketMeta.updatedAt)}` : "미리보기";
+    });
+    rangeButtons.forEach((button) => {
+      button.classList.toggle("is-active", button.dataset.stockRange === activeRange);
+    });
+    sortButtons.forEach((button) => {
+      button.classList.toggle("is-active", button.dataset.stockSort === activeSort);
+    });
 
+    renderStockTicker(ticker, stocks, activeCode, selectStock);
     renderStockRows(list, stocks, activeCode, selectStock);
     renderStockTape(tape, market?.recentTrades);
   }
@@ -906,6 +1047,18 @@ function initStockExchange() {
   }
 
   render();
+  rangeButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      activeRange = button.dataset.stockRange || "24H";
+      render();
+    });
+  });
+  sortButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      activeSort = button.dataset.stockSort || "market";
+      render();
+    });
+  });
   refreshMarket();
   if (!reduceMotion) {
     window.setInterval(() => {
