@@ -34,6 +34,12 @@ Amazon SES. By default it uses `no-reply@nfoifsb.kr`; set `AUTH_EMAIL_FROM` to
 override it. The sender identity must be verified in SES before real users can
 receive mail.
 
+External recipients also require the SES account to have production access. If
+SES is still in sandbox, mail to verified identities such as `nfoifsb.kr` can
+work while Gmail/Naver/etc. recipients are rejected. The AWS setup output now
+includes `email.ses.productionAccessEnabled`, `email.ses.verifiedForSending`,
+and any DKIM tokens that must be added to DNS.
+
 ## AWS Resources
 
 AWS setup is blocked by default so it cannot accidentally create billable
@@ -61,6 +67,8 @@ npm run auth:setup:aws
 - JSON request bodies are capped by `AUTH_MAX_BODY_BYTES` (`16 KB` by default).
 - Login, signup, email verification, verification resend, password reset, reset
   confirm, and Google login endpoints have shared DynamoDB-backed rate limits.
+- If SES rejects a signup verification email, the API rolls back the newly
+  created user record so the player can retry after mail settings are fixed.
 - Rate-limit records use hashed identifiers and `expiresAtEpoch` TTL records so
   raw IP addresses are not stored as partition keys.
 - JSON responses include `no-store`, `nosniff`, frame denial, no-referrer, and

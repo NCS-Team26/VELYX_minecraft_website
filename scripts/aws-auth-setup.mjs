@@ -33,6 +33,12 @@ import {
   UpdateFunctionCodeCommand,
   UpdateFunctionConfigurationCommand,
 } from "@aws-sdk/client-lambda";
+import {
+  CreateEmailIdentityCommand,
+  GetAccountCommand,
+  GetEmailIdentityCommand,
+  SESv2Client,
+} from "@aws-sdk/client-sesv2";
 import { GetCallerIdentityCommand, STSClient } from "@aws-sdk/client-sts";
 import { randomBytes } from "node:crypto";
 import { readFileSync, writeFileSync } from "node:fs";
@@ -48,6 +54,7 @@ const defaultAllowedOrigins = [`https://${siteDomain}`, ...localOrigins].join(",
 const allowedOrigins = process.env.AUTH_ALLOWED_ORIGINS || defaultAllowedOrigins;
 const authEmailFrom =
   process.env.AUTH_EMAIL_FROM || process.env.EMAIL_FROM || `no-reply@${siteDomain.replace(/^www\./, "")}`;
+const sesIdentity = process.env.AUTH_SES_IDENTITY || authEmailFrom.split("@").at(-1) || authEmailFrom;
 const authAppBaseUrl = (process.env.AUTH_APP_BASE_URL || `https://${siteDomain}`).replace(/\/$/, "");
 const googleClientId = process.env.GOOGLE_CLIENT_ID || process.env.VITE_GOOGLE_CLIENT_ID || "";
 const tableName = process.env.AUTH_USERS_TABLE || `${stackName}-users`;
@@ -61,6 +68,7 @@ const dynamodb = new DynamoDBClient({ region });
 const iam = new IAMClient({ region });
 const lambda = new LambdaClient({ region });
 const apigw = new ApiGatewayV2Client({ region });
+const ses = new SESv2Client({ region });
 
 function log(message) {
   process.stdout.write(`${message}\n`);
@@ -105,6 +113,70 @@ async function ensureRateLimitTtl() {
     }
     throw error;
   }
+}
+
+function canSkipSesError(error) {
+  return error.name === "AccessDeniedException" || error.name === "UnauthorizedOperation";
+}
+
+async function ensureSesStatus() {
+  const status = {
+    from: authEmailFrom,
+    identity: sesIdentity,
+    productionAccessEnabled: null,
+    verifiedForSending: null,
+    dkimStatus: "",
+    dkimTokens: [],
+    createdIdentity: false,
+    warning: "",
+  };
+
+  if (!authEmailFrom) {
+    status.warning = "AUTH_EMAIL_FROM is not configured.";
+    return status;
+  }
+
+  try {
+    const account = await ses.send(new GetAccountCommand({}));
+    status.productionAccessEnabled = account.ProductionAccessEnabled === true;
+  } catch (error) {
+    if (canSkipSesError(error)) {
+      status.warning = "Deploy role cannot inspect SES account status.";
+    } else {
+      throw error;
+    }
+  }
+
+  try {
+    const identity = await ses.send(new GetEmailIdentityCommand({ EmailIdentity: sesIdentity }));
+    status.verifiedForSending = identity.VerifiedForSendingStatus === true;
+    status.dkimStatus = identity.DkimAttributes?.Status || "";
+    status.dkimTokens = identity.DkimAttributes?.Tokens || [];
+  } catch (error) {
+    if (error.name === "NotFoundException") {
+      const created = await ses.send(new CreateEmailIdentityCommand({ EmailIdentity: sesIdentity }));
+      status.createdIdentity = true;
+      status.verifiedForSending = false;
+      status.dkimStatus = created.DkimAttributes?.Status || "PENDING";
+      status.dkimTokens = created.DkimAttributes?.Tokens || [];
+      status.warning = `Created SES identity ${sesIdentity}. Add the DKIM DNS records and wait for verification.`;
+      return status;
+    }
+    if (canSkipSesError(error)) {
+      status.warning = status.warning || "Deploy role cannot inspect or create SES identity.";
+      return status;
+    }
+    throw error;
+  }
+
+  if (status.productionAccessEnabled === false) {
+    status.warning =
+      "SES account is still in sandbox. External recipients such as Gmail/Naver will be rejected until production access is approved.";
+  } else if (status.verifiedForSending === false) {
+    status.warning = `SES identity ${sesIdentity} is not verified for sending.`;
+  }
+
+  return status;
 }
 
 async function ensureTable() {
@@ -210,7 +282,7 @@ async function ensureRole(tableArn) {
         Statement: [
           {
             Effect: "Allow",
-            Action: ["dynamodb:GetItem", "dynamodb:PutItem", "dynamodb:UpdateItem"],
+            Action: ["dynamodb:DeleteItem", "dynamodb:GetItem", "dynamodb:PutItem", "dynamodb:UpdateItem"],
             Resource: tableArn,
           },
           {
@@ -541,6 +613,7 @@ async function main() {
   const tableArn = await ensureTable();
   const roleArn = await ensureRole(tableArn);
   const functionArn = await ensureFunction(roleArn);
+  const sesStatus = await ensureSesStatus();
   const api = await ensureApi();
   const integrationId = await ensureIntegration(api.ApiId, functionArn);
   await ensureRoutes(api.ApiId, integrationId);
@@ -559,6 +632,7 @@ async function main() {
     email: {
       from: authEmailFrom,
       appBaseUrl: authAppBaseUrl,
+      ses: sesStatus,
       note: "The sender identity must be verified in Amazon SES before production email delivery works.",
     },
     security: {

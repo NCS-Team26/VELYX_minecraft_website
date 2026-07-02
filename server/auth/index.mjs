@@ -9,7 +9,7 @@ import {
 } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
-import { DynamoDBClient, GetItemCommand, PutItemCommand, UpdateItemCommand } from "@aws-sdk/client-dynamodb";
+import { DeleteItemCommand, DynamoDBClient, GetItemCommand, PutItemCommand, UpdateItemCommand } from "@aws-sdk/client-dynamodb";
 import { SESv2Client, SendEmailCommand } from "@aws-sdk/client-sesv2";
 
 const client = new DynamoDBClient({});
@@ -289,6 +289,24 @@ async function putUser(item) {
   );
 }
 
+async function deleteUser(email) {
+  if (authStore === "file") {
+    const users = await readLocalUsers();
+    delete users[userKey(email)];
+    await writeLocalUsers(users);
+    return;
+  }
+
+  await client.send(
+    new DeleteItemCommand({
+      TableName: tableName,
+      Key: {
+        pk: s(userKey(email)),
+      },
+    }),
+  );
+}
+
 async function updateUser(email, attributes, removeAttributes = []) {
   if (authStore === "file") {
     const users = await readLocalUsers();
@@ -415,6 +433,41 @@ async function sendAuthEmail({ to, subject, text, html }) {
   );
 
   return { sent: true };
+}
+
+function emailFailureReason(error) {
+  const message = String(error?.message || "").toLowerCase();
+  if (error?.name === "MessageRejected" || message.includes("not verified") || message.includes("sandbox")) {
+    return "ses_identity_or_sandbox";
+  }
+  if (error?.name === "AccessDeniedException" || error?.name === "UnauthorizedOperation") {
+    return "ses_access_denied";
+  }
+  if (error?.name === "ThrottlingException" || error?.name === "TooManyRequestsException") {
+    return "ses_rate_limited";
+  }
+  if (!emailFrom) return "email_not_configured";
+  return error?.name || "email_delivery_failed";
+}
+
+function emailDeliveryFailureResponse(origin, purpose, error) {
+  console.error(`${purpose} email delivery failed`, {
+    name: error?.name,
+    message: error?.message,
+    reason: emailFailureReason(error),
+  });
+  return response(
+    502,
+    {
+      code: "EMAIL_DELIVERY_FAILED",
+      message: "메일 발송 설정 문제로 이메일을 보내지 못했습니다. 잠시 후 다시 시도해 주세요.",
+      emailDelivery: {
+        sent: false,
+        reason: emailFailureReason(error),
+      },
+    },
+    origin,
+  );
 }
 
 function buildVerificationUrl(email, token) {
@@ -570,7 +623,15 @@ async function handleSignup(body, origin) {
     throw error;
   }
 
-  const delivery = await sendVerificationEmail(email, challenge);
+  let delivery;
+  try {
+    delivery = await sendVerificationEmail(email, challenge);
+  } catch (error) {
+    await deleteUser(email).catch((rollbackError) => {
+      console.error("Failed to roll back signup after email delivery failure", rollbackError);
+    });
+    return emailDeliveryFailureResponse(origin, "verification", error);
+  }
   return response(
     201,
     {
@@ -629,7 +690,12 @@ async function handleResendVerification(body, origin) {
     emailVerificationExpiresAt: s(challenge.expiresAt),
     updatedAt: s(new Date().toISOString()),
   });
-  const delivery = await sendVerificationEmail(email, challenge);
+  let delivery;
+  try {
+    delivery = await sendVerificationEmail(email, challenge);
+  } catch (error) {
+    return emailDeliveryFailureResponse(origin, "verification resend", error);
+  }
   return response(
     200,
     {
@@ -682,7 +748,12 @@ async function handleReset(body, origin) {
       resetRequestedAt: s(new Date().toISOString()),
       updatedAt: s(new Date().toISOString()),
     });
-    const delivery = await sendPasswordResetEmail(email, challenge);
+    let delivery;
+    try {
+      delivery = await sendPasswordResetEmail(email, challenge);
+    } catch (error) {
+      return emailDeliveryFailureResponse(origin, "password reset", error);
+    }
     preview = delivery.preview;
   }
 
