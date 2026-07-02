@@ -44,7 +44,12 @@ const region = process.env.AWS_REGION || process.env.AWS_DEFAULT_REGION || "ap-n
 const distDir = join(process.cwd(), "dist");
 const distributionComment = "nfoifsb Minecraft server website";
 const originId = "site-s3";
+const playerApiOriginId = "minecraft-player-api";
+const playerApiOriginDomainName = process.env.PLAYER_API_ORIGIN_DOMAIN || "minecraftserver1.tail16d543.ts.net";
+const playerApiPathPattern = "/minecraft/*";
 const cachePolicyOptimized = "658327ea-f89d-4fab-a63d-7e88639e58f6";
+const cachePolicyDisabled = "4135ea2d-6df8-44a3-9df3-4b5a84be39ad";
+const originRequestPolicyAllViewerExceptHostHeader = "b689b0a8-53d0-40ab-baf2-68738e2966ac";
 const securityHeadersPolicyName = "nfoifsb-site-security-headers";
 const siteDomain = process.env.SITE_DOMAIN || "";
 const certificateArn = process.env.CERTIFICATE_ARN || "";
@@ -63,6 +68,17 @@ const cloudfront = new CloudFrontClient({ region: "us-east-1" });
 
 function log(message) {
   process.stdout.write(`${message}\n`);
+}
+
+function stableStringify(value) {
+  if (Array.isArray(value)) return `[${value.map((item) => stableStringify(item)).join(",")}]`;
+  if (value && typeof value === "object") {
+    return `{${Object.keys(value)
+      .sort()
+      .map((key) => `${JSON.stringify(key)}:${stableStringify(value[key])}`)
+      .join(",")}}`;
+  }
+  return JSON.stringify(value);
 }
 
 async function getAccountId() {
@@ -280,6 +296,7 @@ async function syncDistributionDefaults(distributionId, bucket, oacId, responseH
   const desiredDomainName = `${bucket}.s3.${region}.amazonaws.com`;
   const originItems = config.Origins?.Items || [];
   const existingOrigin = originItems.find((item) => item.Id === originId) || originItems[0] || {};
+  const existingPlayerApiOrigin = originItems.find((item) => item.Id === playerApiOriginId) || {};
   const desiredOrigin = {
     Id: originId,
     DomainName: desiredDomainName,
@@ -292,28 +309,40 @@ async function syncDistributionDefaults(distributionId, bucket, oacId, responseH
   for (const key of ["ConnectionAttempts", "ConnectionTimeout", "CustomHeaders", "OriginShield"]) {
     if (existingOrigin[key] !== undefined) desiredOrigin[key] = existingOrigin[key];
   }
+  const desiredPlayerApiOrigin = playerApiOrigin(existingPlayerApiOrigin);
   const nextOrigins = [
     desiredOrigin,
-    ...originItems.filter((item) => item !== existingOrigin && item.Id !== originId),
+    desiredPlayerApiOrigin,
+    ...originItems.filter((item) => ![existingOrigin.Id, originId, playerApiOriginId].includes(item.Id)),
   ];
   const defaultCacheBehavior = {
     ...config.DefaultCacheBehavior,
     TargetOriginId: originId,
     ResponseHeadersPolicyId: responseHeadersPolicyId,
   };
+  const cacheBehaviorItems = config.CacheBehaviors?.Items || [];
+  const existingPlayerApiBehavior =
+    cacheBehaviorItems.find((item) => item.PathPattern === playerApiPathPattern) || {};
+  const desiredPlayerApiBehavior = playerApiCacheBehavior(existingPlayerApiBehavior, responseHeadersPolicyId);
+  const nextCacheBehaviorItems = [
+    desiredPlayerApiBehavior,
+    ...cacheBehaviorItems.filter((item) => item.PathPattern !== playerApiPathPattern),
+  ];
 
   const originChanged =
     existingOrigin.Id !== desiredOrigin.Id
     || existingOrigin.DomainName !== desiredOrigin.DomainName
     || existingOrigin.OriginAccessControlId !== desiredOrigin.OriginAccessControlId
     || existingOrigin.OriginPath !== desiredOrigin.OriginPath
-    || existingOrigin.S3OriginConfig?.OriginAccessIdentity !== "";
+    || existingOrigin.S3OriginConfig?.OriginAccessIdentity !== ""
+    || stableStringify(existingPlayerApiOrigin) !== stableStringify(desiredPlayerApiOrigin);
   const behaviorChanged =
     config.DefaultCacheBehavior?.TargetOriginId !== defaultCacheBehavior.TargetOriginId
-    || config.DefaultCacheBehavior?.ResponseHeadersPolicyId !== defaultCacheBehavior.ResponseHeadersPolicyId;
+    || config.DefaultCacheBehavior?.ResponseHeadersPolicyId !== defaultCacheBehavior.ResponseHeadersPolicyId
+    || stableStringify(existingPlayerApiBehavior) !== stableStringify(desiredPlayerApiBehavior);
 
   if (!originChanged && !behaviorChanged) {
-    log("CloudFront distribution origin and security headers are already current");
+    log("CloudFront distribution origins, API proxy, and security headers are already current");
     return;
   }
 
@@ -322,6 +351,10 @@ async function syncDistributionDefaults(distributionId, bucket, oacId, responseH
     Items: nextOrigins,
   };
   config.DefaultCacheBehavior = defaultCacheBehavior;
+  config.CacheBehaviors = {
+    Quantity: nextCacheBehaviorItems.length,
+    Items: nextCacheBehaviorItems,
+  };
 
   await cloudfront.send(
     new UpdateDistributionCommand({
@@ -330,7 +363,53 @@ async function syncDistributionDefaults(distributionId, bucket, oacId, responseH
       DistributionConfig: config,
     }),
   );
-  log("Updated CloudFront distribution origin/security headers");
+  log("Updated CloudFront distribution origin/API proxy/security headers");
+}
+
+function playerApiOrigin(existingOrigin = {}) {
+  const origin = {
+    Id: playerApiOriginId,
+    DomainName: playerApiOriginDomainName,
+    OriginPath: "",
+    CustomOriginConfig: {
+      HTTPPort: 80,
+      HTTPSPort: 443,
+      OriginProtocolPolicy: "https-only",
+      OriginSslProtocols: {
+        Quantity: 1,
+        Items: ["TLSv1.2"],
+      },
+      OriginReadTimeout: 30,
+      OriginKeepaliveTimeout: 5,
+    },
+  };
+  for (const key of ["ConnectionAttempts", "ConnectionTimeout", "CustomHeaders", "OriginShield"]) {
+    if (existingOrigin[key] !== undefined) origin[key] = existingOrigin[key];
+  }
+  return origin;
+}
+
+function playerApiCacheBehavior(existingBehavior = {}, responseHeadersPolicyId) {
+  const behavior = {
+    ...existingBehavior,
+    PathPattern: playerApiPathPattern,
+    TargetOriginId: playerApiOriginId,
+    ViewerProtocolPolicy: "redirect-to-https",
+    AllowedMethods: {
+      Quantity: 7,
+      Items: ["GET", "HEAD", "OPTIONS", "PUT", "PATCH", "POST", "DELETE"],
+      CachedMethods: {
+        Quantity: 3,
+        Items: ["GET", "HEAD", "OPTIONS"],
+      },
+    },
+    Compress: true,
+    CachePolicyId: cachePolicyDisabled,
+    OriginRequestPolicyId: originRequestPolicyAllViewerExceptHostHeader,
+    ResponseHeadersPolicyId: responseHeadersPolicyId,
+  };
+  delete behavior.ForwardedValues;
+  return behavior;
 }
 
 async function ensureDistribution(bucket, oacId, responseHeadersPolicyId) {
@@ -352,7 +431,7 @@ async function ensureDistribution(bucket, oacId, responseHeadersPolicyId) {
         PriceClass: "PriceClass_200",
         Aliases: siteDomain ? { Quantity: 1, Items: [siteDomain] } : { Quantity: 0 },
         Origins: {
-          Quantity: 1,
+          Quantity: 2,
           Items: [
             {
               Id: originId,
@@ -362,6 +441,7 @@ async function ensureDistribution(bucket, oacId, responseHeadersPolicyId) {
                 OriginAccessIdentity: "",
               },
             },
+            playerApiOrigin(),
           ],
         },
         DefaultCacheBehavior: {
@@ -378,6 +458,10 @@ async function ensureDistribution(bucket, oacId, responseHeadersPolicyId) {
           Compress: true,
           CachePolicyId: cachePolicyOptimized,
           ResponseHeadersPolicyId: responseHeadersPolicyId,
+        },
+        CacheBehaviors: {
+          Quantity: 1,
+          Items: [playerApiCacheBehavior({}, responseHeadersPolicyId)],
         },
         CustomErrorResponses: {
           Quantity: 2,

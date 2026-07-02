@@ -10,8 +10,12 @@ const GOOGLE_SCRIPT_SRC = "https://accounts.google.com/gsi/client";
 
 const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
 const isLocalHost = ["localhost", "127.0.0.1", "::1"].includes(window.location.hostname);
-const productionPlayerApiBase = "https://minecraftserver1.tail16d543.ts.net/minecraft";
-const productionPlayerApiFallbackBase = "https://api.nfoifsb.kr/minecraft";
+const publicPlayerApiBase = "/minecraft";
+const funnelPlayerApiBase = "https://minecraftserver1.tail16d543.ts.net/minecraft";
+const legacyPlayerApiBase = "https://api.nfoifsb.kr/minecraft";
+const isHostedSite = ["www.nfoifsb.kr", "nfoifsb.kr"].includes(window.location.hostname);
+const productionPlayerApiBase = isHostedSite ? publicPlayerApiBase : funnelPlayerApiBase;
+const productionPlayerApiFallbackBase = `${funnelPlayerApiBase},${legacyPlayerApiBase}`;
 const localPlayerApiBase = isLocalHost ? "http://127.0.0.1:8787/minecraft" : "";
 function apiBaseList(...values) {
   return [

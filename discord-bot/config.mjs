@@ -1,7 +1,7 @@
 import "dotenv/config";
 import path from "node:path";
 
-const DEFAULT_PLAYER_API_BASE = "https://minecraftserver1.tail16d543.ts.net/minecraft";
+const DEFAULT_PLAYER_API_BASE = "https://www.nfoifsb.kr/minecraft";
 
 function stripTrailingSlash(value) {
   return String(value || "").trim().replace(/\/+$/, "");

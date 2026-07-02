@@ -1,10 +1,23 @@
 import "./styles.css";
+import {
+  AreaSeries,
+  CandlestickSeries,
+  ColorType,
+  CrosshairMode,
+  HistogramSeries,
+  LineSeries,
+  createChart,
+} from "lightweight-charts";
 
 const SERVER_ADDRESS = "nfoifsb.kr";
 const STATUS_API = `https://api.mcstatus.io/v2/status/java/${SERVER_ADDRESS}`;
 const STATUS_TIMEOUT_MS = 8000;
-const PRODUCTION_PLAYER_API_BASE = "https://minecraftserver1.tail16d543.ts.net/minecraft";
-const PRODUCTION_PLAYER_API_FALLBACK_BASE = "https://api.nfoifsb.kr/minecraft";
+const PUBLIC_PLAYER_API_BASE = "/minecraft";
+const FUNNEL_PLAYER_API_BASE = "https://minecraftserver1.tail16d543.ts.net/minecraft";
+const LEGACY_PLAYER_API_BASE = "https://api.nfoifsb.kr/minecraft";
+const isHostedSite = ["www.nfoifsb.kr", "nfoifsb.kr"].includes(window.location.hostname);
+const PRODUCTION_PLAYER_API_BASE = isHostedSite ? PUBLIC_PLAYER_API_BASE : FUNNEL_PLAYER_API_BASE;
+const PRODUCTION_PLAYER_API_FALLBACK_BASE = `${FUNNEL_PLAYER_API_BASE},${LEGACY_PLAYER_API_BASE}`;
 
 function apiBaseList(...values) {
   return [
@@ -70,6 +83,18 @@ const STOCKS = [
   { code: "RED", name: "레드스톤 공업", base: 2160, volume: 7990, drift: 0.033 },
 ];
 const FINANCIAL_PERIODS = ["FY2026E", "FY2025", "FY2024", "FY2023"];
+const STOCK_RANGE_CONFIG = {
+  "1M": { points: 10, stepMs: 60_000, label: "1분 전" },
+  "5M": { points: 16, stepMs: 60_000, label: "5분 전" },
+  "15M": { points: 24, stepMs: 60_000, label: "15분 전" },
+  "30M": { points: 32, stepMs: 60_000, label: "30분 전" },
+  "1H": { points: 40, stepMs: 90_000, label: "1시간 전" },
+  "5H": { points: 56, stepMs: 5 * 60_000, label: "5시간 전" },
+  "1D": { points: 96, stepMs: 15 * 60_000, label: "1일 전" },
+  "1W": { points: 160, stepMs: 60 * 60_000, label: "1주 전" },
+  "1MO": { points: 240, stepMs: 3 * 60 * 60_000, label: "1달 전" },
+  ALL: { points: Infinity, stepMs: 15 * 60_000, label: "전체" },
+};
 const PAGE_LINKS = new Map([
   ["/status.html", "status"],
   ["/plugins.html", "plugins"],
@@ -934,6 +959,19 @@ function formatStockTime(value) {
   }).format(date);
 }
 
+function formatStockDateTime(value) {
+  if (!value) return "실시간";
+  const date = new Date(typeof value === "number" ? value * 1000 : value);
+  if (Number.isNaN(date.getTime())) return "실시간";
+  return new Intl.DateTimeFormat("ko-KR", {
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(date);
+}
+
 function stockCode(stock) {
   return stock?.symbol || stock?.code || "";
 }
@@ -963,17 +1001,13 @@ function latestStockTime(stock) {
 }
 
 function rangedStockSeries(series, range) {
-  const sizes = {
-    "15M": 8,
-    "1H": 6,
-    "4H": 12,
-    "6H": 14,
-    "24H": 32,
-    "1D": 32,
-  };
-  const size = sizes[range];
+  const size = STOCK_RANGE_CONFIG[range]?.points;
   if (!size || series.length <= size) return series;
   return series.slice(-size);
+}
+
+function stockRangeStepMs(range) {
+  return STOCK_RANGE_CONFIG[range]?.stepMs || STOCK_RANGE_CONFIG["1D"].stepMs;
 }
 
 function sortStocks(stocks, sortMode) {
@@ -1067,23 +1101,33 @@ async function submitStockTrade(playerProfile, symbol, side, quantity, order = {
   });
 }
 
-function fallbackStockSeries(stock, tick) {
+function fallbackStockSeries(stock, tick, length = 96, stepMs = 15 * 60_000) {
   const base = Number(stock.base || stock.price || 1000);
   const volumeSeed = Number(stock.volume || stock.volume24h || 3000);
   const rawDrift = Number(stock.drift || stock.change24h || 0);
   const drift = Math.abs(rawDrift) > 1 ? rawDrift / 100 : rawDrift;
   let previousClose = base;
-  return Array.from({ length: 32 }, (_, index) => {
+  const count = Math.max(8, Math.floor(length));
+  const now = Date.now();
+  return Array.from({ length: count }, (_, index) => {
     const wave = Math.sin((index + tick * 0.48) * 0.58 + base * 0.001) * 0.027;
     const pulse = Math.cos((index + tick * 0.22) * 0.31 + volumeSeed * 0.0008) * 0.016;
-    const trend = drift * (index / 31);
+    const trend = drift * (index / Math.max(1, count - 1));
     const price = base * (1 + wave + pulse + trend);
     const volume = 24 + Math.abs(Math.sin(index * 0.7 + tick + base)) * 58;
     const open = previousClose;
     const high = Math.max(open, price) * (1 + 0.004 + Math.abs(Math.sin(index + tick)) * 0.003);
     const low = Math.min(open, price) * (1 - 0.004 - Math.abs(Math.cos(index + tick)) * 0.003);
     previousClose = price;
-    return { open, high, low, close: price, price, volume };
+    return {
+      open,
+      high,
+      low,
+      close: price,
+      price,
+      volume,
+      time: new Date(now - (count - 1 - index) * stepMs).toISOString(),
+    };
   });
 }
 
@@ -1102,7 +1146,9 @@ function stockSeries(stock, tick, range = "24H") {
     .filter((point) => Number.isFinite(point.price) && point.price > 0);
 
   if (series.length >= 2) return rangedStockSeries(series, range);
-  return rangedStockSeries(fallbackStockSeries(stock, tick), range);
+  const target = STOCK_RANGE_CONFIG[range]?.points || STOCK_RANGE_CONFIG["1D"].points;
+  const fallbackLength = Number.isFinite(target) ? target : STOCK_RANGE_CONFIG["1D"].points;
+  return rangedStockSeries(fallbackStockSeries(stock, tick, fallbackLength, stockRangeStepMs(range)), range);
 }
 
 function buildFallbackMarket(tick) {
@@ -1550,139 +1596,362 @@ function renderStockFinancials(elements, stock, metrics, view = "income") {
   }
 }
 
-function renderStockChart(svg, stock, tick, selectedRange = "24H", options = {}) {
-  const series = stockSeries(stock, tick, selectedRange);
-  const basePrice = Math.max(1, Number(series[0]?.price) || 1);
-  const normalize = (value) => (options.scale === "percent" ? ((value - basePrice) / basePrice) * 100 : value);
-  const prices = series.flatMap((point) => [
-    normalize(point.high || point.price),
-    normalize(point.low || point.price),
-    normalize(point.close || point.price),
-  ]);
-  const min = Math.min(...prices) * 0.985;
-  const max = Math.max(...prices) * 1.015;
-  const priceRange = Math.max(1, max - min);
-  const maxVolume = Math.max(1, ...series.map((point) => Number(point.volume) || 0));
-  const left = 28;
-  const right = 612;
-  const top = 26;
-  const chartBottom = 188;
-  const volumeBottom = 250;
-  const width = right - left;
-  const height = chartBottom - top;
-  const xStep = width / (series.length - 1);
+const stockChartStates = new WeakMap();
 
-  const toX = (index) => left + index * xStep;
-  const toY = (price) => top + ((max - normalize(price)) / priceRange) * height;
-  const linePoints = series.map((point, index) => `${toX(index).toFixed(1)},${toY(point.price).toFixed(1)}`).join(" ");
-  const areaPoints = `${left},${chartBottom} ${linePoints} ${right},${chartBottom}`;
-  const chartMode = options.mode || "line";
-  const indicators = options.indicators || new Set();
+function stockChartValue(value, basePrice, scale) {
+  const number = Number(value);
+  if (!Number.isFinite(number)) return 0;
+  return scale === "percent" ? ((number - basePrice) / basePrice) * 100 : number;
+}
 
-  svg.replaceChildren();
-  const defs = createSvg("defs");
-  const gradient = createSvg("linearGradient", {
-    id: "stock-area-gradient",
-    x1: "0",
-    x2: "0",
-    y1: "0",
-    y2: "1",
+function stockChartTimestamp(point, index, length, range) {
+  const parsed = Date.parse(point.time);
+  if (Number.isFinite(parsed)) return Math.floor(parsed / 1000);
+  const step = Math.max(60, Math.floor(stockRangeStepMs(range) / 1000));
+  return Math.floor((Date.now() - (length - 1 - index) * step * 1000) / 1000);
+}
+
+function stockChartRows(series, range, scale) {
+  const basePrice = Math.max(1, Number(series[0]?.price || series[0]?.close) || 1);
+  let previousTime = 0;
+  return series
+    .map((point, index) => {
+      let time = stockChartTimestamp(point, index, series.length, range);
+      if (time <= previousTime) time = previousTime + 60;
+      previousTime = time;
+      const open = Number(point.open ?? point.price);
+      const high = Number(point.high ?? point.price);
+      const low = Number(point.low ?? point.price);
+      const close = Number(point.close ?? point.price);
+      const volume = Math.max(0, Number(point.volume) || 0);
+      return {
+        time,
+        open,
+        high,
+        low,
+        close,
+        price: close,
+        volume,
+        scaledOpen: stockChartValue(open, basePrice, scale),
+        scaledHigh: stockChartValue(high, basePrice, scale),
+        scaledLow: stockChartValue(low, basePrice, scale),
+        scaledClose: stockChartValue(close, basePrice, scale),
+      };
+    })
+    .filter((point) => Number.isFinite(point.close) && point.close > 0);
+}
+
+function addStockSeries(chart, definition, options) {
+  return chart.addSeries(definition, options);
+}
+
+function createStockChartState(container) {
+  const chartMount = container.querySelector("[data-stock-chart-canvas]") || container;
+  const chart = createChart(chartMount, {
+    autoSize: true,
+    layout: {
+      background: { type: ColorType.Solid, color: "#ffffff" },
+      textColor: "#34423c",
+      fontSize: 12,
+      fontFamily: "Inter, Pretendard, system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
+    },
+    grid: {
+      vertLines: { color: "rgba(45, 58, 51, 0.07)" },
+      horzLines: { color: "rgba(45, 58, 51, 0.08)" },
+    },
+    localization: {
+      priceFormatter: (value) => formatStockKrw(value),
+    },
+    rightPriceScale: {
+      borderColor: "rgba(45, 58, 51, 0.16)",
+      scaleMargins: { top: 0.08, bottom: 0.28 },
+    },
+    timeScale: {
+      borderColor: "rgba(45, 58, 51, 0.14)",
+      barSpacing: 7,
+      fixLeftEdge: false,
+      fixRightEdge: false,
+      rightOffset: 8,
+      timeVisible: true,
+      secondsVisible: false,
+    },
+    crosshair: {
+      mode: CrosshairMode.Normal,
+      vertLine: {
+        color: "rgba(35, 43, 39, 0.52)",
+        labelBackgroundColor: "#232b27",
+        style: 2,
+      },
+      horzLine: {
+        color: "rgba(35, 43, 39, 0.52)",
+        labelBackgroundColor: "#232b27",
+        style: 2,
+      },
+    },
+    handleScroll: {
+      mouseWheel: true,
+      pressedMouseMove: true,
+      horzTouchDrag: true,
+      vertTouchDrag: false,
+    },
+    handleScale: {
+      axisPressedMouseMove: true,
+      mouseWheel: true,
+      pinch: true,
+    },
   });
-  gradient.append(
-    createSvg("stop", { offset: "0%", "stop-color": "#2d75ff", "stop-opacity": "0.24" }),
-    createSvg("stop", { offset: "100%", "stop-color": "#2d75ff", "stop-opacity": "0" }),
-  );
-  defs.append(gradient);
-  svg.append(defs);
 
-  [32, 76, 120, 164, 208].forEach((y) => {
-    svg.append(createSvg("line", { class: "stock-grid-line", x1: left, x2: right, y1: y, y2: y }));
+  const candle = addStockSeries(chart, CandlestickSeries, {
+    upColor: "#e11900",
+    downColor: "#1f9ae0",
+    borderUpColor: "#151d1a",
+    borderDownColor: "#151d1a",
+    wickUpColor: "#e11900",
+    wickDownColor: "#1f9ae0",
+    priceLineColor: "#232b27",
+  });
+  const line = addStockSeries(chart, LineSeries, {
+    color: "#1467d9",
+    lineWidth: 3,
+    priceLineColor: "#232b27",
+    visible: false,
+  });
+  const area = addStockSeries(chart, AreaSeries, {
+    lineColor: "#1467d9",
+    topColor: "rgba(20, 103, 217, 0.30)",
+    bottomColor: "rgba(20, 103, 217, 0.02)",
+    lineWidth: 3,
+    priceLineColor: "#232b27",
+    visible: false,
+  });
+  const volume = addStockSeries(chart, HistogramSeries, {
+    priceFormat: { type: "volume" },
+    priceScaleId: "",
+    lastValueVisible: false,
+    priceLineVisible: false,
+  });
+  const ma5 = addStockSeries(chart, LineSeries, {
+    color: "#d98913",
+    lineWidth: 2,
+    priceLineVisible: false,
+    lastValueVisible: false,
+  });
+  const ma20 = addStockSeries(chart, LineSeries, {
+    color: "#7c5cff",
+    lineWidth: 2,
+    priceLineVisible: false,
+    lastValueVisible: false,
+  });
+  const vwap = addStockSeries(chart, LineSeries, {
+    color: "#0f9ba8",
+    lineWidth: 2,
+    lineStyle: 2,
+    priceLineVisible: false,
+    lastValueVisible: false,
   });
 
-  series.forEach((point, index) => {
-    const barHeight = Math.max(2, ((Number(point.volume) || 0) / maxVolume) * 48);
-    const volumeUp = Number(point.close || point.price) >= Number(point.open || point.price);
-    svg.append(
-      createSvg("rect", {
-        class: volumeUp ? "stock-volume-bar is-up" : "stock-volume-bar is-down",
-        x: toX(index) - 3,
-        y: volumeBottom - barHeight,
-        width: 6,
-        height: barHeight,
-        rx: 3,
-      }),
-    );
+  chart.priceScale("").applyOptions({
+    scaleMargins: { top: 0.80, bottom: 0 },
   });
 
-  if (chartMode === "area") {
-    svg.append(createSvg("polygon", { class: "stock-chart-area", points: areaPoints }));
-  }
-
-  if (chartMode === "candle") {
-    const candleWidth = Math.max(4, Math.min(14, xStep * 0.58));
-    series.forEach((point, index) => {
-      const x = toX(index);
-      const open = Number(point.open || point.price);
-      const close = Number(point.close || point.price);
-      const high = Number(point.high || Math.max(open, close));
-      const low = Number(point.low || Math.min(open, close));
-      const up = close >= open;
-      const bodyTop = Math.min(toY(open), toY(close));
-      const bodyHeight = Math.max(2, Math.abs(toY(open) - toY(close)));
-      svg.append(
-        createSvg("line", {
-          class: up ? "stock-candle-wick is-up" : "stock-candle-wick is-down",
-          x1: x,
-          x2: x,
-          y1: toY(high),
-          y2: toY(low),
-        }),
-      );
-      svg.append(
-        createSvg("rect", {
-          class: up ? "stock-candle-body is-up" : "stock-candle-body is-down",
-          x: x - candleWidth / 2,
-          y: bodyTop,
-          width: candleWidth,
-          height: bodyHeight,
-          rx: 2,
-        }),
-      );
-    });
-  } else {
-    svg.append(createSvg("polyline", { class: "stock-chart-line", points: linePoints }));
-  }
-
-  const closes = series.map((point) => point.close || point.price);
-  if (indicators.has("ma5")) {
-    const points = movingAverage(closes, 5)
-      .map((value, index) => `${toX(index).toFixed(1)},${toY(value).toFixed(1)}`)
-      .join(" ");
-    svg.append(createSvg("polyline", { class: "stock-indicator-line ma5", points }));
-  }
-  if (indicators.has("ma20")) {
-    const points = movingAverage(closes, 20)
-      .map((value, index) => `${toX(index).toFixed(1)},${toY(value).toFixed(1)}`)
-      .join(" ");
-    svg.append(createSvg("polyline", { class: "stock-indicator-line ma20", points }));
-  }
-  if (indicators.has("vwap")) {
-    const points = vwapSeries(series)
-      .map((value, index) => `${toX(index).toFixed(1)},${toY(value).toFixed(1)}`)
-      .join(" ");
-    svg.append(createSvg("polyline", { class: "stock-indicator-line vwap", points }));
-  }
-
-  const last = series.at(-1);
-  svg.append(createSvg("circle", { class: "stock-chart-dot", cx: right, cy: toY(last.price), r: 7 }));
-  return {
-    price: Number(stock.price ?? last.price),
-    change: Number(stock.change24h ?? ((last.price - series[0].price) / series[0].price) * 100),
-    volume: Number(stock.volume24h ?? series.reduce((sum, point) => sum + point.volume, 0)),
-    open: Number(series[0]?.open ?? series[0]?.price),
-    high: Math.max(...series.map((point) => Number(point.high || point.price))),
-    low: Math.min(...series.map((point) => Number(point.low || point.price))),
+  const state = {
+    area,
+    candle,
+    chart,
+    chartMount,
+    container,
+    dataByTime: new Map(),
+    line,
+    ma5,
+    ma20,
+    tooltip: container.querySelector("[data-stock-chart-tooltip]"),
+    vwap,
+    volume,
+    viewKey: "",
   };
+
+  chart.subscribeCrosshairMove((param) => renderStockChartTooltip(state, param));
+  stockChartStates.set(container, state);
+  return state;
+}
+
+function setStockSeriesVisible(state, mode) {
+  state.candle.applyOptions({ visible: mode === "candle" });
+  state.line.applyOptions({ visible: mode === "line" });
+  state.area.applyOptions({ visible: mode === "area" });
+}
+
+function renderStockChartTooltip(state, param) {
+  const { container, tooltip } = state;
+  if (!tooltip || !param?.point || !param?.time) {
+    if (tooltip) tooltip.hidden = true;
+    return;
+  }
+
+  const point = state.dataByTime.get(String(param.time));
+  if (!point || param.point.x < 0 || param.point.y < 0) {
+    tooltip.hidden = true;
+    return;
+  }
+
+  const rows = [
+    ["시가", formatStockKrw(point.open)],
+    ["고가", formatStockKrw(point.high)],
+    ["저가", formatStockKrw(point.low)],
+    ["종가", formatStockKrw(point.close)],
+    ["거래량", `${formatStockNumber(point.volume)}주`],
+  ];
+  const title = document.createElement("strong");
+  title.textContent = formatStockDateTime(point.time);
+  const list = document.createElement("div");
+  rows.forEach(([label, value]) => {
+    const row = document.createElement("span");
+    const labelElement = document.createElement("em");
+    const valueElement = document.createElement("b");
+    labelElement.textContent = label;
+    valueElement.textContent = value;
+    row.replaceChildren(labelElement, valueElement);
+    list.append(row);
+  });
+  tooltip.replaceChildren(title, list);
+  tooltip.hidden = false;
+
+  const width = tooltip.offsetWidth || 180;
+  const height = tooltip.offsetHeight || 160;
+  const left = Math.min(Math.max(12, param.point.x + 14), Math.max(12, container.clientWidth - width - 12));
+  const top = Math.min(Math.max(12, param.point.y + 14), Math.max(12, container.clientHeight - height - 12));
+  tooltip.style.transform = `translate(${left}px, ${top}px)`;
+}
+
+function renderStockChart(container, stock, tick, selectedRange = "1D", options = {}) {
+  const series = stockSeries(stock, tick, selectedRange);
+  const rows = stockChartRows(series, selectedRange, options.scale);
+  const last = rows.at(-1) || rows[0];
+  const first = rows[0] || last;
+  const indicators = options.indicators || new Set();
+  const chartMode = options.mode || "candle";
+  const state = stockChartStates.get(container) || createStockChartState(container);
+  const priceFormatter = options.scale === "percent" ? (value) => `${value.toFixed(2)}%` : (value) => formatStockKrw(value);
+  const candleData = rows.map((point) => ({
+    time: point.time,
+    open: point.scaledOpen,
+    high: point.scaledHigh,
+    low: point.scaledLow,
+    close: point.scaledClose,
+  }));
+  const lineData = rows.map((point) => ({ time: point.time, value: point.scaledClose }));
+  const volumeData = rows.map((point) => ({
+    time: point.time,
+    value: point.volume,
+    color: point.close >= point.open ? "rgba(225, 25, 0, 0.38)" : "rgba(31, 154, 224, 0.42)",
+  }));
+  const basePrice = Math.max(1, Number(series[0]?.price || series[0]?.close) || 1);
+  const closes = rows.map((point) => point.close);
+  const toLineData = (values) =>
+    values.map((value, index) => ({
+      time: rows[index].time,
+      value: stockChartValue(value, basePrice, options.scale),
+    }));
+
+  state.dataByTime = new Map(rows.map((point) => [String(point.time), point]));
+  state.chart.applyOptions({
+    localization: { priceFormatter },
+    rightPriceScale: { scaleMargins: { top: 0.08, bottom: 0.28 } },
+  });
+  state.candle.setData(candleData);
+  state.line.setData(lineData);
+  state.area.setData(lineData);
+  state.volume.setData(volumeData);
+  state.ma5.setData(indicators.has("ma5") ? toLineData(movingAverage(closes, 5)) : []);
+  state.ma20.setData(indicators.has("ma20") ? toLineData(movingAverage(closes, 20)) : []);
+  state.vwap.setData(indicators.has("vwap") ? toLineData(vwapSeries(rows)) : []);
+  setStockSeriesVisible(state, chartMode);
+
+  const nextViewKey = `${stockCode(stock)}:${selectedRange}:${chartMode}:${options.scale}`;
+  if (state.viewKey !== nextViewKey) {
+    state.chart.timeScale().fitContent();
+    state.viewKey = nextViewKey;
+  }
+
+  return {
+    price: Number(stock.price ?? last?.close ?? 0),
+    change: Number(stock.change24h ?? (((last?.close || 0) - (first?.open || 1)) / Math.max(1, first?.open || 1)) * 100),
+    volume: Number(stock.volume24h ?? rows.reduce((sum, point) => sum + point.volume, 0)),
+    open: Number(first?.open ?? first?.price ?? 0),
+    high: Math.max(...rows.map((point) => Number(point.high || point.price))),
+    low: Math.min(...rows.map((point) => Number(point.low || point.price))),
+  };
+}
+
+function renderStockChartReadout(container, stock, result) {
+  if (!container || !stock || !result) return;
+  const rows = [
+    ["현재가", formatStockKrw(result.price)],
+    ["시가", formatStockKrw(result.open)],
+    ["고가", formatStockKrw(result.high)],
+    ["저가", formatStockKrw(result.low)],
+    ["거래량", `${formatStockNumber(result.volume)}주`],
+  ];
+  container.replaceChildren(
+    ...rows.map(([label, value]) => {
+      const item = document.createElement("span");
+      const labelElement = document.createElement("em");
+      const valueElement = document.createElement("strong");
+      labelElement.textContent = label;
+      valueElement.textContent = value;
+      item.replaceChildren(labelElement, valueElement);
+      return item;
+    }),
+  );
+}
+
+function stockPointMillis(point) {
+  const parsed = Date.parse(point?.time);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function stockChangeForPeriod(series, periodMs) {
+  const last = series.at(-1);
+  if (!last) return 0;
+  const lastTime = stockPointMillis(last);
+  let start = series[0];
+  if (periodMs && lastTime) {
+    const target = lastTime - periodMs;
+    start = series.find((point) => stockPointMillis(point) >= target) || series[0];
+  }
+  const base = Number(start?.close || start?.price || start?.open || 1);
+  const close = Number(last.close || last.price || 0);
+  if (!Number.isFinite(base) || base <= 0 || !Number.isFinite(close)) return 0;
+  return ((close - base) / base) * 100;
+}
+
+function renderStockPerformance(container, stock, tick) {
+  if (!container || !stock) return;
+  const series = stockSeries(stock, tick, "ALL");
+  const periods = [
+    ["1일", 24 * 60 * 60_000],
+    ["1주", 7 * 24 * 60 * 60_000],
+    ["1달", 30 * 24 * 60 * 60_000],
+    ["3달", 90 * 24 * 60 * 60_000],
+    ["6달", 180 * 24 * 60 * 60_000],
+    ["1년", 365 * 24 * 60 * 60_000],
+    ["5년", 5 * 365 * 24 * 60 * 60_000],
+    ["최대", 0],
+  ];
+
+  container.replaceChildren(
+    ...periods.map(([label, periodMs]) => {
+      const change = stockChangeForPeriod(series, periodMs);
+      const item = document.createElement("span");
+      const title = document.createElement("strong");
+      const value = document.createElement("em");
+      title.textContent = label;
+      value.textContent = formatStockChange(change);
+      value.classList.toggle("is-down", change < 0);
+      item.replaceChildren(title, value);
+      return item;
+    }),
+  );
 }
 
 function renderStockTape(tape, trades) {
@@ -2174,6 +2443,8 @@ function initStockExchange() {
   const indicatorButtons = document.querySelectorAll("[data-stock-indicator]");
   const financialViewButtons = document.querySelectorAll("[data-stock-financial-view]");
   const axisStart = document.querySelector("[data-stock-axis-start]");
+  const chartReadout = document.querySelector("[data-stock-chart-readout]");
+  const performance = document.querySelector("[data-stock-performance]");
   const tape = document.querySelector("[data-trade-tape]");
   const orderBook = document.querySelector("[data-stock-order-book]");
   const detailElements = {
@@ -2236,7 +2507,7 @@ function initStockExchange() {
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   let market = buildFallbackMarket(0);
   let activeCode = market.stocks[0]?.symbol || market.stocks[0]?.code || "DMD";
-  let activeRange = "24H";
+  let activeRange = "1D";
   let activeSort = "market";
   let activeMode = document.querySelector("[data-stock-chart-mode].is-active")?.dataset.stockChartMode || "line";
   let activeScale = document.querySelector("[data-stock-scale].is-active")?.dataset.stockScale || "price";
@@ -2317,7 +2588,7 @@ function initStockExchange() {
     financialViewButtons.forEach((button) => {
       button.classList.toggle("is-active", button.dataset.stockFinancialView === activeFinancialView);
     });
-    if (axisStart) axisStart.textContent = activeRange === "ALL" ? "전체" : `${activeRange} 전`;
+    if (axisStart) axisStart.textContent = STOCK_RANGE_CONFIG[activeRange]?.label || `${activeRange} 전`;
     depthGroupButtons.forEach((button) => {
       button.classList.toggle("is-active", Number(button.dataset.stockDepthGroup || 1) === activeDepthGroup);
     });
@@ -2329,6 +2600,8 @@ function initStockExchange() {
     renderStockTicker(ticker, stocks, activeCode, selectStock);
     renderStockRows(list, stocks, activeCode, selectStock);
     renderStockTape(tape, trades.length ? trades : market?.recentTrades);
+    renderStockChartReadout(chartReadout, stock, result);
+    renderStockPerformance(performance, stock, tick);
     renderStockDetail(detailElements, stock, result);
     renderStockStrength(strengthElements, stock, trades);
     const depth = renderStockOrderBook(orderBook, stock, {

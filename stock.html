@@ -137,10 +137,15 @@
 
                   <div class="stock-control-deck" aria-label="차트 컨트롤">
                     <div class="stock-range-tabs" aria-label="차트 범위">
+                      <button type="button" data-stock-range="1M">1</button>
+                      <button type="button" data-stock-range="5M">5</button>
                       <button type="button" data-stock-range="15M">15M</button>
+                      <button type="button" data-stock-range="30M">30M</button>
                       <button type="button" data-stock-range="1H">1H</button>
-                      <button type="button" data-stock-range="4H">4H</button>
-                      <button type="button" class="is-active" data-stock-range="24H">24H</button>
+                      <button type="button" data-stock-range="5H">5H</button>
+                      <button type="button" class="is-active" data-stock-range="1D">1D</button>
+                      <button type="button" data-stock-range="1W">1W</button>
+                      <button type="button" data-stock-range="1MO">1M</button>
                       <button type="button" data-stock-range="ALL">ALL</button>
                     </div>
                     <div class="stock-tabs" aria-label="차트 표시">
@@ -159,13 +164,18 @@
                     </div>
                   </div>
 
-                  <svg class="stock-chart stock-chart-pro" data-stock-chart viewBox="0 0 640 260" role="img" aria-label="서버 주식 시세 그래프"></svg>
+                  <div class="stock-chart-readout" data-stock-chart-readout aria-label="선택 캔들 요약"></div>
+                  <div class="stock-chart-stage stock-chart-pro" data-stock-chart role="img" aria-label="서버 주식 시세 그래프">
+                    <div class="stock-chart-canvas" data-stock-chart-canvas></div>
+                    <div class="stock-chart-tooltip" data-stock-chart-tooltip hidden></div>
+                  </div>
                   <div class="stock-axis" aria-hidden="true">
                     <span data-stock-axis-start>과거</span>
                     <span>중간</span>
                     <span>최근</span>
                     <span>현재</span>
                   </div>
+                  <div class="stock-performance-grid" data-stock-performance aria-label="기간별 수익률"></div>
                 </div>
               </section>
 
