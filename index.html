@@ -285,6 +285,102 @@
               </article>
             </div>
           </div>
+
+          <div class="stock-exchange" data-reveal data-stock-exchange>
+            <div class="stock-panel stock-panel-main">
+              <div class="stock-heading">
+                <div>
+                  <p class="eyebrow">NFO Exchange</p>
+                  <h3>서버 주식 거래 현황</h3>
+                </div>
+                <span class="stock-session" data-stock-session>장중</span>
+              </div>
+
+              <div class="stock-summary" aria-label="대표 종목 시세">
+                <article>
+                  <span>대표 지수</span>
+                  <strong data-stock-index>12,480</strong>
+                  <em data-stock-index-change>+2.4%</em>
+                </article>
+                <article>
+                  <span>오늘 거래량</span>
+                  <strong data-stock-volume>38,420주</strong>
+                  <em>유저 거래</em>
+                </article>
+                <article>
+                  <span>시가 총액</span>
+                  <strong data-stock-cap>8.7M</strong>
+                  <em>서버 머니</em>
+                </article>
+              </div>
+
+              <div class="stock-chart-shell">
+                <div class="stock-chart-top">
+                  <div>
+                    <span data-stock-symbol>DMD</span>
+                    <strong data-stock-price>3,420</strong>
+                  </div>
+                  <em data-stock-change>+4.8%</em>
+                </div>
+                <svg class="stock-chart" data-stock-chart viewBox="0 0 640 260" role="img" aria-label="서버 주식 시세 그래프"></svg>
+                <div class="stock-axis" aria-hidden="true">
+                  <span>09:00</span>
+                  <span>12:00</span>
+                  <span>15:00</span>
+                  <span>현재</span>
+                </div>
+              </div>
+            </div>
+
+            <aside class="stock-panel stock-sidebar" aria-label="서버 주식 종목">
+              <div class="stock-board-heading">
+                <span>종목</span>
+                <span>가격</span>
+              </div>
+              <div class="stock-list" data-stock-list>
+                <article data-stock-code="DMD">
+                  <div>
+                    <strong>DMD</strong>
+                    <span>다이아 광산</span>
+                  </div>
+                  <em>3,420</em>
+                </article>
+                <article data-stock-code="FARM">
+                  <div>
+                    <strong>FARM</strong>
+                    <span>농산물 조합</span>
+                  </div>
+                  <em>1,280</em>
+                </article>
+                <article data-stock-code="LOG">
+                  <div>
+                    <strong>LOG</strong>
+                    <span>건축 목재</span>
+                  </div>
+                  <em>890</em>
+                </article>
+                <article data-stock-code="RED">
+                  <div>
+                    <strong>RED</strong>
+                    <span>레드스톤 공업</span>
+                  </div>
+                  <em>2,160</em>
+                </article>
+              </div>
+
+              <div class="trade-tape" aria-label="최근 체결">
+                <div class="stock-board-heading">
+                  <span>최근 체결</span>
+                  <span>수량</span>
+                </div>
+                <ul data-trade-tape>
+                  <li><span>DMD 매수</span><strong>24주</strong></li>
+                  <li><span>FARM 매도</span><strong>48주</strong></li>
+                  <li><span>RED 매수</span><strong>13주</strong></li>
+                </ul>
+              </div>
+            </aside>
+          </div>
         </section>
 
         <div class="feature-band">

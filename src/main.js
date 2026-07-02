@@ -25,6 +25,12 @@ const AUTH_EVENT_KEY = "nfoifsb.authEvent";
 const STATUS_CACHE_KEY = "nfoifsb.statusCache";
 const PLAYER_HISTORY_KEY = "nfoifsb.playerHistory";
 const PLAYER_HISTORY_MAX = 48;
+const STOCKS = [
+  { code: "DMD", name: "다이아 광산", base: 3420, volume: 8420, drift: 0.048 },
+  { code: "FARM", name: "농산물 조합", base: 1280, volume: 12650, drift: 0.019 },
+  { code: "LOG", name: "건축 목재", base: 890, volume: 9340, drift: -0.012 },
+  { code: "RED", name: "레드스톤 공업", base: 2160, volume: 7990, drift: 0.033 },
+];
 const PAGE_LINKS = new Map([
   ["/status.html", "status"],
   ["/plugins.html", "plugins"],
@@ -573,7 +579,7 @@ function initPageNavigation() {
 
 function initAnimationStagger() {
   const animatedGroups = document.querySelectorAll(
-    ".detail-grid, .plugin-grid, .feature-grid, .economy-grid, .market-list, .section-dashboard, .rules-list, .rules-tools, .join-steps, .stats-inner, .gallery-strip",
+    ".detail-grid, .plugin-grid, .feature-grid, .economy-grid, .market-list, .stock-summary, .stock-list, .section-dashboard, .rules-list, .rules-tools, .join-steps, .stats-inner, .gallery-strip",
   );
 
   animatedGroups.forEach((group) => {
@@ -581,6 +587,205 @@ function initAnimationStagger() {
       child.style.setProperty("--item-index", index);
     });
   });
+}
+
+function formatStockNumber(value) {
+  return new Intl.NumberFormat("ko-KR").format(Math.round(value));
+}
+
+function formatStockChange(value) {
+  const sign = value >= 0 ? "+" : "";
+  return `${sign}${value.toFixed(1)}%`;
+}
+
+function stockSeries(stock, tick) {
+  return Array.from({ length: 32 }, (_, index) => {
+    const wave = Math.sin((index + tick * 0.48) * 0.58 + stock.base * 0.001) * 0.027;
+    const pulse = Math.cos((index + tick * 0.22) * 0.31 + stock.volume * 0.0008) * 0.016;
+    const trend = stock.drift * (index / 31);
+    const price = stock.base * (1 + wave + pulse + trend);
+    const volume = 24 + Math.abs(Math.sin(index * 0.7 + tick + stock.base)) * 58;
+    return { price, volume };
+  });
+}
+
+function createSvg(tag, attrs = {}) {
+  const element = document.createElementNS("http://www.w3.org/2000/svg", tag);
+  Object.entries(attrs).forEach(([key, value]) => {
+    element.setAttribute(key, String(value));
+  });
+  return element;
+}
+
+function renderStockChart(svg, stock, tick) {
+  const series = stockSeries(stock, tick);
+  const prices = series.map((point) => point.price);
+  const min = Math.min(...prices) * 0.985;
+  const max = Math.max(...prices) * 1.015;
+  const left = 28;
+  const right = 612;
+  const top = 26;
+  const chartBottom = 188;
+  const volumeBottom = 250;
+  const width = right - left;
+  const height = chartBottom - top;
+  const xStep = width / (series.length - 1);
+
+  const toX = (index) => left + index * xStep;
+  const toY = (price) => top + ((max - price) / (max - min)) * height;
+  const linePoints = series.map((point, index) => `${toX(index).toFixed(1)},${toY(point.price).toFixed(1)}`).join(" ");
+  const areaPoints = `${left},${chartBottom} ${linePoints} ${right},${chartBottom}`;
+
+  svg.replaceChildren();
+  const defs = createSvg("defs");
+  const gradient = createSvg("linearGradient", {
+    id: "stock-area-gradient",
+    x1: "0",
+    x2: "0",
+    y1: "0",
+    y2: "1",
+  });
+  gradient.append(
+    createSvg("stop", { offset: "0%", "stop-color": "#2d75ff", "stop-opacity": "0.24" }),
+    createSvg("stop", { offset: "100%", "stop-color": "#2d75ff", "stop-opacity": "0" }),
+  );
+  defs.append(gradient);
+  svg.append(defs);
+
+  [32, 76, 120, 164, 208].forEach((y) => {
+    svg.append(createSvg("line", { class: "stock-grid-line", x1: left, x2: right, y1: y, y2: y }));
+  });
+
+  series.forEach((point, index) => {
+    const barHeight = Math.max(6, point.volume * 0.5);
+    svg.append(
+      createSvg("rect", {
+        class: "stock-volume-bar",
+        x: toX(index) - 3,
+        y: volumeBottom - barHeight,
+        width: 6,
+        height: barHeight,
+        rx: 3,
+      }),
+    );
+  });
+
+  svg.append(createSvg("polygon", { class: "stock-chart-area", points: areaPoints }));
+  svg.append(createSvg("polyline", { class: "stock-chart-line", points: linePoints }));
+  const last = series.at(-1);
+  svg.append(createSvg("circle", { class: "stock-chart-dot", cx: right, cy: toY(last.price), r: 7 }));
+  return {
+    price: last.price,
+    change: ((last.price - series[0].price) / series[0].price) * 100,
+    volume: series.reduce((sum, point) => sum + point.volume, 0),
+  };
+}
+
+function renderStockTape(tape, tick) {
+  if (!tape) return;
+  const rows = Array.from({ length: 4 }, (_, index) => {
+    const stock = STOCKS[(tick + index * 2) % STOCKS.length];
+    const buy = (tick + index) % 3 !== 1;
+    const amount = 8 + ((tick * 11 + index * 17) % 64);
+    return { stock, buy, amount };
+  });
+
+  tape.replaceChildren(
+    ...rows.map((row) => {
+      const item = document.createElement("li");
+      item.className = row.buy ? "is-buy" : "is-sell";
+      const label = document.createElement("span");
+      label.textContent = `${row.stock.code} ${row.buy ? "매수" : "매도"}`;
+      const amount = document.createElement("strong");
+      amount.textContent = `${row.amount}주`;
+      item.append(label, amount);
+      return item;
+    }),
+  );
+}
+
+function initStockExchange() {
+  const root = document.querySelector("[data-stock-exchange]");
+  const chart = document.querySelector("[data-stock-chart]");
+  const list = document.querySelector("[data-stock-list]");
+  if (!root || !chart || !list) return;
+
+  const price = document.querySelector("[data-stock-price]");
+  const change = document.querySelector("[data-stock-change]");
+  const symbol = document.querySelector("[data-stock-symbol]");
+  const indexValue = document.querySelector("[data-stock-index]");
+  const indexChange = document.querySelector("[data-stock-index-change]");
+  const volume = document.querySelector("[data-stock-volume]");
+  const cap = document.querySelector("[data-stock-cap]");
+  const session = document.querySelector("[data-stock-session]");
+  const tape = document.querySelector("[data-trade-tape]");
+  const rows = Array.from(list.querySelectorAll("[data-stock-code]"));
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let activeIndex = 0;
+  let tick = 0;
+
+  rows.forEach((row, index) => {
+    row.setAttribute("role", "button");
+    row.setAttribute("tabindex", "0");
+    row.addEventListener("click", () => {
+      activeIndex = index;
+      render();
+    });
+    row.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      event.preventDefault();
+      activeIndex = index;
+      render();
+    });
+  });
+
+  function render() {
+    const stock = STOCKS[activeIndex] || STOCKS[0];
+    const result = renderStockChart(chart, stock, tick);
+    const totalVolume = STOCKS.reduce((sum, item) => sum + item.volume, 0) + Math.round(result.volume * 18);
+    const marketCap = STOCKS.reduce((sum, item) => sum + item.base * item.volume, 0) / 1000000;
+    const stockIndex = 12480 + Math.round(Math.sin(tick * 0.42) * 82 + STOCKS.reduce((sum, item) => sum + item.drift, 0) * 700);
+    const stockIndexChange = 2.1 + Math.sin(tick * 0.36) * 0.8;
+
+    if (symbol) symbol.textContent = stock.code;
+    if (price) price.textContent = formatStockNumber(result.price);
+    if (change) {
+      change.textContent = formatStockChange(result.change);
+      change.classList.toggle("is-down", result.change < 0);
+    }
+    if (indexValue) indexValue.textContent = formatStockNumber(stockIndex);
+    if (indexChange) {
+      indexChange.textContent = formatStockChange(stockIndexChange);
+      indexChange.classList.toggle("is-down", stockIndexChange < 0);
+    }
+    if (volume) volume.textContent = `${formatStockNumber(totalVolume)}주`;
+    if (cap) cap.textContent = `${marketCap.toFixed(1)}M`;
+    if (session) session.textContent = new Date().getHours() >= 2 ? "장중" : "야간장";
+
+    rows.forEach((row, index) => {
+      const item = STOCKS[index] || STOCKS[0];
+      const itemResult = stockSeries(item, tick).at(-1);
+      const open = stockSeries(item, tick)[0].price;
+      const rowPrice = row.querySelector("em");
+      const rowChange = ((itemResult.price - open) / open) * 100;
+      row.classList.toggle("is-active", index === activeIndex);
+      row.setAttribute("aria-pressed", String(index === activeIndex));
+      if (rowPrice) {
+        rowPrice.textContent = formatStockNumber(itemResult.price);
+        rowPrice.classList.toggle("is-down", rowChange < 0);
+      }
+    });
+
+    renderStockTape(tape, tick);
+  }
+
+  render();
+  if (!reduceMotion) {
+    window.setInterval(() => {
+      tick += 1;
+      render();
+    }, 3200);
+  }
 }
 
 function initScrollReveal() {
@@ -651,6 +856,7 @@ document.querySelectorAll("[data-copy-address]").forEach((button) => {
 initTheme();
 initNav();
 initPageNavigation();
+initStockExchange();
 initAnimationStagger();
 initScrollReveal();
 initLogin();
