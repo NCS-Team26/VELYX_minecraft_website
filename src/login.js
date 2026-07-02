@@ -5,6 +5,7 @@ const AUTH_EVENT_KEY = "nfoifsb.authEvent";
 const AUTH_AUTO_KEY = "nfoifsb.autoLogin";
 const PLAYER_PROFILES_KEY = "nfoifsb.playerProfiles";
 const PLAYER_INVENTORY_CACHE_KEY = "nfoifsb.playerInventoryCache";
+const INVENTORY_VIEW_KEY = "nfoifsb.inventoryView";
 const GOOGLE_SCRIPT_SRC = "https://accounts.google.com/gsi/client";
 
 const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
@@ -86,6 +87,8 @@ const stockTradeButtons = document.querySelectorAll("[data-stock-side]");
 const stockTraderMessage = document.querySelector("[data-stock-trader-message]");
 const inventoryGrid = document.querySelector("[data-inventory-grid]");
 const inventoryEquipment = document.querySelector("[data-inventory-equipment]");
+let inventoryGraph = document.querySelector("[data-inventory-graph]");
+let inventoryViewButtons = document.querySelectorAll("[data-inventory-view]");
 const inventoryEmpty = document.querySelector("[data-inventory-empty]");
 const inventorySummary = document.querySelector("[data-inventory-summary]");
 const characterLevel = document.querySelector("[data-character-level]");
@@ -98,6 +101,8 @@ let googleMessageTone = "info";
 let stockMarketPayload = null;
 let stockPortfolioPayload = null;
 let stockTraderLoading = false;
+let inventoryView = readInventoryView();
+let currentInventoryPayload = null;
 
 function setMessage(text, tone = "info") {
   if (!message) return;
@@ -417,7 +422,7 @@ function setWebActionMessage(text, tone = "info") {
 }
 
 function renderWebActions(playerProfile = readPlayerProfile()) {
-  const canUseActions = Boolean(playerProfile?.verified && playerProfile?.webToken);
+  const canUseActions = Boolean(playerProfile?.verified && (playerProfile?.webToken || allowLocalPlayerPreview));
   playerActionButtons.forEach((button) => {
     button.disabled = !canUseActions;
   });
@@ -430,7 +435,7 @@ function renderWebActions(playerProfile = readPlayerProfile()) {
   }
   if (!playerProfile?.verified) {
     setWebActionMessage("캐릭터 인증 후 웹사이트 버튼으로 서버에 액션을 보낼 수 있습니다.");
-  } else if (!playerProfile?.webToken) {
+  } else if (!playerProfile?.webToken && !allowLocalPlayerPreview) {
     setWebActionMessage("인증 확인 버튼을 눌러 웹 액션 토큰을 받아오세요.", "error");
   }
 }
@@ -634,6 +639,260 @@ function buildFallbackInventory(playerProfile) {
   };
 }
 
+function ensureInventoryControls() {
+  const toolbar = document.querySelector(".inventory-toolbar");
+  let tools = document.querySelector(".inventory-tools");
+
+  if (toolbar && !tools) {
+    tools = document.createElement("div");
+    tools.className = "inventory-tools";
+    if (refreshInventoryButton?.parentElement === toolbar) {
+      toolbar.replaceChild(tools, refreshInventoryButton);
+    } else {
+      toolbar.append(tools);
+    }
+  }
+
+  if (tools && !tools.querySelector("[data-inventory-view]")) {
+    const switcher = document.createElement("div");
+    switcher.className = "inventory-view-switch";
+    switcher.setAttribute("role", "group");
+    switcher.setAttribute("aria-label", "인벤토리 보기");
+
+    const gridButton = document.createElement("button");
+    gridButton.type = "button";
+    gridButton.dataset.inventoryView = "grid";
+    gridButton.setAttribute("aria-pressed", "true");
+    gridButton.textContent = "슬롯";
+
+    const graphButton = document.createElement("button");
+    graphButton.type = "button";
+    graphButton.dataset.inventoryView = "graph";
+    graphButton.setAttribute("aria-pressed", "false");
+    graphButton.textContent = "그래프";
+
+    switcher.append(gridButton, graphButton);
+    tools.prepend(switcher);
+  }
+
+  if (tools && refreshInventoryButton && refreshInventoryButton.parentElement !== tools) {
+    tools.append(refreshInventoryButton);
+  }
+
+  if (!inventoryGraph && inventoryGrid?.parentElement) {
+    inventoryGraph = document.createElement("div");
+    inventoryGraph.className = "inventory-graph";
+    inventoryGraph.setAttribute("aria-label", "인벤토리 그래프");
+    inventoryGraph.setAttribute("data-inventory-graph", "");
+    inventoryGraph.hidden = true;
+    inventoryGrid.insertAdjacentElement("afterend", inventoryGraph);
+  }
+
+  inventoryGraph = document.querySelector("[data-inventory-graph]");
+  inventoryViewButtons = document.querySelectorAll("[data-inventory-view]");
+}
+
+function readInventoryView() {
+  try {
+    return localStorage.getItem(INVENTORY_VIEW_KEY) === "graph" ? "graph" : "grid";
+  } catch {
+    return "grid";
+  }
+}
+
+function setInventoryView(view) {
+  inventoryView = view === "graph" ? "graph" : "grid";
+  try {
+    localStorage.setItem(INVENTORY_VIEW_KEY, inventoryView);
+  } catch {}
+  renderInventoryGraph(currentInventoryPayload);
+  applyInventoryView(readPlayerProfile());
+}
+
+function applyInventoryView(playerProfile = readPlayerProfile()) {
+  ensureInventoryControls();
+  const graphMode = inventoryView === "graph";
+  inventoryViewButtons.forEach((button) => {
+    const isActive = button.dataset.inventoryView === inventoryView;
+    button.classList.toggle("is-active", isActive);
+    button.setAttribute("aria-pressed", String(isActive));
+  });
+  if (inventoryGrid) inventoryGrid.hidden = graphMode;
+  if (inventoryEquipment) inventoryEquipment.hidden = graphMode || !playerProfile?.verified;
+  if (inventoryGraph) inventoryGraph.hidden = !graphMode;
+}
+
+function classifyInventoryItem(item) {
+  const text = `${item.id || ""} ${item.type || ""} ${item.key || ""} ${item.name || ""}`.toLowerCase();
+  if (/(sword|axe|bow|crossbow|trident|shield|helmet|chestplate|leggings|boots|검|도끼|활|방패|투구|갑옷|바지|신발)/.test(text)) {
+    return ["전투 장비", "#ff8c9a"];
+  }
+  if (/(pickaxe|shovel|hoe|shears|fishing_rod|flint_and_steel|곡괭이|삽|괭이|낚싯대|가위)/.test(text)) {
+    return ["도구", "#79d8ff"];
+  }
+  if (/(diamond|emerald|gold|iron|copper|netherite|coal|lapis|redstone|quartz|다이아|에메랄드|금|철|구리|석탄|레드스톤)/.test(text)) {
+    return ["광물", "#7ee7b4"];
+  }
+  if (/(log|plank|stone|dirt|sand|glass|brick|block|wood|stem|원목|나무|돌|흙|모래|유리|블록)/.test(text)) {
+    return ["블록", "#d7b77a"];
+  }
+  if (/(apple|bread|beef|porkchop|chicken|fish|carrot|potato|cookie|food|사과|빵|고기|생선|당근|감자)/.test(text)) {
+    return ["식량", "#ffcf6a"];
+  }
+  if (/(potion|pearl|book|map|totem|elytra|enchanted|ender|포션|진주|책|지도|토템)/.test(text)) {
+    return ["특수", "#c996ff"];
+  }
+  return ["기타", "#a9b7af"];
+}
+
+function parseHealthValue(value) {
+  const match = String(value || "").match(/(\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)/);
+  if (!match) return null;
+  const current = Number(match[1]);
+  const max = Number(match[2]);
+  if (!Number.isFinite(current) || !Number.isFinite(max) || max <= 0) return null;
+  return Math.max(0, Math.min(100, (current / max) * 100));
+}
+
+function inventoryEquipmentItems(payload) {
+  const equipment = payload?.equipment || {};
+  return EQUIPMENT_SLOTS.map(([key], index) => (equipment[key] ? normalizeSlotItem(equipment[key], index) : null)).filter(
+    Boolean,
+  );
+}
+
+function createGraphMetric(label, value, tone = "neutral") {
+  const metric = document.createElement("div");
+  metric.className = `inventory-graph-metric is-${tone}`;
+
+  const labelElement = document.createElement("span");
+  labelElement.textContent = label;
+
+  const valueElement = document.createElement("strong");
+  valueElement.textContent = value;
+
+  metric.append(labelElement, valueElement);
+  return metric;
+}
+
+function renderInventoryGraph(payload = null) {
+  ensureInventoryControls();
+  if (!inventoryGraph) return;
+  const playerProfile = readPlayerProfile();
+  inventoryGraph.replaceChildren();
+
+  if (!playerProfile?.verified) {
+    const empty = document.createElement("p");
+    empty.className = "inventory-graph-empty";
+    empty.textContent = "캐릭터 인증 후 그래프가 표시됩니다.";
+    inventoryGraph.append(empty);
+    return;
+  }
+
+  const items = getInventoryItems(payload).map(normalizeSlotItem);
+  const equipmentItems = inventoryEquipmentItems(payload);
+  const allItems = [...items, ...equipmentItems];
+  const totalCount = allItems.reduce((sum, item) => sum + item.count, 0);
+  const hotbarSlots = items.filter((item) => item.slot < 9).length;
+  const occupiedSlots = items.length;
+  const healthPercent = parseHealthValue(payload?.health);
+  const level = Number(payload?.level);
+
+  const heading = document.createElement("div");
+  heading.className = "inventory-graph-heading";
+  const title = document.createElement("strong");
+  title.textContent = "인벤토리 분석";
+  const subtitle = document.createElement("span");
+  subtitle.textContent = totalCount ? `${totalCount}개 아이템 · ${occupiedSlots}/36 슬롯` : "동기화된 아이템 없음";
+  heading.append(title, subtitle);
+
+  const metrics = document.createElement("div");
+  metrics.className = "inventory-graph-metrics";
+  metrics.append(
+    createGraphMetric("점유 슬롯", `${occupiedSlots}/36`, occupiedSlots > 24 ? "warm" : "good"),
+    createGraphMetric("핫바", `${hotbarSlots}/9`, hotbarSlots > 6 ? "good" : "neutral"),
+    createGraphMetric("장비", `${equipmentItems.length}/6`, equipmentItems.length >= 4 ? "good" : "neutral"),
+    createGraphMetric("레벨", Number.isFinite(level) ? String(level) : "--", "blue"),
+  );
+
+  const categoryMap = new Map();
+  allItems.forEach((item) => {
+    const [label, color] = classifyInventoryItem(item);
+    const previous = categoryMap.get(label) || { label, color, count: 0, slots: 0 };
+    previous.count += item.count;
+    previous.slots += 1;
+    categoryMap.set(label, previous);
+  });
+  const categories = [...categoryMap.values()].sort((a, b) => b.count - a.count);
+  const maxCount = Math.max(1, ...categories.map((category) => category.count));
+
+  const bars = document.createElement("div");
+  bars.className = "inventory-graph-bars";
+  if (!categories.length) {
+    const empty = document.createElement("p");
+    empty.className = "inventory-graph-empty";
+    empty.textContent = "인벤토리가 비어 있습니다.";
+    bars.append(empty);
+  } else {
+    categories.forEach((category) => {
+      const row = document.createElement("div");
+      row.className = "inventory-graph-row";
+      row.style.setProperty("--bar-color", category.color);
+      row.style.setProperty("--bar-size", `${Math.max(7, (category.count / maxCount) * 100)}%`);
+
+      const label = document.createElement("span");
+      label.textContent = category.label;
+
+      const track = document.createElement("div");
+      track.className = "inventory-graph-track";
+      const fill = document.createElement("i");
+      track.append(fill);
+
+      const value = document.createElement("strong");
+      value.textContent = `${category.count}`;
+      value.title = `${category.slots}칸`;
+
+      row.append(label, track, value);
+      bars.append(row);
+    });
+  }
+
+  const topItems = [...allItems].sort((a, b) => b.count - a.count).slice(0, 5);
+  const topList = document.createElement("div");
+  topList.className = "inventory-graph-top";
+  const topTitle = document.createElement("span");
+  topTitle.textContent = "상위 아이템";
+  const list = document.createElement("ol");
+  topItems.forEach((item) => {
+    const entry = document.createElement("li");
+    const name = document.createElement("strong");
+    name.textContent = item.name;
+    const count = document.createElement("span");
+    count.textContent = `${item.count}개`;
+    entry.append(name, count);
+    list.append(entry);
+  });
+  if (!topItems.length) {
+    const entry = document.createElement("li");
+    entry.textContent = "표시할 아이템이 없습니다.";
+    list.append(entry);
+  }
+  topList.append(topTitle, list);
+
+  const vitality = document.createElement("div");
+  vitality.className = "inventory-graph-vitality";
+  vitality.style.setProperty("--health-size", `${healthPercent ?? 0}%`);
+  const vitalityLabel = document.createElement("span");
+  vitalityLabel.textContent = "체력";
+  const vitalityTrack = document.createElement("div");
+  vitalityTrack.append(document.createElement("i"));
+  const vitalityValue = document.createElement("strong");
+  vitalityValue.textContent = payload?.health ?? "--";
+  vitality.append(vitalityLabel, vitalityTrack, vitalityValue);
+
+  inventoryGraph.append(heading, metrics, vitality, bars, topList);
+}
+
 function renderEquipment(payload = null, playerProfile = readPlayerProfile()) {
   if (!inventoryEquipment) return;
   const equipment = payload?.equipment || {};
@@ -668,6 +927,7 @@ function renderEquipment(payload = null, playerProfile = readPlayerProfile()) {
 
 function renderInventory(payload = null) {
   if (!inventoryGrid) return;
+  currentInventoryPayload = payload;
   const playerProfile = readPlayerProfile();
   const items = getInventoryItems(payload).map(normalizeSlotItem);
   const bySlot = new Map(items.map((item) => [item.slot, item]));
@@ -720,6 +980,8 @@ function renderInventory(payload = null) {
   if (characterLevel) characterLevel.textContent = payload?.level ?? "--";
   if (characterHealth) characterHealth.textContent = payload?.health ?? "--";
   if (characterLocation) characterLocation.textContent = payload?.location ?? "--";
+  renderInventoryGraph(payload);
+  applyInventoryView(playerProfile);
 }
 
 async function fetchPlayerJson(path, options = {}) {
@@ -985,7 +1247,7 @@ async function checkPlayerVerification(playerProfile, user) {
   return {
     ...playerProfile,
     uuid: apiPayload?.uuid || playerProfile.uuid || "",
-    webToken: apiPayload?.webToken || playerProfile.webToken || "",
+    webToken: apiPayload?.webToken || playerProfile.webToken || (allowLocalPlayerPreview ? "local-preview-token" : ""),
     verified: playerApiBase ? Boolean(apiPayload?.verified) : allowLocalPlayerPreview,
     verifiedAt: apiPayload?.verified || allowLocalPlayerPreview ? new Date().toISOString() : playerProfile.verifiedAt,
   };
@@ -997,9 +1259,11 @@ async function loadPlayerInventory(playerProfile, user = readStoredUser()) {
     return;
   }
   if (!playerProfile.webToken) {
-    setCharacterStatus("인증 토큰 필요", "error");
-    renderInventory(null);
-    return;
+    if (!allowLocalPlayerPreview) {
+      setCharacterStatus("인증 토큰 필요", "error");
+      renderInventory(null);
+      return;
+    }
   }
 
   setInventoryLoading(true);
@@ -1507,6 +1771,13 @@ refreshInventoryButton?.addEventListener("click", () => {
   const user = readStoredUser();
   const playerProfile = readPlayerProfile(user);
   if (playerProfile?.verified) loadPlayerInventory(playerProfile, user);
+});
+
+ensureInventoryControls();
+inventoryViewButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    setInventoryView(button.dataset.inventoryView || "grid");
+  });
 });
 
 playerActionButtons.forEach((button) => {
