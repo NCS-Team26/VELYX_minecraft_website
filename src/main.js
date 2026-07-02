@@ -65,6 +65,7 @@ const STOCKS = [
 const PAGE_LINKS = new Map([
   ["/status.html", "status"],
   ["/plugins.html", "plugins"],
+  ["/stock.html", "stock"],
   ["/rules.html", "rules"],
   ["/join.html", "join"],
 ]);
@@ -914,9 +915,12 @@ function latestStockTime(stock) {
 
 function rangedStockSeries(series, range) {
   const sizes = {
+    "15M": 8,
     "1H": 6,
+    "4H": 12,
     "6H": 14,
     "24H": 32,
+    "1D": 32,
   };
   const size = sizes[range];
   if (!size || series.length <= size) return series;
@@ -976,17 +980,61 @@ async function fetchPlayerApiJsonFrom(base, path, timeoutMs, options = {}) {
   }
 }
 
+async function fetchStockPortfolio(playerProfile) {
+  if (!playerProfile?.verified || !playerProfile?.webToken) return null;
+  if (!PLAYER_API_BASES.length) return null;
+  return fetchPlayerApiJson("/stocks/portfolio", STOCK_TRADE_TIMEOUT_MS, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${playerProfile.webToken}`,
+    },
+    body: JSON.stringify({
+      nickname: playerProfile.nickname,
+      webToken: playerProfile.webToken,
+    }),
+  });
+}
+
+async function submitStockTrade(playerProfile, symbol, side, quantity, order = {}) {
+  if (!playerProfile?.verified || !playerProfile?.webToken) {
+    throw new Error("캐릭터 인증 후 거래할 수 있습니다.");
+  }
+  if (!PLAYER_API_BASES.length) {
+    throw new Error("VITE_PLAYER_API_BASE가 연결되면 실제 매수/매도가 활성화됩니다.");
+  }
+  return fetchPlayerApiJson("/stocks/trade", STOCK_TRADE_TIMEOUT_MS, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${playerProfile.webToken}`,
+    },
+    body: JSON.stringify({
+      nickname: playerProfile.nickname,
+      webToken: playerProfile.webToken,
+      symbol,
+      side,
+      quantity,
+      ...order,
+    }),
+  });
+}
+
 function fallbackStockSeries(stock, tick) {
   const base = Number(stock.base || stock.price || 1000);
   const volumeSeed = Number(stock.volume || stock.volume24h || 3000);
-  const drift = Number(stock.drift || stock.change24h || 0) / 100;
+  const rawDrift = Number(stock.drift || stock.change24h || 0);
+  const drift = Math.abs(rawDrift) > 1 ? rawDrift / 100 : rawDrift;
+  let previousClose = base;
   return Array.from({ length: 32 }, (_, index) => {
     const wave = Math.sin((index + tick * 0.48) * 0.58 + base * 0.001) * 0.027;
     const pulse = Math.cos((index + tick * 0.22) * 0.31 + volumeSeed * 0.0008) * 0.016;
     const trend = drift * (index / 31);
     const price = base * (1 + wave + pulse + trend);
     const volume = 24 + Math.abs(Math.sin(index * 0.7 + tick + base)) * 58;
-    return { price, volume };
+    const open = previousClose;
+    const high = Math.max(open, price) * (1 + 0.004 + Math.abs(Math.sin(index + tick)) * 0.003);
+    const low = Math.min(open, price) * (1 - 0.004 - Math.abs(Math.cos(index + tick)) * 0.003);
+    previousClose = price;
+    return { open, high, low, close: price, price, volume };
   });
 }
 
@@ -994,8 +1042,13 @@ function stockSeries(stock, tick, range = "24H") {
   const history = Array.isArray(stock?.history) ? stock.history : [];
   const series = history
     .map((point) => ({
+      open: Number(point.open ?? point.price ?? point.value ?? point.close),
+      high: Number(point.high ?? point.close ?? point.price ?? point.value),
+      low: Number(point.low ?? point.close ?? point.price ?? point.value),
+      close: Number(point.close ?? point.price ?? point.value),
       price: Number(point.close ?? point.price ?? point.value),
       volume: Number(point.volume ?? 0),
+      time: point.time || point.at || point.startedAt,
     }))
     .filter((point) => Number.isFinite(point.price) && point.price > 0);
 
@@ -1017,6 +1070,9 @@ function buildFallbackMarket(tick) {
       volume24h: Math.round(history.reduce((sum, point) => sum + point.volume, 0) * 18),
       marketCap: stock.base * stock.volume,
       history: history.map((point, index) => ({
+        open: point.open,
+        high: point.high,
+        low: point.low,
         close: point.price,
         volume: point.volume,
         time: new Date(Date.now() - (31 - index) * 45 * 60 * 1000).toISOString(),
@@ -1047,9 +1103,35 @@ function createSvg(tag, attrs = {}) {
   return element;
 }
 
-function renderStockChart(svg, stock, tick, selectedRange = "24H") {
+function movingAverage(values, windowSize) {
+  return values.map((_, index) => {
+    const start = Math.max(0, index - windowSize + 1);
+    const slice = values.slice(start, index + 1);
+    return slice.reduce((sum, value) => sum + value, 0) / slice.length;
+  });
+}
+
+function vwapSeries(series) {
+  let volumeSum = 0;
+  let valueSum = 0;
+  return series.map((point) => {
+    const volume = Math.max(1, Number(point.volume) || 1);
+    const typical = ((point.high || point.price) + (point.low || point.price) + (point.close || point.price)) / 3;
+    volumeSum += volume;
+    valueSum += typical * volume;
+    return valueSum / volumeSum;
+  });
+}
+
+function renderStockChart(svg, stock, tick, selectedRange = "24H", options = {}) {
   const series = stockSeries(stock, tick, selectedRange);
-  const prices = series.map((point) => point.price);
+  const basePrice = Math.max(1, Number(series[0]?.price) || 1);
+  const normalize = (value) => (options.scale === "percent" ? ((value - basePrice) / basePrice) * 100 : value);
+  const prices = series.flatMap((point) => [
+    normalize(point.high || point.price),
+    normalize(point.low || point.price),
+    normalize(point.close || point.price),
+  ]);
   const min = Math.min(...prices) * 0.985;
   const max = Math.max(...prices) * 1.015;
   const priceRange = Math.max(1, max - min);
@@ -1064,9 +1146,11 @@ function renderStockChart(svg, stock, tick, selectedRange = "24H") {
   const xStep = width / (series.length - 1);
 
   const toX = (index) => left + index * xStep;
-  const toY = (price) => top + ((max - price) / priceRange) * height;
+  const toY = (price) => top + ((max - normalize(price)) / priceRange) * height;
   const linePoints = series.map((point, index) => `${toX(index).toFixed(1)},${toY(point.price).toFixed(1)}`).join(" ");
   const areaPoints = `${left},${chartBottom} ${linePoints} ${right},${chartBottom}`;
+  const chartMode = options.mode || "line";
+  const indicators = options.indicators || new Set();
 
   svg.replaceChildren();
   const defs = createSvg("defs");
@@ -1102,14 +1186,74 @@ function renderStockChart(svg, stock, tick, selectedRange = "24H") {
     );
   });
 
-  svg.append(createSvg("polygon", { class: "stock-chart-area", points: areaPoints }));
-  svg.append(createSvg("polyline", { class: "stock-chart-line", points: linePoints }));
+  if (chartMode === "area") {
+    svg.append(createSvg("polygon", { class: "stock-chart-area", points: areaPoints }));
+  }
+
+  if (chartMode === "candle") {
+    const candleWidth = Math.max(4, Math.min(14, xStep * 0.58));
+    series.forEach((point, index) => {
+      const x = toX(index);
+      const open = Number(point.open || point.price);
+      const close = Number(point.close || point.price);
+      const high = Number(point.high || Math.max(open, close));
+      const low = Number(point.low || Math.min(open, close));
+      const up = close >= open;
+      const bodyTop = Math.min(toY(open), toY(close));
+      const bodyHeight = Math.max(2, Math.abs(toY(open) - toY(close)));
+      svg.append(
+        createSvg("line", {
+          class: up ? "stock-candle-wick is-up" : "stock-candle-wick is-down",
+          x1: x,
+          x2: x,
+          y1: toY(high),
+          y2: toY(low),
+        }),
+      );
+      svg.append(
+        createSvg("rect", {
+          class: up ? "stock-candle-body is-up" : "stock-candle-body is-down",
+          x: x - candleWidth / 2,
+          y: bodyTop,
+          width: candleWidth,
+          height: bodyHeight,
+          rx: 2,
+        }),
+      );
+    });
+  } else {
+    svg.append(createSvg("polyline", { class: "stock-chart-line", points: linePoints }));
+  }
+
+  const closes = series.map((point) => point.close || point.price);
+  if (indicators.has("ma5")) {
+    const points = movingAverage(closes, 5)
+      .map((value, index) => `${toX(index).toFixed(1)},${toY(value).toFixed(1)}`)
+      .join(" ");
+    svg.append(createSvg("polyline", { class: "stock-indicator-line ma5", points }));
+  }
+  if (indicators.has("ma20")) {
+    const points = movingAverage(closes, 20)
+      .map((value, index) => `${toX(index).toFixed(1)},${toY(value).toFixed(1)}`)
+      .join(" ");
+    svg.append(createSvg("polyline", { class: "stock-indicator-line ma20", points }));
+  }
+  if (indicators.has("vwap")) {
+    const points = vwapSeries(series)
+      .map((value, index) => `${toX(index).toFixed(1)},${toY(value).toFixed(1)}`)
+      .join(" ");
+    svg.append(createSvg("polyline", { class: "stock-indicator-line vwap", points }));
+  }
+
   const last = series.at(-1);
   svg.append(createSvg("circle", { class: "stock-chart-dot", cx: right, cy: toY(last.price), r: 7 }));
   return {
     price: Number(stock.price ?? last.price),
     change: Number(stock.change24h ?? ((last.price - series[0].price) / series[0].price) * 100),
     volume: Number(stock.volume24h ?? series.reduce((sum, point) => sum + point.volume, 0)),
+    open: Number(series[0]?.open ?? series[0]?.price),
+    high: Math.max(...series.map((point) => Number(point.high || point.price))),
+    low: Math.min(...series.map((point) => Number(point.low || point.price))),
   };
 }
 
@@ -1230,6 +1374,140 @@ function renderStockRows(list, stocks, activeCode, onSelect) {
   list.replaceChildren(...rows);
 }
 
+function stockPosition(portfolio, code) {
+  const positions = Array.isArray(portfolio?.positions) ? portfolio.positions : [];
+  return positions.find((position) => (position.symbol || position.code) === code) || null;
+}
+
+function renderStockOrderBook(book, stock) {
+  if (!book || !stock) return;
+  const price = Math.max(1, Number(stock.price) || 1);
+  const volume = Math.max(10, Number(stock.volume24h) || 1200);
+  const spread = Math.max(1, price * 0.0025);
+  const levels = Array.from({ length: 6 }, (_, index) => {
+    const step = index + 1;
+    const size = Math.round((volume / 96) * (1 + Math.sin(price * 0.01 + step) * 0.28 + step * 0.08));
+    return {
+      ask: price + spread * step,
+      bid: price - spread * step,
+      askSize: Math.max(1, size),
+      bidSize: Math.max(1, Math.round(size * (0.9 + step * 0.03))),
+    };
+  });
+
+  book.replaceChildren(
+    ...levels
+      .map((level) => [
+        { side: "ask", price: level.ask, quantity: level.askSize },
+        { side: "bid", price: level.bid, quantity: level.bidSize },
+      ])
+      .flat()
+      .map((level) => {
+        const row = document.createElement("li");
+        row.className = level.side === "ask" ? "is-ask" : "is-bid";
+        const label = document.createElement("span");
+        label.textContent = level.side === "ask" ? "매도호가" : "매수호가";
+        const value = document.createElement("strong");
+        value.textContent = formatStockNumber(level.price);
+        const quantity = document.createElement("em");
+        quantity.textContent = `${formatStockNumber(level.quantity)}주`;
+        row.append(label, value, quantity);
+        return row;
+      }),
+  );
+}
+
+function renderStockPortfolio(list, balanceLabel, portfolio, market) {
+  if (balanceLabel) {
+    balanceLabel.textContent =
+      portfolio?.balance === undefined ? "인증 후 잔고 표시" : `잔고 ${formatStockNumber(portfolio.balance)} 머니`;
+  }
+  if (!list) return;
+  const positions = Array.isArray(portfolio?.positions) ? portfolio.positions : [];
+  if (!positions.length) {
+    const item = document.createElement("li");
+    item.className = "is-empty";
+    item.innerHTML = "<span>보유 종목 없음</span><strong>--</strong>";
+    list.replaceChildren(item);
+    return;
+  }
+  const stocks = Array.isArray(market?.stocks) ? market.stocks : [];
+  list.replaceChildren(
+    ...positions.map((position) => {
+      const code = position.symbol || position.code;
+      const stock = stocks.find((item) => stockCode(item) === code);
+      const shares = Number(position.shares ?? position.quantity ?? 0);
+      const value = Number(position.value ?? shares * Number(stock?.price || position.price || 0));
+      const item = document.createElement("li");
+      const label = document.createElement("span");
+      label.textContent = `${code} · ${stock?.name || position.name || "포지션"}`;
+      const amount = document.createElement("strong");
+      amount.textContent = `${formatStockNumber(shares)}주`;
+      const detail = document.createElement("em");
+      detail.textContent = `${formatStockNumber(value)} 머니`;
+      item.append(label, amount, detail);
+      return item;
+    }),
+  );
+}
+
+function setTradeMessage(element, text, tone = "info") {
+  if (!element) return;
+  element.textContent = text;
+  element.classList.toggle("is-error", tone === "error");
+  element.classList.toggle("is-success", tone === "success");
+}
+
+function renderOrderTicket(elements, stock, side, playerProfile, portfolio, liveMarket = false, loading = false) {
+  if (!elements?.root || !stock) return;
+  const quantity = Math.max(1, Math.floor(Number(elements.quantity?.value || 1)));
+  const price = Math.max(1, Number(stock.price) || 1);
+  const orderType = elements.type?.value || "market";
+  const limitPrice = Math.max(0, Number(elements.limit?.value || 0));
+  const executionPrice = orderType === "limit" && limitPrice > 0 ? limitPrice : price;
+  const leverage = Math.max(1, Math.min(5, Number(elements.leverage?.value || 1)));
+  const feeRate = 0.003;
+  const notional = executionPrice * quantity * leverage;
+  const margin = notional / leverage;
+  const fee = notional * feeRate;
+  const total = side === "sell" ? notional - fee : margin + fee;
+  const position = stockPosition(portfolio, stockCode(stock));
+  const canTrade = Boolean(playerProfile?.verified && playerProfile?.webToken && PLAYER_API_BASES.length && liveMarket && stock && !loading);
+
+  if (elements.symbol) elements.symbol.textContent = stockCode(stock);
+  if (elements.side) elements.side.textContent = side === "sell" ? "매도" : "매수";
+  if (elements.estimate) {
+    elements.estimate.replaceChildren();
+    [
+      ["예상 체결가", formatStockNumber(executionPrice)],
+      ["주문 수량", `${formatStockNumber(quantity)}주`],
+      ["레버리지", `${leverage}x`],
+      ["명목 금액", `${formatStockNumber(notional)} 머니`],
+      ["수수료", formatStockNumber(fee)],
+      [side === "sell" ? "예상 입금" : "예상 필요", `${formatStockNumber(total)} 머니`],
+      ["보유", position ? `${formatStockNumber(position.shares ?? position.quantity ?? 0)}주` : "0주"],
+    ].forEach(([label, value]) => {
+      const item = document.createElement("span");
+      item.innerHTML = `<em>${label}</em><strong>${value}</strong>`;
+      elements.estimate.append(item);
+    });
+  }
+  if (elements.submit) elements.submit.disabled = !canTrade;
+  if (!canTrade) {
+    setTradeMessage(
+      elements.message,
+      loading
+        ? "주문 전송 중입니다."
+        : !PLAYER_API_BASES.length
+        ? "API 연결 전에는 미리보기만 가능합니다."
+        : !liveMarket
+          ? "실시간 주식 API를 불러오는 중입니다. 잠시 후 다시 시도해 주세요."
+          : "로그인 후 캐릭터 인증을 완료하면 주문 버튼이 활성화됩니다.",
+      PLAYER_API_BASES.length ? "info" : "error",
+    );
+  }
+}
+
 function initStockExchange() {
   const root = document.querySelector("[data-stock-exchange]");
   const chart = document.querySelector("[data-stock-chart]");
@@ -1252,22 +1530,42 @@ function initStockExchange() {
   const updated = document.querySelectorAll("[data-stock-updated]");
   const rangeButtons = document.querySelectorAll("[data-stock-range]");
   const sortButtons = document.querySelectorAll("[data-stock-sort]");
+  const modeButtons = document.querySelectorAll("[data-stock-chart-mode]");
+  const scaleButtons = document.querySelectorAll("[data-stock-scale]");
+  const indicatorButtons = document.querySelectorAll("[data-stock-indicator]");
   const tape = document.querySelector("[data-trade-tape]");
-  const tradeJumpLinks = document.querySelectorAll("[data-stock-trade-jump]");
-  const orderPanel = document.querySelector("[data-stock-order-panel]");
-  const orderSymbol = document.querySelector("[data-stock-order-symbol]");
-  const orderPrice = document.querySelector("[data-stock-order-price]");
-  const orderPosition = document.querySelector("[data-stock-order-position]");
-  const orderBalance = document.querySelector("[data-stock-order-balance]");
-  const orderQuantity = document.querySelector("[data-stock-order-quantity]");
-  const orderButtons = document.querySelectorAll("[data-stock-order-side]");
-  const orderMessage = document.querySelector("[data-stock-order-message]");
+  const orderBook = document.querySelector("[data-stock-order-book]");
+  const portfolioList = document.querySelector("[data-stock-portfolio]");
+  const portfolioBalance = document.querySelector("[data-stock-portfolio-balance]");
+  const orderForm = document.querySelector("[data-stock-order-form]");
+  const orderElements = {
+    root: orderForm,
+    quantity: document.querySelector("[data-stock-order-quantity]"),
+    type: document.querySelector("[data-stock-order-type]"),
+    limit: document.querySelector("[data-stock-order-limit]"),
+    leverage: document.querySelector("[data-stock-order-leverage]"),
+    symbol: document.querySelector("[data-stock-order-symbol]"),
+    side: document.querySelector("[data-stock-order-side-label]"),
+    estimate: document.querySelector("[data-stock-order-estimate]"),
+    submit: document.querySelector("[data-stock-order-submit]"),
+    message: document.querySelector("[data-stock-order-message]"),
+  };
+  const sideButtons = document.querySelectorAll("[data-stock-order-side]");
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   let market = buildFallbackMarket(0);
-  let portfolio = null;
   let activeCode = market.stocks[0]?.symbol || market.stocks[0]?.code || "DMD";
   let activeRange = "24H";
   let activeSort = "market";
+  let activeMode = document.querySelector("[data-stock-chart-mode].is-active")?.dataset.stockChartMode || "line";
+  let activeScale = document.querySelector("[data-stock-scale].is-active")?.dataset.stockScale || "price";
+  let activeIndicators = new Set(
+    Array.from(document.querySelectorAll("[data-stock-indicator].is-active")).map(
+      (button) => button.dataset.stockIndicator,
+    ),
+  );
+  let activeSide = "buy";
+  let portfolio = null;
+  let playerProfile = readPlayerProfile(sessionUser || readStoredUser());
   let liveMarket = false;
   let orderLoading = false;
   let tick = 0;
@@ -1277,69 +1575,18 @@ function initStockExchange() {
     render();
   };
 
-  const selectedPosition = () => {
-    const positions = Array.isArray(portfolio?.positions) ? portfolio.positions : [];
-    return positions.find((position) => position.symbol === activeCode || position.code === activeCode) || null;
-  };
-
-  const setOrderMessage = (text, tone = "info") => {
-    if (!orderMessage) return;
-    orderMessage.textContent = text;
-    orderMessage.classList.toggle("is-error", tone === "error");
-    orderMessage.classList.toggle("is-success", tone === "success");
-  };
-
   const currentPlayerProfile = () => readPlayerProfile(sessionUser || readStoredUser());
-
-  function renderStockOrder(stock) {
-    if (!orderPanel) return;
-
-    const playerProfile = currentPlayerProfile();
-    const position = selectedPosition();
-    const canTrade = Boolean(
-      playerProfile?.verified && playerProfile?.webToken && PLAYER_API_BASES.length && liveMarket && stock && !orderLoading,
-    );
-
-    orderPanel.classList.toggle("is-loading", orderLoading);
-    orderPanel.classList.toggle("can-trade", canTrade);
-    if (orderSymbol) orderSymbol.textContent = stock ? `${activeCode} · ${stock.name || activeCode}` : activeCode;
-    if (orderPrice) orderPrice.textContent = stock ? formatStockNumber(stock.price) : "--";
-    if (orderPosition) {
-      orderPosition.textContent = position
-        ? `${formatStockNumber(position.shares)}주 · ${formatStockNumber(position.value)}`
-        : "0주";
-    }
-    if (orderBalance) {
-      orderBalance.textContent = portfolio?.balance === undefined ? "--" : formatStockNumber(portfolio.balance);
-    }
-    if (orderQuantity) orderQuantity.disabled = !canTrade;
-    orderButtons.forEach((button) => {
-      button.disabled = !canTrade;
-    });
-
-    if (orderLoading) {
-      setOrderMessage("주문 정보를 확인하는 중입니다.");
-    } else if (!sessionUser && !readStoredUser()) {
-      setOrderMessage("로그인 후 캐릭터 인증을 완료하면 이 화면에서 바로 거래할 수 있습니다.");
-    } else if (!playerProfile?.verified) {
-      setOrderMessage("내 캐릭터에서 마크 닉네임 인증을 먼저 완료해 주세요.", "error");
-    } else if (!playerProfile.webToken) {
-      setOrderMessage("인증 확인을 다시 눌러 웹 거래 토큰을 받아오세요.", "error");
-    } else if (!PLAYER_API_BASES.length) {
-      setOrderMessage("주식 거래 API가 아직 연결되지 않았습니다.", "error");
-    } else if (!liveMarket) {
-      setOrderMessage("실시간 주식 API를 불러오는 중입니다. 잠시 후 다시 시도해 주세요.");
-    } else {
-      setOrderMessage("선택한 종목을 그래프와 함께 보면서 매수/매도할 수 있습니다.", "success");
-    }
-  }
 
   function render() {
     const rawStocks = Array.isArray(market?.stocks) && market.stocks.length ? market.stocks : buildFallbackMarket(tick).stocks;
     const stocks = sortStocks(rawStocks, activeSort);
     const stock = stocks.find((item) => stockCode(item) === activeCode) || stocks[0];
     activeCode = stockCode(stock);
-    const result = renderStockChart(chart, stock, tick, activeRange);
+    const result = renderStockChart(chart, stock, tick, activeRange, {
+      mode: activeMode,
+      scale: activeScale,
+      indicators: activeIndicators,
+    });
     const marketMeta = market?.market || {};
 
     root.classList.toggle("is-live", liveMarket);
@@ -1371,11 +1618,25 @@ function initStockExchange() {
     sortButtons.forEach((button) => {
       button.classList.toggle("is-active", button.dataset.stockSort === activeSort);
     });
+    modeButtons.forEach((button) => {
+      button.classList.toggle("is-active", button.dataset.stockChartMode === activeMode);
+    });
+    scaleButtons.forEach((button) => {
+      button.classList.toggle("is-active", button.dataset.stockScale === activeScale);
+    });
+    indicatorButtons.forEach((button) => {
+      button.classList.toggle("is-active", activeIndicators.has(button.dataset.stockIndicator));
+    });
+    sideButtons.forEach((button) => {
+      button.classList.toggle("is-active", button.dataset.stockOrderSide === activeSide);
+    });
 
     renderStockTicker(ticker, stocks, activeCode, selectStock);
     renderStockRows(list, stocks, activeCode, selectStock);
     renderStockTape(tape, market?.recentTrades);
-    renderStockOrder(stock);
+    renderStockOrderBook(orderBook, stock);
+    renderStockPortfolio(portfolioList, portfolioBalance, portfolio, market);
+    renderOrderTicket(orderElements, stock, activeSide, playerProfile, portfolio, liveMarket, orderLoading);
   }
 
   async function refreshMarket() {
@@ -1387,6 +1648,7 @@ function initStockExchange() {
       market = buildFallbackMarket(tick);
       liveMarket = false;
     }
+    playerProfile = currentPlayerProfile();
     render();
   }
 
@@ -1401,22 +1663,13 @@ function initStockExchange() {
 
     let errorMessage = "";
     try {
-      const payload = await fetchPlayerApiJson("/stocks/portfolio", STOCK_TRADE_TIMEOUT_MS, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${playerProfile.webToken}`,
-        },
-        body: JSON.stringify({
-          nickname: playerProfile.nickname,
-          webToken: playerProfile.webToken,
-        }),
-      });
+      const payload = await fetchStockPortfolio(playerProfile);
       if (payload?.ok) portfolio = payload;
     } catch (error) {
       errorMessage = error?.message || "포트폴리오를 불러오지 못했습니다.";
     } finally {
       render();
-      if (errorMessage) setOrderMessage(errorMessage, "error");
+      if (errorMessage) setTradeMessage(orderElements.message, errorMessage, "error");
     }
   }
 
@@ -1440,69 +1693,7 @@ function initStockExchange() {
     };
   }
 
-  async function postStockOrder(side) {
-    const user = sessionUser || readStoredUser();
-    const playerProfile = readPlayerProfile(user);
-    if (!playerProfile?.verified || !playerProfile?.webToken) {
-      setOrderMessage("먼저 로그인하고 캐릭터 인증을 완료해 주세요.", "error");
-      return;
-    }
-    if (!PLAYER_API_BASES.length) {
-      setOrderMessage("주식 거래 API가 아직 연결되지 않았습니다.", "error");
-      return;
-    }
-
-    const quantity = Math.floor(Number(orderQuantity?.value || 0));
-    if (!Number.isFinite(quantity) || quantity <= 0) {
-      setOrderMessage("수량은 1주 이상으로 입력해 주세요.", "error");
-      return;
-    }
-
-    const sideLabel = side === "buy" ? "매수" : "매도";
-    orderLoading = true;
-    render();
-    setOrderMessage(`${activeCode} ${sideLabel} 주문 전송 중입니다.`);
-
-    try {
-      const payload = await fetchPlayerApiJson("/stocks/trade", STOCK_TRADE_TIMEOUT_MS, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${playerProfile.webToken}`,
-        },
-        body: JSON.stringify({
-          nickname: playerProfile.nickname,
-          webToken: playerProfile.webToken,
-          symbol: activeCode,
-          side,
-          quantity,
-        }),
-      });
-      if (payload?.market?.ok) {
-        market = payload.market;
-        liveMarket = true;
-      }
-      mergeTradePosition(payload);
-      render();
-      await refreshPortfolio();
-      orderLoading = false;
-      render();
-      setOrderMessage(`${activeCode} ${sideLabel} ${formatStockNumber(quantity)}주 체결 완료`, "success");
-    } catch (error) {
-      orderLoading = false;
-      render();
-      setOrderMessage(error?.message || "주문을 처리하지 못했습니다.", "error");
-    }
-  }
-
   render();
-  tradeJumpLinks.forEach((link) => {
-    link.addEventListener("click", (event) => {
-      if (!orderPanel) return;
-      event.preventDefault();
-      orderPanel.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "center" });
-      orderPanel.focus({ preventScroll: true });
-    });
-  });
   rangeButtons.forEach((button) => {
     button.addEventListener("click", () => {
       activeRange = button.dataset.stockRange || "24H";
@@ -1515,14 +1706,75 @@ function initStockExchange() {
       render();
     });
   });
-  orderButtons.forEach((button) => {
+  modeButtons.forEach((button) => {
     button.addEventListener("click", () => {
-      const side = button.dataset.stockOrderSide;
-      if (side === "buy" || side === "sell") postStockOrder(side);
+      activeMode = button.dataset.stockChartMode || "line";
+      render();
     });
+  });
+  scaleButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      activeScale = button.dataset.stockScale || "price";
+      render();
+    });
+  });
+  indicatorButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const indicator = button.dataset.stockIndicator;
+      if (!indicator) return;
+      if (activeIndicators.has(indicator)) activeIndicators.delete(indicator);
+      else activeIndicators.add(indicator);
+      render();
+    });
+  });
+  sideButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      activeSide = button.dataset.stockOrderSide || "buy";
+      render();
+    });
+  });
+  [orderElements.quantity, orderElements.type, orderElements.limit, orderElements.leverage]
+    .filter(Boolean)
+    .forEach((element) => {
+      element.addEventListener("input", render);
+      element.addEventListener("change", render);
+    });
+  orderForm?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const stock = market.stocks.find((item) => stockCode(item) === activeCode) || market.stocks[0];
+    const quantity = Math.max(1, Math.floor(Number(orderElements.quantity?.value || 1)));
+    const orderType = orderElements.type?.value || "market";
+    const limitPrice = Math.max(0, Number(orderElements.limit?.value || 0));
+    const leverage = Math.max(1, Math.min(5, Number(orderElements.leverage?.value || 1)));
+    const sideLabel = activeSide === "buy" ? "매수" : "매도";
+    playerProfile = currentPlayerProfile();
+    orderLoading = true;
+    if (orderElements.submit) orderElements.submit.disabled = true;
+    render();
+    try {
+      const payload = await submitStockTrade(playerProfile, stockCode(stock), activeSide, quantity, {
+        orderType,
+        limitPrice: orderType === "limit" && limitPrice > 0 ? limitPrice : undefined,
+        leverage,
+      });
+      if (payload?.market?.ok) {
+        market = payload.market;
+        liveMarket = true;
+      }
+      mergeTradePosition(payload);
+      portfolio = await fetchStockPortfolio(playerProfile).catch(() => portfolio);
+      orderLoading = false;
+      render();
+      setTradeMessage(orderElements.message, `${activeCode} ${sideLabel} ${formatStockNumber(quantity)}주 체결 완료`, "success");
+    } catch (error) {
+      orderLoading = false;
+      render();
+      setTradeMessage(orderElements.message, error?.message || "주문을 처리하지 못했습니다.", "error");
+    }
   });
   window.addEventListener("storage", (event) => {
     if (event.key === AUTH_STORAGE_KEY || event.key === AUTH_EVENT_KEY || event.key === PLAYER_PROFILES_KEY) {
+      playerProfile = currentPlayerProfile();
       refreshPortfolio();
     }
   });

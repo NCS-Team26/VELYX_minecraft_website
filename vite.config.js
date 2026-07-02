@@ -13,6 +13,7 @@ export default defineConfig({
         login: resolve(rootDir, "login.html"),
         status: resolve(rootDir, "status.html"),
         plugins: resolve(rootDir, "plugins.html"),
+        stock: resolve(rootDir, "stock.html"),
         rules: resolve(rootDir, "rules.html"),
         join: resolve(rootDir, "join.html"),
       },

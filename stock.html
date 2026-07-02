@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="nfoifsb.kr 서버 STOCK 거래소. 종목 시세, 호가, 체결, 포트폴리오, 매수와 매도 주문을 한 화면에서 확인합니다."
+    />
+    <meta name="theme-color" content="#0d1411" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0d1411" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" type="image/png" href="/assets/server-icon.png" />
+    <title>STOCK - nfoifsb.kr</title>
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem("nfoifsb.theme");
+          var p = localStorage.getItem("nfoifsb.themePreset");
+          var theme = t === "dark" || t === "light" ? t : "dark";
+          document.documentElement.setAttribute("data-theme", theme);
+          if (["forest", "cave", "amethyst", "ember", "ocean"].includes(p))
+            document.documentElement.setAttribute("data-theme-preset", p);
+        } catch (e) {
+          document.documentElement.setAttribute("data-theme", "dark");
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="app">
+      <a class="skip-link" href="#content">본문으로 건너가기</a>
+      <header class="site-nav" aria-label="Primary navigation">
+        <a class="brand" href="/" aria-label="nfoifsb home">
+          <img src="/assets/server-icon.png" alt="" />
+          <span>nfoifsb</span>
+        </a>
+        <button
+          class="nav-toggle"
+          type="button"
+          aria-expanded="false"
+          aria-controls="primary-nav"
+          aria-label="메뉴 열기"
+          data-nav-toggle
+        >
+          <span aria-hidden="true">☰</span>
+        </button>
+        <nav class="nav-links" id="primary-nav" aria-label="Site pages">
+          <a href="/status.html" data-section-link="status">Status</a>
+          <a href="/plugins.html" data-section-link="plugins">Economy</a>
+          <a href="/stock.html" data-section-link="stock">STOCK</a>
+          <a href="/rules.html" data-section-link="rules">Rules</a>
+          <a href="/join.html" data-section-link="join">Join</a>
+          <a class="nav-login" href="/login.html" data-open-login>Login</a>
+        </nav>
+      </header>
+
+      <main id="content" class="screen-main stock-screen">
+        <section class="stock-workspace" aria-labelledby="stock-title">
+          <div class="stock-workspace-head" data-reveal>
+            <div>
+              <p class="eyebrow">NFO Exchange</p>
+              <h1 id="stock-title">STOCK 거래소</h1>
+              <p>
+                서버 머니로 움직이는 24시간 시장입니다. 시세, 호가, 차트, 체결, 포트폴리오와
+                주문 티켓을 한 화면에서 봅니다.
+              </p>
+            </div>
+            <div class="stock-workspace-actions">
+              <span class="stock-session" data-stock-session>24H LIVE</span>
+              <a class="stock-trade-link" href="/login.html">캐릭터 인증</a>
+            </div>
+          </div>
+
+          <div class="stock-exchange stock-exchange-page stock-pro-terminal" data-reveal data-stock-exchange>
+            <div class="stock-ticker" data-stock-ticker aria-label="실시간 종목 요약">
+              <button type="button" data-stock-code="DMD">
+                <strong>DMD</strong>
+                <span>3,420</span>
+                <em>+4.8%</em>
+              </button>
+              <button type="button" data-stock-code="FARM">
+                <strong>FARM</strong>
+                <span>1,280</span>
+                <em>+1.9%</em>
+              </button>
+              <button type="button" data-stock-code="LOG">
+                <strong>LOG</strong>
+                <span>890</span>
+                <em>-1.2%</em>
+              </button>
+              <button type="button" data-stock-code="RED">
+                <strong>RED</strong>
+                <span>2,160</span>
+                <em>+3.3%</em>
+              </button>
+            </div>
+
+            <div class="stock-pro-layout">
+              <section class="stock-panel stock-panel-main stock-pro-chart" aria-labelledby="stock-chart-title">
+                <div class="stock-heading">
+                  <div>
+                    <span>시장 지수</span>
+                    <strong data-stock-index>12,480</strong>
+                    <em data-stock-index-change>+2.4%</em>
+                  </div>
+                  <div>
+                    <span>실시간 거래량</span>
+                    <strong data-stock-volume>38,420주</strong>
+                    <em>실시간 체결</em>
+                  </div>
+                  <div>
+                    <span>시가총액</span>
+                    <strong data-stock-cap>8.7M</strong>
+                    <em>서버 머니</em>
+                  </div>
+                </div>
+
+                <div class="stock-chart-shell">
+                  <div class="stock-chart-top">
+                    <div>
+                      <span id="stock-chart-title" data-stock-symbol>DMD</span>
+                      <strong data-stock-price>3,420</strong>
+                      <small data-stock-name>다이아 광산</small>
+                    </div>
+                    <div class="stock-chart-side">
+                      <em data-stock-change>+4.8%</em>
+                      <small data-stock-updated>실시간 갱신</small>
+                    </div>
+                  </div>
+
+                  <div class="stock-quote-grid" aria-label="선택 종목 세부 시세">
+                    <span>고가 <strong data-stock-high>3,520</strong></span>
+                    <span>저가 <strong data-stock-low>3,260</strong></span>
+                    <span>거래량 <strong data-stock-quote-volume>12,400주</strong></span>
+                  </div>
+
+                  <div class="stock-control-deck" aria-label="차트 컨트롤">
+                    <div class="stock-range-tabs" aria-label="차트 범위">
+                      <button type="button" data-stock-range="15M">15M</button>
+                      <button type="button" data-stock-range="1H">1H</button>
+                      <button type="button" data-stock-range="4H">4H</button>
+                      <button type="button" class="is-active" data-stock-range="24H">24H</button>
+                      <button type="button" data-stock-range="ALL">ALL</button>
+                    </div>
+                    <div class="stock-tabs" aria-label="차트 표시">
+                      <button type="button" class="is-active" data-stock-chart-mode="candle">캔들</button>
+                      <button type="button" data-stock-chart-mode="line">라인</button>
+                      <button type="button" data-stock-chart-mode="area">영역</button>
+                    </div>
+                    <div class="stock-tabs" aria-label="차트 지표">
+                      <button type="button" class="is-active" data-stock-indicator="ma5">MA5</button>
+                      <button type="button" data-stock-indicator="ma20">MA20</button>
+                      <button type="button" class="is-active" data-stock-indicator="vwap">VWAP</button>
+                    </div>
+                    <div class="stock-tabs" aria-label="가격 스케일">
+                      <button type="button" class="is-active" data-stock-scale="price">가격</button>
+                      <button type="button" data-stock-scale="percent">%</button>
+                    </div>
+                  </div>
+
+                  <svg class="stock-chart stock-chart-pro" data-stock-chart viewBox="0 0 640 260" role="img" aria-label="서버 주식 시세 그래프"></svg>
+                  <div class="stock-axis" aria-hidden="true">
+                    <span>과거</span>
+                    <span>중간</span>
+                    <span>최근</span>
+                    <span>현재</span>
+                  </div>
+                </div>
+              </section>
+
+              <aside class="stock-panel stock-order-ticket" aria-label="주문 티켓">
+                <div class="stock-board-heading">
+                  <span>주문 티켓</span>
+                  <span data-stock-order-symbol>DMD</span>
+                </div>
+                <form data-stock-order-form>
+                  <div class="stock-order-side-buttons" aria-label="매수 매도 선택">
+                    <button type="button" class="is-active" data-stock-order-side="buy">매수</button>
+                    <button type="button" data-stock-order-side="sell">매도</button>
+                  </div>
+                  <label>
+                    <span>주문 유형</span>
+                    <select data-stock-order-type>
+                      <option value="market">시장가 즉시체결</option>
+                      <option value="limit">지정가 예약</option>
+                    </select>
+                  </label>
+                  <label>
+                    <span>수량</span>
+                    <input data-stock-order-quantity type="number" min="1" max="500" value="10" inputmode="numeric" />
+                  </label>
+                  <label>
+                    <span>지정가</span>
+                    <input data-stock-order-limit type="number" min="1" step="1" placeholder="현재가 기준" inputmode="numeric" />
+                  </label>
+                  <label>
+                    <span>레버리지</span>
+                    <select data-stock-order-leverage>
+                      <option value="1">1x 현물</option>
+                      <option value="2">2x</option>
+                      <option value="3">3x</option>
+                      <option value="5">5x 고위험</option>
+                    </select>
+                  </label>
+                  <div class="stock-order-estimate" data-stock-order-estimate></div>
+                  <button class="stock-order-submit" type="submit" data-stock-order-submit disabled>
+                    <span data-stock-order-side-label>매수</span> 주문 전송
+                  </button>
+                  <p class="stock-order-message" data-stock-order-message>
+                    로그인 후 캐릭터 인증을 완료하면 실제 주문을 보낼 수 있습니다.
+                  </p>
+                </form>
+              </aside>
+
+              <aside class="stock-panel stock-depth-panel" aria-label="호가">
+                <div class="stock-board-heading">
+                  <span>호가</span>
+                  <span>수량</span>
+                </div>
+                <ul class="stock-order-book" data-stock-order-book></ul>
+              </aside>
+
+              <section class="stock-panel stock-table-panel" aria-label="서버 주식 시세표">
+                <div class="stock-board-heading">
+                  <span>종목</span>
+                  <span data-stock-updated>실시간 갱신</span>
+                </div>
+                <div class="stock-tabs" aria-label="시장 보기">
+                  <button type="button" class="is-active" data-stock-sort="market">주요</button>
+                  <button type="button" data-stock-sort="change">등락률</button>
+                  <button type="button" data-stock-sort="volume">체결량</button>
+                </div>
+                <div class="stock-table-wrap">
+                  <table class="stock-market-table">
+                    <thead>
+                      <tr>
+                        <th scope="col">종목</th>
+                        <th scope="col">현재가</th>
+                        <th scope="col">고가</th>
+                        <th scope="col">저가</th>
+                        <th scope="col">변동</th>
+                        <th scope="col">변동%</th>
+                        <th scope="col">거래량</th>
+                        <th scope="col">시간</th>
+                      </tr>
+                    </thead>
+                    <tbody data-stock-list></tbody>
+                  </table>
+                </div>
+              </section>
+
+              <section class="stock-panel trade-tape" aria-label="최근 체결">
+                <div class="stock-board-heading">
+                  <span>최근 체결</span>
+                  <span>체결가</span>
+                </div>
+                <ul data-trade-tape>
+                  <li><span>실제 체결 대기</span><strong>--</strong></li>
+                </ul>
+              </section>
+
+              <section class="stock-panel stock-portfolio-panel" aria-label="내 포트폴리오">
+                <div class="stock-board-heading">
+                  <span>내 포트폴리오</span>
+                  <span data-stock-portfolio-balance>인증 후 잔고 표시</span>
+                </div>
+                <ul class="stock-portfolio-list" data-stock-portfolio>
+                  <li class="is-empty"><span>보유 종목 없음</span><strong>--</strong></li>
+                </ul>
+              </section>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="site-footer" id="site-footer">
+        <div class="footer-info-row">
+          <span class="footer-brand">
+            <img src="/assets/server-icon.png" alt="" />
+            nfoifsb.kr
+          </span>
+          <span>Paper 26.1.2 · STOCK 거래소</span>
+          <a href="#content">맨 위로</a>
+        </div>
+        <div class="footer-theme-row">
+          <button class="footer-theme-toggle" type="button" data-theme-toggle>
+            <span class="footer-theme-icon" aria-hidden="true">
+              <svg class="ic" data-theme-icon="light" viewBox="0 0 24 24">
+                <path d="M21 12.8A8 8 0 1 1 11.2 3a6 6 0 0 0 9.8 9.8z" />
+              </svg>
+              <svg class="ic" data-theme-icon="dark" viewBox="0 0 24 24" hidden>
+                <circle cx="12" cy="12" r="4.2" />
+                <path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.5 4.5l2 2M17.5 17.5l2 2M19.5 4.5l-2 2M6.5 17.5l-2 2" />
+              </svg>
+            </span>
+            <span class="footer-theme-text">
+              <strong data-theme-label>다크모드</strong>
+              <span data-theme-description>밝은 화면에서 어두운 화면으로 전환</span>
+            </span>
+          </button>
+        </div>
+      </footer>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
