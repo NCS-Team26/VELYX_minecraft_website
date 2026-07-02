@@ -129,6 +129,7 @@
                   </div>
 
                   <div class="stock-quote-grid" aria-label="선택 종목 세부 시세">
+                    <span>시가 <strong data-stock-open>₩3,260</strong></span>
                     <span>고가 <strong data-stock-high>₩3,520</strong></span>
                     <span>저가 <strong data-stock-low>₩3,260</strong></span>
                     <span>거래량 <strong data-stock-quote-volume>12,400주</strong></span>
@@ -160,13 +161,41 @@
 
                   <svg class="stock-chart stock-chart-pro" data-stock-chart viewBox="0 0 640 260" role="img" aria-label="서버 주식 시세 그래프"></svg>
                   <div class="stock-axis" aria-hidden="true">
-                    <span>과거</span>
+                    <span data-stock-axis-start>과거</span>
                     <span>중간</span>
                     <span>최근</span>
                     <span>현재</span>
                   </div>
                 </div>
               </section>
+
+              <aside class="stock-panel stock-detail-panel" aria-label="선택 종목 상세">
+                <div class="stock-board-heading">
+                  <span>종목 상세</span>
+                  <span data-stock-detail-symbol>DMD</span>
+                </div>
+                <div class="stock-detail-body">
+                  <strong data-stock-detail-name>다이아 광산</strong>
+                  <span>현재가 <em data-stock-detail-price>₩3,420</em></span>
+                  <span>등락 <em data-stock-detail-change>+4.8%</em></span>
+                  <span>24H 범위 <em data-stock-detail-range>₩3,260 - ₩3,520</em></span>
+                  <span>최근 시간 <em data-stock-detail-time>실시간</em></span>
+                </div>
+              </aside>
+
+              <aside class="stock-panel stock-strength-panel" aria-label="체결강도">
+                <div class="stock-board-heading">
+                  <span>체결강도</span>
+                  <span data-stock-strength-value>--</span>
+                </div>
+                <div class="stock-strength-meter" aria-hidden="true">
+                  <span data-stock-strength-meter></span>
+                </div>
+                <div class="stock-strength-meta">
+                  <span>매수 <strong data-stock-strength-buy>--</strong></span>
+                  <span>매도 <strong data-stock-strength-sell>--</strong></span>
+                </div>
+              </aside>
 
               <aside class="stock-panel stock-order-ticket" aria-label="주문 티켓">
                 <div class="stock-board-heading">
@@ -193,15 +222,6 @@
                     <span>지정가</span>
                     <input data-stock-order-limit type="number" min="1" step="1" placeholder="KRW 현재가 기준" inputmode="numeric" />
                   </label>
-                  <label>
-                    <span>레버리지</span>
-                    <select data-stock-order-leverage>
-                      <option value="1">1x 현물</option>
-                      <option value="2">2x</option>
-                      <option value="3">3x</option>
-                      <option value="5">5x 고위험</option>
-                    </select>
-                  </label>
                   <div class="stock-order-estimate" data-stock-order-estimate></div>
                   <button class="stock-order-submit" type="submit" data-stock-order-submit disabled>
                     <span data-stock-order-side-label>매수</span> 주문 전송
@@ -212,9 +232,9 @@
                 </form>
               </aside>
 
-              <aside class="stock-panel stock-depth-panel" aria-label="호가">
+              <aside class="stock-panel stock-depth-panel" aria-label="호가창">
                 <div class="stock-board-heading">
-                  <span>호가</span>
+                  <span>호가창</span>
                   <span>수량</span>
                 </div>
                 <ul class="stock-order-book" data-stock-order-book></ul>

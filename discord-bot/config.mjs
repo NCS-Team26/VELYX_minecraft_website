@@ -1,6 +1,8 @@
 import "dotenv/config";
 import path from "node:path";
 
+const DEFAULT_PLAYER_API_BASE = "https://minecraftserver1.tail16d543.ts.net/minecraft";
+
 function stripTrailingSlash(value) {
   return String(value || "").trim().replace(/\/+$/, "");
 }
@@ -23,7 +25,7 @@ export const config = {
   clientId: process.env.DISCORD_CLIENT_ID || "",
   guildId: process.env.DISCORD_GUILD_ID || "",
   playerApiBase: stripTrailingSlash(
-    process.env.DISCORD_PLAYER_API_BASE || process.env.VITE_PLAYER_API_BASE || "https://api.nfoifsb.kr/minecraft",
+    process.env.DISCORD_PLAYER_API_BASE || process.env.VITE_PLAYER_API_BASE || DEFAULT_PLAYER_API_BASE,
   ),
   siteUrl: stripTrailingSlash(process.env.DISCORD_SITE_URL || process.env.AUTH_APP_BASE_URL || "https://www.nfoifsb.kr"),
   minecraftAddress: process.env.DISCORD_MINECRAFT_ADDRESS || "nfoifsb.kr",

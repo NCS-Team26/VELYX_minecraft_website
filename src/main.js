@@ -3,6 +3,9 @@ import "./styles.css";
 const SERVER_ADDRESS = "nfoifsb.kr";
 const STATUS_API = `https://api.mcstatus.io/v2/status/java/${SERVER_ADDRESS}`;
 const STATUS_TIMEOUT_MS = 8000;
+const PRODUCTION_PLAYER_API_BASE = "https://minecraftserver1.tail16d543.ts.net/minecraft";
+const PRODUCTION_PLAYER_API_FALLBACK_BASE = "https://api.nfoifsb.kr/minecraft";
+
 function apiBaseList(...values) {
   return [
     ...new Set(
@@ -14,9 +17,12 @@ function apiBaseList(...values) {
   ];
 }
 
+const isLocalWebHost = ["localhost", "127.0.0.1", "::1"].includes(window.location.hostname);
+const LOCAL_PLAYER_API_BASE = isLocalWebHost ? "http://127.0.0.1:8787/minecraft" : "";
 const PLAYER_API_BASES = apiBaseList(
-  import.meta.env.VITE_PLAYER_API_BASE,
-  import.meta.env.VITE_PLAYER_API_FALLBACK_BASES,
+  import.meta.env.VITE_PLAYER_API_BASE || PRODUCTION_PLAYER_API_BASE,
+  import.meta.env.VITE_PLAYER_API_FALLBACK_BASES || PRODUCTION_PLAYER_API_FALLBACK_BASE,
+  LOCAL_PLAYER_API_BASE,
 );
 const PLAYER_API_BASE = PLAYER_API_BASES[0] || "";
 const SERVER_OVERVIEW_TIMEOUT_MS = 6000;
@@ -1391,6 +1397,71 @@ function stockPosition(portfolio, code) {
   return positions.find((position) => (position.symbol || position.code) === code) || null;
 }
 
+function selectedStockTrades(trades, code) {
+  if (!Array.isArray(trades)) return [];
+  return trades.filter((trade) => (trade.symbol || trade.code) === code);
+}
+
+function stockTradeTotals(stock, trades) {
+  const rows = Array.isArray(trades) ? trades : [];
+  const buy = rows
+    .filter((trade) => trade.side !== "sell")
+    .reduce((sum, trade) => sum + Number(trade.quantity || trade.shares || 0), 0);
+  const sell = rows
+    .filter((trade) => trade.side === "sell")
+    .reduce((sum, trade) => sum + Number(trade.quantity || trade.shares || 0), 0);
+
+  if (buy > 0 || sell > 0) return { buy, sell };
+
+  const volume = Math.max(20, Number(stock?.volume24h || stock?.volume || 1200));
+  const change = Number(stock?.change24h || 0);
+  const bias = Math.max(0.22, Math.min(0.78, 0.5 + change / 140));
+  return {
+    buy: Math.round(volume * bias),
+    sell: Math.round(volume * (1 - bias)),
+  };
+}
+
+function renderStockStrength(elements, stock, trades) {
+  if (!elements?.value && !elements?.meter && !elements?.buy && !elements?.sell) return;
+  const totals = stockTradeTotals(stock, trades);
+  const strength = totals.sell > 0 ? (totals.buy / totals.sell) * 100 : totals.buy > 0 ? 200 : 100;
+  const clamped = Math.max(8, Math.min(100, strength / 2));
+  const isHot = strength >= 110;
+  const isCold = strength <= 90;
+
+  if (elements.value) {
+    elements.value.textContent = `${Math.round(strength)}%`;
+    elements.value.classList.toggle("is-up", isHot);
+    elements.value.classList.toggle("is-down", isCold);
+  }
+  if (elements.meter) {
+    elements.meter.style.width = `${clamped}%`;
+    elements.meter.classList.toggle("is-down", isCold);
+  }
+  if (elements.buy) elements.buy.textContent = `${formatStockNumber(totals.buy)}주`;
+  if (elements.sell) elements.sell.textContent = `${formatStockNumber(totals.sell)}주`;
+}
+
+function renderStockDetail(elements, stock, result) {
+  if (!elements?.symbol && !elements?.name) return;
+  const code = stockCode(stock);
+  const change = Number(result.change || stock?.change24h || 0);
+  const high = Number(stock?.high24h || result.high || result.price);
+  const low = Number(stock?.low24h || result.low || result.price);
+
+  if (elements.symbol) elements.symbol.textContent = code;
+  if (elements.name) elements.name.textContent = stock?.name || code;
+  if (elements.price) elements.price.textContent = formatStockKrw(result.price);
+  if (elements.change) {
+    elements.change.textContent = formatStockChange(change);
+    elements.change.classList.toggle("is-down", change < 0);
+    elements.change.classList.toggle("is-up", change >= 0);
+  }
+  if (elements.range) elements.range.textContent = `${formatStockKrw(low)} - ${formatStockKrw(high)}`;
+  if (elements.time) elements.time.textContent = formatStockTime(latestStockTime(stock));
+}
+
 function renderStockOrderBook(book, stock) {
   if (!book || !stock) return;
   const price = Math.max(1, Number(stock.price) || 1);
@@ -1477,12 +1548,10 @@ function renderOrderTicket(elements, stock, side, playerProfile, portfolio, live
   const orderType = elements.type?.value || "market";
   const limitPrice = Math.max(0, Number(elements.limit?.value || 0));
   const executionPrice = orderType === "limit" && limitPrice > 0 ? limitPrice : price;
-  const leverage = Math.max(1, Math.min(5, Number(elements.leverage?.value || 1)));
   const feeRate = 0.003;
-  const notional = executionPrice * quantity * leverage;
-  const margin = notional / leverage;
+  const notional = executionPrice * quantity;
   const fee = notional * feeRate;
-  const total = side === "sell" ? notional - fee : margin + fee;
+  const total = side === "sell" ? notional - fee : notional + fee;
   const position = stockPosition(portfolio, stockCode(stock));
   const canTrade = Boolean(playerProfile?.verified && playerProfile?.webToken && PLAYER_API_BASES.length && liveMarket && stock && !loading);
 
@@ -1493,8 +1562,7 @@ function renderOrderTicket(elements, stock, side, playerProfile, portfolio, live
     [
       ["예상 체결가", formatStockKrw(executionPrice)],
       ["주문 수량", `${formatStockNumber(quantity)}주`],
-      ["레버리지", `${leverage}x`],
-      ["명목 금액", formatStockKrw(notional)],
+      ["주문 금액", formatStockKrw(notional)],
       ["수수료", formatStockKrw(fee)],
       [side === "sell" ? "예상 입금" : "예상 필요", formatStockKrw(total)],
       ["보유", position ? `${formatStockNumber(position.shares ?? position.quantity ?? 0)}주` : "0주"],
@@ -1531,6 +1599,7 @@ function initStockExchange() {
   const change = document.querySelector("[data-stock-change]");
   const symbol = document.querySelector("[data-stock-symbol]");
   const stockName = document.querySelector("[data-stock-name]");
+  const open = document.querySelector("[data-stock-open]");
   const high = document.querySelector("[data-stock-high]");
   const low = document.querySelector("[data-stock-low]");
   const quoteVolume = document.querySelector("[data-stock-quote-volume]");
@@ -1545,8 +1614,23 @@ function initStockExchange() {
   const modeButtons = document.querySelectorAll("[data-stock-chart-mode]");
   const scaleButtons = document.querySelectorAll("[data-stock-scale]");
   const indicatorButtons = document.querySelectorAll("[data-stock-indicator]");
+  const axisStart = document.querySelector("[data-stock-axis-start]");
   const tape = document.querySelector("[data-trade-tape]");
   const orderBook = document.querySelector("[data-stock-order-book]");
+  const detailElements = {
+    symbol: document.querySelector("[data-stock-detail-symbol]"),
+    name: document.querySelector("[data-stock-detail-name]"),
+    price: document.querySelector("[data-stock-detail-price]"),
+    change: document.querySelector("[data-stock-detail-change]"),
+    range: document.querySelector("[data-stock-detail-range]"),
+    time: document.querySelector("[data-stock-detail-time]"),
+  };
+  const strengthElements = {
+    value: document.querySelector("[data-stock-strength-value]"),
+    meter: document.querySelector("[data-stock-strength-meter]"),
+    buy: document.querySelector("[data-stock-strength-buy]"),
+    sell: document.querySelector("[data-stock-strength-sell]"),
+  };
   const portfolioList = document.querySelector("[data-stock-portfolio]");
   const portfolioBalance = document.querySelector("[data-stock-portfolio-balance]");
   const orderForm = document.querySelector("[data-stock-order-form]");
@@ -1555,7 +1639,6 @@ function initStockExchange() {
     quantity: document.querySelector("[data-stock-order-quantity]"),
     type: document.querySelector("[data-stock-order-type]"),
     limit: document.querySelector("[data-stock-order-limit]"),
-    leverage: document.querySelector("[data-stock-order-leverage]"),
     symbol: document.querySelector("[data-stock-order-symbol]"),
     side: document.querySelector("[data-stock-order-side-label]"),
     estimate: document.querySelector("[data-stock-order-estimate]"),
@@ -1609,6 +1692,7 @@ function initStockExchange() {
       change.textContent = formatStockChange(result.change);
       change.classList.toggle("is-down", result.change < 0);
     }
+    if (open) open.textContent = formatStockKrw(stock.open24h || result.open);
     if (high) high.textContent = formatStockKrw(stock.high24h || result.price);
     if (low) low.textContent = formatStockKrw(stock.low24h || result.price);
     if (quoteVolume) quoteVolume.textContent = `${formatStockNumber(stock.volume24h || result.volume)}주`;
@@ -1639,13 +1723,17 @@ function initStockExchange() {
     indicatorButtons.forEach((button) => {
       button.classList.toggle("is-active", activeIndicators.has(button.dataset.stockIndicator));
     });
+    if (axisStart) axisStart.textContent = activeRange === "ALL" ? "전체" : `${activeRange} 전`;
     sideButtons.forEach((button) => {
       button.classList.toggle("is-active", button.dataset.stockOrderSide === activeSide);
     });
 
+    const trades = selectedStockTrades(market?.recentTrades, activeCode);
     renderStockTicker(ticker, stocks, activeCode, selectStock);
     renderStockRows(list, stocks, activeCode, selectStock);
-    renderStockTape(tape, market?.recentTrades);
+    renderStockTape(tape, trades.length ? trades : market?.recentTrades);
+    renderStockDetail(detailElements, stock, result);
+    renderStockStrength(strengthElements, stock, trades);
     renderStockOrderBook(orderBook, stock);
     renderStockPortfolio(portfolioList, portfolioBalance, portfolio, market);
     renderOrderTicket(orderElements, stock, activeSide, playerProfile, portfolio, liveMarket, orderLoading);
@@ -1745,7 +1833,7 @@ function initStockExchange() {
       render();
     });
   });
-  [orderElements.quantity, orderElements.type, orderElements.limit, orderElements.leverage]
+  [orderElements.quantity, orderElements.type, orderElements.limit]
     .filter(Boolean)
     .forEach((element) => {
       element.addEventListener("input", render);
@@ -1757,7 +1845,6 @@ function initStockExchange() {
     const quantity = Math.max(1, Math.floor(Number(orderElements.quantity?.value || 1)));
     const orderType = orderElements.type?.value || "market";
     const limitPrice = Math.max(0, Number(orderElements.limit?.value || 0));
-    const leverage = Math.max(1, Math.min(5, Number(orderElements.leverage?.value || 1)));
     const sideLabel = activeSide === "buy" ? "매수" : "매도";
     playerProfile = currentPlayerProfile();
     orderLoading = true;
@@ -1767,7 +1854,6 @@ function initStockExchange() {
       const payload = await submitStockTrade(playerProfile, stockCode(stock), activeSide, quantity, {
         orderType,
         limitPrice: orderType === "limit" && limitPrice > 0 ? limitPrice : undefined,
-        leverage,
       });
       if (payload?.market?.ok) {
         market = payload.market;
