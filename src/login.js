@@ -9,6 +9,15 @@ const GOOGLE_SCRIPT_SRC = "https://accounts.google.com/gsi/client";
 
 const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
 const playerApiBase = (import.meta.env.VITE_PLAYER_API_BASE || "").replace(/\/$/, "");
+const MINECRAFT_TEXTURE_BASE = "https://assets.mcasset.cloud/latest/assets/minecraft/textures";
+const EQUIPMENT_SLOTS = [
+  ["mainHand", "주 손"],
+  ["offHand", "보조 손"],
+  ["helmet", "투구"],
+  ["chestplate", "갑옷"],
+  ["leggings", "바지"],
+  ["boots", "신발"],
+];
 const isLocalHost = ["localhost", "127.0.0.1", "::1"].includes(window.location.hostname);
 const localAuthApiBase = isLocalHost ? "http://127.0.0.1:4174" : "";
 const authApiBase = (import.meta.env.VITE_AUTH_API_BASE || localAuthApiBase).replace(/\/$/, "");
@@ -57,6 +66,7 @@ const stockTraderPosition = document.querySelector("[data-stock-trader-position]
 const stockTradeButtons = document.querySelectorAll("[data-stock-side]");
 const stockTraderMessage = document.querySelector("[data-stock-trader-message]");
 const inventoryGrid = document.querySelector("[data-inventory-grid]");
+const inventoryEquipment = document.querySelector("[data-inventory-equipment]");
 const inventoryEmpty = document.querySelector("[data-inventory-empty]");
 const inventorySummary = document.querySelector("[data-inventory-summary]");
 const characterLevel = document.querySelector("[data-character-level]");
@@ -425,11 +435,143 @@ function getItemColor(name) {
   return "#83b36a";
 }
 
+function normalizeMinecraftId(value) {
+  const raw = String(value || "").trim().toLowerCase();
+  if (!raw) return "";
+  return raw
+    .replace(/^minecraft:/, "")
+    .replace(/[^a-z0-9_./-]+/g, "_")
+    .replace(/^\/+/, "");
+}
+
+function itemTextureCandidates(item) {
+  const id = normalizeMinecraftId(item?.id || item?.key || item?.texture || item?.type || item?.name);
+  const candidates = [];
+
+  [item?.iconUrl, item?.imageUrl, item?.textureUrl].forEach((url) => {
+    if (typeof url === "string" && url.startsWith("https://")) candidates.push(url);
+  });
+
+  [item?.itemTexture, item?.blockTexture].forEach((path) => {
+    const cleanPath = normalizeMinecraftId(path);
+    if (cleanPath) candidates.push(`${MINECRAFT_TEXTURE_BASE}/${cleanPath}`);
+  });
+
+  if (id) {
+    candidates.push(`${MINECRAFT_TEXTURE_BASE}/item/${id}.png`);
+    candidates.push(`${MINECRAFT_TEXTURE_BASE}/block/${id}.png`);
+    blockTextureAliases(id).forEach((alias) => {
+      candidates.push(`${MINECRAFT_TEXTURE_BASE}/block/${alias}.png`);
+    });
+  }
+
+  return [...new Set(candidates)];
+}
+
+function blockTextureAliases(id) {
+  const aliases = [];
+  if (id.endsWith("_log") || id.endsWith("_stem")) {
+    aliases.push(`${id}_side`);
+  }
+  if (id.endsWith("_wood") || id.endsWith("_hyphae")) {
+    aliases.push(id.replace(/_(wood|hyphae)$/, "_log"));
+  }
+  if (id === "grass_block") aliases.push("grass_block_side");
+  if (id === "podzol" || id === "mycelium") aliases.push(`${id}_side`);
+  if (id === "crafting_table") aliases.push("crafting_table_front");
+  if (id === "furnace" || id === "blast_furnace" || id === "smoker") aliases.push(`${id}_front`);
+  if (id.endsWith("_ore")) aliases.push(id);
+  return aliases;
+}
+
+function itemTooltip(item) {
+  const lines = [item.name];
+  if (item.key) lines.push(item.key);
+  if (Number.isFinite(item.durability) && Number.isFinite(item.maxDurability)) {
+    lines.push(`내구도 ${item.durability} / ${item.maxDurability}`);
+  }
+  if (Array.isArray(item.enchantments) && item.enchantments.length) {
+    lines.push(...item.enchantments.map((enchant) => `${enchant.key || "enchant"} ${enchant.level || ""}`.trim()));
+  }
+  if (Array.isArray(item.lore) && item.lore.length) lines.push(...item.lore);
+  return lines.filter(Boolean).join("\n");
+}
+
+function durabilityColor(percent) {
+  if (percent > 60) return "#55ff55";
+  if (percent > 30) return "#ffff55";
+  return "#ff5555";
+}
+
+function createInventoryIcon(item) {
+  const icon = document.createElement("span");
+  icon.className = "inventory-item-icon";
+  icon.style.setProperty("--item-color", item.color);
+  icon.title = itemTooltip(item);
+  const durabilityPercent = Number(item.durabilityPercent);
+  const hasDurability = Number.isFinite(durabilityPercent) && durabilityPercent < 100;
+  icon.classList.toggle("is-enchanted", Boolean(item.enchanted));
+  icon.classList.toggle("is-damaged", hasDurability);
+  if (hasDurability) {
+    const clampedPercent = Math.max(0, Math.min(100, durabilityPercent));
+    icon.style.setProperty("--durability-percent", `${clampedPercent}%`);
+    icon.style.setProperty("--durability-color", durabilityColor(clampedPercent));
+  }
+
+  const candidates = itemTextureCandidates(item);
+  if (candidates.length) {
+    const image = document.createElement("img");
+    image.className = "inventory-item-image";
+    image.alt = "";
+    image.decoding = "async";
+    image.draggable = false;
+    let index = 0;
+
+    image.addEventListener("load", () => {
+      icon.classList.add("has-image");
+      icon.classList.toggle("is-block-texture", image.src.includes("/textures/block/"));
+    });
+    image.addEventListener("error", () => {
+      index += 1;
+      if (index < candidates.length) {
+        image.src = candidates[index];
+        return;
+      }
+      image.remove();
+      icon.classList.remove("has-image", "is-block-texture");
+    });
+
+    image.src = candidates[index];
+    icon.append(image);
+  }
+
+  if (hasDurability) {
+    const durability = document.createElement("span");
+    durability.className = "inventory-durability-bar";
+    durability.setAttribute("aria-hidden", "true");
+    icon.append(durability);
+  }
+
+  return icon;
+}
+
 function normalizeSlotItem(item, index) {
+  const slot = Number(item?.slot);
+  const count = Number(item?.count || item?.amount || 1);
+  const durabilityPercent = Number(item?.durabilityPercent);
+  const durability = Number(item?.durability);
+  const maxDurability = Number(item?.maxDurability);
+  const name = String(item?.name || item?.type || "알 수 없는 아이템");
   return {
-    slot: Number.isFinite(item?.slot) ? item.slot : index,
-    name: String(item?.name || item?.type || "알 수 없는 아이템"),
-    count: Math.max(1, Number(item?.count || item?.amount || 1)),
+    ...item,
+    slot: Number.isFinite(slot) ? slot : index,
+    name,
+    count: Math.max(1, Number.isFinite(count) ? count : 1),
+    id: normalizeMinecraftId(item?.id || item?.key || item?.texture || item?.type || name),
+    key: item?.key || (item?.id || item?.type ? `minecraft:${normalizeMinecraftId(item?.id || item?.type)}` : ""),
+    durabilityPercent: Number.isFinite(durabilityPercent) ? durabilityPercent : undefined,
+    durability: Number.isFinite(durability) ? durability : undefined,
+    maxDurability: Number.isFinite(maxDurability) ? maxDurability : undefined,
     color: item?.color || getItemColor(String(item?.name || item?.type || "")),
   };
 }
@@ -452,9 +594,45 @@ function buildFallbackInventory(playerProfile) {
       { slot: 18, name: "엔더 진주", count: 2 + (seed % 4), color: "#46a082" },
       { slot: 27, name: "황금 사과", count: 1, color: "#f5c84b" },
     ],
+    equipment: {
+      mainHand: { name: "다이아몬드 검", type: "DIAMOND_SWORD", id: "diamond_sword", count: 1, color: "#55d9e8" },
+      offHand: { name: "방패", type: "SHIELD", id: "shield", count: 1, color: "#8f9693" },
+    },
     updatedAt: new Date().toISOString(),
     source: "local-preview",
   };
+}
+
+function renderEquipment(payload = null, playerProfile = readPlayerProfile()) {
+  if (!inventoryEquipment) return;
+  const equipment = payload?.equipment || {};
+  inventoryEquipment.replaceChildren(
+    ...EQUIPMENT_SLOTS.map(([key, label], index) => {
+      const item = equipment[key] ? normalizeSlotItem(equipment[key], index) : null;
+      const slot = document.createElement("div");
+      slot.className = `equipment-slot${item ? "" : " is-empty"}`;
+      slot.setAttribute("role", "listitem");
+      slot.setAttribute("aria-label", item ? `${label}: ${item.name} ${item.count}개` : `${label}: 비어 있음`);
+
+      const labelElement = document.createElement("span");
+      labelElement.className = "equipment-label";
+      labelElement.textContent = label;
+      slot.append(labelElement);
+
+      if (item) {
+        slot.append(createInventoryIcon(item));
+        if (item.count > 1) {
+          const count = document.createElement("span");
+          count.className = "inventory-item-count";
+          count.textContent = String(item.count);
+          slot.append(count);
+        }
+      }
+
+      return slot;
+    }),
+  );
+  inventoryEquipment.hidden = !playerProfile?.verified;
 }
 
 function renderInventory(payload = null) {
@@ -463,6 +641,7 @@ function renderInventory(payload = null) {
   const items = getInventoryItems(payload).map(normalizeSlotItem);
   const bySlot = new Map(items.map((item) => [item.slot, item]));
   inventoryGrid.replaceChildren();
+  renderEquipment(payload, playerProfile);
 
   for (let slot = 0; slot < 36; slot += 1) {
     const item = bySlot.get(slot);
@@ -472,11 +651,7 @@ function renderInventory(payload = null) {
     cell.setAttribute("aria-label", item ? `${item.name} ${item.count}개` : `빈 슬롯 ${slot + 1}`);
 
     if (item) {
-      const icon = document.createElement("span");
-      icon.className = "inventory-item-icon";
-      icon.style.setProperty("--item-color", item.color);
-      icon.title = item.name;
-      cell.append(icon);
+      cell.append(createInventoryIcon(item));
 
       if (item.count > 1) {
         const count = document.createElement("span");
@@ -767,11 +942,19 @@ async function loadPlayerInventory(playerProfile, user = readStoredUser()) {
     renderInventory(null);
     return;
   }
+  if (!playerProfile.webToken) {
+    setCharacterStatus("인증 토큰 필요", "error");
+    renderInventory(null);
+    return;
+  }
 
   setInventoryLoading(true);
   try {
     const apiPayload = await fetchPlayerJson(`/players/${encodeURIComponent(playerProfile.nickname)}/inventory`, {
       method: "GET",
+      headers: {
+        Authorization: `Bearer ${playerProfile.webToken}`,
+      },
     }).catch(() => null);
     const payload = apiPayload || (allowLocalPlayerPreview ? buildFallbackInventory(playerProfile) : null);
     if (!payload) {

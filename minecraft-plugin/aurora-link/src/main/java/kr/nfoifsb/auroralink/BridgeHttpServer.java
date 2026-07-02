@@ -19,6 +19,7 @@ import java.time.Instant;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -33,9 +34,11 @@ import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 
 public final class BridgeHttpServer {
@@ -167,7 +170,10 @@ public final class BridgeHttpServer {
     String[] parts = splitPath(path);
     if (parts.length == 3 && "GET".equals(method) && "players".equals(parts[0]) && "inventory".equals(parts[2])) {
       String nickname = decode(parts[1]);
-      return sync(() -> inventorySnapshot(nickname));
+      String token = tokenFrom(exchange.getRequestHeaders(), Map.of());
+      LinkStore.LinkedPlayer link = linkStore.validateToken(nickname, token);
+      if (link == null) throw new HttpError(401, "Player web token is missing or invalid.");
+      return sync(() -> inventorySnapshot(link.nickname));
     }
 
     if (parts.length == 4
@@ -425,14 +431,8 @@ public final class BridgeHttpServer {
     List<Map<String, Object>> items = new ArrayList<>();
     for (int slot = 0; slot < 36; slot += 1) {
       ItemStack stack = inventory.getItem(slot);
-      if (stack == null || stack.getType() == Material.AIR) continue;
-      Map<String, Object> item = new HashMap<>();
-      item.put("slot", slot);
-      item.put("name", itemName(stack));
-      item.put("type", stack.getType().name());
-      item.put("count", stack.getAmount());
-      item.put("color", colorFor(stack.getType()));
-      items.add(item);
+      Map<String, Object> item = itemPayload(stack, slot);
+      if (item != null) items.add(item);
     }
 
     Location location = player.getLocation();
@@ -444,9 +444,88 @@ public final class BridgeHttpServer {
     response.put("health", Math.round(player.getHealth()) + " / " + Math.round(player.getMaxHealth()));
     response.put("location", location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ());
     response.put("world", location.getWorld() == null ? "" : location.getWorld().getName());
+    response.put("heldSlot", inventory.getHeldItemSlot());
+    response.put("equipment", equipmentPayload(inventory));
     response.put("updatedAt", Instant.now().toString());
     response.put("items", items);
     return response;
+  }
+
+  private Map<String, Object> equipmentPayload(PlayerInventory inventory) {
+    Map<String, Object> equipment = new LinkedHashMap<>();
+    putEquipment(equipment, "mainHand", inventory.getItemInMainHand());
+    putEquipment(equipment, "offHand", inventory.getItemInOffHand());
+    putEquipment(equipment, "helmet", inventory.getHelmet());
+    putEquipment(equipment, "chestplate", inventory.getChestplate());
+    putEquipment(equipment, "leggings", inventory.getLeggings());
+    putEquipment(equipment, "boots", inventory.getBoots());
+    return equipment;
+  }
+
+  private void putEquipment(Map<String, Object> equipment, String key, ItemStack stack) {
+    Map<String, Object> item = itemPayload(stack, -1);
+    if (item != null) equipment.put(key, item);
+  }
+
+  private Map<String, Object> itemPayload(ItemStack stack, int slot) {
+    if (stack == null || stack.getType() == Material.AIR) return null;
+
+    Material material = stack.getType();
+    String materialId = material.name().toLowerCase(Locale.ROOT);
+    Map<String, Object> item = new HashMap<>();
+    if (slot >= 0) item.put("slot", slot);
+    item.put("name", itemName(stack));
+    item.put("type", material.name());
+    item.put("id", materialId);
+    item.put("key", "minecraft:" + materialId);
+    item.put("count", stack.getAmount());
+    item.put("maxStackSize", material.getMaxStackSize());
+    item.put("isBlock", material.isBlock());
+    item.put("isItem", material.isItem());
+    item.put("texture", materialId);
+    item.put("itemTexture", "item/" + materialId + ".png");
+    if (material.isBlock()) item.put("blockTexture", "block/" + materialId + ".png");
+    item.put("color", colorFor(material));
+
+    int maxDurability = material.getMaxDurability();
+    if (maxDurability > 0) {
+      item.put("maxDurability", maxDurability);
+      ItemMeta meta = stack.getItemMeta();
+      int damage = meta instanceof Damageable damageable ? damageable.getDamage() : 0;
+      int remaining = Math.max(0, maxDurability - damage);
+      item.put("damage", damage);
+      item.put("durability", remaining);
+      item.put("durabilityPercent", Math.round((remaining * 1000.0) / maxDurability) / 10.0);
+    }
+
+    Map<Enchantment, Integer> enchantments = stack.getEnchantments();
+    if (!enchantments.isEmpty()) {
+      item.put("enchanted", true);
+      List<Map<String, Object>> enchantmentPayloads = new ArrayList<>();
+      enchantments.forEach((enchantment, level) -> {
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("key", enchantment.getKey().toString());
+        payload.put("level", level);
+        enchantmentPayloads.add(payload);
+      });
+      item.put("enchantments", enchantmentPayloads);
+    } else {
+      item.put("enchanted", false);
+    }
+
+    ItemMeta meta = stack.getItemMeta();
+    if (meta != null && meta.hasLore()) {
+      List<Component> lore = meta.lore();
+      if (lore != null && !lore.isEmpty()) {
+        List<String> lines = lore.stream()
+            .limit(8)
+            .map(PlainTextComponentSerializer.plainText()::serialize)
+            .toList();
+        item.put("lore", lines);
+      }
+    }
+
+    return item;
   }
 
   @SuppressWarnings("unchecked")

@@ -111,6 +111,7 @@ Response:
 
 ```http
 GET /players/PlayerName/inventory
+Authorization: Bearer player-scoped-web-action-token
 ```
 
 Response:
@@ -125,14 +126,39 @@ Response:
     {
       "slot": 0,
       "name": "다이아몬드 검",
+      "type": "DIAMOND_SWORD",
+      "id": "diamond_sword",
+      "key": "minecraft:diamond_sword",
       "count": 1,
-      "color": "#55d9e8"
+      "maxStackSize": 1,
+      "itemTexture": "item/diamond_sword.png",
+      "color": "#55d9e8",
+      "enchanted": true,
+      "durability": 1472,
+      "maxDurability": 1561,
+      "durabilityPercent": 94.3
     }
-  ]
+  ],
+  "equipment": {
+    "mainHand": {
+      "name": "다이아몬드 검",
+      "type": "DIAMOND_SWORD",
+      "id": "diamond_sword",
+      "count": 1
+    },
+    "offHand": {
+      "name": "방패",
+      "type": "SHIELD",
+      "id": "shield",
+      "count": 1
+    }
+  }
 }
 ```
 
-The web client renders 36 inventory slots. Empty slots can be omitted.
+The web client renders 36 inventory slots plus main hand, offhand, and armor slots. Empty
+slots can be omitted. The frontend maps `id` / `itemTexture` to vanilla Minecraft item
+textures and falls back to block textures for placeable blocks.
 
 ## Player Web Actions
 
