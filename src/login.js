@@ -33,6 +33,10 @@ const EQUIPMENT_SLOTS = [
   ["leggings", "바지"],
   ["boots", "신발"],
 ];
+const INVENTORY_SLOT_ORDER = [
+  ...Array.from({ length: 27 }, (_, index) => index + 9),
+  ...Array.from({ length: 9 }, (_, index) => index),
+];
 const isLocalHost = ["localhost", "127.0.0.1", "::1"].includes(window.location.hostname);
 const localAuthApiBase = isLocalHost ? "http://127.0.0.1:4174" : "";
 const authApiBase = (import.meta.env.VITE_AUTH_API_BASE || localAuthApiBase).replace(/\/$/, "");
@@ -473,8 +477,9 @@ function itemTextureCandidates(item) {
   });
 
   if (id) {
-    candidates.push(`${MINECRAFT_TEXTURE_BASE}/item/${id}.png`);
-    candidates.push(`${MINECRAFT_TEXTURE_BASE}/block/${id}.png`);
+    itemTextureAliases(id).forEach((alias) => {
+      candidates.push(`${MINECRAFT_TEXTURE_BASE}/item/${alias}.png`);
+    });
     blockTextureAliases(id).forEach((alias) => {
       candidates.push(`${MINECRAFT_TEXTURE_BASE}/block/${alias}.png`);
     });
@@ -483,8 +488,19 @@ function itemTextureCandidates(item) {
   return [...new Set(candidates)];
 }
 
+function itemTextureAliases(id) {
+  const aliases = [id];
+  if (id === "clock") aliases.push("clock_00");
+  if (id === "compass") aliases.push("compass_16");
+  if (id === "filled_map") aliases.push("filled_map_markings");
+  if (id === "knowledge_book") aliases.push("book");
+  if (id === "enchanted_book") aliases.push("enchanted_book");
+  if (id.endsWith("_banner")) aliases.push("white_banner");
+  return aliases;
+}
+
 function blockTextureAliases(id) {
-  const aliases = [];
+  const aliases = [id];
   if (id.endsWith("_log") || id.endsWith("_stem")) {
     aliases.push(`${id}_side`);
   }
@@ -598,16 +614,16 @@ function buildFallbackInventory(playerProfile) {
     health: `${16 + (seed % 5)} / 20`,
     location: `${100 + (seed % 420)}, ${62 + (seed % 8)}, ${-180 - (seed % 360)}`,
     items: [
-      { slot: 0, name: "다이아몬드 검", count: 1, color: "#55d9e8" },
-      { slot: 1, name: "철 곡괭이", count: 1, color: "#c9d0d5" },
-      { slot: 2, name: "횃불", count: 32 + (seed % 24), color: "#f5c84b" },
-      { slot: 3, name: "구운 돼지고기", count: 12 + (seed % 8), color: "#d68a54" },
-      { slot: 4, name: "참나무 원목", count: 24 + (seed % 32), color: "#9a6439" },
-      { slot: 9, name: "방패", count: 1, color: "#8f9693" },
-      { slot: 10, name: "물 양동이", count: 1, color: "#4da3ff" },
-      { slot: 11, name: "에메랄드", count: 3 + (seed % 9), color: "#31c96b" },
-      { slot: 18, name: "엔더 진주", count: 2 + (seed % 4), color: "#46a082" },
-      { slot: 27, name: "황금 사과", count: 1, color: "#f5c84b" },
+      { slot: 0, name: "다이아몬드 검", type: "DIAMOND_SWORD", id: "diamond_sword", count: 1, color: "#55d9e8" },
+      { slot: 1, name: "철 곡괭이", type: "IRON_PICKAXE", id: "iron_pickaxe", count: 1, color: "#c9d0d5" },
+      { slot: 2, name: "횃불", type: "TORCH", id: "torch", count: 32 + (seed % 24), color: "#f5c84b" },
+      { slot: 3, name: "구운 돼지고기", type: "COOKED_PORKCHOP", id: "cooked_porkchop", count: 12 + (seed % 8), color: "#d68a54" },
+      { slot: 4, name: "참나무 원목", type: "OAK_LOG", id: "oak_log", count: 24 + (seed % 32), color: "#9a6439" },
+      { slot: 9, name: "방패", type: "SHIELD", id: "shield", count: 1, color: "#8f9693" },
+      { slot: 10, name: "물 양동이", type: "WATER_BUCKET", id: "water_bucket", count: 1, color: "#4da3ff" },
+      { slot: 11, name: "에메랄드", type: "EMERALD", id: "emerald", count: 3 + (seed % 9), color: "#31c96b" },
+      { slot: 18, name: "엔더 진주", type: "ENDER_PEARL", id: "ender_pearl", count: 2 + (seed % 4), color: "#46a082" },
+      { slot: 27, name: "황금 사과", type: "GOLDEN_APPLE", id: "golden_apple", count: 1, color: "#f5c84b" },
     ],
     equipment: {
       mainHand: { name: "다이아몬드 검", type: "DIAMOND_SWORD", id: "diamond_sword", count: 1, color: "#55d9e8" },
@@ -655,15 +671,24 @@ function renderInventory(payload = null) {
   const playerProfile = readPlayerProfile();
   const items = getInventoryItems(payload).map(normalizeSlotItem);
   const bySlot = new Map(items.map((item) => [item.slot, item]));
+  const heldSlot = Number(payload?.heldSlot);
   inventoryGrid.replaceChildren();
   renderEquipment(payload, playerProfile);
 
-  for (let slot = 0; slot < 36; slot += 1) {
+  INVENTORY_SLOT_ORDER.forEach((slot, displayIndex) => {
     const item = bySlot.get(slot);
     const cell = document.createElement("div");
     cell.className = `inventory-slot${item ? "" : " is-empty"}`;
+    cell.classList.toggle("is-hotbar", slot < 9);
+    cell.classList.toggle("is-held-slot", slot < 9 && Number.isFinite(heldSlot) && heldSlot === slot);
+    cell.dataset.slot = String(slot);
     cell.setAttribute("role", "listitem");
-    cell.setAttribute("aria-label", item ? `${item.name} ${item.count}개` : `빈 슬롯 ${slot + 1}`);
+    cell.setAttribute(
+      "aria-label",
+      item
+        ? `${slot < 9 ? "핫바" : "인벤토리"} ${displayIndex + 1}: ${item.name} ${item.count}개`
+        : `${slot < 9 ? "핫바" : "인벤토리"} 빈 슬롯 ${displayIndex + 1}`,
+    );
 
     if (item) {
       cell.append(createInventoryIcon(item));
@@ -677,7 +702,7 @@ function renderInventory(payload = null) {
     }
 
     inventoryGrid.append(cell);
-  }
+  });
 
   const updatedAt = payload?.updatedAt ? new Date(payload.updatedAt) : new Date();
   const updatedLabel = new Intl.DateTimeFormat("ko-KR", { hour: "2-digit", minute: "2-digit" }).format(updatedAt);
