@@ -56,6 +56,7 @@ const tempDetails = document.querySelectorAll("[data-temp-detail]");
 const playerHeads = document.querySelector("[data-player-heads]");
 const playerChart = document.querySelector("[data-player-chart]");
 const sectionLinks = document.querySelectorAll("[data-section-link]");
+const stockAuthLink = document.querySelector("[data-stock-auth-link]");
 const AUTH_STORAGE_KEY = "nfoifsb.googleUser";
 const AUTH_EVENT_KEY = "nfoifsb.authEvent";
 const PLAYER_PROFILES_KEY = "nfoifsb.playerProfiles";
@@ -575,7 +576,17 @@ function readPlayerProfile(user = sessionUser || readStoredUser()) {
   return readJsonStorage(PLAYER_PROFILES_KEY, {})[getUserKey(user)] || null;
 }
 
+function renderStockAuthLink(user = sessionUser || readStoredUser()) {
+  if (!stockAuthLink) return;
+  const playerProfile = readPlayerProfile(user);
+  const isVerified = Boolean(user && playerProfile?.verified);
+  stockAuthLink.textContent = isVerified ? "인증완료" : "캐릭터 인증";
+  stockAuthLink.classList.toggle("is-verified", isVerified);
+  stockAuthLink.setAttribute("aria-label", isVerified ? "인증 완료된 캐릭터 정보 보기" : "캐릭터 인증하러 가기");
+}
+
 function renderAuthState(user = sessionUser || readStoredUser()) {
+  renderStockAuthLink(user);
   if (!loginButton) return;
 
   if (user) {
@@ -1886,6 +1897,7 @@ function initStockExchange() {
   const currentPlayerProfile = () => readPlayerProfile(sessionUser || readStoredUser());
 
   function render() {
+    renderStockAuthLink(sessionUser || readStoredUser());
     const rawStocks = Array.isArray(market?.stocks) && market.stocks.length ? market.stocks : buildFallbackMarket(tick).stocks;
     const stocks = sortStocks(rawStocks, activeSort);
     const stock = stocks.find((item) => stockCode(item) === activeCode) || stocks[0];
@@ -2121,6 +2133,7 @@ function initStockExchange() {
   window.addEventListener("storage", (event) => {
     if (event.key === AUTH_STORAGE_KEY || event.key === AUTH_EVENT_KEY || event.key === PLAYER_PROFILES_KEY) {
       playerProfile = currentPlayerProfile();
+      renderStockAuthLink(sessionUser || readStoredUser());
       refreshPortfolio();
     }
   });

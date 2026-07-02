@@ -2198,6 +2198,13 @@ input:focus-visible,
   border-color: rgba(35, 83, 61, 0.44);
 }
 
+.stock-trade-link.is-verified {
+  border-color: rgba(105, 214, 152, 0.54);
+  color: #071f16;
+  background: linear-gradient(135deg, #d8ffe4, #69d698);
+  box-shadow: 0 10px 22px rgba(105, 214, 152, 0.2);
+}
+
 .stock-session {
   flex: 0 0 auto;
   padding: 7px 10px;
