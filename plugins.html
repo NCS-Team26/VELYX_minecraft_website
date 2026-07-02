@@ -60,8 +60,186 @@
               <p class="eyebrow">Economy stack</p>
               <h1 id="plugin-title">경제 시스템</h1>
               <p class="screen-copy">
-                생존의 기본 재미는 유지하고, 아이템이 돈과 거래로 이어지도록 경제 기능을 배치했습니다.
+                Economy 메뉴에서는 서버 경제 흐름, STOCK 마켓플레이스, 상점과 경매 운영 방식을 한 번에 확인합니다.
               </p>
+            </div>
+
+            <div class="economy-page-tabs" data-reveal aria-label="경제 페이지 바로가기">
+              <a href="#stock-marketplace">STOCK</a>
+              <a href="#economy-plugins">상점 · 경매</a>
+              <a href="#economy-balance">운영 밸런스</a>
+            </div>
+
+            <section class="stock-marketplace-section" id="stock-marketplace" aria-labelledby="stock-marketplace-title">
+              <div class="section-heading stock-marketplace-heading" data-reveal>
+                <p class="eyebrow">STOCK Marketplace</p>
+                <h2 id="stock-marketplace-title">서버 머니로 움직이는 24시간 주식장</h2>
+                <p class="screen-copy">
+                  실제 마인크래프트 서버의 AuroraLink 주식 API와 연결되어 종목 시세, 체결 기록, 차트가 자동 갱신됩니다.
+                </p>
+              </div>
+
+              <div class="stock-exchange stock-exchange-page" data-reveal data-stock-exchange>
+                <div class="stock-terminal-top">
+                  <div>
+                    <p class="eyebrow">NFO Exchange</p>
+                    <h3>실시간 STOCK 마켓플레이스</h3>
+                  </div>
+                  <div class="stock-terminal-actions">
+                    <span class="stock-session" data-stock-session>24H LIVE</span>
+                    <a class="stock-trade-link" href="/login.html">거래하기</a>
+                  </div>
+                </div>
+
+                <div class="stock-ticker" data-stock-ticker aria-label="실시간 종목 요약">
+                  <button type="button" data-stock-code="DMD">
+                    <strong>DMD</strong>
+                    <span>3,420</span>
+                    <em>+4.8%</em>
+                  </button>
+                  <button type="button" data-stock-code="FARM">
+                    <strong>FARM</strong>
+                    <span>1,280</span>
+                    <em>+1.9%</em>
+                  </button>
+                  <button type="button" data-stock-code="LOG">
+                    <strong>LOG</strong>
+                    <span>890</span>
+                    <em>-0.6%</em>
+                  </button>
+                  <button type="button" data-stock-code="RED">
+                    <strong>RED</strong>
+                    <span>2,160</span>
+                    <em>+2.7%</em>
+                  </button>
+                </div>
+
+                <div class="stock-terminal-grid">
+                  <section class="stock-panel stock-panel-main" aria-labelledby="stock-chart-title">
+                    <div class="stock-heading">
+                      <div>
+                        <span>대표 지수</span>
+                        <strong data-stock-index>12,480</strong>
+                        <em data-stock-index-change>+2.4%</em>
+                      </div>
+                      <div>
+                        <span>24H 거래량</span>
+                        <strong data-stock-volume>38,420주</strong>
+                        <em>유저 체결</em>
+                      </div>
+                      <div>
+                        <span>시가 총액</span>
+                        <strong data-stock-cap>8.7M</strong>
+                        <em>서버 머니</em>
+                      </div>
+                    </div>
+
+                    <div class="stock-chart-shell">
+                      <div class="stock-chart-top">
+                        <div>
+                          <span id="stock-chart-title" data-stock-symbol>DMD</span>
+                          <strong data-stock-price>3,420</strong>
+                          <small data-stock-name>다이아 광산</small>
+                        </div>
+                        <div class="stock-chart-side">
+                          <em data-stock-change>+4.8%</em>
+                          <small data-stock-updated>실시간 갱신</small>
+                        </div>
+                      </div>
+                      <div class="stock-quote-grid" aria-label="선택 종목 세부 시세">
+                        <span>고가 <strong data-stock-high>3,520</strong></span>
+                        <span>저가 <strong data-stock-low>3,260</strong></span>
+                        <span>거래량 <strong data-stock-quote-volume>12,400주</strong></span>
+                      </div>
+                      <div class="stock-range-tabs" aria-label="차트 범위">
+                        <button type="button" data-stock-range="1H">1H</button>
+                        <button type="button" data-stock-range="6H">6H</button>
+                        <button type="button" class="is-active" data-stock-range="24H">24H</button>
+                        <button type="button" data-stock-range="ALL">ALL</button>
+                      </div>
+                      <svg class="stock-chart" data-stock-chart viewBox="0 0 640 260" role="img" aria-label="서버 주식 시세 그래프"></svg>
+                      <div class="stock-axis" aria-hidden="true">
+                        <span>24H 전</span>
+                        <span>12H</span>
+                        <span>6H</span>
+                        <span>현재</span>
+                      </div>
+                    </div>
+                  </section>
+
+                  <aside class="stock-panel stock-table-panel" aria-label="서버 주식 시세표">
+                    <div class="stock-board-heading">
+                      <span>서버 주식</span>
+                      <span data-stock-updated>실시간 갱신</span>
+                    </div>
+                    <div class="stock-tabs" aria-label="시장 보기">
+                      <button type="button" class="is-active" data-stock-sort="market">주요 종목</button>
+                      <button type="button" data-stock-sort="change">24H 변동</button>
+                      <button type="button" data-stock-sort="volume">체결량</button>
+                    </div>
+                    <div class="stock-table-wrap">
+                      <table class="stock-market-table">
+                        <thead>
+                          <tr>
+                            <th scope="col">종목명</th>
+                            <th scope="col">현재가</th>
+                            <th scope="col">고가</th>
+                            <th scope="col">저가</th>
+                            <th scope="col">변동</th>
+                            <th scope="col">변동 %</th>
+                            <th scope="col">거래량</th>
+                            <th scope="col">시간</th>
+                          </tr>
+                        </thead>
+                        <tbody data-stock-list>
+                          <tr data-stock-code="DMD">
+                            <th scope="row"><strong>DMD</strong><span>다이아 광산</span></th>
+                            <td>3,420</td>
+                            <td>3,520</td>
+                            <td>3,260</td>
+                            <td class="is-up">+160</td>
+                            <td class="is-up">+4.8%</td>
+                            <td>12,400주</td>
+                            <td>현재</td>
+                          </tr>
+                          <tr data-stock-code="FARM">
+                            <th scope="row"><strong>FARM</strong><span>농산물 조합</span></th>
+                            <td>1,280</td>
+                            <td>1,310</td>
+                            <td>1,240</td>
+                            <td class="is-up">+24</td>
+                            <td class="is-up">+1.9%</td>
+                            <td>9,800주</td>
+                            <td>현재</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </aside>
+                </div>
+
+                <div class="stock-terminal-footer">
+                  <section class="stock-panel trade-tape" aria-label="최근 체결">
+                    <div class="stock-board-heading">
+                      <span>최근 체결</span>
+                      <span>체결가</span>
+                    </div>
+                    <ul data-trade-tape>
+                      <li><span>실제 체결 대기</span><strong>--</strong></li>
+                    </ul>
+                  </section>
+                  <section class="stock-panel stock-order-panel" aria-label="웹 거래">
+                    <span>웹 거래</span>
+                    <strong>로그인하면 서버 머니로 바로 매수/매도</strong>
+                    <a class="stock-trade-link" href="/login.html">내 포트폴리오 열기</a>
+                  </section>
+                </div>
+              </div>
+            </section>
+
+            <div class="economy-subheading" id="economy-plugins" data-reveal>
+              <p class="eyebrow">Shop and auction</p>
+              <h2>상점과 경매를 받쳐주는 경제 구성</h2>
             </div>
 
             <div class="plugin-grid" data-reveal>
@@ -120,7 +298,7 @@
               </article>
             </div>
 
-            <div class="market-board" data-reveal>
+            <div class="market-board" id="economy-balance" data-reveal>
               <div class="market-copy">
                 <p class="eyebrow">Balance plan</p>
                 <h2>돈이 너무 빨리 풀리지 않게.</h2>
