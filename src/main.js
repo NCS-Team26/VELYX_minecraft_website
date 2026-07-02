@@ -852,6 +852,16 @@ function formatStockNumber(value) {
   return new Intl.NumberFormat("ko-KR").format(Math.round(number));
 }
 
+function formatStockKrw(value) {
+  const number = Number(value);
+  if (!Number.isFinite(number)) return "--";
+  return new Intl.NumberFormat("ko-KR", {
+    style: "currency",
+    currency: "KRW",
+    maximumFractionDigits: 0,
+  }).format(Math.round(number));
+}
+
 function formatStockChange(value) {
   const number = Number(value);
   if (!Number.isFinite(number)) return "+0.0%";
@@ -859,19 +869,21 @@ function formatStockChange(value) {
   return `${sign}${number.toFixed(1)}%`;
 }
 
-function formatStockCompact(value) {
+function formatStockKrwCompact(value) {
   const number = Number(value);
   if (!Number.isFinite(number)) return "--";
-  if (Math.abs(number) >= 1000000) return `${(number / 1000000).toFixed(1)}M`;
-  if (Math.abs(number) >= 1000) return `${(number / 1000).toFixed(1)}K`;
-  return formatStockNumber(number);
+  const sign = number < 0 ? "-" : "";
+  const absolute = Math.abs(number);
+  if (absolute >= 1000000) return `${sign}₩${(absolute / 1000000).toFixed(1)}M`;
+  if (absolute >= 1000) return `${sign}₩${(absolute / 1000).toFixed(1)}K`;
+  return formatStockKrw(number);
 }
 
-function formatStockSigned(value) {
+function formatStockSignedKrw(value) {
   const number = Number(value);
   if (!Number.isFinite(number)) return "--";
-  const sign = number >= 0 ? "+" : "";
-  return `${sign}${formatStockNumber(number)}`;
+  const sign = number >= 0 ? "+" : "-";
+  return `${sign}${formatStockKrw(Math.abs(number))}`;
 }
 
 function formatStockTime(value) {
@@ -1087,7 +1099,7 @@ function buildFallbackMarket(tick) {
       indexChange24h: 0.8 + Math.sin(tick * 0.36) * 0.7,
       volume24h: stocks.reduce((sum, stock) => sum + stock.volume24h, 0),
       marketCap: stocks.reduce((sum, stock) => sum + stock.marketCap, 0),
-      session: PLAYER_API_BASE ? "API 대기" : "미리보기",
+      session: PLAYER_API_BASES.length ? "API 대기" : "미리보기",
       updatedAt: new Date().toISOString(),
     },
     stocks,
@@ -1264,7 +1276,7 @@ function renderStockTape(tape, trades) {
     const item = document.createElement("li");
     item.className = "is-empty";
     const label = document.createElement("span");
-    label.textContent = PLAYER_API_BASE ? "실제 체결 대기" : "API 연결 전";
+    label.textContent = PLAYER_API_BASES.length ? "실제 체결 대기" : "API 연결 전";
     const amount = document.createElement("strong");
     amount.textContent = "--";
     item.replaceChildren(label, amount);
@@ -1280,9 +1292,9 @@ function renderStockTape(tape, trades) {
       const label = document.createElement("span");
       label.textContent = `${row.playerName || "Player"} ${row.symbol || row.code} ${buy ? "매수" : "매도"}`;
       const amount = document.createElement("strong");
-      amount.textContent = `${formatStockNumber(row.quantity)}주 @ ${formatStockNumber(row.price)}`;
+      amount.textContent = `${formatStockNumber(row.quantity)}주 @ ${formatStockKrw(row.price)}`;
       const total = document.createElement("small");
-      total.textContent = `${formatStockCompact(row.total)} 머니`;
+      total.textContent = formatStockKrwCompact(row.total);
       item.append(label, amount, total);
       return item;
     }),
@@ -1303,7 +1315,7 @@ function renderStockTicker(ticker, stocks, activeCode, onSelect) {
       const label = document.createElement("strong");
       label.textContent = code;
       const price = document.createElement("span");
-      price.textContent = formatStockNumber(stock.price);
+      price.textContent = formatStockKrw(stock.price);
       const delta = document.createElement("em");
       delta.textContent = formatStockChange(change);
       delta.classList.toggle("is-down", change < 0);
@@ -1339,15 +1351,15 @@ function renderStockRows(list, stocks, activeCode, onSelect) {
 
     if (list.tagName !== "TBODY") {
       const price = document.createElement("em");
-      price.textContent = formatStockNumber(stock.price);
+      price.textContent = formatStockKrw(stock.price);
       price.classList.toggle("is-down", changePercent < 0);
       row.append(nameCell, price);
     } else {
       const values = [
-        { text: formatStockNumber(stock.price), className: "stock-num" },
-        { text: formatStockNumber(high), className: "stock-num" },
-        { text: formatStockNumber(low), className: "stock-num" },
-        { text: formatStockSigned(changeAmount), className: changeAmount < 0 ? "is-down" : "is-up" },
+        { text: formatStockKrw(stock.price), className: "stock-num" },
+        { text: formatStockKrw(high), className: "stock-num" },
+        { text: formatStockKrw(low), className: "stock-num" },
+        { text: formatStockSignedKrw(changeAmount), className: changeAmount < 0 ? "is-down" : "is-up" },
         { text: formatStockChange(changePercent), className: changePercent < 0 ? "is-down" : "is-up" },
         { text: `${formatStockNumber(stock.volume24h)}주`, className: "stock-num" },
         { text: formatStockTime(latestStockTime(stock)), className: "stock-time" },
@@ -1408,7 +1420,7 @@ function renderStockOrderBook(book, stock) {
         const label = document.createElement("span");
         label.textContent = level.side === "ask" ? "매도호가" : "매수호가";
         const value = document.createElement("strong");
-        value.textContent = formatStockNumber(level.price);
+        value.textContent = formatStockKrw(level.price);
         const quantity = document.createElement("em");
         quantity.textContent = `${formatStockNumber(level.quantity)}주`;
         row.append(label, value, quantity);
@@ -1420,7 +1432,7 @@ function renderStockOrderBook(book, stock) {
 function renderStockPortfolio(list, balanceLabel, portfolio, market) {
   if (balanceLabel) {
     balanceLabel.textContent =
-      portfolio?.balance === undefined ? "인증 후 잔고 표시" : `잔고 ${formatStockNumber(portfolio.balance)} 머니`;
+      portfolio?.balance === undefined ? "인증 후 KRW 잔고 표시" : `KRW 잔고 ${formatStockKrw(portfolio.balance)}`;
   }
   if (!list) return;
   const positions = Array.isArray(portfolio?.positions) ? portfolio.positions : [];
@@ -1444,7 +1456,7 @@ function renderStockPortfolio(list, balanceLabel, portfolio, market) {
       const amount = document.createElement("strong");
       amount.textContent = `${formatStockNumber(shares)}주`;
       const detail = document.createElement("em");
-      detail.textContent = `${formatStockNumber(value)} 머니`;
+      detail.textContent = formatStockKrw(value);
       item.append(label, amount, detail);
       return item;
     }),
@@ -1479,12 +1491,12 @@ function renderOrderTicket(elements, stock, side, playerProfile, portfolio, live
   if (elements.estimate) {
     elements.estimate.replaceChildren();
     [
-      ["예상 체결가", formatStockNumber(executionPrice)],
+      ["예상 체결가", formatStockKrw(executionPrice)],
       ["주문 수량", `${formatStockNumber(quantity)}주`],
       ["레버리지", `${leverage}x`],
-      ["명목 금액", `${formatStockNumber(notional)} 머니`],
-      ["수수료", formatStockNumber(fee)],
-      [side === "sell" ? "예상 입금" : "예상 필요", `${formatStockNumber(total)} 머니`],
+      ["명목 금액", formatStockKrw(notional)],
+      ["수수료", formatStockKrw(fee)],
+      [side === "sell" ? "예상 입금" : "예상 필요", formatStockKrw(total)],
       ["보유", position ? `${formatStockNumber(position.shares ?? position.quantity ?? 0)}주` : "0주"],
     ].forEach(([label, value]) => {
       const item = document.createElement("span");
@@ -1592,13 +1604,13 @@ function initStockExchange() {
     root.classList.toggle("is-live", liveMarket);
     if (symbol) symbol.textContent = activeCode;
     if (stockName) stockName.textContent = stock.name || activeCode;
-    if (price) price.textContent = formatStockNumber(result.price);
+    if (price) price.textContent = formatStockKrw(result.price);
     if (change) {
       change.textContent = formatStockChange(result.change);
       change.classList.toggle("is-down", result.change < 0);
     }
-    if (high) high.textContent = formatStockNumber(stock.high24h || result.price);
-    if (low) low.textContent = formatStockNumber(stock.low24h || result.price);
+    if (high) high.textContent = formatStockKrw(stock.high24h || result.price);
+    if (low) low.textContent = formatStockKrw(stock.low24h || result.price);
     if (quoteVolume) quoteVolume.textContent = `${formatStockNumber(stock.volume24h || result.volume)}주`;
     if (indexValue) indexValue.textContent = formatStockNumber(marketMeta.index);
     if (indexChange) {
@@ -1607,7 +1619,7 @@ function initStockExchange() {
       indexChange.classList.toggle("is-down", value < 0);
     }
     if (volume) volume.textContent = `${formatStockNumber(marketMeta.volume24h || result.volume)}주`;
-    if (cap) cap.textContent = `${formatStockCompact(marketMeta.marketCap)} 머니`;
+    if (cap) cap.textContent = formatStockKrwCompact(marketMeta.marketCap);
     if (session) session.textContent = liveMarket ? marketMeta.session || "24H LIVE" : marketMeta.session || "API 대기";
     updated.forEach((label) => {
       label.textContent = liveMarket ? `갱신 ${formatStockTime(marketMeta.updatedAt)}` : "미리보기";

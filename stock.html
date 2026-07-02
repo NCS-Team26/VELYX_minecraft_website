@@ -61,7 +61,7 @@
               <p class="eyebrow">NFO Exchange</p>
               <h1 id="stock-title">STOCK 거래소</h1>
               <p>
-                서버 머니로 움직이는 24시간 시장입니다. 시세, 호가, 차트, 체결, 포트폴리오와
+                KRW 기준으로 움직이는 24시간 시장입니다. 시세, 호가, 차트, 체결, 포트폴리오와
                 주문 티켓을 한 화면에서 봅니다.
               </p>
             </div>
@@ -75,22 +75,22 @@
             <div class="stock-ticker" data-stock-ticker aria-label="실시간 종목 요약">
               <button type="button" data-stock-code="DMD">
                 <strong>DMD</strong>
-                <span>3,420</span>
+                <span>₩3,420</span>
                 <em>+4.8%</em>
               </button>
               <button type="button" data-stock-code="FARM">
                 <strong>FARM</strong>
-                <span>1,280</span>
+                <span>₩1,280</span>
                 <em>+1.9%</em>
               </button>
               <button type="button" data-stock-code="LOG">
                 <strong>LOG</strong>
-                <span>890</span>
+                <span>₩890</span>
                 <em>-1.2%</em>
               </button>
               <button type="button" data-stock-code="RED">
                 <strong>RED</strong>
-                <span>2,160</span>
+                <span>₩2,160</span>
                 <em>+3.3%</em>
               </button>
             </div>
@@ -109,9 +109,9 @@
                     <em>실시간 체결</em>
                   </div>
                   <div>
-                    <span>시가총액</span>
-                    <strong data-stock-cap>8.7M</strong>
-                    <em>서버 머니</em>
+                    <span>KRW 시가총액</span>
+                    <strong data-stock-cap>₩8.7M</strong>
+                    <em>KRW 기준</em>
                   </div>
                 </div>
 
@@ -119,7 +119,7 @@
                   <div class="stock-chart-top">
                     <div>
                       <span id="stock-chart-title" data-stock-symbol>DMD</span>
-                      <strong data-stock-price>3,420</strong>
+                      <strong data-stock-price>₩3,420</strong>
                       <small data-stock-name>다이아 광산</small>
                     </div>
                     <div class="stock-chart-side">
@@ -129,8 +129,8 @@
                   </div>
 
                   <div class="stock-quote-grid" aria-label="선택 종목 세부 시세">
-                    <span>고가 <strong data-stock-high>3,520</strong></span>
-                    <span>저가 <strong data-stock-low>3,260</strong></span>
+                    <span>고가 <strong data-stock-high>₩3,520</strong></span>
+                    <span>저가 <strong data-stock-low>₩3,260</strong></span>
                     <span>거래량 <strong data-stock-quote-volume>12,400주</strong></span>
                   </div>
 
@@ -191,7 +191,7 @@
                   </label>
                   <label>
                     <span>지정가</span>
-                    <input data-stock-order-limit type="number" min="1" step="1" placeholder="현재가 기준" inputmode="numeric" />
+                    <input data-stock-order-limit type="number" min="1" step="1" placeholder="KRW 현재가 기준" inputmode="numeric" />
                   </label>
                   <label>
                     <span>레버리지</span>
@@ -235,9 +235,9 @@
                     <thead>
                       <tr>
                         <th scope="col">종목</th>
-                        <th scope="col">현재가</th>
-                        <th scope="col">고가</th>
-                        <th scope="col">저가</th>
+                        <th scope="col">현재가(KRW)</th>
+                        <th scope="col">고가(KRW)</th>
+                        <th scope="col">저가(KRW)</th>
                         <th scope="col">변동</th>
                         <th scope="col">변동%</th>
                         <th scope="col">거래량</th>
@@ -252,7 +252,7 @@
               <section class="stock-panel trade-tape" aria-label="최근 체결">
                 <div class="stock-board-heading">
                   <span>최근 체결</span>
-                  <span>체결가</span>
+                  <span>체결가(KRW)</span>
                 </div>
                 <ul data-trade-tape>
                   <li><span>실제 체결 대기</span><strong>--</strong></li>
