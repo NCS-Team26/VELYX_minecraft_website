@@ -98,7 +98,7 @@ VITE_PLAYER_API_BASE=https://api.example.com/minecraft
 Paper 플러그인이나 별도 백엔드는 `docs/minecraft-player-api.md`의 `/verification/start`, `/verification/check`, `/players/{nickname}/inventory` 형식에 맞추면 됩니다.
 
 이 저장소에는 Paper 서버용 커스텀 브릿지 플러그인 **AuroraLink**도 포함되어 있습니다.
-AuroraLink는 캐릭터 인증, 인벤토리 조회, 출석 보상, 웹 핑, 장터 알림을 웹사이트 버튼과 연결합니다.
+AuroraLink는 캐릭터 인증, 인벤토리 조회, 출석 보상, 웹 핑, 장터 알림, 24시간 주식 거래소를 웹사이트 버튼과 연결합니다.
 
 ```powershell
 cd minecraft-plugin\aurora-link

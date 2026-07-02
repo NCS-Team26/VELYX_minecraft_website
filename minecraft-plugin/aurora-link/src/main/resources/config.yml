@@ -14,6 +14,56 @@ verification:
   code-expire-minutes: 10
   web-token-days: 30
 
+stock-market:
+  enabled: true
+  tick-seconds: 60
+  candle-seconds: 900
+  history-hours: 24
+  fee-rate: 0.003
+  spread-rate: 0.0015
+  price-impact: 0.055
+  max-order-shares: 500
+  max-trades: 160
+  broadcast-trades: true
+  broadcast-min-total: 25000.0
+  symbols:
+    DMD:
+      name: "다이아 광산"
+      start-price: 3420.0
+      outstanding-shares: 24000
+      liquidity: 8200.0
+      volatility: 0.0045
+      mean-reversion: 0.0018
+      max-tick-move: 0.025
+      cycle-speed: 0.007
+    FARM:
+      name: "농산물 조합"
+      start-price: 1280.0
+      outstanding-shares: 42000
+      liquidity: 12600.0
+      volatility: 0.003
+      mean-reversion: 0.0016
+      max-tick-move: 0.02
+      cycle-speed: 0.006
+    LOG:
+      name: "건축 목재"
+      start-price: 890.0
+      outstanding-shares: 36000
+      liquidity: 9400.0
+      volatility: 0.0038
+      mean-reversion: 0.0017
+      max-tick-move: 0.022
+      cycle-speed: 0.008
+    RED:
+      name: "레드스톤 공업"
+      start-price: 2160.0
+      outstanding-shares: 28000
+      liquidity: 7800.0
+      volatility: 0.0042
+      mean-reversion: 0.0018
+      max-tick-move: 0.025
+      cycle-speed: 0.0075
+
 actions:
   daily-reward:
     enabled: true

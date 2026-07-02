@@ -10,6 +10,7 @@ public final class AuroraLinkPlugin extends JavaPlugin {
   private LinkStore linkStore;
   private BridgeHttpServer bridgeServer;
   private PlayerActions playerActions;
+  private StockExchange stockExchange;
   private Economy economy;
 
   @Override
@@ -37,6 +38,10 @@ public final class AuroraLinkPlugin extends JavaPlugin {
     return economy;
   }
 
+  public StockExchange stockExchange() {
+    return stockExchange;
+  }
+
   public boolean isBridgeRunning() {
     return bridgeServer != null && bridgeServer.isRunning();
   }
@@ -46,11 +51,13 @@ public final class AuroraLinkPlugin extends JavaPlugin {
     linkStore.load();
     economy = loadVaultEconomy();
     playerActions = new PlayerActions(this, linkStore, economy);
+    stockExchange = new StockExchange(this);
+    stockExchange.start();
 
     registerCommands();
 
     if (getConfig().getBoolean("api.enabled", true)) {
-      bridgeServer = new BridgeHttpServer(this, linkStore, playerActions);
+      bridgeServer = new BridgeHttpServer(this, linkStore, playerActions, stockExchange);
       bridgeServer.start();
     } else {
       getLogger().warning("AuroraLink web API is disabled in config.yml.");
@@ -61,6 +68,10 @@ public final class AuroraLinkPlugin extends JavaPlugin {
     if (bridgeServer != null) {
       bridgeServer.stop();
       bridgeServer = null;
+    }
+    if (stockExchange != null) {
+      stockExchange.stop();
+      stockExchange = null;
     }
     if (linkStore != null) {
       linkStore.save();

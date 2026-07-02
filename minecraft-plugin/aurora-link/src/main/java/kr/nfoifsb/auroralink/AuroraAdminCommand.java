@@ -34,7 +34,9 @@ public final class AuroraAdminCommand implements CommandExecutor, TabCompleter {
                   + "&f, linked players: &e"
                   + plugin.linkStore().linkedCount()
                   + "&f, Vault: &e"
-                  + (plugin.economy() == null ? "none" : plugin.economy().getName())));
+                  + (plugin.economy() == null ? "none" : plugin.economy().getName())
+                  + "&f, Stocks: &e"
+                  + (plugin.stockExchange() != null && plugin.stockExchange().isEnabled() ? "24H live" : "off")));
       default -> sender.sendMessage(color("&b[AuroraLink] &fUsage: /auroralink <reload|status>"));
     }
 

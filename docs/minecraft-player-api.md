@@ -146,3 +146,91 @@ Available actions:
 - `daily-reward`: daily economy/item reward
 - `spark`: visual ping effect on the online player
 - `market-bell`: market broadcast with cooldown
+
+## 24H Stock Market
+
+AuroraLink exposes a Bitcoin-style 24-hour market. Public pages can read the live ticker without a token, while buy/sell orders require the verified player's `webToken`.
+
+### Market Snapshot
+
+```http
+GET /stocks/market
+```
+
+Response:
+
+```json
+{
+  "ok": true,
+  "market": {
+    "index": 77431.5,
+    "indexChange24h": 1.82,
+    "volume24h": 384,
+    "marketCap": 203440000,
+    "session": "24H LIVE",
+    "updatedAt": "2026-07-02T12:00:00Z"
+  },
+  "stocks": [
+    {
+      "symbol": "DMD",
+      "name": "다이아 광산",
+      "price": 3428.25,
+      "change24h": 2.4,
+      "volume24h": 120,
+      "history": [
+        { "time": "2026-07-02T11:45:00Z", "open": 3410, "high": 3430, "low": 3404, "close": 3428.25, "volume": 24 }
+      ]
+    }
+  ],
+  "recentTrades": [
+    {
+      "playerName": "PlayerName",
+      "symbol": "DMD",
+      "side": "buy",
+      "quantity": 12,
+      "price": 3428.25,
+      "total": 41139,
+      "at": "2026-07-02T12:00:00Z"
+    }
+  ]
+}
+```
+
+### Portfolio
+
+```http
+POST /stocks/portfolio
+Authorization: Bearer player-scoped-web-action-token
+Content-Type: application/json
+```
+
+Request:
+
+```json
+{
+  "nickname": "PlayerName",
+  "webToken": "player-scoped-web-action-token"
+}
+```
+
+### Trade
+
+```http
+POST /stocks/trade
+Authorization: Bearer player-scoped-web-action-token
+Content-Type: application/json
+```
+
+Request:
+
+```json
+{
+  "nickname": "PlayerName",
+  "webToken": "player-scoped-web-action-token",
+  "symbol": "DMD",
+  "side": "buy",
+  "quantity": 10
+}
+```
+
+`side` is `buy` or `sell`. Buy orders withdraw Vault money plus fee. Sell orders require enough held shares and deposit Vault money minus fee. Each fill is written to `plugins/AuroraLink/stocks.json` with player name, price, quantity, total, fee, and timestamp.

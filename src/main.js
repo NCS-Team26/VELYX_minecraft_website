@@ -3,6 +3,8 @@ import "./styles.css";
 const SERVER_ADDRESS = "nfoifsb.kr";
 const STATUS_API = `https://api.mcstatus.io/v2/status/java/${SERVER_ADDRESS}`;
 const STATUS_TIMEOUT_MS = 8000;
+const PLAYER_API_BASE = (import.meta.env.VITE_PLAYER_API_BASE || "").replace(/\/$/, "");
+const STOCK_MARKET_TIMEOUT_MS = 6000;
 
 const statusDot = document.querySelector("[data-status-dot]");
 const statusLabel = document.querySelector("[data-status-label]");
@@ -590,23 +592,109 @@ function initAnimationStagger() {
 }
 
 function formatStockNumber(value) {
-  return new Intl.NumberFormat("ko-KR").format(Math.round(value));
+  const number = Number(value);
+  if (!Number.isFinite(number)) return "--";
+  return new Intl.NumberFormat("ko-KR").format(Math.round(number));
 }
 
 function formatStockChange(value) {
-  const sign = value >= 0 ? "+" : "";
-  return `${sign}${value.toFixed(1)}%`;
+  const number = Number(value);
+  if (!Number.isFinite(number)) return "+0.0%";
+  const sign = number >= 0 ? "+" : "";
+  return `${sign}${number.toFixed(1)}%`;
+}
+
+function formatStockCompact(value) {
+  const number = Number(value);
+  if (!Number.isFinite(number)) return "--";
+  if (Math.abs(number) >= 1000000) return `${(number / 1000000).toFixed(1)}M`;
+  if (Math.abs(number) >= 1000) return `${(number / 1000).toFixed(1)}K`;
+  return formatStockNumber(number);
+}
+
+function stockApiUrl(path) {
+  return PLAYER_API_BASE ? `${PLAYER_API_BASE}${path}` : "";
+}
+
+async function fetchStockMarket() {
+  const url = stockApiUrl("/stocks/market");
+  if (!url) return null;
+  const controller = new AbortController();
+  const timer = window.setTimeout(() => controller.abort(), STOCK_MARKET_TIMEOUT_MS);
+  try {
+    const response = await fetch(url, { cache: "no-store", signal: controller.signal });
+    if (!response.ok) throw new Error(`stock market ${response.status}`);
+    const payload = await response.json();
+    if (!payload?.ok || !Array.isArray(payload?.stocks)) throw new Error("invalid stock market payload");
+    return payload;
+  } catch {
+    return null;
+  } finally {
+    window.clearTimeout(timer);
+  }
+}
+
+function fallbackStockSeries(stock, tick) {
+  const base = Number(stock.base || stock.price || 1000);
+  const volumeSeed = Number(stock.volume || stock.volume24h || 3000);
+  const drift = Number(stock.drift || stock.change24h || 0) / 100;
+  return Array.from({ length: 32 }, (_, index) => {
+    const wave = Math.sin((index + tick * 0.48) * 0.58 + base * 0.001) * 0.027;
+    const pulse = Math.cos((index + tick * 0.22) * 0.31 + volumeSeed * 0.0008) * 0.016;
+    const trend = drift * (index / 31);
+    const price = base * (1 + wave + pulse + trend);
+    const volume = 24 + Math.abs(Math.sin(index * 0.7 + tick + base)) * 58;
+    return { price, volume };
+  });
 }
 
 function stockSeries(stock, tick) {
-  return Array.from({ length: 32 }, (_, index) => {
-    const wave = Math.sin((index + tick * 0.48) * 0.58 + stock.base * 0.001) * 0.027;
-    const pulse = Math.cos((index + tick * 0.22) * 0.31 + stock.volume * 0.0008) * 0.016;
-    const trend = stock.drift * (index / 31);
-    const price = stock.base * (1 + wave + pulse + trend);
-    const volume = 24 + Math.abs(Math.sin(index * 0.7 + tick + stock.base)) * 58;
-    return { price, volume };
+  const history = Array.isArray(stock?.history) ? stock.history : [];
+  const series = history
+    .map((point) => ({
+      price: Number(point.close ?? point.price ?? point.value),
+      volume: Number(point.volume ?? 0),
+    }))
+    .filter((point) => Number.isFinite(point.price) && point.price > 0);
+
+  if (series.length >= 2) return series;
+  return fallbackStockSeries(stock, tick);
+}
+
+function buildFallbackMarket(tick) {
+  const stocks = STOCKS.map((stock) => {
+    const history = fallbackStockSeries(stock, tick);
+    const first = history[0];
+    const last = history.at(-1);
+    return {
+      ...stock,
+      symbol: stock.code,
+      price: last.price,
+      open24h: first.price,
+      change24h: ((last.price - first.price) / first.price) * 100,
+      volume24h: Math.round(history.reduce((sum, point) => sum + point.volume, 0) * 18),
+      marketCap: stock.base * stock.volume,
+      history: history.map((point, index) => ({
+        close: point.price,
+        volume: point.volume,
+        time: new Date(Date.now() - (31 - index) * 45 * 60 * 1000).toISOString(),
+      })),
+    };
   });
+  const index = 12480 + Math.round(Math.sin(tick * 0.42) * 82);
+  return {
+    ok: true,
+    market: {
+      index,
+      indexChange24h: 0.8 + Math.sin(tick * 0.36) * 0.7,
+      volume24h: stocks.reduce((sum, stock) => sum + stock.volume24h, 0),
+      marketCap: stocks.reduce((sum, stock) => sum + stock.marketCap, 0),
+      session: PLAYER_API_BASE ? "API 대기" : "미리보기",
+      updatedAt: new Date().toISOString(),
+    },
+    stocks,
+    recentTrades: [],
+  };
 }
 
 function createSvg(tag, attrs = {}) {
@@ -622,6 +710,8 @@ function renderStockChart(svg, stock, tick) {
   const prices = series.map((point) => point.price);
   const min = Math.min(...prices) * 0.985;
   const max = Math.max(...prices) * 1.015;
+  const range = Math.max(1, max - min);
+  const maxVolume = Math.max(1, ...series.map((point) => Number(point.volume) || 0));
   const left = 28;
   const right = 612;
   const top = 26;
@@ -632,7 +722,7 @@ function renderStockChart(svg, stock, tick) {
   const xStep = width / (series.length - 1);
 
   const toX = (index) => left + index * xStep;
-  const toY = (price) => top + ((max - price) / (max - min)) * height;
+  const toY = (price) => top + ((max - price) / range) * height;
   const linePoints = series.map((point, index) => `${toX(index).toFixed(1)},${toY(point.price).toFixed(1)}`).join(" ");
   const areaPoints = `${left},${chartBottom} ${linePoints} ${right},${chartBottom}`;
 
@@ -657,7 +747,7 @@ function renderStockChart(svg, stock, tick) {
   });
 
   series.forEach((point, index) => {
-    const barHeight = Math.max(6, point.volume * 0.5);
+    const barHeight = Math.max(2, ((Number(point.volume) || 0) / maxVolume) * 48);
     svg.append(
       createSvg("rect", {
         class: "stock-volume-bar",
@@ -675,31 +765,76 @@ function renderStockChart(svg, stock, tick) {
   const last = series.at(-1);
   svg.append(createSvg("circle", { class: "stock-chart-dot", cx: right, cy: toY(last.price), r: 7 }));
   return {
-    price: last.price,
-    change: ((last.price - series[0].price) / series[0].price) * 100,
-    volume: series.reduce((sum, point) => sum + point.volume, 0),
+    price: Number(stock.price ?? last.price),
+    change: Number(stock.change24h ?? ((last.price - series[0].price) / series[0].price) * 100),
+    volume: Number(stock.volume24h ?? series.reduce((sum, point) => sum + point.volume, 0)),
   };
 }
 
-function renderStockTape(tape, tick) {
+function renderStockTape(tape, trades) {
   if (!tape) return;
-  const rows = Array.from({ length: 4 }, (_, index) => {
-    const stock = STOCKS[(tick + index * 2) % STOCKS.length];
-    const buy = (tick + index) % 3 !== 1;
-    const amount = 8 + ((tick * 11 + index * 17) % 64);
-    return { stock, buy, amount };
-  });
+  const rows = Array.isArray(trades) ? trades.slice(0, 6) : [];
+  if (!rows.length) {
+    const item = document.createElement("li");
+    item.className = "is-empty";
+    const label = document.createElement("span");
+    label.textContent = PLAYER_API_BASE ? "실제 체결 대기" : "API 연결 전";
+    const amount = document.createElement("strong");
+    amount.textContent = "--";
+    item.replaceChildren(label, amount);
+    tape.replaceChildren(item);
+    return;
+  }
 
   tape.replaceChildren(
     ...rows.map((row) => {
       const item = document.createElement("li");
-      item.className = row.buy ? "is-buy" : "is-sell";
+      const buy = row.side !== "sell";
+      item.className = buy ? "is-buy" : "is-sell";
       const label = document.createElement("span");
-      label.textContent = `${row.stock.code} ${row.buy ? "매수" : "매도"}`;
+      label.textContent = `${row.playerName || "Player"} ${row.symbol || row.code} ${buy ? "매수" : "매도"}`;
       const amount = document.createElement("strong");
-      amount.textContent = `${row.amount}주`;
-      item.append(label, amount);
+      amount.textContent = `${formatStockNumber(row.quantity)}주 @ ${formatStockNumber(row.price)}`;
+      const total = document.createElement("small");
+      total.textContent = `${formatStockCompact(row.total)} 머니`;
+      item.append(label, amount, total);
       return item;
+    }),
+  );
+}
+
+function renderStockRows(list, stocks, activeCode, onSelect) {
+  list.replaceChildren(
+    ...stocks.map((stock) => {
+      const code = stock.symbol || stock.code;
+      const article = document.createElement("article");
+      article.dataset.stockCode = code;
+      article.className = code === activeCode ? "is-active" : "";
+      article.setAttribute("role", "button");
+      article.setAttribute("tabindex", "0");
+      article.setAttribute("aria-pressed", String(code === activeCode));
+
+      const text = document.createElement("div");
+      const title = document.createElement("strong");
+      title.textContent = code;
+      const name = document.createElement("span");
+      name.textContent = stock.name || code;
+      text.append(title, name);
+
+      const price = document.createElement("em");
+      const change = Number(stock.change24h || 0);
+      price.textContent = formatStockNumber(stock.price);
+      price.classList.toggle("is-down", change < 0);
+      article.append(text, price);
+
+      const select = () => onSelect(code);
+      article.addEventListener("click", select);
+      article.addEventListener("keydown", (event) => {
+        if (event.key !== "Enter" && event.key !== " ") return;
+        event.preventDefault();
+        select();
+      });
+      return article;
     }),
   );
 }
@@ -719,73 +854,69 @@ function initStockExchange() {
   const cap = document.querySelector("[data-stock-cap]");
   const session = document.querySelector("[data-stock-session]");
   const tape = document.querySelector("[data-trade-tape]");
-  const rows = Array.from(list.querySelectorAll("[data-stock-code]"));
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  let activeIndex = 0;
+  let market = buildFallbackMarket(0);
+  let activeCode = market.stocks[0]?.symbol || market.stocks[0]?.code || "DMD";
+  let liveMarket = false;
   let tick = 0;
 
-  rows.forEach((row, index) => {
-    row.setAttribute("role", "button");
-    row.setAttribute("tabindex", "0");
-    row.addEventListener("click", () => {
-      activeIndex = index;
-      render();
-    });
-    row.addEventListener("keydown", (event) => {
-      if (event.key !== "Enter" && event.key !== " ") return;
-      event.preventDefault();
-      activeIndex = index;
-      render();
-    });
-  });
+  const selectStock = (code) => {
+    activeCode = code;
+    render();
+  };
 
   function render() {
-    const stock = STOCKS[activeIndex] || STOCKS[0];
+    const stocks = Array.isArray(market?.stocks) && market.stocks.length ? market.stocks : buildFallbackMarket(tick).stocks;
+    const stock = stocks.find((item) => (item.symbol || item.code) === activeCode) || stocks[0];
+    activeCode = stock.symbol || stock.code;
     const result = renderStockChart(chart, stock, tick);
-    const totalVolume = STOCKS.reduce((sum, item) => sum + item.volume, 0) + Math.round(result.volume * 18);
-    const marketCap = STOCKS.reduce((sum, item) => sum + item.base * item.volume, 0) / 1000000;
-    const stockIndex = 12480 + Math.round(Math.sin(tick * 0.42) * 82 + STOCKS.reduce((sum, item) => sum + item.drift, 0) * 700);
-    const stockIndexChange = 2.1 + Math.sin(tick * 0.36) * 0.8;
+    const marketMeta = market?.market || {};
 
-    if (symbol) symbol.textContent = stock.code;
+    root.classList.toggle("is-live", liveMarket);
+    if (symbol) symbol.textContent = activeCode;
     if (price) price.textContent = formatStockNumber(result.price);
     if (change) {
       change.textContent = formatStockChange(result.change);
       change.classList.toggle("is-down", result.change < 0);
     }
-    if (indexValue) indexValue.textContent = formatStockNumber(stockIndex);
+    if (indexValue) indexValue.textContent = formatStockNumber(marketMeta.index);
     if (indexChange) {
-      indexChange.textContent = formatStockChange(stockIndexChange);
-      indexChange.classList.toggle("is-down", stockIndexChange < 0);
+      const value = Number(marketMeta.indexChange24h || 0);
+      indexChange.textContent = formatStockChange(value);
+      indexChange.classList.toggle("is-down", value < 0);
     }
-    if (volume) volume.textContent = `${formatStockNumber(totalVolume)}주`;
-    if (cap) cap.textContent = `${marketCap.toFixed(1)}M`;
-    if (session) session.textContent = new Date().getHours() >= 2 ? "장중" : "야간장";
+    if (volume) volume.textContent = `${formatStockNumber(marketMeta.volume24h || result.volume)}주`;
+    if (cap) cap.textContent = `${formatStockCompact(marketMeta.marketCap)} 머니`;
+    if (session) session.textContent = liveMarket ? marketMeta.session || "24H LIVE" : marketMeta.session || "API 대기";
 
-    rows.forEach((row, index) => {
-      const item = STOCKS[index] || STOCKS[0];
-      const itemResult = stockSeries(item, tick).at(-1);
-      const open = stockSeries(item, tick)[0].price;
-      const rowPrice = row.querySelector("em");
-      const rowChange = ((itemResult.price - open) / open) * 100;
-      row.classList.toggle("is-active", index === activeIndex);
-      row.setAttribute("aria-pressed", String(index === activeIndex));
-      if (rowPrice) {
-        rowPrice.textContent = formatStockNumber(itemResult.price);
-        rowPrice.classList.toggle("is-down", rowChange < 0);
-      }
-    });
+    renderStockRows(list, stocks, activeCode, selectStock);
+    renderStockTape(tape, market?.recentTrades);
+  }
 
-    renderStockTape(tape, tick);
+  async function refreshMarket() {
+    const payload = await fetchStockMarket();
+    if (payload) {
+      market = payload;
+      liveMarket = true;
+    } else {
+      market = buildFallbackMarket(tick);
+      liveMarket = false;
+    }
+    render();
   }
 
   render();
+  refreshMarket();
   if (!reduceMotion) {
     window.setInterval(() => {
       tick += 1;
-      render();
+      if (!liveMarket) {
+        market = buildFallbackMarket(tick);
+        render();
+      }
     }, 3200);
   }
+  window.setInterval(refreshMarket, 20000);
 }
 
 function initScrollReveal() {

@@ -2199,11 +2199,34 @@ input:focus-visible,
 }
 
 .trade-tape li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
   min-height: 48px;
 }
 
 .trade-tape li.is-buy strong {
   color: #127447;
+}
+
+.trade-tape li.is-empty strong {
+  color: var(--text-faint);
+}
+
+.trade-tape li span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.trade-tape small {
+  grid-column: 1 / -1;
+  margin-top: 4px;
+  color: var(--text-faint);
+  font-size: 11px;
+  font-weight: 800;
+  text-align: right;
 }
 
 /* soft-green feature band (full bleed behind the constrained section) */

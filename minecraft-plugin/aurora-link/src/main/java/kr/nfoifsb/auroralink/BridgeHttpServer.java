@@ -38,15 +38,18 @@ public final class BridgeHttpServer {
   private final AuroraLinkPlugin plugin;
   private final LinkStore linkStore;
   private final PlayerActions playerActions;
+  private final StockExchange stockExchange;
   private final Gson gson = new Gson();
   private final RateLimiter rateLimiter;
   private HttpServer server;
   private ExecutorService executor;
 
-  public BridgeHttpServer(AuroraLinkPlugin plugin, LinkStore linkStore, PlayerActions playerActions) {
+  public BridgeHttpServer(
+      AuroraLinkPlugin plugin, LinkStore linkStore, PlayerActions playerActions, StockExchange stockExchange) {
     this.plugin = plugin;
     this.linkStore = linkStore;
     this.playerActions = playerActions;
+    this.stockExchange = stockExchange;
     this.rateLimiter = new RateLimiter(plugin.getConfig().getInt("api.rate-limit-per-minute", 80));
   }
 
@@ -109,6 +112,8 @@ public final class BridgeHttpServer {
       payload.put("message", error.getMessage());
       payload.putAll(error.extra);
       sendJson(exchange, error.status, payload);
+    } catch (StockExchange.StockException error) {
+      sendJson(exchange, error.status, error.payload());
     } catch (JsonSyntaxException error) {
       sendJson(exchange, 400, Map.of("ok", false, "message", "Invalid JSON body."));
     } catch (Exception error) {
@@ -131,6 +136,22 @@ public final class BridgeHttpServer {
 
     if ("POST".equals(method) && "/verification/check".equals(path)) {
       return verificationCheck(readBody(exchange));
+    }
+
+    if ("GET".equals(method) && "/stocks/market".equals(path)) {
+      return stockExchange.marketSnapshot();
+    }
+
+    if ("POST".equals(method) && "/stocks/portfolio".equals(path)) {
+      Map<String, Object> body = readBody(exchange);
+      LinkStore.LinkedPlayer link = linkedPlayerFrom(exchange, body);
+      return sync(() -> stockExchange.portfolioSnapshot(link));
+    }
+
+    if ("POST".equals(method) && "/stocks/trade".equals(path)) {
+      Map<String, Object> body = readBody(exchange);
+      LinkStore.LinkedPlayer link = linkedPlayerFrom(exchange, body);
+      return sync(() -> stockExchange.trade(link, body));
     }
 
     String[] parts = splitPath(path);
@@ -301,6 +322,15 @@ public final class BridgeHttpServer {
     String bodyToken = LinkStore.value(body.get("webToken"), "");
     if (!bodyToken.isBlank()) return bodyToken;
     return LinkStore.value(body.get("token"), "");
+  }
+
+  private LinkStore.LinkedPlayer linkedPlayerFrom(HttpExchange exchange, Map<String, Object> body) {
+    String nickname = LinkStore.value(body.get("nickname"), "").trim();
+    if (nickname.isBlank()) throw new HttpError(400, "nickname is required.");
+    String token = tokenFrom(exchange.getRequestHeaders(), body);
+    LinkStore.LinkedPlayer link = linkStore.validateToken(nickname, token);
+    if (link == null) throw new HttpError(401, "Player web token is missing or invalid.");
+    return link;
   }
 
   private void requireAdmin(Headers headers) {

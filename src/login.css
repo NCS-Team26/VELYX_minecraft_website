@@ -626,6 +626,148 @@ a {
   color: var(--accent);
 }
 
+.stock-trader {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background:
+    linear-gradient(135deg, rgba(80, 137, 255, 0.12), transparent 54%),
+    var(--field);
+}
+
+.stock-trader-heading,
+.stock-trader-quote,
+.stock-trader-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.stock-trader-heading div {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+}
+
+.stock-trader-heading span,
+.stock-trader-grid span,
+.stock-trader-quote span {
+  color: var(--text-faint);
+  font-size: 12px;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.stock-trader-heading strong,
+.stock-trader-quote strong {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text);
+  font-size: 15px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stock-trader-heading em {
+  flex: 0 0 auto;
+  color: var(--accent);
+  font-size: 13px;
+  font-style: normal;
+  font-weight: 900;
+}
+
+.stock-trader-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(96px, 0.55fr);
+  gap: 10px;
+}
+
+.stock-trader-grid label {
+  display: grid;
+  gap: 6px;
+}
+
+.stock-trader-grid select,
+.stock-trader-grid input {
+  min-width: 0;
+  min-height: 42px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.08);
+  font: inherit;
+  font-weight: 750;
+}
+
+.stock-trader-grid select {
+  padding: 0 10px;
+}
+
+.stock-trader-grid input {
+  padding: 0 10px;
+}
+
+.stock-trader-grid select:disabled,
+.stock-trader-grid input:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.stock-trader-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.stock-trader-actions button {
+  min-height: 42px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.08);
+  font: inherit;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.stock-trader-actions button[data-stock-side="buy"] {
+  color: #71dfa0;
+}
+
+.stock-trader-actions button[data-stock-side="sell"] {
+  color: #ff8c9a;
+}
+
+.stock-trader-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+
+.stock-trader-actions button:not(:disabled):hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.stock-trader-message {
+  min-height: 20px;
+  margin: 0;
+  color: var(--text-faint);
+  font-size: 13px;
+  font-weight: 650;
+  line-height: 1.45;
+  text-align: center;
+}
+
+.stock-trader-message.is-error {
+  color: var(--danger);
+}
+
+.stock-trader-message.is-success {
+  color: var(--accent);
+}
+
 .inventory-toolbar {
   display: flex;
   align-items: center;
@@ -714,7 +856,8 @@ a {
 
 a:focus-visible,
 button:focus-visible,
-input:focus-visible {
+input:focus-visible,
+select:focus-visible {
   outline: 2px solid var(--accent-2);
   outline-offset: 3px;
 }
@@ -722,6 +865,7 @@ input:focus-visible {
 .auth-primary,
 .auth-ghost,
 .web-action-button,
+.stock-trader-actions button,
 .auto-login-button,
 .auth-secondary-actions button {
   transition:
@@ -734,6 +878,7 @@ input:focus-visible {
 .auth-primary:hover,
 .auth-ghost:hover,
 .web-action-button:not(:disabled):hover,
+.stock-trader-actions button:not(:disabled):hover,
 .auth-secondary-actions button:hover {
   transform: translateY(-2px);
   filter: brightness(1.08);
@@ -752,6 +897,7 @@ input:focus-visible {
 
 .auth-primary:active,
 .auth-ghost:active,
+.stock-trader-actions button:active,
 .auth-secondary-actions button:active {
   transform: translateY(0);
 }
@@ -818,7 +964,9 @@ input:focus-visible {
 
   .verify-actions,
   .character-stats,
-  .web-action-grid {
+  .web-action-grid,
+  .stock-trader-grid,
+  .stock-trader-actions {
     grid-template-columns: 1fr;
   }
 
@@ -842,6 +990,7 @@ input:focus-visible {
 
   .auth-primary,
   .auth-ghost,
+  .stock-trader-actions button,
   .auto-login-button,
   .auth-secondary-actions button {
     transition: none;
@@ -849,6 +998,7 @@ input:focus-visible {
 
   .auth-primary:hover,
   .auth-ghost:hover,
+  .stock-trader-actions button:hover,
   .auto-login-button:hover,
   .auth-secondary-actions button:hover {
     transform: none;

@@ -47,6 +47,15 @@ const refreshInventoryButton = document.querySelector("[data-refresh-inventory]"
 const playerActionButtons = document.querySelectorAll("[data-player-action]");
 const webActionSummary = document.querySelector("[data-web-action-summary]");
 const webActionMessage = document.querySelector("[data-web-action-message]");
+const stockTrader = document.querySelector("[data-stock-trader]");
+const stockTraderSummary = document.querySelector("[data-stock-trader-summary]");
+const stockTraderBalance = document.querySelector("[data-stock-trader-balance]");
+const stockSymbolSelect = document.querySelector("[data-stock-symbol-select]");
+const stockQuantityInput = document.querySelector("[data-stock-quantity]");
+const stockTraderPrice = document.querySelector("[data-stock-trader-price]");
+const stockTraderPosition = document.querySelector("[data-stock-trader-position]");
+const stockTradeButtons = document.querySelectorAll("[data-stock-side]");
+const stockTraderMessage = document.querySelector("[data-stock-trader-message]");
 const inventoryGrid = document.querySelector("[data-inventory-grid]");
 const inventoryEmpty = document.querySelector("[data-inventory-empty]");
 const inventorySummary = document.querySelector("[data-inventory-summary]");
@@ -57,6 +66,9 @@ const characterLocation = document.querySelector("[data-character-location]");
 let googleScriptPromise;
 let googleMessage = "Google 로그인 버튼을 준비하고 있습니다.";
 let googleMessageTone = "info";
+let stockMarketPayload = null;
+let stockPortfolioPayload = null;
+let stockTraderLoading = false;
 
 function setMessage(text, tone = "info") {
   if (!message) return;
@@ -508,10 +520,196 @@ async function fetchPlayerJson(path, options = {}) {
         ...(options.headers || {}),
       },
     });
-    if (!response.ok) throw new Error(`player api ${response.status}`);
-    return await response.json();
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(payload?.message || `player api ${response.status}`);
+    return payload;
   } finally {
     window.clearTimeout(timer);
+  }
+}
+
+function formatStockMoney(value) {
+  const number = Number(value);
+  if (!Number.isFinite(number)) return "--";
+  return new Intl.NumberFormat("ko-KR", { maximumFractionDigits: 0 }).format(number);
+}
+
+function setStockTraderMessage(text, tone = "info") {
+  if (!stockTraderMessage) return;
+  stockTraderMessage.textContent = text;
+  stockTraderMessage.classList.toggle("is-error", tone === "error");
+  stockTraderMessage.classList.toggle("is-success", tone === "success");
+}
+
+function stockSymbols() {
+  return Array.isArray(stockMarketPayload?.stocks) ? stockMarketPayload.stocks : [];
+}
+
+function selectedStockSymbol() {
+  return stockSymbolSelect?.value || stockSymbols()[0]?.symbol || stockSymbols()[0]?.code || "";
+}
+
+function selectedStock() {
+  const symbol = selectedStockSymbol();
+  return stockSymbols().find((stock) => (stock.symbol || stock.code) === symbol) || stockSymbols()[0] || null;
+}
+
+function selectedPosition() {
+  const symbol = selectedStockSymbol();
+  const positions = Array.isArray(stockPortfolioPayload?.positions) ? stockPortfolioPayload.positions : [];
+  return positions.find((position) => position.symbol === symbol || position.code === symbol) || null;
+}
+
+function renderStockOptions() {
+  if (!stockSymbolSelect) return;
+  const previous = selectedStockSymbol();
+  const stocks = stockSymbols();
+  stockSymbolSelect.replaceChildren(
+    ...stocks.map((stock) => {
+      const option = document.createElement("option");
+      option.value = stock.symbol || stock.code;
+      option.textContent = `${stock.symbol || stock.code} · ${stock.name || stock.symbol || stock.code}`;
+      return option;
+    }),
+  );
+  if (stocks.some((stock) => (stock.symbol || stock.code) === previous)) {
+    stockSymbolSelect.value = previous;
+  }
+}
+
+function renderStockTrader(playerProfile = readPlayerProfile()) {
+  if (!stockTrader) return;
+
+  const stocks = stockSymbols();
+  const canTrade = Boolean(
+    playerProfile?.verified && playerProfile?.webToken && playerApiBase && stocks.length && !stockTraderLoading,
+  );
+
+  renderStockOptions();
+  if (stockSymbolSelect) stockSymbolSelect.disabled = !canTrade;
+  if (stockQuantityInput) stockQuantityInput.disabled = !canTrade;
+  stockTradeButtons.forEach((button) => {
+    button.disabled = !canTrade;
+  });
+
+  const stock = selectedStock();
+  const position = selectedPosition();
+  if (stockTraderSummary) {
+    stockTraderSummary.textContent = canTrade
+      ? "실거래 가능"
+      : stockTraderLoading
+        ? "거래소 확인 중"
+        : playerProfile?.verified
+          ? "거래소 연결 필요"
+          : "인증 후 거래";
+  }
+  if (stockTraderBalance) {
+    stockTraderBalance.textContent =
+      stockPortfolioPayload?.balance === undefined ? "--" : `잔고 ${formatStockMoney(stockPortfolioPayload.balance)}`;
+  }
+  if (stockTraderPrice) {
+    stockTraderPrice.textContent = stock
+      ? `현재가 ${stock.symbol || stock.code} ${formatStockMoney(stock.price)}`
+      : "현재가 --";
+  }
+  if (stockTraderPosition) {
+    stockTraderPosition.textContent = position
+      ? `보유 ${formatStockMoney(position.shares)}주 · 평가 ${formatStockMoney(position.value)}`
+      : "보유 0주";
+  }
+
+  if (!playerProfile?.verified) {
+    setStockTraderMessage("캐릭터 인증 후 서버 머니로 24시간 주식을 거래할 수 있습니다.");
+  } else if (!playerProfile.webToken) {
+    setStockTraderMessage("인증 확인을 다시 눌러 웹 토큰을 받아오세요.", "error");
+  } else if (!playerApiBase) {
+    setStockTraderMessage("VITE_PLAYER_API_BASE가 연결되면 실제 거래가 활성화됩니다.", "error");
+  } else if (!stocks.length && !stockTraderLoading) {
+    setStockTraderMessage("거래소 API를 불러오지 못했습니다.", "error");
+  }
+}
+
+async function loadStockTrader(playerProfile, user = readStoredUser()) {
+  if (!stockTrader || !playerProfile?.verified || !playerProfile?.webToken || !playerApiBase) {
+    stockMarketPayload = null;
+    stockPortfolioPayload = null;
+    renderStockTrader(playerProfile);
+    return;
+  }
+
+  stockTraderLoading = true;
+  renderStockTrader(playerProfile);
+  try {
+    const market = await fetchPlayerJson("/stocks/market", { method: "GET" });
+    if (market?.ok) stockMarketPayload = market;
+
+    const portfolio = await fetchPlayerJson("/stocks/portfolio", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${playerProfile.webToken}`,
+      },
+      body: JSON.stringify({
+        nickname: playerProfile.nickname,
+        webToken: playerProfile.webToken,
+      }),
+    });
+    if (portfolio?.ok) stockPortfolioPayload = portfolio;
+  } catch (error) {
+    setStockTraderMessage(error?.message || "거래소 정보를 불러오지 못했습니다.", "error");
+  } finally {
+    stockTraderLoading = false;
+    renderStockTrader(readPlayerProfile(user));
+  }
+}
+
+async function postStockTrade(side) {
+  const user = readStoredUser();
+  const playerProfile = readPlayerProfile(user);
+  if (!playerProfile?.verified || !playerProfile.webToken) {
+    setStockTraderMessage("먼저 캐릭터 인증을 완료해 주세요.", "error");
+    return;
+  }
+
+  const symbol = selectedStockSymbol();
+  const quantity = Math.floor(Number(stockQuantityInput?.value || 0));
+  if (!symbol) {
+    setStockTraderMessage("거래할 종목을 선택해 주세요.", "error");
+    return;
+  }
+  if (!Number.isFinite(quantity) || quantity <= 0) {
+    setStockTraderMessage("수량은 1주 이상으로 입력해 주세요.", "error");
+    return;
+  }
+
+  stockTraderLoading = true;
+  renderStockTrader(playerProfile);
+  setStockTraderMessage(`${symbol} ${side === "buy" ? "매수" : "매도"} 주문 전송 중...`);
+
+  try {
+    const payload = await fetchPlayerJson("/stocks/trade", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${playerProfile.webToken}`,
+      },
+      body: JSON.stringify({
+        nickname: playerProfile.nickname,
+        webToken: playerProfile.webToken,
+        symbol,
+        side,
+        quantity,
+      }),
+    });
+    if (payload?.market?.ok) stockMarketPayload = payload.market;
+    stockTraderLoading = false;
+    await loadStockTrader(playerProfile, user);
+    setStockTraderMessage(
+      `${symbol} ${side === "buy" ? "매수" : "매도"} ${formatStockMoney(quantity)}주 체결 완료`,
+      "success",
+    );
+  } catch (error) {
+    stockTraderLoading = false;
+    renderStockTrader(playerProfile);
+    setStockTraderMessage(error?.message || "주문을 처리하지 못했습니다.", "error");
   }
 }
 
@@ -604,6 +802,7 @@ function renderCharacterPanel(user = readStoredUser()) {
     renderVerifyCard(null);
     renderInventory(null);
     renderWebActions(null);
+    renderStockTrader(null);
     setCharacterStatus("인증 대기");
     return;
   }
@@ -620,12 +819,16 @@ function renderCharacterPanel(user = readStoredUser()) {
   );
   if (refreshInventoryButton) refreshInventoryButton.disabled = !playerProfile?.verified;
   renderWebActions(playerProfile);
+  renderStockTrader(playerProfile);
 
   const cached = getCachedInventory(user);
   if (cached?.payload && cached.nickname === playerProfile?.nickname) renderInventory(cached.payload);
   else renderInventory(null);
 
-  if (playerProfile?.verified) loadPlayerInventory(playerProfile, user);
+  if (playerProfile?.verified) {
+    loadPlayerInventory(playerProfile, user);
+    loadStockTrader(playerProfile, user);
+  }
 }
 
 async function copyText(text) {
@@ -1014,9 +1217,13 @@ characterForm?.addEventListener("submit", async (event) => {
   renderVerifyCard(playerProfile);
   renderInventory(null);
   renderWebActions(playerProfile);
+  renderStockTrader(playerProfile);
   setCharacterStatus(playerProfile.verified ? "인증 완료" : "인증 확인 필요", playerProfile.verified ? "success" : "idle");
   if (refreshInventoryButton) refreshInventoryButton.disabled = !playerProfile.verified;
-  if (playerProfile.verified) loadPlayerInventory(playerProfile, user);
+  if (playerProfile.verified) {
+    loadPlayerInventory(playerProfile, user);
+    loadStockTrader(playerProfile, user);
+  }
   setMessage(`${nickname} 캐릭터 인증 코드를 만들었습니다.`, "success");
 });
 
@@ -1033,11 +1240,13 @@ checkCharacterButton?.addEventListener("click", async () => {
   writePlayerProfile(nextProfile, user);
   renderVerifyCard(nextProfile);
   renderWebActions(nextProfile);
+  renderStockTrader(nextProfile);
   setCharacterStatus(nextProfile.verified ? "인증 완료" : "아직 미인증", nextProfile.verified ? "success" : "error");
   if (refreshInventoryButton) refreshInventoryButton.disabled = !nextProfile.verified;
 
   if (nextProfile.verified) {
     await loadPlayerInventory(nextProfile, user);
+    await loadStockTrader(nextProfile, user);
     setMessage(`${nextProfile.nickname} 캐릭터가 인증되었습니다.`, "success");
   } else {
     setMessage("서버에서 아직 캐릭터 인증을 확인하지 못했습니다.", "error");
@@ -1061,6 +1270,17 @@ playerActionButtons.forEach((button) => {
   button.addEventListener("click", () => {
     const action = button.dataset.playerAction;
     if (action) postPlayerAction(action);
+  });
+});
+
+stockSymbolSelect?.addEventListener("change", () => {
+  renderStockTrader(readPlayerProfile());
+});
+
+stockTradeButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    const side = button.dataset.stockSide;
+    if (side) postStockTrade(side);
   });
 });
 

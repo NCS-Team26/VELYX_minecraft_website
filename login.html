@@ -193,6 +193,37 @@
             </p>
           </div>
 
+          <div class="stock-trader" aria-label="주식 거래" data-stock-trader>
+            <div class="stock-trader-heading">
+              <div>
+                <span>NFO Exchange</span>
+                <strong data-stock-trader-summary>인증 후 거래</strong>
+              </div>
+              <em data-stock-trader-balance>--</em>
+            </div>
+            <div class="stock-trader-grid">
+              <label>
+                <span>종목</span>
+                <select data-stock-symbol-select disabled></select>
+              </label>
+              <label>
+                <span>수량</span>
+                <input data-stock-quantity type="number" min="1" max="500" value="1" inputmode="numeric" disabled />
+              </label>
+            </div>
+            <div class="stock-trader-quote">
+              <span data-stock-trader-price>현재가 --</span>
+              <strong data-stock-trader-position>보유 --</strong>
+            </div>
+            <div class="stock-trader-actions">
+              <button type="button" data-stock-side="buy" disabled>매수</button>
+              <button type="button" data-stock-side="sell" disabled>매도</button>
+            </div>
+            <p class="stock-trader-message" data-stock-trader-message>
+              캐릭터 인증 후 서버 머니로 24시간 주식을 거래할 수 있습니다.
+            </p>
+          </div>
+
           <div class="inventory-toolbar">
             <div>
               <span>인벤토리</span>
