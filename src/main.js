@@ -3,7 +3,22 @@ import "./styles.css";
 const SERVER_ADDRESS = "nfoifsb.kr";
 const STATUS_API = `https://api.mcstatus.io/v2/status/java/${SERVER_ADDRESS}`;
 const STATUS_TIMEOUT_MS = 8000;
-const PLAYER_API_BASE = (import.meta.env.VITE_PLAYER_API_BASE || "").replace(/\/$/, "");
+function apiBaseList(...values) {
+  return [
+    ...new Set(
+      values
+        .flatMap((value) => String(value || "").split(","))
+        .map((value) => value.trim().replace(/\/$/, ""))
+        .filter(Boolean),
+    ),
+  ];
+}
+
+const PLAYER_API_BASES = apiBaseList(
+  import.meta.env.VITE_PLAYER_API_BASE,
+  import.meta.env.VITE_PLAYER_API_FALLBACK_BASES,
+);
+const PLAYER_API_BASE = PLAYER_API_BASES[0] || "";
 const SERVER_OVERVIEW_TIMEOUT_MS = 6000;
 const SERVER_OVERVIEW_INTERVAL_MS = 10000;
 const STOCK_MARKET_TIMEOUT_MS = 6000;
@@ -442,24 +457,15 @@ function renderSystemOverview(system, updatedAt) {
 
 async function refreshServerOverview() {
   if (!hasRamWidgets()) return;
-  if (!PLAYER_API_BASE) {
+  if (!PLAYER_API_BASES.length) {
     renderRamUnavailable("실시간 서버 API가 아직 연결되지 않았습니다.");
     return;
   }
 
-  const controller = new AbortController();
-  const timer = window.setTimeout(() => controller.abort(), SERVER_OVERVIEW_TIMEOUT_MS);
   try {
-    const response = await fetch(`${PLAYER_API_BASE}/server/overview`, {
-      cache: "no-store",
-      signal: controller.signal,
-    });
-    if (!response.ok) throw new Error(`server overview ${response.status}`);
-    renderServerOverview(await response.json());
+    renderServerOverview(await fetchPlayerApiJson("/server/overview", SERVER_OVERVIEW_TIMEOUT_MS));
   } catch {
     renderRamUnavailable("서버 지표 브리지를 사용할 수 없습니다.");
-  } finally {
-    window.clearTimeout(timer);
   }
 }
 
@@ -908,23 +914,36 @@ function sortStocks(stocks, sortMode) {
   return sorted;
 }
 
-function stockApiUrl(path) {
-  return PLAYER_API_BASE ? `${PLAYER_API_BASE}${path}` : "";
-}
-
 async function fetchStockMarket() {
-  const url = stockApiUrl("/stocks/market");
-  if (!url) return null;
-  const controller = new AbortController();
-  const timer = window.setTimeout(() => controller.abort(), STOCK_MARKET_TIMEOUT_MS);
+  if (!PLAYER_API_BASES.length) return null;
   try {
-    const response = await fetch(url, { cache: "no-store", signal: controller.signal });
-    if (!response.ok) throw new Error(`stock market ${response.status}`);
-    const payload = await response.json();
+    const payload = await fetchPlayerApiJson("/stocks/market", STOCK_MARKET_TIMEOUT_MS);
     if (!payload?.ok || !Array.isArray(payload?.stocks)) throw new Error("invalid stock market payload");
     return payload;
   } catch {
     return null;
+  }
+}
+
+async function fetchPlayerApiJson(path, timeoutMs) {
+  let lastError = null;
+  for (const base of PLAYER_API_BASES) {
+    try {
+      return await fetchPlayerApiJsonFrom(base, path, timeoutMs);
+    } catch (error) {
+      lastError = error;
+    }
+  }
+  throw lastError || new Error("player api unavailable");
+}
+
+async function fetchPlayerApiJsonFrom(base, path, timeoutMs) {
+  const controller = new AbortController();
+  const timer = window.setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const response = await fetch(`${base}${path}`, { cache: "no-store", signal: controller.signal });
+    if (!response.ok) throw new Error(`player api ${response.status}`);
+    return await response.json();
   } finally {
     window.clearTimeout(timer);
   }

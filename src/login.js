@@ -8,7 +8,22 @@ const PLAYER_INVENTORY_CACHE_KEY = "nfoifsb.playerInventoryCache";
 const GOOGLE_SCRIPT_SRC = "https://accounts.google.com/gsi/client";
 
 const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
-const playerApiBase = (import.meta.env.VITE_PLAYER_API_BASE || "").replace(/\/$/, "");
+function apiBaseList(...values) {
+  return [
+    ...new Set(
+      values
+        .flatMap((value) => String(value || "").split(","))
+        .map((value) => value.trim().replace(/\/$/, ""))
+        .filter(Boolean),
+    ),
+  ];
+}
+
+const playerApiBases = apiBaseList(
+  import.meta.env.VITE_PLAYER_API_BASE,
+  import.meta.env.VITE_PLAYER_API_FALLBACK_BASES,
+);
+const playerApiBase = playerApiBases[0] || "";
 const MINECRAFT_TEXTURE_BASE = "https://assets.mcasset.cloud/latest/assets/minecraft/textures";
 const EQUIPMENT_SLOTS = [
   ["mainHand", "주 손"],
@@ -683,11 +698,25 @@ function renderInventory(payload = null) {
 }
 
 async function fetchPlayerJson(path, options = {}) {
-  if (!playerApiBase) return null;
+  if (!playerApiBases.length) return null;
+
+  let lastError = null;
+  for (const base of playerApiBases) {
+    try {
+      return await fetchPlayerJsonFrom(base, path, options);
+    } catch (error) {
+      lastError = error;
+    }
+  }
+
+  throw lastError || new Error("서버 플레이어 API에 연결하지 못했습니다.");
+}
+
+async function fetchPlayerJsonFrom(base, path, options = {}) {
   const controller = new AbortController();
   const timer = window.setTimeout(() => controller.abort(), 6000);
   try {
-    const response = await fetch(`${playerApiBase}${path}`, {
+    const response = await fetch(`${base}${path}`, {
       ...options,
       signal: controller.signal,
       headers: {
