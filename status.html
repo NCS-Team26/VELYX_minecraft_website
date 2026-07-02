@@ -112,6 +112,32 @@
                 </div>
                 <p data-ram-detail>서버 RAM 사용량을 불러오는 중입니다.</p>
               </article>
+              <article class="metric-live-card">
+                <svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
+                  <rect x="7" y="7" width="10" height="10" rx="2" />
+                  <path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3" />
+                  <path d="M10 12h4" />
+                </svg>
+                <span>CPU</span>
+                <strong data-cpu-summary>실시간 확인 중</strong>
+                <div class="meter metric-card-meter" aria-hidden="true">
+                  <span data-cpu-meter></span>
+                </div>
+                <p data-cpu-detail>CPU 사용량을 불러오는 중입니다.</p>
+              </article>
+              <article class="metric-live-card">
+                <svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M14 14.76V5a4 4 0 0 0-8 0v9.76A6 6 0 1 0 14 14.76z" />
+                  <path d="M10 5v11" />
+                  <path d="M10 20a2 2 0 0 0 2-2" />
+                </svg>
+                <span>Temperature</span>
+                <strong data-temp-summary>실시간 확인 중</strong>
+                <div class="meter metric-card-meter temperature-meter" aria-hidden="true">
+                  <span data-temp-meter></span>
+                </div>
+                <p data-temp-detail>온도 센서를 불러오는 중입니다.</p>
+              </article>
             </div>
           </div>
 
@@ -133,6 +159,22 @@
                 <span data-ram-meter></span>
               </div>
               <p data-ram-detail>Waiting for AuroraLink bridge.</p>
+            </article>
+            <article class="dashboard-card">
+              <span>CPU usage</span>
+              <strong data-cpu-summary>--</strong>
+              <div class="meter dashboard-meter" aria-hidden="true">
+                <span data-cpu-meter></span>
+              </div>
+              <p data-cpu-detail>Waiting for AuroraLink bridge.</p>
+            </article>
+            <article class="dashboard-card">
+              <span>Temperature</span>
+              <strong data-temp-summary>--</strong>
+              <div class="meter dashboard-meter temperature-meter" aria-hidden="true">
+                <span data-temp-meter></span>
+              </div>
+              <p data-temp-detail>Waiting for AuroraLink bridge.</p>
             </article>
             <article class="dashboard-card">
               <span>Players</span>

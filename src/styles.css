@@ -802,7 +802,8 @@ a {
   line-height: 1.08;
 }
 
-.detail-grid .ram-live-card {
+.detail-grid .ram-live-card,
+.detail-grid .metric-live-card {
   min-height: 156px;
 }
 
@@ -815,12 +816,20 @@ a {
   font-weight: 850;
 }
 
-.ram-card-meter {
+.ram-card-meter,
+.metric-card-meter {
   height: 8px;
   margin-top: 14px;
 }
 
-.ram-live-card p {
+.temperature-meter span {
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.24), transparent),
+    linear-gradient(90deg, #2fb344, #d9a441 56%, #d86b4a);
+}
+
+.ram-live-card p,
+.metric-live-card p {
   margin: 10px 0 0;
   color: var(--text-faint);
   font-size: 12px;

@@ -6,11 +6,15 @@ import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Instant;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -280,6 +284,7 @@ public final class BridgeHttpServer {
     response.put("economyProvider", plugin.economy() == null ? "" : plugin.economy().getName());
     response.put("players", Map.of("online", players.size(), "max", Bukkit.getMaxPlayers(), "list", players));
     response.put("memory", memorySnapshot());
+    response.put("system", systemSnapshot());
     response.put("tps", readTps());
     response.put("updatedAt", Instant.now().toString());
     return response;
@@ -300,6 +305,116 @@ public final class BridgeHttpServer {
     memory.put("maxBytes", maxBytes);
     memory.put("usedPercent", usedPercent);
     return memory;
+  }
+
+  private Map<String, Object> systemSnapshot() {
+    Map<String, Object> system = new HashMap<>();
+    system.put("cpu", cpuSnapshot());
+    system.put("temperature", temperatureSnapshot());
+    return system;
+  }
+
+  private Map<String, Object> cpuSnapshot() {
+    java.lang.management.OperatingSystemMXBean bean = ManagementFactory.getOperatingSystemMXBean();
+    Map<String, Object> cpu = new HashMap<>();
+    cpu.put("availableProcessors", bean.getAvailableProcessors());
+    double loadAverage = bean.getSystemLoadAverage();
+    if (loadAverage >= 0) cpu.put("loadAverage", Math.round(loadAverage * 100.0) / 100.0);
+
+    if (bean instanceof com.sun.management.OperatingSystemMXBean extended) {
+      putCpuPercent(cpu, "systemLoadPercent", extended.getCpuLoad());
+      putCpuPercent(cpu, "processLoadPercent", extended.getProcessCpuLoad());
+    }
+
+    return cpu;
+  }
+
+  private void putCpuPercent(Map<String, Object> cpu, String key, double load) {
+    if (Double.isFinite(load) && load >= 0) {
+      cpu.put(key, Math.round(load * 1000.0) / 10.0);
+    }
+  }
+
+  private Map<String, Object> temperatureSnapshot() {
+    Map<String, Object> temperature = new HashMap<>();
+    temperature.put("available", false);
+
+    for (TemperatureCandidate candidate : temperatureCandidates()) {
+      double celsius = readTemperatureCelsius(candidate.path());
+      if (Double.isFinite(celsius) && celsius > -20.0 && celsius < 130.0) {
+        temperature.put("available", true);
+        temperature.put("celsius", Math.round(celsius * 10.0) / 10.0);
+        temperature.put("source", candidate.source());
+        return temperature;
+      }
+    }
+
+    return temperature;
+  }
+
+  private List<TemperatureCandidate> temperatureCandidates() {
+    List<TemperatureCandidate> candidates = new ArrayList<>();
+    Path thermalRoot = Path.of("/sys/class/thermal");
+    if (Files.isDirectory(thermalRoot)) {
+      try (DirectoryStream<Path> zones = Files.newDirectoryStream(thermalRoot, "thermal_zone*")) {
+        for (Path zone : zones) {
+          Path temp = zone.resolve("temp");
+          if (Files.isReadable(temp)) {
+            String source = readFirstLine(zone.resolve("type"), zone.getFileName().toString());
+            candidates.add(new TemperatureCandidate(temp, source));
+          }
+        }
+      } catch (IOException ignored) {
+        // Temperature is optional; skip unreadable sensor groups.
+      }
+    }
+
+    Path hwmonRoot = Path.of("/sys/class/hwmon");
+    if (Files.isDirectory(hwmonRoot)) {
+      try (DirectoryStream<Path> devices = Files.newDirectoryStream(hwmonRoot, "hwmon*")) {
+        for (Path device : devices) {
+          try (DirectoryStream<Path> inputs = Files.newDirectoryStream(device, "temp*_input")) {
+            for (Path input : inputs) {
+              if (!Files.isReadable(input)) continue;
+              String fileName = input.getFileName().toString();
+              String prefix = fileName.substring(0, fileName.indexOf("_input"));
+              String label = readFirstLine(device.resolve(prefix + "_label"), "");
+              String deviceName = readFirstLine(device.resolve("name"), device.getFileName().toString());
+              String source = label.isBlank() ? deviceName : deviceName + " " + label;
+              candidates.add(new TemperatureCandidate(input, source));
+            }
+          } catch (IOException ignored) {
+            // Continue with the next hwmon device.
+          }
+        }
+      } catch (IOException ignored) {
+        // Temperature is optional.
+      }
+    }
+
+    return candidates;
+  }
+
+  private double readTemperatureCelsius(Path path) {
+    try {
+      String raw = Files.readString(path, StandardCharsets.UTF_8).trim();
+      if (raw.isBlank()) return Double.NaN;
+      double value = Double.parseDouble(raw);
+      return value > 1000.0 ? value / 1000.0 : value;
+    } catch (IOException | NumberFormatException ignored) {
+      return Double.NaN;
+    }
+  }
+
+  private String readFirstLine(Path path, String fallback) {
+    try {
+      if (!Files.isReadable(path)) return fallback;
+      String value = Files.readString(path, StandardCharsets.UTF_8).trim();
+      int newline = value.indexOf('\n');
+      return newline >= 0 ? value.substring(0, newline).trim() : value;
+    } catch (IOException ignored) {
+      return fallback;
+    }
   }
 
   private Map<String, Object> inventorySnapshot(String nickname) {
@@ -481,6 +596,8 @@ public final class BridgeHttpServer {
       return List.of();
     }
   }
+
+  private record TemperatureCandidate(Path path, String source) {}
 
   private static final class RateLimiter {
     private final int limit;

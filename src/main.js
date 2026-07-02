@@ -25,6 +25,12 @@ const ramSummaries = document.querySelectorAll("[data-ram-summary]");
 const ramPercents = document.querySelectorAll("[data-ram-percent]");
 const ramMeters = document.querySelectorAll("[data-ram-meter]");
 const ramDetails = document.querySelectorAll("[data-ram-detail]");
+const cpuSummaries = document.querySelectorAll("[data-cpu-summary]");
+const cpuMeters = document.querySelectorAll("[data-cpu-meter]");
+const cpuDetails = document.querySelectorAll("[data-cpu-detail]");
+const tempSummaries = document.querySelectorAll("[data-temp-summary]");
+const tempMeters = document.querySelectorAll("[data-temp-meter]");
+const tempDetails = document.querySelectorAll("[data-temp-detail]");
 const playerHeads = document.querySelector("[data-player-heads]");
 const playerChart = document.querySelector("[data-player-chart]");
 const sectionLinks = document.querySelectorAll("[data-section-link]");
@@ -122,6 +128,13 @@ function formatPercent(value) {
   if (!Number.isFinite(percent)) return "--";
   const rounded = Math.round(percent * 10) / 10;
   return `${Number.isInteger(rounded) ? rounded.toFixed(0) : rounded.toFixed(1)}%`;
+}
+
+function formatTemperature(value) {
+  const celsius = Number(value);
+  if (!Number.isFinite(celsius)) return "--";
+  const rounded = Math.round(celsius * 10) / 10;
+  return `${Number.isInteger(rounded) ? rounded.toFixed(0) : rounded.toFixed(1)}°C`;
 }
 
 function readStatusCache() {
@@ -282,7 +295,18 @@ function renderStatusData(data, options = {}) {
 }
 
 function hasRamWidgets() {
-  return ramSummaries.length || ramPercents.length || ramMeters.length || ramDetails.length;
+  return (
+    ramSummaries.length
+    || ramPercents.length
+    || ramMeters.length
+    || ramDetails.length
+    || cpuSummaries.length
+    || cpuMeters.length
+    || cpuDetails.length
+    || tempSummaries.length
+    || tempMeters.length
+    || tempDetails.length
+  );
 }
 
 function renderRamUnavailable(message) {
@@ -298,6 +322,8 @@ function renderRamUnavailable(message) {
   ramDetails.forEach((detail) => {
     detail.textContent = message;
   });
+  renderCpuUnavailable(message);
+  renderTemperatureUnavailable(message);
 }
 
 function renderServerOverview(data) {
@@ -313,6 +339,7 @@ function renderServerOverview(data) {
 
   if (!Number.isFinite(usedBytes) || !Number.isFinite(maxBytes) || maxBytes <= 0) {
     renderRamUnavailable("RAM 사용량 데이터를 받을 수 없습니다.");
+    renderSystemOverview(data?.system || {}, data?.updatedAt);
     return;
   }
 
@@ -336,12 +363,87 @@ function renderServerOverview(data) {
   ramDetails.forEach((detail) => {
     detail.textContent = detailText;
   });
+
+  renderSystemOverview(data?.system || {}, data?.updatedAt);
+}
+
+function renderCpuUnavailable(message) {
+  cpuSummaries.forEach((summary) => {
+    summary.textContent = "--";
+  });
+  cpuMeters.forEach((meter) => {
+    meter.style.width = "0%";
+  });
+  cpuDetails.forEach((detail) => {
+    detail.textContent = message;
+  });
+}
+
+function renderTemperatureUnavailable(message) {
+  tempSummaries.forEach((summary) => {
+    summary.textContent = "--";
+  });
+  tempMeters.forEach((meter) => {
+    meter.style.width = "0%";
+  });
+  tempDetails.forEach((detail) => {
+    detail.textContent = message;
+  });
+}
+
+function renderSystemOverview(system, updatedAt) {
+  const cpu = system?.cpu || {};
+  const temperature = system?.temperature || {};
+  const updated = formatStatusTime(updatedAt || Date.now());
+  const systemLoad = Number(cpu.systemLoadPercent);
+  const processLoad = Number(cpu.processLoadPercent);
+  const cpuPercent = Number.isFinite(systemLoad) ? systemLoad : processLoad;
+
+  if (Number.isFinite(cpuPercent)) {
+    const clampedCpu = Math.max(0, Math.min(100, cpuPercent));
+    const cpuText = `${formatPercent(clampedCpu)} 사용 중`;
+    const cpuParts = [];
+    if (Number.isFinite(systemLoad)) cpuParts.push(`시스템 ${formatPercent(systemLoad)}`);
+    if (Number.isFinite(processLoad)) cpuParts.push(`서버 ${formatPercent(processLoad)}`);
+    if (Number.isFinite(Number(cpu.availableProcessors))) cpuParts.push(`${Number(cpu.availableProcessors)}코어`);
+    if (Number.isFinite(Number(cpu.loadAverage))) cpuParts.push(`부하 ${Number(cpu.loadAverage).toFixed(2)}`);
+    const cpuDetail = `${cpuParts.join(", ")}. ${updated} 갱신`;
+
+    cpuSummaries.forEach((summary) => {
+      summary.textContent = cpuText;
+    });
+    cpuMeters.forEach((meter) => {
+      meter.style.width = `${Math.round(clampedCpu)}%`;
+    });
+    cpuDetails.forEach((detail) => {
+      detail.textContent = cpuDetail;
+    });
+  } else {
+    renderCpuUnavailable("CPU 사용량 데이터를 받을 수 없습니다.");
+  }
+
+  const celsius = Number(temperature.celsius);
+  if (temperature.available && Number.isFinite(celsius)) {
+    const clampedTemp = Math.max(0, Math.min(100, celsius));
+    const source = typeof temperature.source === "string" && temperature.source ? temperature.source : "온도 센서";
+    tempSummaries.forEach((summary) => {
+      summary.textContent = formatTemperature(celsius);
+    });
+    tempMeters.forEach((meter) => {
+      meter.style.width = `${Math.round(clampedTemp)}%`;
+    });
+    tempDetails.forEach((detail) => {
+      detail.textContent = `${source}. ${updated} 갱신`;
+    });
+  } else {
+    renderTemperatureUnavailable("온도 센서를 읽을 수 없습니다.");
+  }
 }
 
 async function refreshServerOverview() {
   if (!hasRamWidgets()) return;
   if (!PLAYER_API_BASE) {
-    renderRamUnavailable("실시간 RAM API가 아직 연결되지 않았습니다.");
+    renderRamUnavailable("실시간 서버 API가 아직 연결되지 않았습니다.");
     return;
   }
 
@@ -355,7 +457,7 @@ async function refreshServerOverview() {
     if (!response.ok) throw new Error(`server overview ${response.status}`);
     renderServerOverview(await response.json());
   } catch {
-    renderRamUnavailable("서버 RAM 브리지를 사용할 수 없습니다.");
+    renderRamUnavailable("서버 지표 브리지를 사용할 수 없습니다.");
   } finally {
     window.clearTimeout(timer);
   }
