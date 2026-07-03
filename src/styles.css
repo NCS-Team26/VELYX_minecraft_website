@@ -5087,6 +5087,8 @@ body.stock-news-modal-open {
   padding: 0;
   overflow-x: auto;
   overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
   background: var(--stock-panel);
   border: 0;
   border-bottom: 1px solid var(--stock-border);
@@ -5104,6 +5106,7 @@ body.stock-news-modal-open {
   min-width: 148px;
   min-height: 40px;
   padding: 0 14px;
+  scroll-snap-align: start;
   border: 0;
   border-right: 1px solid var(--stock-border);
   border-radius: 0;
@@ -5173,6 +5176,8 @@ body.stock-news-modal-open {
   min-height: 62px;
   overflow-x: auto;
   overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
   background: var(--stock-panel);
   border-bottom: 1px solid var(--stock-border);
   scrollbar-width: none;
@@ -5186,6 +5191,7 @@ body.stock-news-modal-open {
   gap: 10px;
   min-width: 0;
   padding: 10px 14px;
+  scroll-snap-align: start;
   border-right: 1px solid var(--stock-border);
 }
 
@@ -6230,6 +6236,9 @@ body.stock-news-modal-open {
 
 .stock-order-side-buttons button,
 .stock-order-submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   min-height: 52px;
   border: 0;
   border-radius: 6px;
@@ -6239,7 +6248,22 @@ body.stock-news-modal-open {
 }
 
 .stock-order-side-buttons button {
+  flex-direction: column;
+  gap: 2px;
   background: #2b3139;
+}
+
+.stock-order-side-buttons button span {
+  line-height: 1.05;
+}
+
+.stock-order-side-buttons button small {
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0;
+  text-transform: uppercase;
 }
 
 .stock-order-side-buttons button[data-stock-order-side="buy"].is-active {
