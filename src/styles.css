@@ -3741,6 +3741,12 @@ input:focus-visible,
   object-fit: cover;
 }
 
+.stock-news-image img[data-generated="true"],
+.stock-news-dialog-media img[data-generated="true"] {
+  background: #101923;
+  image-rendering: pixelated;
+}
+
 .stock-news-card > div:last-child {
   display: grid;
   gap: 9px;

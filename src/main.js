@@ -173,6 +173,63 @@ const STOCK_NEWS_IMAGES = {
     { src: "/assets/hero-world-1920.jpg", position: "82% 38%" },
   ],
 };
+const STOCK_NEWS_SCENE_THEMES = {
+  DMD: {
+    sky: "#101923",
+    horizon: "#1f2b35",
+    ground: "#3b4145",
+    groundDark: "#23292d",
+    groundLight: "#596066",
+    accent: "#35d8f2",
+    accentSoft: "#93f4ff",
+    secondary: "#8b5d2f",
+    lamp: "#ffd271",
+  },
+  FARM: {
+    sky: "#8fc3ed",
+    horizon: "#f7c76d",
+    ground: "#56792e",
+    groundDark: "#375327",
+    groundLight: "#b99b39",
+    accent: "#69c83f",
+    accentSoft: "#ffe28a",
+    secondary: "#8d5a2f",
+    lamp: "#fff0a8",
+  },
+  LOG: {
+    sky: "#9bb8c9",
+    horizon: "#d9a867",
+    ground: "#65503a",
+    groundDark: "#3e3327",
+    groundLight: "#a16f34",
+    accent: "#c58a3c",
+    accentSoft: "#ffd27a",
+    secondary: "#304f34",
+    lamp: "#ffe6a2",
+  },
+  RED: {
+    sky: "#11151c",
+    horizon: "#2a1a24",
+    ground: "#282c31",
+    groundDark: "#171b20",
+    groundLight: "#454b52",
+    accent: "#f13b38",
+    accentSoft: "#ff8b78",
+    secondary: "#5a2730",
+    lamp: "#ffb05f",
+  },
+  DEFAULT: {
+    sky: "#20323b",
+    horizon: "#4c685f",
+    ground: "#4d5b4d",
+    groundDark: "#263328",
+    groundLight: "#78836c",
+    accent: "#68d391",
+    accentSoft: "#b8f2cc",
+    secondary: "#74593a",
+    lamp: "#ffe2a0",
+  },
+};
 const STOCK_RANGE_CONFIG = {
   "1M": { points: 10, stepMs: 60_000, label: "1분 전" },
   "5M": { points: 16, stepMs: 60_000, label: "5분 전" },
@@ -1595,6 +1652,182 @@ function stockNewsImagesFor(code) {
   return images.length ? images : STOCK_NEWS_IMAGES.DEFAULT;
 }
 
+function stockNewsSceneTheme(code) {
+  return STOCK_NEWS_SCENE_THEMES[code] || STOCK_NEWS_SCENE_THEMES.DEFAULT;
+}
+
+function stockNewsSvgText(value) {
+  return String(value || "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
+}
+
+function stockNewsNumber(seed, offset = 0) {
+  return seededStockNewsNumber(`${seed}:image:${offset}`);
+}
+
+function stockNewsRange(seed, offset, min, max) {
+  return min + stockNewsNumber(seed, offset) * (max - min);
+}
+
+function stockNewsRect(x, y, width, height, fill, extra = "") {
+  return `<rect x="${Math.round(x)}" y="${Math.round(y)}" width="${Math.round(width)}" height="${Math.round(height)}" fill="${fill}"${extra}/>`;
+}
+
+function stockNewsBlockField(theme, seed, code) {
+  const blocks = [];
+  for (let row = 0; row < 5; row += 1) {
+    for (let column = 0; column < 20; column += 1) {
+      const x = column * 80;
+      const y = 520 + row * 76;
+      const roll = stockNewsNumber(seed, row * 31 + column);
+      const fill = roll > 0.83 ? theme.groundLight : roll > 0.48 ? theme.ground : theme.groundDark;
+      blocks.push(stockNewsRect(x, y, 81, 77, fill));
+      if ((code === "DMD" && roll > 0.9) || (code === "RED" && roll > 0.88)) {
+        blocks.push(stockNewsRect(x + 16, y + 16, 16, 16, theme.accent));
+        blocks.push(stockNewsRect(x + 44, y + 38, 12, 12, theme.accentSoft));
+      }
+      if (code === "FARM" && row < 3 && roll > 0.55) {
+        blocks.push(stockNewsRect(x + 18, y + 8, 10, 42, theme.accent));
+        blocks.push(stockNewsRect(x + 48, y + 12, 10, 38, theme.accentSoft));
+      }
+      if (code === "LOG" && roll > 0.66) {
+        blocks.push(stockNewsRect(x + 10, y + 20, 54, 16, theme.accent));
+        blocks.push(stockNewsRect(x + 18, y + 42, 50, 14, theme.secondary));
+      }
+    }
+  }
+  return blocks.join("");
+}
+
+function stockNewsMarketGlyphs(theme, article, seed, index) {
+  const toneColor = article.tone === "bad" ? "#e5484d" : article.tone === "good" ? "#1faa69" : "#1e64d6";
+  const bars = [];
+  for (let i = 0; i < 9; i += 1) {
+    const height = stockNewsRange(seed, 90 + i, 48, 210);
+    const x = 1070 + i * 42;
+    const y = 470 - height;
+    bars.push(stockNewsRect(x, y, 24, height, i % 2 === index % 2 ? toneColor : theme.accent, ' opacity="0.82"'));
+    bars.push(stockNewsRect(x, y + height, 24, 8, "#ffffff", ' opacity="0.2"'));
+  }
+  const pulseY = article.tone === "bad" ? 230 : 190;
+  return `
+    <g opacity="0.92">
+      ${bars.join("")}
+      <polyline points="1000,${pulseY + 90} 1080,${pulseY + 50} 1160,${pulseY + 72} 1240,${pulseY + 28} 1320,${pulseY + 44} 1400,${pulseY - 8} 1500,${pulseY + 22}" fill="none" stroke="${toneColor}" stroke-width="16" stroke-linecap="square" stroke-linejoin="miter"/>
+      <polyline points="1000,${pulseY + 130} 1080,${pulseY + 90} 1160,${pulseY + 112} 1240,${pulseY + 68} 1320,${pulseY + 84} 1400,${pulseY + 32} 1500,${pulseY + 62}" fill="none" stroke="#ffffff" stroke-width="5" opacity="0.32"/>
+    </g>
+  `;
+}
+
+function stockNewsSceneObjects(code, theme, seed, article, index) {
+  const offset = stockNewsRange(seed, 20, -40, 40);
+  if (code === "DMD") {
+    return `
+      ${stockNewsRect(160 + offset, 190, 62, 340, theme.secondary)}
+      ${stockNewsRect(408 + offset, 150, 70, 382, theme.secondary)}
+      ${stockNewsRect(130 + offset, 170, 380, 44, theme.secondary)}
+      ${stockNewsRect(185, 590, 910, 22, "#171717")}
+      ${stockNewsRect(210, 624, 890, 18, "#171717")}
+      ${stockNewsRect(300 + offset, 520, 170, 82, "#62696e")}
+      ${stockNewsRect(332 + offset, 488, 104, 46, theme.accent, ' opacity="0.95"')}
+      ${stockNewsRect(650, 298, 42, 138, theme.accent, ' opacity="0.78"')}
+      ${stockNewsRect(706, 250, 30, 92, theme.accentSoft, ' opacity="0.74"')}
+      ${stockNewsRect(760, 332, 28, 92, theme.accent, ' opacity="0.68"')}
+      <circle cx="252" cy="438" r="24" fill="${theme.lamp}" opacity="0.9"/>
+      <circle cx="510" cy="346" r="18" fill="${theme.lamp}" opacity="0.76"/>
+    `;
+  }
+  if (code === "FARM") {
+    return `
+      ${stockNewsRect(120, 358, 460, 80, "#8dbd39")}
+      ${stockNewsRect(120, 452, 540, 82, "#6fa633")}
+      ${stockNewsRect(700, 348, 270, 172, theme.secondary)}
+      ${stockNewsRect(738, 278, 194, 86, "#c94f35")}
+      ${stockNewsRect(790, 410, 92, 110, "#55391f")}
+      ${stockNewsRect(1010, 386, 190, 122, "#d6a642")}
+      ${stockNewsRect(1046, 338, 118, 64, "#f0d06a")}
+      ${stockNewsRect(210 + offset, 285, 30, 160, theme.accent)}
+      ${stockNewsRect(278 + offset, 305, 28, 142, theme.accentSoft)}
+      ${stockNewsRect(352 + offset, 292, 32, 154, theme.accent)}
+    `;
+  }
+  if (code === "LOG") {
+    return `
+      ${stockNewsRect(120, 362, 520, 162, "#6f4928")}
+      ${stockNewsRect(158, 326, 432, 46, "#8a5c32")}
+      ${stockNewsRect(680, 308, 92, 214, theme.secondary)}
+      ${stockNewsRect(760, 270, 330, 40, theme.secondary)}
+      ${stockNewsRect(1054, 302, 42, 156, theme.secondary)}
+      ${stockNewsRect(242 + offset, 548, 340, 52, theme.accent)}
+      ${stockNewsRect(204 + offset, 612, 382, 50, "#8f5e2f")}
+      ${stockNewsRect(172 + offset, 674, 420, 48, "#b27435")}
+      ${stockNewsRect(1030, 444, 250, 58, theme.groundLight)}
+      ${stockNewsRect(1058, 414, 198, 38, theme.accent)}
+    `;
+  }
+  return `
+    ${stockNewsRect(112, 320, 520, 218, "#20262d")}
+    ${stockNewsRect(166, 250, 360, 88, "#333943")}
+    ${stockNewsRect(706, 230, 112, 306, "#343941")}
+    ${stockNewsRect(850, 318, 390, 94, "#242a31")}
+    ${stockNewsRect(890, 430, 460, 60, "#1a1f25")}
+    ${stockNewsRect(190, 392, 74, 74, theme.accent, ' opacity="0.86"')}
+    ${stockNewsRect(328, 382, 54, 54, theme.accentSoft, ' opacity="0.74"')}
+    ${stockNewsRect(472, 404, 86, 48, theme.accent, ' opacity="0.8"')}
+    <polyline points="210,600 360,530 520,574 700,496 890,552 1040,480 1260,520" fill="none" stroke="${theme.accent}" stroke-width="18" stroke-linecap="square" stroke-linejoin="miter"/>
+  `;
+}
+
+function buildGeneratedStockNewsImage(article, context, index) {
+  const { code, name, week, topic, seed } = context;
+  const theme = stockNewsSceneTheme(code);
+  const fallbackImages = stockNewsImagesFor(code);
+  const fallback = fallbackImages[index % fallbackImages.length];
+  const imageSeed = `${seed}:${index}:${article.title}:${article.tone}`;
+  const cloudColor = article.tone === "bad" ? "#3b3037" : "#ffffff";
+  const toneGlow = article.tone === "bad" ? "#e5484d" : article.tone === "good" ? "#1faa69" : "#1e64d6";
+  const title = stockNewsSvgText(`${name} ${topic} ${article.tag}`);
+  const blocks = stockNewsBlockField(theme, imageSeed, code);
+  const sceneObjects = stockNewsSceneObjects(code, theme, imageSeed, article, index);
+  const glyphs = stockNewsMarketGlyphs(theme, article, imageSeed, index);
+  const sunX = stockNewsRange(imageSeed, 120, 1120, 1450);
+  const sunY = stockNewsRange(imageSeed, 121, 72, 180);
+  const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900" role="img" aria-label="${title}">
+      <defs>
+        <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="${theme.sky}"/>
+          <stop offset="100%" stop-color="${theme.horizon}"/>
+        </linearGradient>
+        <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="18" dy="22" stdDeviation="0" flood-color="#000000" flood-opacity="0.28"/>
+        </filter>
+      </defs>
+      <rect width="1600" height="900" fill="url(#sky)"/>
+      <rect x="${Math.round(sunX)}" y="${Math.round(sunY)}" width="92" height="92" fill="${theme.lamp}" opacity="${article.tone === "bad" ? "0.36" : "0.72"}"/>
+      ${stockNewsRect(130, 120, 210, 42, cloudColor, ' opacity="0.22"')}
+      ${stockNewsRect(250, 82, 280, 54, cloudColor, ' opacity="0.18"')}
+      ${stockNewsRect(980, 132, 240, 46, cloudColor, ' opacity="0.16"')}
+      <g filter="url(#shadow)">${sceneObjects}</g>
+      <g>${blocks}</g>
+      ${glyphs}
+      <rect x="0" y="0" width="1600" height="900" fill="${toneGlow}" opacity="0.08"/>
+      <rect x="0" y="0" width="1600" height="900" fill="none" stroke="${theme.accent}" stroke-width="18" opacity="0.28"/>
+      <rect x="0" y="0" width="1600" height="900" fill="#000000" opacity="0.08"/>
+    </svg>
+  `.trim();
+  return {
+    src: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`,
+    position: "50% 50%",
+    generated: true,
+    fallback: fallback?.src || "/assets/hero-world-1920.jpg",
+    description: `${week.label} ${name} ${topic} ${article.tag} 마인크래프트풍 생성 이미지`,
+  };
+}
+
 function buildStockNewsDetails(article, context) {
   const { code, name, week, topic, change, bidRatio, volatility, quality } = context;
   const priceDirection = change >= 0 ? "상승" : "하락";
@@ -1673,11 +1906,11 @@ function buildStockWeeklyNews(stock, metrics = {}, depth = {}) {
     title: `${name} AI 뉴스룸`,
     summary: `${week.range} 서버 거래 데이터, 오더북, 재무 품질을 반영해 호재·악재 뉴스를 자동 생성했습니다.`,
     articles: articles.map((article, index) => {
-      const images = stockNewsImagesFor(code);
+      const context = { code, name, week, topic, seed, change, bidRatio, volatility, quality };
       return {
         ...article,
-        image: images[index % images.length],
-        details: buildStockNewsDetails(article, { code, name, week, topic, change, bidRatio, volatility, quality }),
+        image: buildGeneratedStockNewsImage(article, context, index),
+        details: buildStockNewsDetails(article, context),
         source: "AI MARKET DESK",
       };
     }),
@@ -2032,8 +2265,16 @@ function openStockNewsDetail(elements, news, article) {
   elements.modal.dataset.tone = article.tone;
   if (elements.modalImage) {
     elements.modalImage.src = article.image.src;
-    elements.modalImage.alt = `${news.name} ${article.tag} 상세 뉴스 이미지`;
+    elements.modalImage.alt = article.image.description || `${news.name} ${article.tag} 상세 뉴스 이미지`;
     elements.modalImage.style.objectPosition = article.image.position;
+    elements.modalImage.dataset.generated = article.image.generated ? "true" : "false";
+    elements.modalImage.dataset.fallbackUsed = "false";
+    elements.modalImage.onerror = () => {
+      if (article.image.fallback && elements.modalImage.dataset.fallbackUsed !== "true") {
+        elements.modalImage.dataset.fallbackUsed = "true";
+        elements.modalImage.src = article.image.fallback;
+      }
+    };
   }
   if (elements.modalTag) elements.modalTag.textContent = article.tag;
   if (elements.modalSource) elements.modalSource.textContent = `${article.source} · ${news.week.range}`;
@@ -2090,10 +2331,18 @@ function renderStockNews(elements, stock, metrics, depth) {
       imageWrap.className = "stock-news-image";
       const image = document.createElement("img");
       image.src = article.image.src;
-      image.alt = `${news.name} ${article.tag} 뉴스 이미지`;
+      image.alt = article.image.description || `${news.name} ${article.tag} 뉴스 이미지`;
       image.loading = "eager";
       image.decoding = "async";
       image.style.objectPosition = article.image.position;
+      image.dataset.generated = article.image.generated ? "true" : "false";
+      image.dataset.fallbackUsed = "false";
+      image.onerror = () => {
+        if (article.image.fallback && image.dataset.fallbackUsed !== "true") {
+          image.dataset.fallbackUsed = "true";
+          image.src = article.image.fallback;
+        }
+      };
       imageWrap.append(image);
 
       const body = document.createElement("div");
