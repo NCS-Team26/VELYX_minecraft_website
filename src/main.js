@@ -90,12 +90,38 @@ const STOCK_MARKET_VOLATILITY_PROFILE = {
 };
 const FINANCIAL_PERIOD_COUNT = 4;
 const FINANCIAL_QUARTER_SEASONALITY = [0.94, 1.0, 1.02, 1.08];
-const STOCK_NEWS_IMAGES = [
-  { src: "/assets/hero-world-1920.jpg", position: "50% 45%" },
-  { src: "/assets/hero-world-960.jpg", position: "18% 42%" },
-  { src: "/assets/hero-world.png", position: "72% 52%" },
-  { src: "/assets/hero-world-1920.jpg", position: "82% 38%" },
-];
+const STOCK_NEWS_IMAGES = {
+  DMD: [
+    { src: "/assets/stock-news-dmd.jpg", position: "46% 50%" },
+    { src: "/assets/stock-news-dmd.jpg", position: "18% 48%" },
+    { src: "/assets/stock-news-dmd.jpg", position: "64% 42%" },
+    { src: "/assets/stock-news-dmd.jpg", position: "78% 56%" },
+  ],
+  FARM: [
+    { src: "/assets/stock-news-farm.jpg", position: "48% 50%" },
+    { src: "/assets/stock-news-farm.jpg", position: "20% 58%" },
+    { src: "/assets/stock-news-farm.jpg", position: "62% 42%" },
+    { src: "/assets/stock-news-farm.jpg", position: "82% 54%" },
+  ],
+  LOG: [
+    { src: "/assets/stock-news-log.jpg", position: "50% 50%" },
+    { src: "/assets/stock-news-log.jpg", position: "18% 54%" },
+    { src: "/assets/stock-news-log.jpg", position: "68% 48%" },
+    { src: "/assets/stock-news-log.jpg", position: "86% 40%" },
+  ],
+  RED: [
+    { src: "/assets/stock-news-red.jpg", position: "52% 50%" },
+    { src: "/assets/stock-news-red.jpg", position: "16% 48%" },
+    { src: "/assets/stock-news-red.jpg", position: "66% 50%" },
+    { src: "/assets/stock-news-red.jpg", position: "84% 46%" },
+  ],
+  DEFAULT: [
+    { src: "/assets/hero-world-1920.jpg", position: "50% 45%" },
+    { src: "/assets/hero-world-960.jpg", position: "18% 42%" },
+    { src: "/assets/hero-world.png", position: "72% 52%" },
+    { src: "/assets/hero-world-1920.jpg", position: "82% 38%" },
+  ],
+};
 const STOCK_RANGE_CONFIG = {
   "1M": { points: 10, stepMs: 60_000, label: "1분 전" },
   "5M": { points: 16, stepMs: 60_000, label: "5분 전" },
@@ -1453,6 +1479,30 @@ function stockNewsTopic(stock) {
   }[code] || "시장 수급";
 }
 
+function stockNewsImagesFor(code) {
+  const images = STOCK_NEWS_IMAGES[code] || STOCK_NEWS_IMAGES.DEFAULT;
+  return images.length ? images : STOCK_NEWS_IMAGES.DEFAULT;
+}
+
+function buildStockNewsDetails(article, context) {
+  const { code, name, week, topic, change, bidRatio, volatility, quality } = context;
+  const priceDirection = change >= 0 ? "상승" : "하락";
+  const orderBookTone = bidRatio >= 55 ? "매수 호가가 우위에 있어 단기 체결 안정성이 높습니다" : "매수 호가가 얇아져 분할 진입과 손절가 관리가 필요합니다";
+  const financialTone =
+    quality.qualityScore >= 76
+      ? "재무 품질은 전문가 관점에서도 공격적인 비중 확대를 검토할 수 있는 구간입니다"
+      : quality.qualityScore >= 62
+        ? "재무 품질은 중립 이상이지만 변동성 관리가 같이 필요합니다"
+        : "재무 품질은 아직 방어적으로 확인해야 하는 구간입니다";
+
+  return [
+    `${name}(${code})의 ${week.label} 핵심 이슈는 ${topic}입니다. 이번 기사에서는 ${article.tag} 관점으로 가격 ${priceDirection}률 ${formatStockPercent(change, 1, true)}, 변동성 ${formatStockPercent(volatility)}, 오더북 매수 압력 ${Math.round(bidRatio)}%를 함께 반영했습니다.`,
+    `호가창 기준으로는 ${orderBookTone}. 시장가 주문보다 지정가·분할 주문을 우선 확인하고, 돌파 구간에서는 체결강도와 실시간 거래량이 동반되는지 보는 것이 중요합니다.`,
+    `AI 재무제표는 ${quality.quarterMeta.label} 기준 매출 ${formatStockKrwCompact(quality.latest.revenue)}, 영업이익률 ${formatStockPercent(quality.latest.operatingMargin)}, FCF Yield ${formatStockPercent(quality.latest.fcfYield)}, 부채비율 ${formatStockPercent(quality.latest.debtRatio)}로 계산됐습니다. ${financialTone}.`,
+    `다음 자동 뉴스 생성일은 ${week.nextUpdate} KST입니다. 그 전까지는 ${topic}, ${article.impact}, 거래량 변화, 레버리지 포지션 쏠림을 주요 체크포인트로 추적하세요.`,
+  ];
+}
+
 function buildStockWeeklyNews(stock, metrics = {}, depth = {}) {
   const code = stockCode(stock);
   const name = stock?.name || code;
@@ -1511,11 +1561,15 @@ function buildStockWeeklyNews(stock, metrics = {}, depth = {}) {
     name,
     title: `${name} AI 뉴스룸`,
     summary: `${week.range} 서버 거래 데이터, 오더북, 재무 품질을 반영해 호재·악재 뉴스를 자동 생성했습니다.`,
-    articles: articles.map((article, index) => ({
-      ...article,
-      image: STOCK_NEWS_IMAGES[index % STOCK_NEWS_IMAGES.length],
-      source: "AI MARKET DESK",
-    })),
+    articles: articles.map((article, index) => {
+      const images = stockNewsImagesFor(code);
+      return {
+        ...article,
+        image: images[index % images.length],
+        details: buildStockNewsDetails(article, { code, name, week, topic, change, bidRatio, volatility, quality }),
+        source: "AI MARKET DESK",
+      };
+    }),
   };
 }
 
@@ -1853,6 +1907,39 @@ function renderStockFinancials(elements, stock, metrics, view = "income") {
   }
 }
 
+function closeStockNewsDetail(elements) {
+  if (!elements?.modal) return;
+  elements.modal.hidden = true;
+  document.body.classList.remove("stock-news-modal-open");
+}
+
+function openStockNewsDetail(elements, news, article) {
+  if (!elements?.modal || !article) return;
+  elements.modal.hidden = false;
+  document.body.classList.add("stock-news-modal-open");
+  elements.modal.dataset.tone = article.tone;
+  if (elements.modalImage) {
+    elements.modalImage.src = article.image.src;
+    elements.modalImage.alt = `${news.name} ${article.tag} 상세 뉴스 이미지`;
+    elements.modalImage.style.objectPosition = article.image.position;
+  }
+  if (elements.modalTag) elements.modalTag.textContent = article.tag;
+  if (elements.modalSource) elements.modalSource.textContent = `${article.source} · ${news.week.range}`;
+  if (elements.modalTitle) elements.modalTitle.textContent = article.title;
+  if (elements.modalSummary) elements.modalSummary.textContent = article.summary;
+  if (elements.modalImpact) elements.modalImpact.textContent = article.impact;
+  if (elements.modalDetail) {
+    elements.modalDetail.replaceChildren(
+      ...(article.details || []).map((paragraph) => {
+        const item = document.createElement("p");
+        item.textContent = paragraph;
+        return item;
+      }),
+    );
+  }
+  elements.modalClose?.focus({ preventScroll: true });
+}
+
 function renderStockNews(elements, stock, metrics, depth) {
   if (!elements?.list || !stock) return;
   const news = buildStockWeeklyNews(stock, metrics, depth);
@@ -1876,6 +1963,16 @@ function renderStockNews(elements, stock, metrics, depth) {
       const card = document.createElement("article");
       card.className = `stock-news-card is-${article.tone}`;
       if (index === 0) card.classList.add("is-lead");
+      card.tabIndex = 0;
+      card.setAttribute("role", "button");
+      card.setAttribute("aria-label", `${article.title} 상세 기사 열기`);
+      const openArticle = () => openStockNewsDetail(elements, news, article);
+      card.addEventListener("click", openArticle);
+      card.addEventListener("keydown", (event) => {
+        if (event.key !== "Enter" && event.key !== " ") return;
+        event.preventDefault();
+        openArticle();
+      });
 
       const imageWrap = document.createElement("div");
       imageWrap.className = "stock-news-image";
@@ -2790,6 +2887,15 @@ function initStockExchange() {
     summary: document.querySelector("[data-stock-news-summary]"),
     clock: document.querySelector("[data-stock-news-clock]"),
     list: document.querySelector("[data-stock-news-list]"),
+    modal: document.querySelector("[data-stock-news-modal]"),
+    modalClose: document.querySelector("[data-stock-news-close]"),
+    modalImage: document.querySelector("[data-stock-news-modal-image]"),
+    modalTag: document.querySelector("[data-stock-news-modal-tag]"),
+    modalSource: document.querySelector("[data-stock-news-modal-source]"),
+    modalTitle: document.querySelector("[data-stock-news-modal-title]"),
+    modalSummary: document.querySelector("[data-stock-news-modal-summary]"),
+    modalImpact: document.querySelector("[data-stock-news-modal-impact]"),
+    modalDetail: document.querySelector("[data-stock-news-modal-detail]"),
   };
   const financialElements = {
     period: document.querySelector("[data-stock-financial-period]"),
@@ -2852,6 +2958,14 @@ function initStockExchange() {
   };
 
   const currentPlayerProfile = () => readPlayerProfile(sessionUser || readStoredUser());
+
+  newsElements.modalClose?.addEventListener("click", () => closeStockNewsDetail(newsElements));
+  newsElements.modal?.addEventListener("click", (event) => {
+    if (event.target === newsElements.modal) closeStockNewsDetail(newsElements);
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && !newsElements.modal?.hidden) closeStockNewsDetail(newsElements);
+  });
 
   function render() {
     renderStockAuthLink(sessionUser || readStoredUser());

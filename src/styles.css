@@ -3705,6 +3705,19 @@ input:focus-visible,
   border: 1px solid var(--stock-border);
   border-radius: 6px;
   background: var(--stock-panel);
+  cursor: pointer;
+  transition:
+    border-color var(--motion-fast) ease,
+    box-shadow var(--motion-fast) ease,
+    transform var(--motion-fast) ease;
+}
+
+.stock-news-card:hover,
+.stock-news-card:focus-visible {
+  border-color: rgba(30, 100, 214, 0.5);
+  box-shadow: 0 18px 36px rgba(20, 28, 24, 0.16);
+  outline: 0;
+  transform: translateY(-2px);
 }
 
 .stock-news-image {
@@ -3790,6 +3803,175 @@ input:focus-visible,
 
 .stock-news-card.is-lead strong {
   font-size: 21px;
+}
+
+body.stock-news-modal-open {
+  overflow: hidden;
+}
+
+.stock-news-modal[hidden] {
+  display: none;
+}
+
+.stock-news-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  padding: 22px;
+  background: rgba(8, 13, 11, 0.68);
+  backdrop-filter: blur(10px);
+}
+
+.stock-news-dialog {
+  position: relative;
+  width: min(960px, 100%);
+  max-height: min(820px, calc(100vh - 44px));
+  overflow: auto;
+  border: 1px solid var(--stock-border);
+  border-radius: 8px;
+  background: var(--stock-panel);
+  box-shadow: 0 28px 90px rgba(6, 10, 8, 0.36);
+}
+
+.stock-news-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 2;
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid rgba(255, 255, 255, 0.48);
+  border-radius: 6px;
+  color: #ffffff;
+  background: rgba(10, 16, 14, 0.62);
+  font-size: 12px;
+  font-weight: 950;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+}
+
+.stock-news-close:focus-visible {
+  outline: 3px solid rgba(91, 196, 255, 0.42);
+  outline-offset: 2px;
+}
+
+.stock-news-dialog-media {
+  position: relative;
+  aspect-ratio: 16 / 7;
+  margin: 0;
+  overflow: hidden;
+  background: var(--stock-panel-soft);
+}
+
+.stock-news-dialog-media::after {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 42%, rgba(0, 0, 0, 0.5));
+  content: "";
+}
+
+.stock-news-dialog-media img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.stock-news-dialog-body {
+  display: grid;
+  gap: 13px;
+  padding: 20px;
+}
+
+.stock-news-dialog-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.stock-news-dialog-meta span,
+.stock-news-dialog-meta em {
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 950;
+  text-transform: uppercase;
+}
+
+.stock-news-dialog-meta span {
+  min-height: 25px;
+  padding: 0 9px;
+  border-radius: 999px;
+  color: #ffffff;
+  background: var(--stock-blue);
+}
+
+.stock-news-modal[data-tone="good"] .stock-news-dialog-meta span {
+  background: var(--stock-green);
+}
+
+.stock-news-modal[data-tone="bad"] .stock-news-dialog-meta span {
+  background: var(--stock-red);
+}
+
+.stock-news-dialog-meta em {
+  color: var(--stock-muted);
+}
+
+.stock-news-dialog-body h2 {
+  margin: 0;
+  color: var(--stock-text);
+  font-size: clamp(24px, 3.2vw, 40px);
+  line-height: 1.08;
+  font-weight: 950;
+}
+
+.stock-news-dialog-summary {
+  max-width: 860px;
+  margin: 0;
+  color: var(--stock-soft);
+  font-size: 15px;
+  line-height: 1.58;
+  font-weight: 760;
+}
+
+.stock-news-dialog-impact {
+  width: fit-content;
+  min-height: 30px;
+  padding: 0 10px;
+  border: 1px solid rgba(31, 170, 105, 0.28);
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  color: var(--stock-green);
+  background: rgba(31, 170, 105, 0.1);
+  font-size: 12px;
+  font-weight: 950;
+}
+
+.stock-news-modal[data-tone="bad"] .stock-news-dialog-impact {
+  border-color: rgba(229, 72, 77, 0.28);
+  color: var(--stock-red);
+  background: rgba(229, 72, 77, 0.1);
+}
+
+.stock-news-dialog-detail {
+  display: grid;
+  gap: 10px;
+  padding-top: 4px;
+}
+
+.stock-news-dialog-detail p {
+  margin: 0;
+  padding: 12px 13px;
+  border-left: 3px solid rgba(30, 100, 214, 0.42);
+  background: var(--stock-panel-soft);
+  color: var(--stock-soft);
+  font-size: 14px;
+  line-height: 1.62;
+  font-weight: 720;
 }
 
 .stock-financial-panel {
@@ -4397,6 +4579,31 @@ input:focus-visible,
 
   .stock-news-clock {
     min-height: auto;
+  }
+
+  .stock-news-modal {
+    padding: 10px;
+  }
+
+  .stock-news-dialog {
+    max-height: calc(100vh - 20px);
+  }
+
+  .stock-news-dialog-media {
+    aspect-ratio: 16 / 9;
+  }
+
+  .stock-news-dialog-body {
+    padding: 16px 13px;
+  }
+
+  .stock-news-dialog-meta {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .stock-news-dialog-body h2 {
+    font-size: 24px;
   }
 
   .stock-financial-table {
