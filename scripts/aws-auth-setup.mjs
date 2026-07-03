@@ -380,12 +380,12 @@ function zipSingleFile(name, content) {
   return Buffer.concat([localHeader, nameBuffer, data, centralHeader, nameBuffer, end]);
 }
 
-async function getExistingPepper() {
+async function getExistingEnvironment() {
   try {
     const config = await lambda.send(new GetFunctionConfigurationCommand({ FunctionName: functionName }));
-    return config.Environment?.Variables?.AUTH_PEPPER || "";
+    return config.Environment?.Variables || {};
   } catch {
-    return "";
+    return {};
   }
 }
 
@@ -418,11 +418,15 @@ async function sendLambdaWhenReady(commandFactory) {
 async function ensureFunction(roleArn) {
   const source = readFileSync(lambdaSource);
   const zipFile = zipSingleFile("index.mjs", source);
-  const existingPepper = await getExistingPepper();
+  const existingEnvironment = await getExistingEnvironment();
+  const existingPepper = existingEnvironment.AUTH_PEPPER || "";
   const authPepper = process.env.AUTH_PEPPER || existingPepper || randomBytes(32).toString("base64url");
+  const adminBootstrapToken =
+    process.env.AUTH_ADMIN_BOOTSTRAP_TOKEN || existingEnvironment.AUTH_ADMIN_BOOTSTRAP_TOKEN || "";
   const environment = {
     USERS_TABLE: tableName,
     AUTH_PEPPER: authPepper,
+    AUTH_ADMIN_BOOTSTRAP_TOKEN: adminBootstrapToken,
     AUTH_ALLOWED_ORIGINS: allowedOrigins,
     AUTH_APP_BASE_URL: authAppBaseUrl,
     AUTH_EMAIL_FROM: authEmailFrom,
@@ -561,6 +565,7 @@ async function ensureRoutes(apiId, integrationId) {
     "POST /auth/verify-email",
     "POST /auth/resend-verification",
     "POST /auth/login",
+    "POST /auth/admin/bootstrap",
     "POST /auth/reset",
     "POST /auth/reset/confirm",
     "POST /auth/google",

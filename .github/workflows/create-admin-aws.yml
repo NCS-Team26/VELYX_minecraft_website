@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       allow_aws_costs:
-        description: "Type 1 to allow this AWS DynamoDB user update"
+        description: "Type 1 to allow this AWS auth admin update"
         required: true
         default: "0"
       admin_email:
@@ -61,6 +61,16 @@ jobs:
         with:
           role-to-assume: arn:aws:iam::358982198253:role/GitHubActionsMincraftServerWebsiteDeployRole
           aws-region: ${{ env.AWS_REGION }}
+
+      - name: Generate admin bootstrap token
+        shell: bash
+        run: |
+          token="$(node -e "console.log(require('node:crypto').randomBytes(32).toString('base64url'))")"
+          echo "::add-mask::$token"
+          echo "AUTH_ADMIN_BOOTSTRAP_TOKEN=$token" >> "$GITHUB_ENV"
+
+      - name: Refresh auth backend bootstrap route
+        run: npm run auth:setup:aws
 
       - name: Create or update admin account
         run: npm run admin:create:aws

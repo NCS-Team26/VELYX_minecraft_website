@@ -33,6 +33,7 @@ const appBaseUrl = (
   "http://127.0.0.1:5173"
 ).replace(/\/$/, "");
 const googleClientId = process.env.GOOGLE_CLIENT_ID || process.env.VITE_GOOGLE_CLIENT_ID || "";
+const adminBootstrapToken = process.env.AUTH_ADMIN_BOOTSTRAP_TOKEN || "";
 
 let googleKeyCache = {
   expiresAt: 0,
@@ -274,6 +275,22 @@ function getBearerToken(event) {
   const authorization = event.headers?.authorization || event.headers?.Authorization || "";
   const match = /^Bearer\s+(.+)$/i.exec(String(authorization).trim());
   return match ? match[1].trim() : "";
+}
+
+function headerValue(event, name) {
+  const headers = event.headers || {};
+  const direct = headers[name] || headers[name.toLowerCase()] || headers[name.toUpperCase()];
+  if (direct) return String(direct);
+
+  const lowerName = name.toLowerCase();
+  const entry = Object.entries(headers).find(([key]) => key.toLowerCase() === lowerName);
+  return entry ? String(entry[1]) : "";
+}
+
+function secureStringEquals(left, right) {
+  const leftBuffer = Buffer.from(String(left || ""));
+  const rightBuffer = Buffer.from(String(right || ""));
+  return leftBuffer.length === rightBuffer.length && timingSafeEqual(leftBuffer, rightBuffer);
 }
 
 function verifySessionToken(token) {
@@ -998,6 +1015,16 @@ async function handleInternalCreateAdminUser(event) {
   };
 }
 
+async function handleAdminBootstrap(event, body, origin) {
+  const submittedToken = headerValue(event, "x-admin-bootstrap-token");
+  if (!adminBootstrapToken || !secureStringEquals(adminBootstrapToken, submittedToken)) {
+    return response(404, { message: "Not found." }, origin);
+  }
+
+  const result = await handleInternalCreateAdminUser(body);
+  return response(201, result, origin);
+}
+
 export async function handler(event) {
   const origin = event.headers?.origin || event.headers?.Origin || "";
   const method = event.requestContext?.http?.method || event.httpMethod || "";
@@ -1038,6 +1065,9 @@ export async function handler(event) {
     }
     if (method === "GET" && path.endsWith("/auth/admin/summary")) {
       return await handleAdminSummary(event, origin);
+    }
+    if (method === "POST" && path.endsWith("/auth/admin/bootstrap")) {
+      return await handleAdminBootstrap(event, body, origin);
     }
     if (method === "POST" && path.endsWith("/auth/signup")) {
       const limited = await rateLimitResponse(origin, [
