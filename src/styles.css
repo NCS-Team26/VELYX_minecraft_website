@@ -219,6 +219,7 @@ html {
 }
 
 body {
+  position: relative;
   margin: 0;
   min-width: 320px;
   overflow-x: clip;
@@ -230,6 +231,28 @@ body {
   transition:
     background var(--motion-med) ease,
     color var(--motion-med) ease;
+}
+
+body:not(.stock-terminal-body)::before {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  content: "";
+  background-image:
+    linear-gradient(45deg, rgba(255, 255, 255, 0.055) 25%, transparent 25%, transparent 75%, rgba(255, 255, 255, 0.055) 75%),
+    linear-gradient(45deg, rgba(0, 0, 0, 0.035) 25%, transparent 25%, transparent 75%, rgba(0, 0, 0, 0.035) 75%);
+  background-position:
+    0 0,
+    14px 14px;
+  background-size: 28px 28px;
+  opacity: 0.72;
+  mix-blend-mode: soft-light;
+}
+
+#app {
+  position: relative;
+  z-index: 1;
 }
 
 button,
@@ -452,15 +475,42 @@ a {
 
 .hero::before {
   position: absolute;
-  inset: 0;
+  inset: -18%;
   z-index: -2;
   content: "";
   pointer-events: none;
   background:
+    linear-gradient(45deg, rgba(255, 255, 255, 0.16) 25%, transparent 25%, transparent 75%, rgba(255, 255, 255, 0.16) 75%),
+    linear-gradient(45deg, rgba(15, 29, 20, 0.18) 25%, transparent 25%, transparent 75%, rgba(15, 29, 20, 0.18) 75%),
+    repeating-linear-gradient(
+      102deg,
+      transparent 0 22px,
+      rgba(255, 255, 255, 0.2) 23px 24px,
+      transparent 25px 58px
+    ),
     linear-gradient(180deg, rgba(5, 10, 8, 0.38), rgba(5, 10, 8, 0.14) 38%, rgba(5, 10, 8, 0.28)),
     linear-gradient(90deg, rgba(4, 9, 8, 0.52), rgba(4, 9, 8, 0.16) 28%, rgba(4, 9, 8, 0.18) 72%, rgba(4, 9, 8, 0.48)),
     linear-gradient(135deg, rgba(64, 210, 119, 0.18), transparent 34%),
     linear-gradient(225deg, rgba(67, 151, 190, 0.14), transparent 42%);
+  background-position:
+    0 0,
+    18px 18px,
+    0 0,
+    center,
+    center,
+    center,
+    center;
+  background-size:
+    36px 36px,
+    36px 36px,
+    96px 96px,
+    auto,
+    auto,
+    auto,
+    auto;
+  opacity: 0.74;
+  transform: translate3d(-2%, -2%, 0);
+  animation: hero-pattern-drift 12s linear infinite;
 }
 
 .hero-shade {
@@ -1836,6 +1886,29 @@ input:focus-visible,
   }
 }
 
+@keyframes hero-pattern-drift {
+  from {
+    background-position:
+      0 0,
+      18px 18px,
+      0 0,
+      center,
+      center,
+      center,
+      center;
+  }
+  to {
+    background-position:
+      36px 36px,
+      54px 54px,
+      96px 32px,
+      center,
+      center,
+      center,
+      center;
+  }
+}
+
 @keyframes nav-drop {
   from {
     opacity: 0;
@@ -2096,6 +2169,7 @@ input:focus-visible,
 
   body,
   .site-nav,
+  .hero::before,
   .hero-content > *,
   .status-dot.is-online,
   .meter span::after,
