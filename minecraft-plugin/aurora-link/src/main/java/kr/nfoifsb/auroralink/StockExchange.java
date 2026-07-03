@@ -304,6 +304,7 @@ public final class StockExchange {
   private void bootstrapStocks() {
     data.ensure();
     long now = System.currentTimeMillis();
+    boolean repairedHistory = false;
     for (StockDefinition definition : definitions.values()) {
       StockState stock = data.stocks.get(definition.symbol);
       if (stock == null) {
@@ -316,18 +317,14 @@ public final class StockExchange {
       stock.name = definition.name;
       if (stock.currentPrice <= 0) stock.currentPrice = definition.startPrice;
       if (stock.candles == null || stock.candles.isEmpty()) {
-        Candle candle = new Candle();
-        candle.startedAt = alignCandle(now);
-        candle.open = roundMoney(stock.currentPrice);
-        candle.high = roundMoney(stock.currentPrice);
-        candle.low = roundMoney(stock.currentPrice);
-        candle.close = roundMoney(stock.currentPrice);
-        candle.volume = 0;
-        candle.trades = 0;
-        stock.candles = new ArrayList<>();
-        stock.candles.add(candle);
+        seedStockHistory(stock, definition, now);
+        repairedHistory = true;
+      } else if (shouldRepairStockHistory(stock, definition)) {
+        seedStockHistory(stock, definition, now);
+        repairedHistory = true;
       }
     }
+    if (repairedHistory) data.lastAdvancedAt = now;
     data.stocks.keySet().removeIf(symbol -> !definitions.containsKey(symbol));
     trimTrades();
   }
@@ -389,6 +386,64 @@ public final class StockExchange {
     double rhythm = 0.5 + 0.5 * Math.abs(Math.sin(minutes * definition.cycleSpeed * 3.1 + definition.symbol.hashCode()));
     double activity = 0.004 + Math.abs(change) * 1.15 + definition.volatility * 0.32 + rhythm * 0.006;
     return Math.max(1L, Math.round(definition.liquidity * activity));
+  }
+
+  private boolean shouldRepairStockHistory(StockState stock, StockDefinition definition) {
+    pruneCandles(stock);
+    if (stock.candles == null || stock.candles.size() < 4) return true;
+    long volume = 0L;
+    double high = 0.0;
+    double low = Double.MAX_VALUE;
+    for (Candle candle : stock.candles) {
+      volume += Math.max(0L, candle.volume);
+      high = Math.max(high, candle.high);
+      low = Math.min(low, candle.low);
+    }
+    if (volume <= 0L) return true;
+    if (low <= 0.0 || high <= 0.0) return true;
+    double range = (high - low) / Math.max(1.0, definition.startPrice);
+    double maxHealthyRange = Math.max(0.34, definition.volatility * 36.0);
+    return range > maxHealthyRange;
+  }
+
+  private void seedStockHistory(StockState stock, StockDefinition definition, long now) {
+    int targetCount = Math.max(24, Math.min(maxCandles, (historyHours * 3600) / Math.max(1, candleSeconds)));
+    long candleMillis = candleSeconds * 1000L;
+    long end = alignCandle(now);
+    long start = end - (long) (targetCount - 1) * candleMillis;
+    double guard = clamp(definition.volatility * 13.0, 0.10, 0.15);
+    double targetPrice = clamp(stock.currentPrice, definition.startPrice * (1.0 - guard), definition.startPrice * (1.0 + guard));
+    double startPrice = definition.startPrice * (1.0 - guard * 0.18);
+    double previousClose = roundMoney(startPrice);
+    List<Candle> candles = new ArrayList<>();
+
+    for (int index = 0; index < targetCount; index += 1) {
+      long at = start + (long) index * candleMillis;
+      double progress = targetCount <= 1 ? 1.0 : (double) index / (double) (targetCount - 1);
+      double path = startPrice + (targetPrice - startPrice) * progress;
+      double wave = Math.sin(index * 0.47 + definition.symbol.hashCode() * 0.011) * definition.volatility * 4.7;
+      double chop = Math.sin(index * 1.31 + definition.symbol.hashCode() * 0.017) * definition.volatility * 1.9;
+      double close = index == targetCount - 1 ? targetPrice : clampMoney(path * (1.0 + wave + chop), definition);
+      double open = previousClose;
+      double change = (close - open) / Math.max(1.0, open);
+      double wick = Math.max(
+          definition.startPrice * 0.004,
+          Math.abs(close - open) * 0.34 + definition.startPrice * definition.volatility * (0.65 + random.nextDouble() * 0.85));
+      Candle candle = new Candle();
+      candle.startedAt = at;
+      candle.open = roundMoney(open);
+      candle.high = roundMoney(Math.max(open, close) + wick);
+      candle.low = roundMoney(Math.max(0.01, Math.min(open, close) - wick * 0.82));
+      candle.close = roundMoney(close);
+      candle.volume = ambientMarketVolume(definition, change, at) * Math.max(1, candleSeconds / Math.max(1, tickSeconds));
+      candle.trades = Math.max(1, (int) Math.round(candle.volume / Math.max(35.0, definition.liquidity * 0.018)));
+      candles.add(candle);
+      previousClose = candle.close;
+    }
+
+    stock.currentPrice = candles.get(candles.size() - 1).close;
+    if (stock.createdAt <= 0) stock.createdAt = now;
+    stock.candles = candles;
   }
 
   private void updateCandle(StockState stock, long at, double price, long volume, int trades) {
