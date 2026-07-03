@@ -638,14 +638,37 @@ a {
 }
 
 .stock-trader {
+  position: relative;
   display: grid;
   gap: 12px;
-  padding: 14px;
-  border: 1px solid var(--border);
+  overflow: hidden;
+  padding: 16px;
+  border: 1px solid rgba(126, 231, 180, 0.22);
   border-radius: 8px;
   background:
-    linear-gradient(135deg, rgba(80, 137, 255, 0.12), transparent 54%),
+    linear-gradient(145deg, rgba(4, 22, 20, 0.94), rgba(11, 31, 35, 0.84) 58%, rgba(16, 31, 39, 0.9)),
     var(--field);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 18px 40px rgba(0, 0, 0, 0.18);
+}
+
+.stock-trader::before {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  content: "";
+  opacity: 0.16;
+  background-image:
+    linear-gradient(90deg, rgba(126, 231, 180, 0.26) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(99, 212, 255, 0.16) 1px, transparent 1px);
+  background-size: 28px 100%, 100% 28px;
+  mask-image: linear-gradient(135deg, transparent, #000 24%, #000 64%, transparent);
+}
+
+.stock-trader > * {
+  position: relative;
+  z-index: 1;
 }
 
 .stock-trader-heading,
@@ -684,10 +707,34 @@ a {
 
 .stock-trader-heading em {
   flex: 0 0 auto;
+  padding: 7px 10px;
+  border: 1px solid rgba(126, 231, 180, 0.22);
+  border-radius: 999px;
   color: var(--accent);
+  background: rgba(126, 231, 180, 0.08);
   font-size: 13px;
   font-style: normal;
   font-weight: 900;
+}
+
+.stock-trader-quote {
+  align-items: stretch;
+}
+
+.stock-trader-quote span,
+.stock-trader-quote strong {
+  display: grid;
+  align-content: center;
+  min-height: 46px;
+  padding: 10px 12px;
+  border: 1px solid rgba(199, 238, 224, 0.15);
+  border-radius: 8px;
+  background: rgba(1, 8, 10, 0.34);
+}
+
+.stock-trader-quote strong {
+  color: #ffffff;
+  text-align: right;
 }
 
 .stock-trader-grid {
@@ -772,14 +819,18 @@ a {
   justify-content: center;
   min-height: 44px;
   padding: 0 14px;
-  border: 1px solid rgba(126, 231, 180, 0.42);
+  border: 1px solid rgba(126, 231, 180, 0.52);
   border-radius: 8px;
   color: #07110d;
-  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.32), transparent 36%),
+    linear-gradient(135deg, var(--accent), var(--accent-2));
   font-size: 14px;
   font-weight: 900;
   text-decoration: none;
-  box-shadow: 0 16px 32px rgba(126, 231, 180, 0.15);
+  box-shadow:
+    0 16px 32px rgba(126, 231, 180, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.42);
 }
 
 .stock-trader-link:hover {
@@ -1064,6 +1115,18 @@ a {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
+.inventory-graph.is-portfolio {
+  gap: 16px;
+  border-color: rgba(126, 231, 180, 0.26);
+  background:
+    linear-gradient(135deg, rgba(126, 231, 180, 0.14), transparent 40%),
+    linear-gradient(315deg, rgba(99, 212, 255, 0.13), transparent 42%),
+    rgba(4, 14, 16, 0.72);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    0 18px 34px rgba(0, 0, 0, 0.18);
+}
+
 .inventory-graph-heading {
   display: flex;
   align-items: end;
@@ -1236,6 +1299,135 @@ a {
   text-align: center;
 }
 
+.portfolio-graph-body {
+  display: grid;
+  align-items: center;
+  grid-template-columns: minmax(136px, 0.32fr) minmax(0, 1fr);
+  gap: 16px;
+}
+
+.portfolio-graph-donut {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: min(190px, 100%);
+  aspect-ratio: 1;
+  justify-self: center;
+  border: 1px solid rgba(199, 238, 224, 0.2);
+  border-radius: 50%;
+  background: var(--portfolio-slices);
+  box-shadow:
+    inset 0 0 0 12px rgba(3, 10, 12, 0.34),
+    0 18px 34px rgba(0, 0, 0, 0.22);
+}
+
+.portfolio-graph-donut::after {
+  position: absolute;
+  inset: 24%;
+  content: "";
+  border: 1px solid rgba(199, 238, 224, 0.16);
+  border-radius: 50%;
+  background: rgba(5, 17, 18, 0.92);
+}
+
+.portfolio-graph-center {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  max-width: 78%;
+  gap: 4px;
+  text-align: center;
+}
+
+.portfolio-graph-center strong {
+  overflow-wrap: anywhere;
+  color: #ffffff;
+  font-size: 17px;
+  font-weight: 950;
+  line-height: 1.1;
+}
+
+.portfolio-graph-center span,
+.portfolio-graph-row em,
+.portfolio-graph-empty span {
+  color: var(--text-faint);
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.portfolio-graph-bars {
+  display: grid;
+  min-width: 0;
+  gap: 10px;
+}
+
+.portfolio-graph-row {
+  grid-template-columns: minmax(112px, 0.88fr) minmax(0, 1.32fr) minmax(92px, 0.72fr);
+  padding: 10px;
+  border: 1px solid rgba(199, 238, 224, 0.13);
+  border-radius: 8px;
+  background: rgba(1, 8, 10, 0.28);
+}
+
+.portfolio-graph-row span {
+  color: var(--text);
+}
+
+.portfolio-graph-row strong {
+  color: #ffffff;
+}
+
+.portfolio-graph-row em {
+  grid-column: 1 / -1;
+  font-style: normal;
+  text-align: right;
+}
+
+.portfolio-graph-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.portfolio-graph-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 28px;
+  padding: 0 10px;
+  border: 1px solid rgba(199, 238, 224, 0.14);
+  border-radius: 999px;
+  color: var(--text-soft);
+  background: rgba(255, 255, 255, 0.055);
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.portfolio-graph-legend span::before {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  content: "";
+  background: var(--legend-color, var(--accent));
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.055);
+}
+
+.portfolio-graph-empty {
+  display: grid;
+  gap: 6px;
+  padding: 22px 14px;
+  border: 1px dashed rgba(199, 238, 224, 0.22);
+  border-radius: 8px;
+  background: rgba(1, 8, 10, 0.24);
+  text-align: center;
+}
+
+.portfolio-graph-empty strong {
+  color: var(--text);
+  font-size: 16px;
+}
+
 a:focus-visible,
 button:focus-visible,
 input:focus-visible,
@@ -1329,6 +1521,10 @@ select:focus-visible {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .portfolio-graph-body {
+    grid-template-columns: 1fr;
+  }
+
   .inventory-equipment {
     --equipment-slot-size: clamp(38px, 13vw, 48px);
   }
@@ -1393,6 +1589,23 @@ select:focus-visible {
   .inventory-graph-vitality,
   .inventory-graph-row {
     grid-template-columns: 64px minmax(0, 1fr) 40px;
+  }
+
+  .stock-trader-quote {
+    display: grid;
+  }
+
+  .stock-trader-quote strong {
+    text-align: left;
+  }
+
+  .portfolio-graph-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .portfolio-graph-row strong,
+  .portfolio-graph-row em {
+    text-align: left;
   }
 
   .inventory-grid {
