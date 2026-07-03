@@ -1,15 +1,15 @@
 <!doctype html>
-<html lang="ko">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="nfoifsb.kr STOCK 선물형 거래 터미널. 차트, 호가, 체결, 포트폴리오, 주문 티켓을 한 화면에서 확인합니다."
+      content="nfoifsb.kr STOCK trading terminal with chart, order book, market trades, portfolio, and order entry in one Binance-style workspace."
     />
     <meta name="theme-color" content="#0b0e11" />
     <link rel="icon" type="image/png" href="/assets/server-icon.png" />
-    <title>STOCK Futures - nfoifsb.kr</title>
+    <title>STOCK Trading - nfoifsb.kr</title>
     <script>
       (function () {
         try {
@@ -56,24 +56,24 @@
       <main id="content" class="screen-main stock-screen">
         <section class="stock-workspace" aria-labelledby="stock-title">
           <div class="stock-exchange stock-exchange-page stock-pro-terminal" data-stock-exchange>
-            <div class="stock-ticker" data-stock-ticker aria-label="실시간 종목 요약">
+            <div class="stock-ticker" data-stock-ticker aria-label="Live market ticker">
               <button type="button" data-stock-code="DMD">
-                <strong>DMDUSDT</strong>
+                <strong>DMD/KRW</strong>
                 <span>₩3,420</span>
                 <em>+4.8%</em>
               </button>
               <button type="button" data-stock-code="FARM">
-                <strong>FARMUSDT</strong>
+                <strong>FARM/KRW</strong>
                 <span>₩1,280</span>
                 <em>+1.9%</em>
               </button>
               <button type="button" data-stock-code="LOG">
-                <strong>LOGUSDT</strong>
+                <strong>LOG/KRW</strong>
                 <span>₩890</span>
                 <em class="is-down">-1.2%</em>
               </button>
               <button type="button" data-stock-code="RED">
-                <strong>REDUSDT</strong>
+                <strong>RED/KRW</strong>
                 <span>₩2,160</span>
                 <em>+3.3%</em>
               </button>
@@ -81,11 +81,11 @@
 
             <div class="stock-market-strip">
               <div class="stock-market-pair">
-                <button type="button" class="stock-favorite" aria-label="관심 종목">★</button>
+                <button type="button" class="stock-favorite" aria-label="Add to favorites">★</button>
                 <span class="stock-coin">₿</span>
                 <div>
-                  <h1 id="stock-title"><span data-stock-symbol>DMD</span>USDT</h1>
-                  <small data-stock-name>다이아 광산</small>
+                  <h1 id="stock-title"><span data-stock-symbol>DMD</span>/KRW</h1>
+                  <small data-stock-name>Diamond Mine</small>
                 </div>
                 <span class="stock-session" data-stock-session>24H LIVE</span>
               </div>
@@ -102,8 +102,8 @@
                 <strong data-stock-index>12,480</strong>
               </div>
               <div class="stock-market-stat">
-                <span>Funding / Countdown</span>
-                <strong>0.0100% / 04:07:56</strong>
+                <span>24h Turnover</span>
+                <strong>₩42.7M</strong>
               </div>
               <div class="stock-market-stat">
                 <span>24h High</span>
@@ -115,7 +115,7 @@
               </div>
               <div class="stock-market-stat">
                 <span>24h Vol</span>
-                <strong data-stock-quote-volume>12,400주</strong>
+                <strong data-stock-quote-volume>12,400 shares</strong>
               </div>
             </div>
 
@@ -125,12 +125,12 @@
                   <button type="button" class="is-active" data-stock-main-view="chart">Chart</button>
                   <button type="button" data-stock-main-view="info">Info</button>
                   <button type="button" data-stock-main-view="data">Data</button>
-                  <span data-stock-updated>실시간 갱신</span>
+                  <span data-stock-updated>Live update</span>
                 </div>
 
                 <div class="stock-main-panel is-active" data-stock-main-panel="chart">
-                  <div class="stock-control-deck" aria-label="차트 컨트롤">
-                    <div class="stock-range-tabs" aria-label="차트 범위">
+                  <div class="stock-control-deck" aria-label="Chart controls">
+                    <div class="stock-range-tabs" aria-label="Chart interval">
                       <button type="button" data-stock-range="1M">1s</button>
                       <button type="button" data-stock-range="5M">15m</button>
                       <button type="button" data-stock-range="15M">1H</button>
@@ -174,17 +174,17 @@
                         <span>Change <em data-stock-change>+4.8%</em></span>
                       </div>
                     </div>
-                    <div class="stock-chart-readout" data-stock-chart-readout aria-label="선택 캔들 요약"></div>
-                    <div class="stock-chart-stage stock-chart-pro" data-stock-chart role="img" aria-label="서버 주식 시세 그래프">
+                    <div class="stock-chart-readout" data-stock-chart-readout aria-label="Selected candle summary"></div>
+                    <div class="stock-chart-stage stock-chart-pro" data-stock-chart role="img" aria-label="Server stock price chart">
                       <div class="stock-chart-watermark" aria-hidden="true">NFO</div>
                       <div class="stock-chart-canvas" data-stock-chart-canvas></div>
                       <div class="stock-chart-tooltip" data-stock-chart-tooltip hidden></div>
                     </div>
                     <div class="stock-axis" aria-hidden="true">
-                      <span data-stock-axis-start>과거</span>
-                      <span>중간</span>
-                      <span>최근</span>
-                      <span>현재</span>
+                      <span data-stock-axis-start>Past</span>
+                      <span>Middle</span>
+                      <span>Recent</span>
+                      <span>Now</span>
                     </div>
                     <div class="stock-performance-grid" data-stock-performance aria-label="기간별 수익률"></div>
                   </div>
@@ -273,7 +273,7 @@
                   <button type="button" data-stock-depth-mode="asks">Ask</button>
                   <button type="button" data-stock-depth-mode="bids">Bid</button>
                 </div>
-                <div class="stock-depth-tools" aria-label="호가 단위">
+                <div class="stock-depth-tools" aria-label="Order book tick size">
                   <button type="button" class="is-active" data-stock-depth-group="1">0.1</button>
                   <button type="button" data-stock-depth-group="5">1</button>
                   <button type="button" data-stock-depth-group="10">5</button>
@@ -286,12 +286,12 @@
                 <ul class="stock-order-book stock-order-book-asks" data-stock-order-asks></ul>
                 <div class="stock-mid-price" data-stock-mid-price>
                   <strong>₩3,420</strong>
-                  <span>스프레드 --</span>
+                  <span>Spread --</span>
                 </div>
                 <ul class="stock-order-book" data-stock-order-book></ul>
                 <div class="stock-depth-meter" data-stock-depth-meter>
                   <span style="width: 50%"></span>
-                  <em>매수 압력 50%</em>
+                  <em>Buy pressure 50%</em>
                 </div>
                 <div
                   class="stock-depth-settings-modal"
@@ -394,10 +394,10 @@
                 </div>
               </aside>
 
-              <aside class="stock-panel stock-order-ticket" aria-label="주문 패널">
+              <aside class="stock-panel stock-order-ticket" aria-label="Order entry panel">
                 <div class="stock-order-leverage">
                   <button type="button" data-stock-margin-mode>Cross</button>
-                  <select data-stock-order-leverage aria-label="레버리지">
+                  <select data-stock-order-leverage aria-label="Leverage">
                     <option value="1">1x</option>
                     <option value="2">2x</option>
                     <option value="3">3x</option>
@@ -470,7 +470,7 @@
                     <input type="checkbox" data-stock-order-tpsl-toggle checked />
                     <span>TP/SL</span>
                   </label>
-                  <div class="stock-advanced-orders" aria-label="고급 주문 옵션">
+                  <div class="stock-advanced-orders" aria-label="Advanced order options">
                     <label>
                       <span>TP</span>
                       <input data-stock-order-take-profit type="number" min="1" step="1" placeholder="Take profit" inputmode="numeric" />
@@ -502,29 +502,29 @@
                       </select>
                     </label>
                   </div>
-                  <div class="stock-order-side-buttons" aria-label="매수 매도 선택">
+                  <div class="stock-order-side-buttons" aria-label="Buy or sell side">
                     <button type="button" class="is-active" data-stock-order-side="buy">
-                      <span>매수</span>
+                      <span>Buy</span>
                       <small>Long</small>
                     </button>
                     <button type="button" data-stock-order-side="sell">
-                      <span>매도</span>
+                      <span>Sell</span>
                       <small>Short</small>
                     </button>
                   </div>
                   <div class="stock-order-estimate" data-stock-order-estimate></div>
                   <button class="stock-order-submit" type="submit" data-stock-order-submit disabled>
-                    <span data-stock-order-side-label>매수</span> 주문 전송
+                    <span data-stock-order-side-label>Buy</span> Order
                   </button>
                   <p class="stock-order-message" data-stock-order-message>
-                    로그인 후 캐릭터 인증을 완료하면 실제 주문을 서버로 전송할 수 있습니다.
+                    Log in and verify your character to send live orders.
                   </p>
                 </form>
               </aside>
 
-              <section class="stock-panel trade-tape" aria-label="최근 체결">
+              <section class="stock-panel trade-tape" aria-label="Recent market trades">
                 <div class="stock-board-heading">
-                  <span>Trades</span>
+                  <span>Market Trades</span>
                   <span>Top Movers</span>
                 </div>
                 <div class="stock-depth-head" aria-hidden="true">
@@ -533,25 +533,25 @@
                   <span>Time</span>
                 </div>
                 <ul data-trade-tape>
-                  <li><span>실제 체결 대기</span><strong>--</strong></li>
+                  <li><span>Waiting for live trades</span><strong>--</strong></li>
                 </ul>
               </section>
 
-              <aside class="stock-panel stock-detail-panel" aria-label="선택 종목 상세">
+              <aside class="stock-panel stock-detail-panel" aria-label="Selected market detail">
                 <div class="stock-board-heading">
-                  <span>Contract</span>
+                  <span>Pair Detail</span>
                   <span data-stock-detail-symbol>DMD</span>
                 </div>
                 <div class="stock-detail-body">
-                  <strong data-stock-detail-name>다이아 광산</strong>
-                  <span>현재가 <em data-stock-detail-price>₩3,420</em></span>
-                  <span>등락 <em data-stock-detail-change>+4.8%</em></span>
-                  <span>24H 범위 <em data-stock-detail-range>₩3,260 - ₩3,520</em></span>
-                  <span>최근 시간 <em data-stock-detail-time>실시간</em></span>
+                  <strong data-stock-detail-name>Diamond Mine</strong>
+                  <span>Last Price <em data-stock-detail-price>₩3,420</em></span>
+                  <span>Change <em data-stock-detail-change>+4.8%</em></span>
+                  <span>24h Range <em data-stock-detail-range>₩3,260 - ₩3,520</em></span>
+                  <span>Last Update <em data-stock-detail-time>Live</em></span>
                 </div>
               </aside>
 
-              <aside class="stock-panel stock-strength-panel" aria-label="체결 강도">
+              <aside class="stock-panel stock-strength-panel" aria-label="Trade strength">
                 <div class="stock-board-heading">
                   <span>Market Strength</span>
                   <span data-stock-strength-value>--</span>
@@ -560,33 +560,33 @@
                   <span data-stock-strength-meter></span>
                 </div>
                 <div class="stock-strength-meta">
-                  <span>매수 <strong data-stock-strength-buy>--</strong></span>
-                  <span>매도 <strong data-stock-strength-sell>--</strong></span>
+                  <span>Buy <strong data-stock-strength-buy>--</strong></span>
+                  <span>Sell <strong data-stock-strength-sell>--</strong></span>
                 </div>
               </aside>
 
-              <section class="stock-panel stock-table-panel" aria-label="서버 주식 시세표">
+              <section class="stock-panel stock-table-panel" aria-label="Server stock market table">
                 <div class="stock-board-heading">
                   <span>Markets</span>
-                  <span data-stock-updated>실시간 갱신</span>
+                  <span data-stock-updated>Live update</span>
                 </div>
-                <div class="stock-tabs" aria-label="시장 보기">
-                  <button type="button" class="is-active" data-stock-sort="market">주요</button>
-                  <button type="button" data-stock-sort="change">등락률</button>
-                  <button type="button" data-stock-sort="volume">체결량</button>
+                <div class="stock-tabs" aria-label="Market sorting">
+                  <button type="button" class="is-active" data-stock-sort="market">Favorites</button>
+                  <button type="button" data-stock-sort="change">Change</button>
+                  <button type="button" data-stock-sort="volume">Volume</button>
                 </div>
                 <div class="stock-table-wrap">
                   <table class="stock-market-table">
                     <thead>
                       <tr>
-                        <th scope="col">종목</th>
-                        <th scope="col">현재가</th>
-                        <th scope="col">고가</th>
-                        <th scope="col">저가</th>
-                        <th scope="col">변동</th>
-                        <th scope="col">변동률</th>
-                        <th scope="col">거래량</th>
-                        <th scope="col">시간</th>
+                        <th scope="col">Pair</th>
+                        <th scope="col">Last Price</th>
+                        <th scope="col">High</th>
+                        <th scope="col">Low</th>
+                        <th scope="col">Change</th>
+                        <th scope="col">Change %</th>
+                        <th scope="col">Volume</th>
+                        <th scope="col">Time</th>
                       </tr>
                     </thead>
                     <tbody data-stock-list></tbody>
@@ -594,17 +594,17 @@
                 </div>
               </section>
 
-              <section class="stock-panel stock-portfolio-panel" aria-label="내 포트폴리오">
+              <section class="stock-panel stock-portfolio-panel" aria-label="My portfolio">
                 <div class="stock-board-heading">
                   <span>Portfolio</span>
-                  <span data-stock-portfolio-balance>인증 후 잔고 표시</span>
+                  <span data-stock-portfolio-balance>Verify to show KRW balance</span>
                 </div>
                 <ul class="stock-portfolio-list" data-stock-portfolio>
-                  <li class="is-empty"><span>보유 종목 없음</span><strong>--</strong></li>
+                  <li class="is-empty"><span>No holdings</span><strong>--</strong></li>
                 </ul>
               </section>
 
-              <section class="stock-panel stock-account-panel" aria-label="선물 계좌">
+              <section class="stock-panel stock-account-panel" aria-label="Trading account">
                 <div class="stock-board-heading">
                   <span>Account</span>
                   <span data-stock-account-mode>Single-Asset Mode</span>
@@ -632,7 +632,7 @@
                     </div>
                   </dl>
                   <div class="stock-account-mode">Single-Asset Mode</div>
-                  <div class="stock-account-actions" aria-label="계좌 작업">
+                  <div class="stock-account-actions" aria-label="Account actions">
                     <button type="button">Transfer</button>
                     <button type="button">Buy Crypto</button>
                     <button type="button">Swap</button>
@@ -640,25 +640,25 @@
                 </div>
               </section>
 
-              <section class="stock-panel stock-expert-panel" aria-label="전문가 지표">
+              <section class="stock-panel stock-expert-panel" aria-label="Expert indicators">
                 <div class="stock-board-heading">
                   <span>Technical Signal</span>
-                  <span data-stock-expert-signal>중립</span>
+                  <span data-stock-expert-signal>Neutral</span>
                 </div>
                 <div class="stock-expert-grid" data-stock-expert-metrics>
                   <span><em>RSI</em><strong>--</strong></span>
                   <span><em>MACD</em><strong>--</strong></span>
-                  <span><em>변동성</em><strong>--</strong></span>
-                  <span><em>VWAP 괴리</em><strong>--</strong></span>
+                  <span><em>Volatility</em><strong>--</strong></span>
+                  <span><em>VWAP Gap</em><strong>--</strong></span>
                 </div>
                 <div class="stock-risk-panel" data-stock-risk-panel>
-                  <span><em>예상 청산가</em><strong>--</strong></span>
-                  <span><em>위험도</em><strong>--</strong></span>
-                  <span><em>오더북 압력</em><strong>--</strong></span>
+                  <span><em>Est. Liquidation</em><strong>--</strong></span>
+                  <span><em>Risk</em><strong>--</strong></span>
+                  <span><em>Book Pressure</em><strong>--</strong></span>
                 </div>
               </section>
 
-              <section class="stock-panel stock-activity-panel" aria-label="선물 주문 활동">
+              <section class="stock-panel stock-activity-panel" aria-label="Order activity">
                 <div class="stock-activity-tabs" data-stock-activity-tabs>
                   <button type="button" class="is-active" data-stock-activity-view="positions">Positions(0)</button>
                   <button type="button" data-stock-activity-view="open-orders">Open Orders(0)</button>
@@ -670,27 +670,27 @@
                   <button type="button" data-stock-activity-view="assets">Assets</button>
                 </div>
                 <div class="stock-activity-body" data-stock-activity-body>
-                  <div class="stock-activity-empty">Open Futures Account to trade</div>
+                  <div class="stock-activity-empty">Open Trading Account to trade</div>
                 </div>
               </section>
 
-              <section class="stock-panel stock-news-panel" aria-label="AI 일일 종목 뉴스">
+              <section class="stock-panel stock-news-panel" aria-label="AI daily stock news">
                 <div class="stock-board-heading">
                   <span>AI Daily News</span>
-                  <span data-stock-news-week>매일 3회 자동생성</span>
+                  <span data-stock-news-week>3 AI cycles daily</span>
                 </div>
                 <div class="stock-news-head">
                   <div>
                     <span data-stock-news-code>DMD NEWSROOM</span>
-                    <strong data-stock-news-title>서버 시장 데일리 브리핑</strong>
+                    <strong data-stock-news-title>Server Market Daily Briefing</strong>
                     <p data-stock-news-summary>
-                      서버 거래량, 가격 변동, 호가 압력과 재무 데이터를 바탕으로 현재 업재를 자동 생성합니다.
+                      AI-generated market stories based on server volume, price movement, order-book pressure, and financial data.
                     </p>
                   </div>
                   <div class="stock-news-clock" data-stock-news-clock>
-                    <span>AI 자동생성</span>
-                    <strong>매일 08 · 12 · 18시</strong>
-                    <em>다음 업데이트 --</em>
+                    <span>AI auto-generation</span>
+                    <strong>Daily 08 / 12 / 18 KST</strong>
+                    <em>Next update --</em>
                   </div>
                 </div>
                 <div class="stock-news-list" data-stock-news-list>
@@ -699,10 +699,10 @@
                       <img src="/assets/hero-world-960.jpg" alt="" loading="lazy" />
                     </div>
                     <div>
-                      <div class="stock-news-meta"><span>중립</span><em>AI Desk</em></div>
-                      <strong>뉴스를 생성하는 중입니다.</strong>
-                      <p>선택 종목의 이번 주 이슈를 불러오고 있습니다.</p>
-                      <small>시장 데이터 대기</small>
+                      <div class="stock-news-meta"><span>Neutral</span><em>AI Desk</em></div>
+                      <strong>Generating market story.</strong>
+                      <p>Loading this week&apos;s issue set for the selected pair.</p>
+                      <small>Waiting for market data</small>
                     </div>
                   </article>
                 </div>
@@ -710,26 +710,26 @@
 
               <div class="stock-news-modal" data-stock-news-modal hidden>
                 <div class="stock-news-dialog" role="dialog" aria-modal="true" aria-labelledby="stock-news-modal-title">
-                  <button class="stock-news-close" type="button" data-stock-news-close aria-label="뉴스 상세 닫기">닫기</button>
+                  <button class="stock-news-close" type="button" data-stock-news-close aria-label="Close news detail">Close</button>
                   <figure class="stock-news-dialog-media">
                     <img src="/assets/stock-news-dmd.jpg" alt="" data-stock-news-modal-image />
                   </figure>
                   <div class="stock-news-dialog-body">
                     <div class="stock-news-dialog-meta">
-                      <span data-stock-news-modal-tag>중립</span>
+                      <span data-stock-news-modal-tag>Neutral</span>
                       <em data-stock-news-modal-source>AI MARKET DESK</em>
                     </div>
-                    <h2 id="stock-news-modal-title" data-stock-news-modal-title>뉴스 상세</h2>
+                    <h2 id="stock-news-modal-title" data-stock-news-modal-title>News Detail</h2>
                     <p class="stock-news-dialog-summary" data-stock-news-modal-summary>
-                      선택한 뉴스의 상세 내용을 표시합니다.
+                      Full details for the selected market story will appear here.
                     </p>
-                    <strong class="stock-news-dialog-impact" data-stock-news-modal-impact>예상 영향 --</strong>
+                    <strong class="stock-news-dialog-impact" data-stock-news-modal-impact>Expected impact --</strong>
                     <div class="stock-news-dialog-detail" data-stock-news-modal-detail></div>
                   </div>
                 </div>
               </div>
 
-              <section class="stock-panel stock-financial-panel" aria-label="종목 재무제표 분석">
+              <section class="stock-panel stock-financial-panel" aria-label="Stock financial statement analysis">
                 <div class="stock-board-heading">
                   <span>Financial Statements</span>
                   <span data-stock-financial-period>2026 Q3E · AI · KRW</span>
@@ -737,41 +737,41 @@
                 <div class="stock-financial-hero">
                   <div>
                     <span data-stock-financial-code>DMD</span>
-                    <strong data-stock-financial-company>다이아 광산</strong>
+                    <strong data-stock-financial-company>Diamond Mine</strong>
                     <p data-stock-financial-summary>
-                      매출 성장, 이익률, 현금흐름, 재무 안정성을 종합해 분석합니다.
+                      Institutional-style analysis across revenue growth, margins, cash flow, and balance-sheet stability.
                     </p>
                     <div class="stock-financial-clock" data-stock-financial-clock>
-                      <span>AI 분기 자동작성</span>
+                      <span>AI quarterly auto-report</span>
                       <strong>2026 Q3E</strong>
-                      <em>다음 업데이트 2026.10.01</em>
+                      <em>Next update 2026.10.01</em>
                     </div>
                   </div>
                   <div class="stock-financial-score" data-stock-financial-score style="--score: 72%">
                     <span>Quality Score</span>
                     <strong>72</strong>
-                    <em>안정 성장</em>
+                    <em>Stable Growth</em>
                   </div>
                 </div>
                 <div class="stock-financial-kpis" data-stock-financial-kpis>
-                  <span><em>매출</em><strong>--</strong><small>YoY --</small></span>
-                  <span><em>영업이익률</em><strong>--</strong><small>마진 --</small></span>
-                  <span><em>FCF</em><strong>--</strong><small>현금창출 --</small></span>
-                  <span><em>PER / PBR</em><strong>--</strong><small>밸류에이션 --</small></span>
-                  <span><em>ROE</em><strong>--</strong><small>자본효율 --</small></span>
+                  <span><em>Revenue</em><strong>--</strong><small>YoY --</small></span>
+                  <span><em>Operating Margin</em><strong>--</strong><small>Margin --</small></span>
+                  <span><em>FCF</em><strong>--</strong><small>Cash generation --</small></span>
+                  <span><em>PER / PBR</em><strong>--</strong><small>Valuation --</small></span>
+                  <span><em>ROE</em><strong>--</strong><small>Capital efficiency --</small></span>
                 </div>
-                <div class="stock-financial-tabs" role="tablist" aria-label="재무제표 보기">
-                  <button type="button" class="is-active" data-stock-financial-view="income">손익계산서</button>
-                  <button type="button" data-stock-financial-view="balance">재무상태표</button>
-                  <button type="button" data-stock-financial-view="cashflow">현금흐름</button>
-                  <button type="button" data-stock-financial-view="valuation">밸류에이션</button>
+                <div class="stock-financial-tabs" role="tablist" aria-label="Financial statement views">
+                  <button type="button" class="is-active" data-stock-financial-view="income">Income</button>
+                  <button type="button" data-stock-financial-view="balance">Balance Sheet</button>
+                  <button type="button" data-stock-financial-view="cashflow">Cash Flow</button>
+                  <button type="button" data-stock-financial-view="valuation">Valuation</button>
                 </div>
                 <div class="stock-financial-body">
                   <div class="stock-financial-table-wrap">
                     <table class="stock-financial-table">
                       <thead>
                         <tr data-stock-financial-head>
-                          <th scope="col">항목</th>
+                          <th scope="col">Metric</th>
                           <th scope="col">2026 Q3E</th>
                           <th scope="col">2026 Q2</th>
                           <th scope="col">2026 Q1</th>
@@ -780,7 +780,7 @@
                       </thead>
                       <tbody data-stock-financial-table>
                         <tr>
-                          <th scope="row">매출액</th>
+                          <th scope="row">Revenue</th>
                           <td>--</td>
                           <td>--</td>
                           <td>--</td>
@@ -789,20 +789,20 @@
                       </tbody>
                     </table>
                   </div>
-                  <aside class="stock-financial-desk" aria-label="재무 진단">
+                  <aside class="stock-financial-desk" aria-label="Financial diagnosis">
                     <div class="stock-financial-note" data-stock-financial-diagnosis>
-                      선택 종목의 재무 데이터 계산 중입니다.
+                      Calculating financial data for the selected pair.
                     </div>
                     <div class="stock-financial-ratios" data-stock-financial-ratios>
-                      <span><em>부채비율</em><strong>--</strong></span>
-                      <span><em>유동비율</em><strong>--</strong></span>
+                      <span><em>Debt Ratio</em><strong>--</strong></span>
+                      <span><em>Current Ratio</em><strong>--</strong></span>
                       <span><em>FCF Yield</em><strong>--</strong></span>
                     </div>
                     <div class="stock-financial-health" data-stock-financial-health>
-                      <span style="--value: 50%"><em>성장성</em><strong>--</strong></span>
-                      <span style="--value: 50%"><em>수익성</em><strong>--</strong></span>
-                      <span style="--value: 50%"><em>안정성</em><strong>--</strong></span>
-                      <span style="--value: 50%"><em>현금흐름</em><strong>--</strong></span>
+                      <span style="--value: 50%"><em>Growth</em><strong>--</strong></span>
+                      <span style="--value: 50%"><em>Profitability</em><strong>--</strong></span>
+                      <span style="--value: 50%"><em>Stability</em><strong>--</strong></span>
+                      <span style="--value: 50%"><em>Cash Flow</em><strong>--</strong></span>
                     </div>
                   </aside>
                 </div>
@@ -818,7 +818,7 @@
             <img src="/assets/server-icon.png" alt="" />
             nfoifsb.kr
           </span>
-          <span>Paper 26.1.2 · STOCK Futures</span>
+          <span>Paper 26.1.2 · STOCK Trading</span>
           <a href="#content">Back to top</a>
         </div>
         <div class="footer-theme-row">

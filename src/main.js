@@ -78,15 +78,15 @@ const STATUS_CACHE_KEY = "nfoifsb.statusCache";
 const PLAYER_HISTORY_KEY = "nfoifsb.playerHistory";
 const PLAYER_HISTORY_MAX = 48;
 const STOCKS = [
-  { code: "DMD", name: "다이아 광산", base: 3420, volume: 8420, drift: 0.048, volatility: 0.022, marketBeta: 1.45 },
-  { code: "FARM", name: "농산물 조합", base: 1280, volume: 12650, drift: 0.019, volatility: 0.016, marketBeta: 1.05 },
-  { code: "LOG", name: "건축 목재", base: 890, volume: 9340, drift: -0.012, volatility: 0.019, marketBeta: 1.22 },
-  { code: "RED", name: "레드스톤 공업", base: 2160, volume: 7990, drift: 0.033, volatility: 0.024, marketBeta: 1.55 },
+  { code: "DMD", name: "Diamond Mine", base: 3420, volume: 8420, drift: 0.048, volatility: 0.022, marketBeta: 1.45 },
+  { code: "FARM", name: "Farming Guild", base: 1280, volume: 12650, drift: 0.019, volatility: 0.016, marketBeta: 1.05 },
+  { code: "LOG", name: "Builder Timber", base: 890, volume: 9340, drift: -0.012, volatility: 0.019, marketBeta: 1.22 },
+  { code: "RED", name: "Redstone Works", base: 2160, volume: 7990, drift: 0.033, volatility: 0.024, marketBeta: 1.55 },
 ];
 const STOCK_INFO_META = {
   DMD: {
     icon: "◆",
-    asset: "DMDUSDT",
+    asset: "DMD/KRW",
     category: "Mining reserve",
     rank: 1,
     links: [
@@ -98,7 +98,7 @@ const STOCK_INFO_META = {
   },
   FARM: {
     icon: "♧",
-    asset: "FARMUSDT",
+    asset: "FARM/KRW",
     category: "Food supply",
     rank: 2,
     links: [
@@ -110,7 +110,7 @@ const STOCK_INFO_META = {
   },
   LOG: {
     icon: "▧",
-    asset: "LOGUSDT",
+    asset: "LOG/KRW",
     category: "Building materials",
     rank: 3,
     links: [
@@ -122,7 +122,7 @@ const STOCK_INFO_META = {
   },
   RED: {
     icon: "✦",
-    asset: "REDUSDT",
+    asset: "RED/KRW",
     category: "Redstone industry",
     rank: 4,
     links: [
@@ -231,16 +231,16 @@ const STOCK_NEWS_SCENE_THEMES = {
   },
 };
 const STOCK_RANGE_CONFIG = {
-  "1M": { points: 10, stepMs: 60_000, label: "1분 전" },
-  "5M": { points: 16, stepMs: 60_000, label: "5분 전" },
-  "15M": { points: 24, stepMs: 60_000, label: "15분 전" },
-  "30M": { points: 32, stepMs: 60_000, label: "30분 전" },
-  "1H": { points: 40, stepMs: 90_000, label: "1시간 전" },
-  "5H": { points: 56, stepMs: 5 * 60_000, label: "5시간 전" },
-  "1D": { points: 96, stepMs: 15 * 60_000, label: "1일 전" },
-  "1W": { points: 160, stepMs: 60 * 60_000, label: "1주 전" },
-  "1MO": { points: 240, stepMs: 3 * 60 * 60_000, label: "1달 전" },
-  ALL: { points: Infinity, stepMs: 15 * 60_000, label: "전체" },
+  "1M": { points: 10, stepMs: 60_000, label: "1 min ago" },
+  "5M": { points: 16, stepMs: 60_000, label: "5 min ago" },
+  "15M": { points: 24, stepMs: 60_000, label: "15 min ago" },
+  "30M": { points: 32, stepMs: 60_000, label: "30 min ago" },
+  "1H": { points: 40, stepMs: 90_000, label: "1 hour ago" },
+  "5H": { points: 56, stepMs: 5 * 60_000, label: "5 hours ago" },
+  "1D": { points: 96, stepMs: 15 * 60_000, label: "1 day ago" },
+  "1W": { points: 160, stepMs: 60 * 60_000, label: "1 week ago" },
+  "1MO": { points: 240, stepMs: 3 * 60 * 60_000, label: "1 month ago" },
+  ALL: { points: Infinity, stepMs: 15 * 60_000, label: "All" },
 };
 const STOCK_CHART_SETTINGS_KEY = "nfoifsb.stockChartSettings";
 const STOCK_DEPTH_SETTINGS_KEY = "nfoifsb.stockDepthSettings";
@@ -1447,7 +1447,7 @@ async function submitStockTrade(playerProfile, symbol, side, quantity, order = {
     throw new Error("캐릭터 인증 후 거래할 수 있습니다.");
   }
   if (!PLAYER_API_BASES.length) {
-    throw new Error("VITE_PLAYER_API_BASE가 연결되면 실제 매수/매도가 활성화됩니다.");
+    throw new Error("Live Buy/Sell orders are enabled when VITE_PLAYER_API_BASE is connected.");
   }
   return fetchPlayerApiJson("/stocks/trade", STOCK_TRADE_TIMEOUT_MS, {
     method: "POST",
@@ -1569,7 +1569,7 @@ function buildFallbackMarket(tick) {
       indexChange24h: 0.8 + Math.sin(tick * 0.36) * 0.7,
       volume24h: stocks.reduce((sum, stock) => sum + stock.volume24h, 0),
       marketCap: stocks.reduce((sum, stock) => sum + stock.marketCap, 0),
-      session: PLAYER_API_BASES.length ? "API 대기" : "미리보기",
+      session: PLAYER_API_BASES.length ? "API WAIT" : "Preview",
       updatedAt: new Date().toISOString(),
     },
     stocks,
@@ -2460,9 +2460,9 @@ function formatStockNewsSlot(parts, slot) {
 function currentStockNewsWeek(source = new Date()) {
   const now = financialKstDateTimeParts(source);
   const slots = [
-    { key: "morning", label: "아침 뉴스", hour: 8 },
-    { key: "lunch", label: "점심 뉴스", hour: 12 },
-    { key: "evening", label: "저녁 뉴스", hour: 18 },
+    { key: "morning", label: "Morning Brief", hour: 8 },
+    { key: "lunch", label: "Midday Brief", hour: 12 },
+    { key: "evening", label: "Evening Brief", hour: 18 },
   ];
   let activeSlot = slots[2];
   let activeDate = shiftKstDateParts(now, -1);
@@ -2485,9 +2485,9 @@ function currentStockNewsWeek(source = new Date()) {
   return {
     key: `${formatFinancialDate(activeDate.year, activeDate.month, activeDate.day)}:${activeSlot.key}`,
     label: formatStockNewsSlot(activeDate, activeSlot),
-    range: `${formatStockNewsSlot(activeDate, activeSlot)} 기준`,
+    range: `${formatStockNewsSlot(activeDate, activeSlot)} basis`,
     nextUpdate: `${formatFinancialDate(nextDate.year, nextDate.month, nextDate.day)} ${String(nextSlot.hour).padStart(2, "0")}:00`,
-    cadence: "매일 08:00 · 12:00 · 18:00 KST",
+    cadence: "Daily 08:00 / 12:00 / 18:00 KST",
   };
 }
 
@@ -2509,11 +2509,11 @@ function pickStockNewsValue(values, seed, offset = 0) {
 function stockNewsTopic(stock) {
   const code = stockCode(stock);
   return {
-    DMD: "채굴 효율",
-    FARM: "수확량",
-    LOG: "건축 수요",
-    RED: "자동화 회로",
-  }[code] || "시장 수급";
+    DMD: "mining efficiency",
+    FARM: "harvest yield",
+    LOG: "builder demand",
+    RED: "automation circuits",
+  }[code] || "market flow";
 }
 
 function stockNewsImagesFor(code) {
@@ -2796,7 +2796,7 @@ function buildGeneratedStockNewsImage(article, context, index) {
     visualType: ["lead", "orderbook", "financial", "briefing"][index % 4],
     generated: true,
     fallback: fallback?.src || "/assets/hero-world-1920.jpg",
-    description: `${week.label} ${name} ${topic} ${article.tag} 마인크래프트풍 생성 이미지`,
+    description: `${week.label} ${name} ${topic} ${article.tag} Minecraft-style generated image`,
   };
 }
 
@@ -2851,20 +2851,23 @@ function attachStockNewsImage(image, imageData, fallbackAlt) {
 
 function buildStockNewsDetails(article, context) {
   const { code, name, week, topic, change, bidRatio, volatility, quality } = context;
-  const priceDirection = change >= 0 ? "상승" : "하락";
-  const orderBookTone = bidRatio >= 55 ? "매수 호가가 우위에 있어 단기 체결 안정성이 높습니다" : "매수 호가가 얇아져 분할 진입과 손절가 관리가 필요합니다";
+  const priceDirection = change >= 0 ? "upside" : "downside";
+  const orderBookTone =
+    bidRatio >= 55
+      ? "bid-side depth is leading and short-term execution stability has improved"
+      : "bid-side depth is thin, so staged entries and stop discipline matter";
   const financialTone =
     quality.qualityScore >= 76
-      ? "재무 품질은 전문가 관점에서도 공격적인 비중 확대를 검토할 수 있는 구간입니다"
+      ? "the financial quality profile is strong enough for an aggressive overweight review"
       : quality.qualityScore >= 62
-        ? "재무 품질은 중립 이상이지만 변동성 관리가 같이 필요합니다"
-        : "재무 품질은 아직 방어적으로 확인해야 하는 구간입니다";
+        ? "financial quality is above neutral, but volatility control is still required"
+        : "financial quality still calls for a defensive review";
 
   return [
-    `${name}(${code})의 ${week.label} 핵심 이슈는 ${topic}입니다. 이번 기사에서는 ${article.tag} 관점으로 가격 ${priceDirection}률 ${formatStockPercent(change, 1, true)}, 변동성 ${formatStockPercent(volatility)}, 오더북 매수 압력 ${Math.round(bidRatio)}%를 함께 반영했습니다.`,
-    `호가창 기준으로는 ${orderBookTone}. 시장가 주문보다 지정가·분할 주문을 우선 확인하고, 돌파 구간에서는 체결강도와 실시간 거래량이 동반되는지 보는 것이 중요합니다.`,
-    `AI 재무제표는 ${quality.quarterMeta.label} 기준 매출 ${formatStockKrwCompact(quality.latest.revenue)}, 영업이익률 ${formatStockPercent(quality.latest.operatingMargin)}, FCF Yield ${formatStockPercent(quality.latest.fcfYield)}, 부채비율 ${formatStockPercent(quality.latest.debtRatio)}로 계산됐습니다. ${financialTone}.`,
-    `다음 자동 뉴스 생성일은 ${week.nextUpdate} KST입니다. 그 전까지는 ${topic}, ${article.impact}, 거래량 변화, 레버리지 포지션 쏠림을 주요 체크포인트로 추적하세요.`,
+    `${name} (${code}) is centered on ${topic} for ${week.label}. This article reflects a ${article.tag} stance, ${priceDirection} price move of ${formatStockPercent(change, 1, true)}, volatility of ${formatStockPercent(volatility)}, and order-book buy pressure of ${Math.round(bidRatio)}%.`,
+    `From the order book, ${orderBookTone}. Prefer limit and staged orders over raw market orders, and confirm trade strength with live volume during breakout zones.`,
+    `The AI statement model marks ${quality.quarterMeta.label} revenue at ${formatStockKrwCompact(quality.latest.revenue)}, operating margin at ${formatStockPercent(quality.latest.operatingMargin)}, FCF Yield at ${formatStockPercent(quality.latest.fcfYield)}, and debt ratio at ${formatStockPercent(quality.latest.debtRatio)}. ${financialTone}.`,
+    `The next automated news cycle is ${week.nextUpdate} KST. Until then, track ${topic}, ${article.impact}, volume shifts, and leveraged position concentration.`,
   ];
 }
 
@@ -2879,44 +2882,47 @@ function buildStockWeeklyNews(stock, metrics = {}, depth = {}) {
   const volatility = Number(metrics?.volatility || 0);
   const quality = buildStockFinancials(stock, metrics);
   const isBullish = change >= 0 || bidRatio >= 54 || quality.qualityScore >= 76;
-  const demandWord = pickStockNewsValue(["거래량", "호가 잔량", "체결강도", "회차 수급"], seed, 1);
-  const riskWord = pickStockNewsValue(["재고 부담", "단기 과열", "레버리지 쏠림", "마진 둔화"], seed, 2);
+  const demandWord = pickStockNewsValue(["volume", "book depth", "trade strength", "session inflow"], seed, 1);
+  const riskWord = pickStockNewsValue(["inventory pressure", "short-term overheating", "leverage crowding", "margin slowdown"], seed, 2);
   const goodImpact = Math.max(1.2, Math.abs(change) * 0.42 + quality.latest.fcfYield * 0.12 + 1.4);
   const badImpact = -(Math.max(0.8, volatility * 0.26 + Math.abs(50 - bidRatio) * 0.05));
   const articles = [
     {
       tone: isBullish ? "good" : "bad",
-      tag: isBullish ? "호재" : "악재",
+      tag: isBullish ? "Bullish" : "Bearish",
       title: isBullish
-        ? `${name}, ${topic} 개선으로 이번 주 매수 관심 확대`
-        : `${name}, ${riskWord} 이슈로 단기 변동성 경계`,
+        ? `${name}: ${topic} improvement lifts buy-side attention this week`
+        : `${name}: ${riskWord} raises short-term volatility risk`,
       summary: isBullish
-        ? `${demandWord} 지표와 Quality Score ${quality.qualityScore}점이 동시에 개선되며 ${code}의 단기 투자 심리가 강해졌습니다.`
-        : `${formatStockPercent(volatility)} 변동성과 ${riskWord} 신호가 겹치며 ${code} 단기 포지션 관리 필요성이 커졌습니다.`,
-      impact: isBullish ? `예상 영향 +${goodImpact.toFixed(1)}%` : `예상 영향 ${badImpact.toFixed(1)}%`,
+        ? `${demandWord} and a Quality Score of ${quality.qualityScore} improved together, strengthening near-term sentiment for ${code}.`
+        : `${formatStockPercent(volatility)} volatility overlaps with ${riskWord}, increasing the need for tighter ${code} position control.`,
+      impact: isBullish ? `Expected impact +${goodImpact.toFixed(1)}%` : `Expected impact ${badImpact.toFixed(1)}%`,
     },
     {
       tone: bidRatio >= 55 ? "good" : "bad",
-      tag: bidRatio >= 55 ? "호재" : "악재",
-      title: bidRatio >= 55 ? `오더북 매수 압력 ${Math.round(bidRatio)}%, ${code} 유동성 개선` : `매수 압력 ${Math.round(bidRatio)}%, ${code} 호가 공백 주의`,
+      tag: bidRatio >= 55 ? "Bullish" : "Bearish",
+      title:
+        bidRatio >= 55
+          ? `Order-book buy pressure ${Math.round(bidRatio)}%, ${code} liquidity improves`
+          : `Buy pressure ${Math.round(bidRatio)}%, ${code} depth gap warning`,
       summary: bidRatio >= 55
-        ? `매수 잔량이 우위를 보이며 지정가 체결 안정성이 높아졌습니다. 단기 돌파 시 거래량 확인이 핵심입니다.`
-        : `호가 하단 방어가 약해질 수 있어 시장가 진입보다 분할 주문과 손절가 관리가 유리합니다.`,
-      impact: bidRatio >= 55 ? `수급 점수 +${Math.round(bidRatio - 50)}` : `수급 점수 -${Math.max(1, Math.round(Math.abs(50 - bidRatio)))}`,
+        ? `Bid-side depth is leading, improving limit-order execution stability. Volume confirmation is key during short-term breakouts.`
+        : `Lower-book defense may weaken, making staged orders and stop management preferable to market entries.`,
+      impact: bidRatio >= 55 ? `Flow score +${Math.round(bidRatio - 50)}` : `Flow score -${Math.max(1, Math.round(Math.abs(50 - bidRatio)))}`,
     },
     {
       tone: quality.latest.fcfYield >= 5 ? "good" : "neutral",
-      tag: quality.latest.fcfYield >= 5 ? "호재" : "중립",
-      title: `${name} AI 재무 업데이트, FCF Yield ${formatStockPercent(quality.latest.fcfYield)}`,
-      summary: `${quality.quarterMeta.label} 기준 영업이익률 ${formatStockPercent(quality.latest.operatingMargin)}, 부채비율 ${formatStockPercent(quality.latest.debtRatio)}로 산출됐습니다. 다음 분기 업데이트는 ${quality.quarterMeta.nextUpdate}입니다.`,
+      tag: quality.latest.fcfYield >= 5 ? "Bullish" : "Neutral",
+      title: `${name} AI financial update, FCF Yield ${formatStockPercent(quality.latest.fcfYield)}`,
+      summary: `${quality.quarterMeta.label} operating margin is ${formatStockPercent(quality.latest.operatingMargin)} with a debt ratio of ${formatStockPercent(quality.latest.debtRatio)}. The next quarterly update is ${quality.quarterMeta.nextUpdate}.`,
       impact: quality.valuationLabel,
     },
     {
       tone: volatility >= 7 ? "bad" : "neutral",
-      tag: volatility >= 7 ? "악재" : "중립",
-      title: `${week.label} 체크포인트: ${topic}, ${riskWord}, 거래량`,
-      summary: `AI 뉴스룸은 매일 아침·점심·저녁 KST 기준으로 새 이슈를 생성합니다. 이번 ${week.label} ${code}는 ${formatStockPercent(change, 1, true)} 가격 변동과 ${formatStockPercent(volatility)} 변동성을 함께 확인해야 합니다.`,
-      impact: `다음 생성 ${week.nextUpdate}`,
+      tag: volatility >= 7 ? "Bearish" : "Neutral",
+      title: `${week.label} checkpoint: ${topic}, ${riskWord}, volume`,
+      summary: `The AI newsroom generates new issues at morning, noon, and evening KST. For ${code} this ${week.label}, watch ${formatStockPercent(change, 1, true)} price movement together with ${formatStockPercent(volatility)} volatility.`,
+      impact: `Next generation ${week.nextUpdate}`,
     },
   ];
 
@@ -2924,8 +2930,8 @@ function buildStockWeeklyNews(stock, metrics = {}, depth = {}) {
     week,
     code,
     name,
-    title: `${name} AI 뉴스룸`,
-    summary: `${week.range} 서버 거래 데이터, 오더북, 재무 품질을 반영해 호재·악재 뉴스를 자동 생성했습니다.`,
+    title: `${name} AI Newsroom`,
+    summary: `Generated from ${week.range} server trade data, order-book pressure, and financial quality signals.`,
     articles: articles.map((article, index) => {
       const context = { code, name, week, topic, seed, change, bidRatio, volatility, quality };
       return {
@@ -3058,8 +3064,8 @@ function buildStockFinancials(stock, metrics = {}) {
   const cashScore = clampStockValue(50 + latest.fcfMargin * 2.5 + latest.fcfYield * 2.2, 20, 96);
   const valuationScore = clampStockValue(82 - (latest.per || 24) * 1.15 - (latest.pbr || 3) * 3.8 + latest.fcfYield * 2 + latest.roe * 0.36, 20, 96);
   const qualityScore = Math.round(growthScore * 0.22 + profitScore * 0.26 + stabilityScore * 0.2 + cashScore * 0.2 + valuationScore * 0.12);
-  const qualityLabel = qualityScore >= 82 ? "A급 복합 우량" : qualityScore >= 70 ? "안정 성장" : qualityScore >= 58 ? "중립 관찰" : "리스크 점검";
-  const valuationLabel = latest.per && latest.per < 12 && latest.fcfYield > 4 ? "저평가 매력" : latest.per && latest.per > 24 ? "프리미엄 구간" : "적정 밸류";
+  const qualityLabel = qualityScore >= 82 ? "Institutional Quality" : qualityScore >= 70 ? "Stable Growth" : qualityScore >= 58 ? "Neutral Watch" : "Risk Review";
+  const valuationLabel = latest.per && latest.per < 12 && latest.fcfYield > 4 ? "Undervalued Appeal" : latest.per && latest.per > 24 ? "Premium Zone" : "Fair Value";
 
   return {
     code,
@@ -3076,7 +3082,7 @@ function buildStockFinancials(stock, metrics = {}) {
       stability: stabilityScore,
       cash: cashScore,
     },
-    summary: `${stock?.name || code}의 ${quarterMeta.label} AI 분기 실적은 ${formatStockPercent(latest.revenueGrowth, 1, true)} 분기 매출 성장과 ${formatStockPercent(latest.operatingMargin)} 영업이익률을 기록했습니다. ${qualityLabel}·${valuationLabel} 구간이며, 다음 자동 업데이트는 ${quarterMeta.nextUpdate}입니다.`,
+    summary: `${stock?.name || code} ${quarterMeta.label} AI quarterly results show ${formatStockPercent(latest.revenueGrowth, 1, true)} revenue growth and ${formatStockPercent(latest.operatingMargin)} operating margin. Status: ${qualityLabel} / ${valuationLabel}. Next automatic update: ${quarterMeta.nextUpdate}.`,
   };
 }
 
@@ -3085,36 +3091,36 @@ function financialStatementRows(financials, view) {
   const row = (label, key, format = "krw") => ({ label, format, values: periods.map((period) => period[key]) });
   if (view === "balance") {
     return [
-      row("현금성자산", "cash"),
-      row("매출채권", "receivables"),
-      row("재고자산", "inventory"),
-      row("유동자산", "currentAssets"),
-      row("비유동자산", "fixedAssets"),
-      row("총자산", "totalAssets"),
-      row("차입금", "debt"),
-      row("총부채", "totalLiabilities"),
-      row("자본총계", "equity"),
+      row("Cash & Equivalents", "cash"),
+      row("Accounts Receivable", "receivables"),
+      row("Inventory", "inventory"),
+      row("Current Assets", "currentAssets"),
+      row("Non-current Assets", "fixedAssets"),
+      row("Total Assets", "totalAssets"),
+      row("Debt", "debt"),
+      row("Total Liabilities", "totalLiabilities"),
+      row("Total Equity", "equity"),
       row("BPS", "bps", "krw-full"),
-      row("부채비율", "debtRatio", "percent"),
-      row("유동비율", "currentRatio", "percent"),
+      row("Debt Ratio", "debtRatio", "percent"),
+      row("Current Ratio", "currentRatio", "percent"),
     ];
   }
   if (view === "cashflow") {
     return [
-      row("영업활동현금흐름", "operatingCashFlow"),
+      row("Operating Cash Flow", "operatingCashFlow"),
       row("CAPEX", "capex"),
-      row("잉여현금흐름", "freeCashFlow"),
-      row("재무활동현금흐름", "financingCashFlow"),
-      row("감가상각", "depreciation"),
-      row("FCF 마진", "fcfMargin", "percent"),
-      row("현금전환율", "cashConversion", "percent"),
+      row("Free Cash Flow", "freeCashFlow"),
+      row("Financing Cash Flow", "financingCashFlow"),
+      row("Depreciation", "depreciation"),
+      row("FCF Margin", "fcfMargin", "percent"),
+      row("Cash Conversion", "cashConversion", "percent"),
       row("FCF Yield", "fcfYield", "percent"),
     ];
   }
   if (view === "valuation") {
     return [
-      row("시가총액", "marketCap"),
-      row("기업가치(EV)", "enterpriseValue"),
+      row("Market Cap", "marketCap"),
+      row("Enterprise Value", "enterpriseValue"),
       row("PER", "per", "multiple"),
       row("PBR", "pbr", "multiple"),
       row("PSR", "psr", "multiple"),
@@ -3126,15 +3132,15 @@ function financialStatementRows(financials, view) {
     ];
   }
   return [
-    row("매출액", "revenue"),
-    row("분기 매출 성장률", "revenueGrowth", "percent-signed"),
-    row("매출총이익", "grossProfit"),
-    row("매출총이익률", "grossMargin", "percent"),
-    row("영업이익", "operatingIncome"),
-    row("영업이익률", "operatingMargin", "percent"),
+    row("Revenue", "revenue"),
+    row("QoQ Revenue Growth", "revenueGrowth", "percent-signed"),
+    row("Gross Profit", "grossProfit"),
+    row("Gross Margin", "grossMargin", "percent"),
+    row("Operating Income", "operatingIncome"),
+    row("Operating Margin", "operatingMargin", "percent"),
     row("EBITDA", "ebitda"),
-    row("순이익", "netIncome"),
-    row("순이익률", "netMargin", "percent"),
+    row("Net Income", "netIncome"),
+    row("Net Margin", "netMargin", "percent"),
     row("EPS", "eps", "krw-full"),
   ];
 }
@@ -3161,11 +3167,11 @@ function renderStockFinancials(elements, stock, metrics, view = "income") {
   if (elements.clock) {
     elements.clock.replaceChildren();
     const mode = document.createElement("span");
-    mode.textContent = "AI 분기 자동작성";
+    mode.textContent = "AI quarterly auto-report";
     const period = document.createElement("strong");
     period.textContent = financials.quarterMeta.label;
     const next = document.createElement("em");
-    next.textContent = `KST ${financials.quarterMeta.generatedAt} 생성 · 다음 업데이트 ${financials.quarterMeta.nextUpdate}`;
+    next.textContent = `Generated ${financials.quarterMeta.generatedAt} KST / Next update ${financials.quarterMeta.nextUpdate}`;
     elements.clock.append(mode, period, next);
   }
   if (elements.score) {
@@ -3181,9 +3187,9 @@ function renderStockFinancials(elements, stock, metrics, view = "income") {
   }
   if (elements.kpis) {
     const kpis = [
-      ["매출", formatStockKrwCompact(latest.revenue), `QoQ ${formatStockPercent(latest.revenueGrowth, 1, true)}`, latest.revenueGrowth],
-      ["영업이익률", formatStockPercent(latest.operatingMargin), `순이익률 ${formatStockPercent(latest.netMargin)}`, latest.operatingMargin - 12],
-      ["FCF", formatStockKrwCompact(latest.freeCashFlow), `FCF 마진 ${formatStockPercent(latest.fcfMargin)}`, latest.freeCashFlow],
+      ["Revenue", formatStockKrwCompact(latest.revenue), `QoQ ${formatStockPercent(latest.revenueGrowth, 1, true)}`, latest.revenueGrowth],
+      ["Operating Margin", formatStockPercent(latest.operatingMargin), `Net margin ${formatStockPercent(latest.netMargin)}`, latest.operatingMargin - 12],
+      ["FCF", formatStockKrwCompact(latest.freeCashFlow), `FCF margin ${formatStockPercent(latest.fcfMargin)}`, latest.freeCashFlow],
       ["PER / PBR", `${formatStockMultiple(latest.per)} / ${formatStockMultiple(latest.pbr)}`, financials.valuationLabel, latest.fcfYield],
       ["ROE", formatStockPercent(latest.roe), `ROIC ${formatStockPercent(latest.roic)}`, latest.roe - 10],
     ];
@@ -3205,7 +3211,7 @@ function renderStockFinancials(elements, stock, metrics, view = "income") {
   if (elements.head) {
     const metricHead = document.createElement("th");
     metricHead.scope = "col";
-    metricHead.textContent = "항목";
+    metricHead.textContent = "Metric";
     const periodHeads = financials.periods.map((period) => {
       const th = document.createElement("th");
       th.scope = "col";
@@ -3234,12 +3240,12 @@ function renderStockFinancials(elements, stock, metrics, view = "income") {
     }),
   );
   if (elements.diagnosis) {
-    elements.diagnosis.textContent = `전문가 메모: ${financials.qualityLabel}. 성장성 ${Math.round(financials.health.growth)}점, 수익성 ${Math.round(financials.health.profitability)}점, 안정성 ${Math.round(financials.health.stability)}점입니다. 거래 전에는 오더북 압력과 FCF 변화를 함께 확인하세요.`;
+    elements.diagnosis.textContent = `Analyst memo: ${financials.qualityLabel}. Growth ${Math.round(financials.health.growth)}, profitability ${Math.round(financials.health.profitability)}, and stability ${Math.round(financials.health.stability)}. Confirm order-book pressure and FCF changes before trading.`;
   }
   if (elements.ratios) {
     const ratioRows = [
-      ["부채비율", formatStockPercent(latest.debtRatio)],
-      ["유동비율", formatStockPercent(latest.currentRatio)],
+      ["Debt Ratio", formatStockPercent(latest.debtRatio)],
+      ["Current Ratio", formatStockPercent(latest.currentRatio)],
       ["FCF Yield", formatStockPercent(latest.fcfYield)],
       ["EV/EBITDA", formatStockMultiple(latest.evEbitda)],
     ];
@@ -3253,10 +3259,10 @@ function renderStockFinancials(elements, stock, metrics, view = "income") {
   }
   if (elements.health) {
     const healthRows = [
-      ["성장성", financials.health.growth],
-      ["수익성", financials.health.profitability],
-      ["안정성", financials.health.stability],
-      ["현금흐름", financials.health.cash],
+      ["Growth", financials.health.growth],
+      ["Profitability", financials.health.profitability],
+      ["Stability", financials.health.stability],
+      ["Cash Flow", financials.health.cash],
     ];
     elements.health.replaceChildren(
       ...healthRows.map(([label, value]) => {
@@ -3265,7 +3271,7 @@ function renderStockFinancials(elements, stock, metrics, view = "income") {
         const name = document.createElement("em");
         name.textContent = label;
         const score = document.createElement("strong");
-        score.textContent = `${Math.round(value)}점`;
+        score.textContent = `${Math.round(value)} pts`;
         item.append(name, score);
         return item;
       }),
@@ -3285,7 +3291,7 @@ function openStockNewsDetail(elements, news, article) {
   document.body.classList.add("stock-news-modal-open");
   elements.modal.dataset.tone = article.tone;
   if (elements.modalImage) {
-    attachStockNewsImage(elements.modalImage, article.image, `${news.name} ${article.tag} 상세 뉴스 이미지`);
+    attachStockNewsImage(elements.modalImage, article.image, `${news.name} ${article.tag} detailed news image`);
   }
   if (elements.modalTag) elements.modalTag.textContent = article.tag;
   if (elements.modalSource) elements.modalSource.textContent = `${article.source} · ${news.week.range}`;
@@ -3307,18 +3313,18 @@ function openStockNewsDetail(elements, news, article) {
 function renderStockNews(elements, stock, metrics, depth) {
   if (!elements?.list || !stock) return;
   const news = buildStockWeeklyNews(stock, metrics, depth);
-  if (elements.week) elements.week.textContent = `${news.week.label} · 매일 3회 자동생성`;
+  if (elements.week) elements.week.textContent = `${news.week.label} / 3 AI cycles daily`;
   if (elements.code) elements.code.textContent = `${news.code} NEWSROOM`;
   if (elements.title) elements.title.textContent = news.title;
   if (elements.summary) elements.summary.textContent = news.summary;
   if (elements.clock) {
     elements.clock.replaceChildren();
     const mode = document.createElement("span");
-    mode.textContent = "AI 데일리 자동생성";
+    mode.textContent = "AI daily auto-generation";
     const cycle = document.createElement("strong");
     cycle.textContent = news.week.cadence;
     const next = document.createElement("em");
-    next.textContent = `KST 다음 생성 ${news.week.nextUpdate}`;
+    next.textContent = `Next generation ${news.week.nextUpdate} KST`;
     elements.clock.append(mode, cycle, next);
   }
 
@@ -3329,7 +3335,7 @@ function renderStockNews(elements, stock, metrics, depth) {
       if (index === 0) card.classList.add("is-lead");
       card.tabIndex = 0;
       card.setAttribute("role", "button");
-      card.setAttribute("aria-label", `${article.title} 상세 기사 열기`);
+      card.setAttribute("aria-label", `Open full article: ${article.title}`);
       const openArticle = () => openStockNewsDetail(elements, news, article);
       card.addEventListener("click", openArticle);
       card.addEventListener("keydown", (event) => {
@@ -3343,7 +3349,7 @@ function renderStockNews(elements, stock, metrics, depth) {
       const image = document.createElement("img");
       image.loading = "eager";
       image.decoding = "async";
-      attachStockNewsImage(image, article.image, `${news.name} ${article.tag} 뉴스 이미지`);
+      attachStockNewsImage(image, article.image, `${news.name} ${article.tag} news image`);
       imageWrap.append(image);
 
       const body = document.createElement("div");
@@ -3647,11 +3653,11 @@ function renderStockChartTooltip(state, param) {
   }
 
   const rows = [
-    ["시가", formatStockKrw(point.open)],
-    ["고가", formatStockKrw(point.high)],
-    ["저가", formatStockKrw(point.low)],
-    ["종가", formatStockKrw(point.close)],
-    ["거래량", `${formatStockNumber(point.volume)}주`],
+    ["Open", formatStockKrw(point.open)],
+    ["High", formatStockKrw(point.high)],
+    ["Low", formatStockKrw(point.low)],
+    ["Close", formatStockKrw(point.close)],
+    ["Volume", `${formatStockNumber(point.volume)} shares`],
   ];
   const title = document.createElement("strong");
   title.textContent = formatStockDateTime(point.time);
@@ -3925,11 +3931,11 @@ function renderStockChart(container, stock, tick, selectedRange = "1D", options 
 function renderStockChartReadout(container, stock, result) {
   if (!container || !stock || !result) return;
   const rows = [
-    ["현재가", formatStockKrw(result.price)],
-    ["시가", formatStockKrw(result.open)],
-    ["고가", formatStockKrw(result.high)],
-    ["저가", formatStockKrw(result.low)],
-    ["거래량", `${formatStockNumber(result.volume)}주`],
+    ["Last", formatStockKrw(result.price)],
+    ["Open", formatStockKrw(result.open)],
+    ["High", formatStockKrw(result.high)],
+    ["Low", formatStockKrw(result.low)],
+    ["Volume", `${formatStockNumber(result.volume)} shares`],
   ];
   container.replaceChildren(
     ...rows.map(([label, value]) => {
@@ -3968,14 +3974,14 @@ function renderStockPerformance(container, stock, tick) {
   if (!container || !stock) return;
   const series = stockSeries(stock, tick, "ALL");
   const periods = [
-    ["1일", 24 * 60 * 60_000],
-    ["1주", 7 * 24 * 60 * 60_000],
-    ["1달", 30 * 24 * 60 * 60_000],
-    ["3달", 90 * 24 * 60 * 60_000],
-    ["6달", 180 * 24 * 60 * 60_000],
-    ["1년", 365 * 24 * 60 * 60_000],
-    ["5년", 5 * 365 * 24 * 60 * 60_000],
-    ["최대", 0],
+    ["1D", 24 * 60 * 60_000],
+    ["1W", 7 * 24 * 60 * 60_000],
+    ["1M", 30 * 24 * 60 * 60_000],
+    ["3M", 90 * 24 * 60 * 60_000],
+    ["6M", 180 * 24 * 60 * 60_000],
+    ["1Y", 365 * 24 * 60 * 60_000],
+    ["5Y", 5 * 365 * 24 * 60 * 60_000],
+    ["Max", 0],
   ];
 
   container.replaceChildren(
@@ -4000,7 +4006,7 @@ function renderStockTape(tape, trades) {
     const item = document.createElement("li");
     item.className = "is-empty";
     const label = document.createElement("span");
-    label.textContent = PLAYER_API_BASES.length ? "실제 체결 대기" : "API 연결 전";
+    label.textContent = PLAYER_API_BASES.length ? "Waiting for live trades" : "API offline";
     const amount = document.createElement("strong");
     amount.textContent = "--";
     item.replaceChildren(label, amount);
@@ -4014,9 +4020,9 @@ function renderStockTape(tape, trades) {
       const buy = row.side !== "sell";
       item.className = buy ? "is-buy" : "is-sell";
       const label = document.createElement("span");
-      label.textContent = `${row.playerName || "Player"} ${row.symbol || row.code} ${buy ? "매수" : "매도"}`;
+      label.textContent = `${row.playerName || "Player"} ${row.symbol || row.code} ${buy ? "Buy" : "Sell"}`;
       const amount = document.createElement("strong");
-      amount.textContent = `${formatStockNumber(row.quantity)}주 @ ${formatStockKrw(row.price)}`;
+      amount.textContent = `${formatStockNumber(row.quantity)} shares @ ${formatStockKrw(row.price)}`;
       const total = document.createElement("small");
       total.textContent = formatStockKrwCompact(row.total);
       item.append(label, amount, total);
@@ -4037,7 +4043,7 @@ function renderStockTicker(ticker, stocks, activeCode, onSelect) {
       button.className = code === activeCode ? "is-active" : "";
 
       const label = document.createElement("strong");
-      label.textContent = code;
+      label.textContent = `${code}/KRW`;
       const price = document.createElement("span");
       price.textContent = formatStockKrw(stock.price);
       const delta = document.createElement("em");
@@ -4086,7 +4092,7 @@ function renderStockRows(list, stocks, activeCode, onSelect, tick = 0) {
         { text: formatStockKrw(low), className: "stock-num" },
         { text: formatStockSignedKrw(changeAmount), className: changeAmount < 0 ? "is-down" : "is-up" },
         { text: formatStockChange(changePercent), className: changePercent < 0 ? "is-down" : "is-up" },
-        { text: `${formatStockNumber(displayVolume)}주`, className: "stock-num" },
+        { text: `${formatStockNumber(displayVolume)} shares`, className: "stock-num" },
         { text: formatStockTime(latestStockTime(stock)), className: "stock-time" },
       ];
       row.append(nameCell);
@@ -4158,8 +4164,8 @@ function renderStockStrength(elements, stock, trades) {
     elements.meter.style.width = `${clamped}%`;
     elements.meter.classList.toggle("is-down", isCold);
   }
-  if (elements.buy) elements.buy.textContent = `${formatStockNumber(totals.buy)}주`;
-  if (elements.sell) elements.sell.textContent = `${formatStockNumber(totals.sell)}주`;
+  if (elements.buy) elements.buy.textContent = `${formatStockNumber(totals.buy)} shares`;
+  if (elements.sell) elements.sell.textContent = `${formatStockNumber(totals.sell)} shares`;
 }
 
 function renderStockDetail(elements, stock, result) {
@@ -4185,7 +4191,7 @@ function stockInfoMeta(stock) {
   const code = stockCode(stock);
   return STOCK_INFO_META[code] || {
     icon: "●",
-    asset: `${code || "NFO"}USDT`,
+    asset: `${code || "NFO"}/KRW`,
     category: "Server asset",
     rank: 4,
     links: [
@@ -4262,7 +4268,7 @@ function renderStockCoinInfo(container, stock, result, metrics, stocks) {
   icon.textContent = meta.icon;
   const title = document.createElement("div");
   const strong = document.createElement("strong");
-  strong.textContent = meta.asset || `${code}USDT`;
+  strong.textContent = meta.asset || `${code}/KRW`;
   const small = document.createElement("small");
   small.textContent = `${stock?.name || code} · ${meta.category}`;
   title.replaceChildren(strong, small);
@@ -4275,7 +4281,7 @@ function renderStockCoinInfo(container, stock, result, metrics, stocks) {
     stockInfoMetricRow("Market Capitalization", formatStockKrw(marketCap)),
     stockInfoMetricRow("Fully Diluted Market Cap", formatStockKrw(marketCap * (maxSupply / Math.max(1, shares)))),
     stockInfoMetricRow("Market Dominance", formatStockPercent(dominance, 2)),
-    stockInfoMetricRow("Volume", `${formatStockNumber(volume)}주`),
+    stockInfoMetricRow("Volume", `${formatStockNumber(volume)} shares`),
     stockInfoMetricRow("Volume/Market Cap", formatStockPercent((volume * price * 100) / Math.max(1, marketCap), 2)),
     stockInfoMetricRow("Circulating Supply", `${formatStockNumber(shares)} ${code}`),
     stockInfoMetricRow("Maximum Supply", `${formatStockNumber(maxSupply)} ${code}`),
@@ -4315,13 +4321,13 @@ function renderStockTradingInfo(container, stock, result, metrics, depth) {
   const spread = Number(depth?.spread || 0);
   const volatility = Number(metrics?.volatility || 0);
   const rows = [
-    ["Contract", `${code}USDT perpetual`],
+    ["Pair", `${code}/KRW spot-style`],
     ["Tick Size", "₩1"],
     ["Order Types", "Market / Limit / Stop / OCO"],
     ["Maker / Taker Fee", "0.30% / 0.30%"],
     ["Current Spread", formatStockKrw(spread)],
     ["24H Volatility", formatStockPercent(volatility, 2)],
-    ["Max Order Size", "500주"],
+    ["Max Order Size", "500 shares"],
     ["Settlement", "Server money"],
   ];
   renderStockInfoTable(container, "Trading Parameters", rows);
@@ -4428,7 +4434,7 @@ function renderStockRawDataTerminal(summary, table, stock, result, tick, range) 
       ["Open", formatStockKrw(first.open || result?.open)],
       ["High", formatStockKrw(result?.high)],
       ["Low", formatStockKrw(result?.low)],
-      ["Volume", `${formatStockNumber(result?.volume)}주`],
+      ["Volume", `${formatStockNumber(result?.volume)} shares`],
     ];
     summary.replaceChildren(
       ...summaryItems.map(([label, value]) => {
@@ -4451,7 +4457,7 @@ function renderStockRawDataTerminal(summary, table, stock, result, tick, range) 
         formatStockKrw(point.high),
         formatStockKrw(point.low),
         formatStockKrw(point.close),
-        `${formatStockNumber(point.volume)}주`,
+        `${formatStockNumber(point.volume)} shares`,
       ].forEach((value) => {
         const cell = document.createElement("td");
         cell.textContent = value;
@@ -4897,9 +4903,9 @@ function renderDepthLevels(list, levels, maxTotal, reverse = false) {
     price.className = "stock-depth-price";
     price.textContent = formatStockKrw(level.price);
     const quantity = document.createElement("span");
-    quantity.textContent = `${formatStockNumber(level.quantity)}주`;
+    quantity.textContent = `${formatStockNumber(level.quantity)} shares`;
     const total = document.createElement("em");
-    total.textContent = `${formatStockNumber(level.total)}주`;
+    total.textContent = `${formatStockNumber(level.total)} shares`;
     row.append(price, quantity, total);
     return row;
   });
@@ -4917,17 +4923,17 @@ function renderStockOrderBook(book, stock, options = {}) {
     const price = document.createElement("strong");
     price.textContent = formatStockKrw(depth.mid);
     const spread = document.createElement("span");
-    spread.textContent = `스프레드 ${formatStockKrw(depth.spread)} · ${depth.spreadPercent.toFixed(2)}%`;
+    spread.textContent = `Spread ${formatStockKrw(depth.spread)} / ${depth.spreadPercent.toFixed(2)}%`;
     options.midPrice.append(price, spread);
   }
   if (options.ratioLabel) {
-    options.ratioLabel.textContent = `매수 ${depth.bidRatio}%`;
+    options.ratioLabel.textContent = `Buy ${depth.bidRatio}%`;
   }
   if (options.depthMeter) {
     const fill = options.depthMeter.querySelector("span");
     const label = options.depthMeter.querySelector("em");
     if (fill) fill.style.width = `${depth.bidRatio}%`;
-    if (label) label.textContent = `매수 압력 ${depth.bidRatio}% · 매도 ${100 - depth.bidRatio}%`;
+    if (label) label.textContent = `Buy pressure ${depth.bidRatio}% / Sell ${100 - depth.bidRatio}%`;
   }
   return depth;
 }
@@ -5045,7 +5051,7 @@ function renderStockOrderBookPanel(book, stock, options = {}) {
 function renderStockPortfolio(list, balanceLabel, portfolio, market) {
   if (balanceLabel) {
     balanceLabel.textContent =
-      portfolio?.balance === undefined ? "인증 후 KRW 잔고 표시" : `KRW 잔고 ${formatStockKrw(portfolio.balance)}`;
+      portfolio?.balance === undefined ? "Verify to show KRW balance" : `KRW Balance ${formatStockKrw(portfolio.balance)}`;
   }
   if (!list) return;
   const positions = Array.isArray(portfolio?.positions) ? portfolio.positions : [];
@@ -5058,7 +5064,7 @@ function renderStockPortfolio(list, balanceLabel, portfolio, market) {
   if (!rows.length) {
     const item = document.createElement("li");
     item.className = "is-empty";
-    item.innerHTML = "<span>보유 종목 없음</span><strong>--</strong>";
+    item.innerHTML = "<span>No holdings</span><strong>--</strong>";
     list.replaceChildren(item);
     return;
   }
@@ -5070,9 +5076,9 @@ function renderStockPortfolio(list, balanceLabel, portfolio, market) {
       const item = document.createElement("li");
       if (!shares) item.className = "is-empty";
       const label = document.createElement("span");
-      label.textContent = `${code} · ${stock?.name || position?.name || "포지션"}`;
+      label.textContent = `${code} · ${stock?.name || position?.name || "Position"}`;
       const amount = document.createElement("strong");
-      amount.textContent = `${formatStockNumber(shares)}주`;
+      amount.textContent = `${formatStockNumber(shares)} shares`;
       const detail = document.createElement("em");
       detail.textContent = formatStockKrw(value);
       item.append(label, amount, detail);
@@ -5110,7 +5116,7 @@ function renderStockAccount(elements, portfolio, market) {
   if (elements.mode) elements.mode.textContent = "Single-Asset Mode";
 }
 
-function stockActivityEmpty(label = "Open Futures Account to trade") {
+function stockActivityEmpty(label = "Open Trading Account to trade") {
   const empty = document.createElement("div");
   empty.className = "stock-activity-empty";
   empty.textContent = label;
@@ -5179,7 +5185,7 @@ function renderStockActivityPanel(body, buttons, view, portfolio, market, active
           const shares = Number(position.shares ?? position.quantity ?? 0);
           const entry = Number(position.entryPrice || position.price || stock?.price || 0);
           const mark = Number(stock?.price || entry);
-          return [code, `${formatStockNumber(shares)}주`, formatStockKrw(entry), formatStockKrw(mark), formatStockKrw(shares * mark)];
+          return [code, `${formatStockNumber(shares)} shares`, formatStockKrw(entry), formatStockKrw(mark), formatStockKrw(shares * mark)];
         }),
       ),
     );
@@ -5194,7 +5200,7 @@ function renderStockActivityPanel(body, buttons, view, portfolio, market, active
           formatStockTime(trade.time || trade.createdAt || trade.at),
           trade.symbol || trade.code || activeCode,
           trade.side === "sell" ? "Sell" : "Buy",
-          `${formatStockNumber(trade.quantity || trade.shares || 0)}주`,
+          `${formatStockNumber(trade.quantity || trade.shares || 0)} shares`,
           formatStockKrw(trade.price),
         ]),
       ),
@@ -5220,7 +5226,7 @@ function renderStockActivityPanel(body, buttons, view, portfolio, market, active
     "transaction-history": "No transaction history",
     "position-history": "No closed positions",
   };
-  body.replaceChildren(stockActivityEmpty(emptyLabels[view] || "Open Futures Account to trade"));
+  body.replaceChildren(stockActivityEmpty(emptyLabels[view] || "Open Trading Account to trade"));
 }
 
 function formatMetricPercent(value) {
@@ -5239,11 +5245,11 @@ function expertSignal(metrics, depth) {
   if (metrics.vwapGap < 0) score -= 1;
   if ((depth?.bidRatio || 50) >= 58) score += 1;
   if ((depth?.bidRatio || 50) <= 42) score -= 1;
-  if (score >= 3) return { label: "강한 매수", tone: "buy" };
-  if (score >= 1) return { label: "매수 우위", tone: "buy" };
-  if (score <= -3) return { label: "강한 매도", tone: "sell" };
-  if (score <= -1) return { label: "매도 우위", tone: "sell" };
-  return { label: "중립", tone: "neutral" };
+  if (score >= 3) return { label: "Strong Buy", tone: "buy" };
+  if (score >= 1) return { label: "Buy Bias", tone: "buy" };
+  if (score <= -3) return { label: "Strong Sell", tone: "sell" };
+  if (score <= -1) return { label: "Sell Bias", tone: "sell" };
+  return { label: "Neutral", tone: "neutral" };
 }
 
 function liquidationPrice(price, leverage, side) {
@@ -5260,10 +5266,10 @@ function orderRiskLabel(leverage, volatility, depth) {
   const vol = Number(volatility) || 0;
   const imbalance = Math.abs((Number(depth?.bidRatio) || 50) - 50);
   const score = lev * 0.9 + vol * 0.55 + imbalance * 0.06;
-  if (score >= 10) return "매우 높음";
-  if (score >= 6) return "높음";
-  if (score >= 3.5) return "중간";
-  return "낮음";
+  if (score >= 10) return "Very High";
+  if (score >= 6) return "High";
+  if (score >= 3.5) return "Medium";
+  return "Low";
 }
 
 function renderExpertPanel(elements, metrics, depth, stock, orderElements, activeSide) {
@@ -5280,8 +5286,8 @@ function renderExpertPanel(elements, metrics, depth, stock, orderElements, activ
     const items = [
       ["RSI", metrics.rsi.toFixed(1)],
       ["MACD", formatStockSignedKrw(macdGap)],
-      ["변동성", `${metrics.volatility.toFixed(2)}%`],
-      ["VWAP 괴리", formatMetricPercent(metrics.vwapGap)],
+      ["Volatility", `${metrics.volatility.toFixed(2)}%`],
+      ["VWAP Gap", formatMetricPercent(metrics.vwapGap)],
     ];
     elements.metrics.replaceChildren(
       ...items.map(([label, value]) => {
@@ -5297,11 +5303,11 @@ function renderExpertPanel(elements, metrics, depth, stock, orderElements, activ
     const leverage = Math.max(1, Math.min(STOCK_MAX_LEVERAGE, Number(orderElements?.leverage?.value || 1)));
     const liq = liquidationPrice(price, leverage, activeSide);
     const risk = orderRiskLabel(leverage, metrics.volatility, depth);
-    const pressure = `매수 ${depth?.bidRatio ?? 50}%`;
+    const pressure = `Buy ${depth?.bidRatio ?? 50}%`;
     const rows = [
-      ["예상 청산가", liq ? formatStockKrw(liq) : "현물 없음"],
-      ["위험도", risk],
-      ["오더북 압력", pressure],
+      ["Est. Liquidation", liq ? formatStockKrw(liq) : "No spot position"],
+      ["Risk", risk],
+      ["Book Pressure", pressure],
     ];
     elements.risk.replaceChildren(
       ...rows.map(([label, value]) => {
@@ -5377,9 +5383,10 @@ function renderOrderTicket(elements, stock, side, playerProfile, portfolio, live
   const maxQuantity = stockOrderMaxQuantity(stock, portfolio, side, leverage, executionPrice, reduceOnly);
 
   if (elements.symbol) elements.symbol.textContent = stockCode(stock);
-  if (elements.side) elements.side.textContent = side === "sell" ? "매도" : "매수";
+  if (elements.side) elements.side.textContent = side === "sell" ? "Sell" : "Buy";
   if (elements.available) {
-    elements.available.textContent = balance.preview ? `Preview ${formatStockKrw(balance.value)}` : formatStockKrw(balance.value);
+    elements.available.textContent = formatStockKrw(balance.value);
+    elements.available.title = balance.preview ? "Preview balance" : "";
   }
   if (elements.max) elements.max.textContent = `${formatStockNumber(maxQuantity)} shares`;
   if (elements.limit) {
@@ -5394,19 +5401,19 @@ function renderOrderTicket(elements, stock, side, playerProfile, portfolio, live
   if (elements.estimate) {
     elements.estimate.replaceChildren();
     [
-      ["예상 체결가", formatStockKrw(executionPrice)],
-      ["주문 수량", `${formatStockNumber(quantity)}주`],
-      ["레버리지", `${leverage}x`],
-      ["주문 금액", formatStockKrw(notional)],
-      ["필요 증거금", formatStockKrw(margin)],
-      ["수수료", formatStockKrw(fee)],
-      [side === "sell" ? "예상 입금" : "예상 필요", formatStockKrw(total)],
-      ["청산가", liq ? formatStockKrw(liq) : "현물 없음"],
-      ["위험도", risk],
+      ["Est. Fill Price", formatStockKrw(executionPrice)],
+      ["Order Size", `${formatStockNumber(quantity)} shares`],
+      ["Leverage", `${leverage}x`],
+      ["Order Value", formatStockKrw(notional)],
+      ["Required Margin", formatStockKrw(margin)],
+      ["Fee", formatStockKrw(fee)],
+      [side === "sell" ? "Est. Receive" : "Est. Cost", formatStockKrw(total)],
+      ["Liquidation", liq ? formatStockKrw(liq) : "No spot position"],
+      ["Risk", risk],
       ["TP / SL", tpSlEnabled ? `${takeProfit ? formatStockKrw(takeProfit) : "--"} / ${stopLoss ? formatStockKrw(stopLoss) : "--"}` : "Off"],
       ["TIF / Post", `${timeInForce} / ${elements.postOnly?.value === "on" ? "Post" : "Off"}`],
       ["Max", `${formatStockNumber(maxQuantity)} shares`],
-      ["보유", position ? `${formatStockNumber(position.shares ?? position.quantity ?? 0)}주` : "0주"],
+      ["Position", position ? `${formatStockNumber(position.shares ?? position.quantity ?? 0)} shares` : "0 shares"],
     ].forEach(([label, value]) => {
       const item = document.createElement("span");
       item.innerHTML = `<em>${label}</em><strong>${value}</strong>`;
@@ -5418,12 +5425,12 @@ function renderOrderTicket(elements, stock, side, playerProfile, portfolio, live
     setTradeMessage(
       elements.message,
       loading
-        ? "주문 전송 중입니다."
+        ? "Submitting order..."
         : !PLAYER_API_BASES.length
-        ? "API 연결 전에는 미리보기만 가능합니다."
+        ? "Preview only until the stock API is connected."
         : !liveMarket
-          ? "실시간 주식 API를 불러오는 중입니다. 잠시 후 다시 시도해 주세요."
-          : "로그인 후 캐릭터 인증을 완료하면 주문 버튼이 활성화됩니다.",
+          ? "Loading live stock API. Try again in a moment."
+          : "Log in and verify your character to enable live orders.",
       PLAYER_API_BASES.length ? "info" : "error",
     );
   }
@@ -5911,17 +5918,17 @@ function initStockExchange() {
     setStockNodeText(open, formatStockKrw(stock.open24h || result.open));
     setStockNodeText(high, formatStockKrw(stock.high24h || result.price));
     setStockNodeText(low, formatStockKrw(stock.low24h || result.price));
-    setStockNodeText(quoteVolume, `${formatStockNumber(displayedStockVolume)}주`);
+    setStockNodeText(quoteVolume, `${formatStockNumber(displayedStockVolume)} shares`);
     setStockNodeText(indexValue, formatStockNumber(marketMeta.index));
     const indexDelta = Number(marketMeta.indexChange24h || 0);
     setStockNodeText(indexChange, formatStockChange(indexDelta));
     toggleStockNodeClass(indexChange, "is-down", indexDelta < 0);
     toggleStockNodeClass(indexChange, "is-up", indexDelta >= 0);
-    setStockNodeText(volume, `${formatStockNumber(displayedMarketVolume)}주`);
+    setStockNodeText(volume, `${formatStockNumber(displayedMarketVolume)} shares`);
     setStockNodeText(cap, formatStockKrwCompact(marketMeta.marketCap));
-    setStockNodeText(session, liveMarket ? marketMeta.session || "24H LIVE" : marketMeta.session || "API 대기");
+    setStockNodeText(session, liveMarket ? marketMeta.session || "24H LIVE" : marketMeta.session || "API WAIT");
     updated.forEach((label) => {
-      label.textContent = liveMarket ? `갱신 ${formatStockTime(marketMeta.updatedAt)}` : "미리보기";
+      label.textContent = liveMarket ? `Updated ${formatStockTime(marketMeta.updatedAt)}` : "Preview";
     });
     rangeButtons.forEach((button) => {
       button.classList.toggle("is-active", button.dataset.stockRange === activeRange);
@@ -6178,7 +6185,7 @@ function initStockExchange() {
     const takeProfit = Math.max(0, Number(orderElements.takeProfit?.value || 0));
     const stopLoss = Math.max(0, Number(orderElements.stopLoss?.value || 0));
     const tpSlEnabled = orderElements.tpSlToggle ? Boolean(orderElements.tpSlToggle.checked) : true;
-    const sideLabel = activeSide === "buy" ? "매수" : "매도";
+    const sideLabel = activeSide === "buy" ? "Buy" : "Sell";
     playerProfile = currentPlayerProfile();
     const canTrade = Boolean(playerProfile?.verified && playerProfile?.webToken && PLAYER_API_BASES.length && liveMarket && stock);
     if (!canTrade) {
@@ -6217,11 +6224,11 @@ function initStockExchange() {
       portfolio = await fetchStockPortfolio(playerProfile).catch(() => portfolio);
       orderLoading = false;
       render();
-      setTradeMessage(orderElements.message, `${activeCode} ${sideLabel} ${formatStockNumber(quantity)}주 체결 완료`, "success");
+      setTradeMessage(orderElements.message, `${activeCode} ${sideLabel} ${formatStockNumber(quantity)} shares filled`, "success");
     } catch (error) {
       orderLoading = false;
       render();
-      setTradeMessage(orderElements.message, error?.message || "주문을 처리하지 못했습니다.", "error");
+      setTradeMessage(orderElements.message, error?.message || "Order could not be processed.", "error");
     }
   });
   window.addEventListener("storage", (event) => {
