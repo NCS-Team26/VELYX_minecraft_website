@@ -47,6 +47,13 @@ const INVENTORY_SLOT_ORDER = [
   ...Array.from({ length: 27 }, (_, index) => index + 9),
   ...Array.from({ length: 9 }, (_, index) => index),
 ];
+const LOGIN_STOCKS = [
+  { code: "DMD", name: "다이아 광산", base: 3420, volume: 8420, drift: 0.048, change24h: 2.8 },
+  { code: "FARM", name: "농산물 조합", base: 1280, volume: 12650, drift: 0.019, change24h: 1.4 },
+  { code: "LOG", name: "건축 목재", base: 890, volume: 9340, drift: -0.012, change24h: -0.7 },
+  { code: "RED", name: "레드스톤 공업", base: 2160, volume: 7990, drift: 0.033, change24h: 2.1 },
+];
+const PORTFOLIO_GRAPH_COLORS = ["#7ee7b4", "#63d4ff", "#ffcf6a", "#ff8c9a", "#b9a7ff", "#7fd7cc"];
 const localAuthApiBase = isLocalHost ? "http://127.0.0.1:4174" : "";
 const authApiBase = (import.meta.env.VITE_AUTH_API_BASE || localAuthApiBase).replace(/\/$/, "");
 const allowLocalAuthPreview = !authApiBase && isLocalHost;
@@ -665,7 +672,7 @@ function ensureInventoryControls() {
     const switcher = document.createElement("div");
     switcher.className = "inventory-view-switch";
     switcher.setAttribute("role", "group");
-    switcher.setAttribute("aria-label", "인벤토리 보기");
+    switcher.setAttribute("aria-label", "인벤토리와 보유 주식 보기");
 
     const gridButton = document.createElement("button");
     gridButton.type = "button";
@@ -677,7 +684,7 @@ function ensureInventoryControls() {
     graphButton.type = "button";
     graphButton.dataset.inventoryView = "graph";
     graphButton.setAttribute("aria-pressed", "false");
-    graphButton.textContent = "그래프";
+    graphButton.textContent = "보유주식";
 
     switcher.append(gridButton, graphButton);
     tools.prepend(switcher);
@@ -690,7 +697,7 @@ function ensureInventoryControls() {
   if (!inventoryGraph && inventoryGrid?.parentElement) {
     inventoryGraph = document.createElement("div");
     inventoryGraph.className = "inventory-graph";
-    inventoryGraph.setAttribute("aria-label", "인벤토리 그래프");
+    inventoryGraph.setAttribute("aria-label", "보유 주식 그래프");
     inventoryGraph.setAttribute("data-inventory-graph", "");
     inventoryGraph.hidden = true;
     inventoryGrid.insertAdjacentElement("afterend", inventoryGraph);
@@ -713,21 +720,24 @@ function setInventoryView(view) {
   try {
     localStorage.setItem(INVENTORY_VIEW_KEY, inventoryView);
   } catch {}
-  renderInventoryGraph(currentInventoryPayload);
   applyInventoryView(readPlayerProfile());
 }
 
 function applyInventoryView(playerProfile = readPlayerProfile()) {
   ensureInventoryControls();
   const graphMode = inventoryView === "graph";
+  const toolbarLabel = document.querySelector(".inventory-toolbar span");
   inventoryViewButtons.forEach((button) => {
     const isActive = button.dataset.inventoryView === inventoryView;
     button.classList.toggle("is-active", isActive);
     button.setAttribute("aria-pressed", String(isActive));
   });
+  if (toolbarLabel) toolbarLabel.textContent = graphMode ? "보유 주식" : "인벤토리";
   if (inventoryGrid) inventoryGrid.hidden = graphMode;
   if (inventoryEquipment) inventoryEquipment.hidden = graphMode || !playerProfile?.verified;
   if (inventoryGraph) inventoryGraph.hidden = !graphMode;
+  if (inventoryEmpty) inventoryEmpty.hidden = graphMode;
+  if (graphMode) renderPortfolioGraph(playerProfile);
 }
 
 function classifyInventoryItem(item) {
@@ -783,122 +793,173 @@ function createGraphMetric(label, value, tone = "neutral") {
   return metric;
 }
 
-function renderInventoryGraph(payload = null) {
-  ensureInventoryControls();
-  if (!inventoryGraph) return;
-  const playerProfile = readPlayerProfile();
-  inventoryGraph.replaceChildren();
+function stockCode(item) {
+  return item?.symbol || item?.code || "";
+}
 
-  if (!playerProfile?.verified) {
-    const empty = document.createElement("p");
-    empty.className = "inventory-graph-empty";
-    empty.textContent = "캐릭터 인증 후 그래프가 표시됩니다.";
-    inventoryGraph.append(empty);
-    return;
+function findStock(code, stocks = stockSymbols()) {
+  return stocks.find((stock) => stockCode(stock) === code) || null;
+}
+
+function portfolioPositions() {
+  const stocks = stockSymbols();
+  const positions = Array.isArray(stockPortfolioPayload?.positions) ? stockPortfolioPayload.positions : [];
+  return positions
+    .map((position, index) => {
+      const code = stockCode(position);
+      const stock = findStock(code, stocks);
+      const shares = Number(position.shares ?? position.quantity ?? position.amount ?? 0);
+      const price = Number(stock?.price ?? position.price ?? position.avgPrice ?? 0);
+      const value = Number(position.value ?? position.marketValue ?? shares * price);
+      return {
+        code,
+        name: stock?.name || position.name || "보유 종목",
+        shares: Number.isFinite(shares) ? shares : 0,
+        value: Number.isFinite(value) ? Math.max(0, value) : 0,
+        color: PORTFOLIO_GRAPH_COLORS[index % PORTFOLIO_GRAPH_COLORS.length],
+      };
+    })
+    .filter((position) => position.code && (position.shares > 0 || position.value > 0))
+    .sort((left, right) => right.value - left.value);
+}
+
+function createPortfolioEmpty(title, detail) {
+  const empty = document.createElement("div");
+  empty.className = "portfolio-graph-empty";
+
+  const strong = document.createElement("strong");
+  strong.textContent = title;
+  const span = document.createElement("span");
+  span.textContent = detail;
+
+  empty.append(strong, span);
+  return empty;
+}
+
+function portfolioConicGradient(positions, totalValue) {
+  if (!positions.length || totalValue <= 0) {
+    return "conic-gradient(from 210deg, rgba(126, 231, 180, 0.32), rgba(99, 212, 255, 0.18))";
   }
 
-  const items = getInventoryItems(payload).map(normalizeSlotItem);
-  const equipmentItems = inventoryEquipmentItems(payload);
-  const allItems = [...items, ...equipmentItems];
-  const totalCount = allItems.reduce((sum, item) => sum + item.count, 0);
-  const hotbarSlots = items.filter((item) => item.slot < 9).length;
-  const occupiedSlots = items.length;
-  const healthPercent = parseHealthValue(payload?.health);
-  const level = Number(payload?.level);
+  let cursor = 0;
+  const slices = positions.map((position) => {
+    const size = Math.max(0, (position.value / totalValue) * 100);
+    const start = cursor;
+    const end = cursor + size;
+    cursor = end;
+    return `${position.color} ${start.toFixed(2)}% ${end.toFixed(2)}%`;
+  });
+  return `conic-gradient(from 210deg, ${slices.join(", ")})`;
+}
+
+function renderPortfolioGraph(playerProfile = readPlayerProfile()) {
+  ensureInventoryControls();
+  if (!inventoryGraph) return;
+  inventoryGraph.replaceChildren();
+  inventoryGraph.classList.add("is-portfolio");
+
+  const positions = portfolioPositions();
+  const totalValue = positions.reduce((sum, position) => sum + position.value, 0);
+  const totalShares = positions.reduce((sum, position) => sum + position.shares, 0);
+  const maxWeight = totalValue ? Math.max(...positions.map((position) => position.value / totalValue)) * 100 : 0;
+  const liveMarket = hasLiveStockMarket();
+  const balance =
+    stockPortfolioPayload?.balance === undefined ? "--" : `₩${formatStockMoney(stockPortfolioPayload.balance)}`;
+
+  if (!playerProfile?.verified) {
+    if (inventorySummary && inventoryView === "graph") inventorySummary.textContent = "인증 후 표시";
+    inventoryGraph.append(
+      createPortfolioEmpty("캐릭터 인증 필요", "인증이 끝나면 보유 주식 비중과 평가액이 여기에 표시됩니다."),
+    );
+    return;
+  }
 
   const heading = document.createElement("div");
   heading.className = "inventory-graph-heading";
   const title = document.createElement("strong");
-  title.textContent = "인벤토리 분석";
+  title.textContent = "보유 주식 그래프";
   const subtitle = document.createElement("span");
-  subtitle.textContent = totalCount ? `${totalCount}개 아이템 · ${occupiedSlots}/36 슬롯` : "동기화된 아이템 없음";
+  subtitle.textContent = liveMarket ? "실시간 시세 기준" : "연결 대기 중 · 미리보기 시세 기준";
   heading.append(title, subtitle);
+
+  if (inventorySummary && inventoryView === "graph") {
+    inventorySummary.textContent = positions.length
+      ? `${positions.length}종목 · 평가 ₩${formatStockMoney(totalValue)}`
+      : "보유 주식 없음";
+  }
 
   const metrics = document.createElement("div");
   metrics.className = "inventory-graph-metrics";
   metrics.append(
-    createGraphMetric("점유 슬롯", `${occupiedSlots}/36`, occupiedSlots > 24 ? "warm" : "good"),
-    createGraphMetric("핫바", `${hotbarSlots}/9`, hotbarSlots > 6 ? "good" : "neutral"),
-    createGraphMetric("장비", `${equipmentItems.length}/6`, equipmentItems.length >= 4 ? "good" : "neutral"),
-    createGraphMetric("레벨", Number.isFinite(level) ? String(level) : "--", "blue"),
+    createGraphMetric("총 평가", `₩${formatStockMoney(totalValue)}`, totalValue > 0 ? "good" : "neutral"),
+    createGraphMetric("보유 종목", `${positions.length}종목`, positions.length ? "blue" : "neutral"),
+    createGraphMetric("총 주수", `${formatStockMoney(totalShares)}주`, totalShares ? "good" : "neutral"),
+    createGraphMetric("현금 잔고", balance, stockPortfolioPayload?.balance ? "warm" : "neutral"),
   );
 
-  const categoryMap = new Map();
-  allItems.forEach((item) => {
-    const [label, color] = classifyInventoryItem(item);
-    const previous = categoryMap.get(label) || { label, color, count: 0, slots: 0 };
-    previous.count += item.count;
-    previous.slots += 1;
-    categoryMap.set(label, previous);
-  });
-  const categories = [...categoryMap.values()].sort((a, b) => b.count - a.count);
-  const maxCount = Math.max(1, ...categories.map((category) => category.count));
+  if (!positions.length) {
+    inventoryGraph.append(
+      heading,
+      metrics,
+      createPortfolioEmpty("보유 주식 없음", "STOCK 화면에서 매수하면 종목별 평가액과 비중 그래프가 표시됩니다."),
+    );
+    return;
+  }
+
+  const body = document.createElement("div");
+  body.className = "portfolio-graph-body";
+
+  const donut = document.createElement("div");
+  donut.className = "portfolio-graph-donut";
+  donut.style.setProperty("--portfolio-slices", portfolioConicGradient(positions, totalValue));
+  const donutCenter = document.createElement("div");
+  donutCenter.className = "portfolio-graph-center";
+  const donutValue = document.createElement("strong");
+  donutValue.textContent = `₩${formatStockMoney(totalValue)}`;
+  const donutLabel = document.createElement("span");
+  donutLabel.textContent = `최대 비중 ${maxWeight.toFixed(0)}%`;
+  donutCenter.append(donutValue, donutLabel);
+  donut.append(donutCenter);
 
   const bars = document.createElement("div");
-  bars.className = "inventory-graph-bars";
-  if (!categories.length) {
-    const empty = document.createElement("p");
-    empty.className = "inventory-graph-empty";
-    empty.textContent = "인벤토리가 비어 있습니다.";
-    bars.append(empty);
-  } else {
-    categories.forEach((category) => {
-      const row = document.createElement("div");
-      row.className = "inventory-graph-row";
-      row.style.setProperty("--bar-color", category.color);
-      row.style.setProperty("--bar-size", `${Math.max(7, (category.count / maxCount) * 100)}%`);
+  bars.className = "portfolio-graph-bars";
+  positions.forEach((position) => {
+    const weight = totalValue ? (position.value / totalValue) * 100 : 0;
+    const row = document.createElement("div");
+    row.className = "inventory-graph-row portfolio-graph-row";
+    row.style.setProperty("--bar-color", position.color);
+    row.style.setProperty("--bar-size", `${Math.max(7, weight)}%`);
 
-      const label = document.createElement("span");
-      label.textContent = category.label;
+    const label = document.createElement("span");
+    label.textContent = `${position.code} · ${position.name}`;
 
-      const track = document.createElement("div");
-      track.className = "inventory-graph-track";
-      const fill = document.createElement("i");
-      track.append(fill);
+    const track = document.createElement("div");
+    track.className = "inventory-graph-track";
+    track.append(document.createElement("i"));
 
-      const value = document.createElement("strong");
-      value.textContent = `${category.count}`;
-      value.title = `${category.slots}칸`;
+    const value = document.createElement("strong");
+    value.textContent = `₩${formatStockMoney(position.value)}`;
+    value.title = `${formatStockMoney(position.shares)}주 · ${weight.toFixed(1)}%`;
 
-      row.append(label, track, value);
-      bars.append(row);
-    });
-  }
+    const detail = document.createElement("em");
+    detail.textContent = `${formatStockMoney(position.shares)}주 · ${weight.toFixed(1)}%`;
 
-  const topItems = [...allItems].sort((a, b) => b.count - a.count).slice(0, 5);
-  const topList = document.createElement("div");
-  topList.className = "inventory-graph-top";
-  const topTitle = document.createElement("span");
-  topTitle.textContent = "상위 아이템";
-  const list = document.createElement("ol");
-  topItems.forEach((item) => {
-    const entry = document.createElement("li");
-    const name = document.createElement("strong");
-    name.textContent = item.name;
-    const count = document.createElement("span");
-    count.textContent = `${item.count}개`;
-    entry.append(name, count);
-    list.append(entry);
+    row.append(label, track, value, detail);
+    bars.append(row);
   });
-  if (!topItems.length) {
-    const entry = document.createElement("li");
-    entry.textContent = "표시할 아이템이 없습니다.";
-    list.append(entry);
-  }
-  topList.append(topTitle, list);
 
-  const vitality = document.createElement("div");
-  vitality.className = "inventory-graph-vitality";
-  vitality.style.setProperty("--health-size", `${healthPercent ?? 0}%`);
-  const vitalityLabel = document.createElement("span");
-  vitalityLabel.textContent = "체력";
-  const vitalityTrack = document.createElement("div");
-  vitalityTrack.append(document.createElement("i"));
-  const vitalityValue = document.createElement("strong");
-  vitalityValue.textContent = payload?.health ?? "--";
-  vitality.append(vitalityLabel, vitalityTrack, vitalityValue);
+  body.append(donut, bars);
 
-  inventoryGraph.append(heading, metrics, vitality, bars, topList);
+  const legend = document.createElement("div");
+  legend.className = "portfolio-graph-legend";
+  positions.slice(0, 4).forEach((position) => {
+    const item = document.createElement("span");
+    item.style.setProperty("--legend-color", position.color);
+    item.textContent = position.code;
+    legend.append(item);
+  });
+
+  inventoryGraph.append(heading, metrics, body, legend);
 }
 
 function renderEquipment(payload = null, playerProfile = readPlayerProfile()) {
@@ -988,7 +1049,7 @@ function renderInventory(payload = null) {
   if (characterLevel) characterLevel.textContent = payload?.level ?? "--";
   if (characterHealth) characterHealth.textContent = payload?.health ?? "--";
   if (characterLocation) characterLocation.textContent = payload?.location ?? "--";
-  renderInventoryGraph(payload);
+  renderPortfolioGraph(playerProfile);
   applyInventoryView(playerProfile);
 }
 
@@ -1033,15 +1094,57 @@ function formatStockMoney(value) {
   return new Intl.NumberFormat("ko-KR", { maximumFractionDigits: 0 }).format(number);
 }
 
+function buildLoginFallbackMarket() {
+  const tick = Math.floor(Date.now() / 60000);
+  const stocks = LOGIN_STOCKS.map((stock, index) => {
+    const wave = Math.sin(tick / (18 + index * 3) + index * 1.7) * stock.base * 0.018;
+    const drift = stock.base * stock.drift * 0.12;
+    const price = Math.max(1, Math.round(stock.base + wave + drift));
+    const open24h = Math.max(1, Math.round(price / (1 + stock.change24h / 100)));
+    return {
+      ...stock,
+      symbol: stock.code,
+      price,
+      open24h,
+      updatedAt: new Date().toISOString(),
+    };
+  });
+  return {
+    ok: true,
+    preview: true,
+    stocks,
+    market: {
+      session: "PREVIEW",
+      updatedAt: new Date().toISOString(),
+    },
+  };
+}
+
 function setStockTraderMessage(text, tone = "info") {
   if (!stockTraderMessage) return;
-  stockTraderMessage.textContent = text;
-  stockTraderMessage.classList.toggle("is-error", tone === "error");
-  stockTraderMessage.classList.toggle("is-success", tone === "success");
+  const incomingText = String(text || "");
+  const isLegacyExchangeFailure = /거래소\s*API.*불러오지\s*못/.test(incomingText);
+  const safeText = isLegacyExchangeFailure
+    ? "실시간 거래소 연결을 확인 중입니다. 보유 주식 그래프는 가능한 데이터로 표시됩니다."
+    : incomingText;
+  const safeTone = isLegacyExchangeFailure ? "info" : tone;
+  stockTraderMessage.textContent = safeText;
+  stockTraderMessage.classList.toggle("is-error", safeTone === "error");
+  stockTraderMessage.classList.toggle("is-success", safeTone === "success");
+}
+
+function hasLiveStockMarket() {
+  return Boolean(Array.isArray(stockMarketPayload?.stocks) && stockMarketPayload.stocks.length && !stockMarketPayload.preview);
+}
+
+function hasLiveStockPortfolio() {
+  return Boolean(stockPortfolioPayload?.ok && !stockPortfolioPayload.preview);
 }
 
 function stockSymbols() {
-  return Array.isArray(stockMarketPayload?.stocks) ? stockMarketPayload.stocks : [];
+  return Array.isArray(stockMarketPayload?.stocks) && stockMarketPayload.stocks.length
+    ? stockMarketPayload.stocks
+    : buildLoginFallbackMarket().stocks;
 }
 
 function selectedStockSymbol() {
@@ -1080,8 +1183,10 @@ function renderStockTrader(playerProfile = readPlayerProfile()) {
   if (!stockTrader) return;
 
   const stocks = stockSymbols();
+  const liveMarket = hasLiveStockMarket();
+  const livePortfolio = hasLiveStockPortfolio();
   const canTrade = Boolean(
-    playerProfile?.verified && playerProfile?.webToken && playerApiBase && stocks.length && !stockTraderLoading,
+    playerProfile?.verified && playerProfile?.webToken && playerApiBase && liveMarket && stocks.length && !stockTraderLoading,
   );
 
   renderStockOptions();
@@ -1092,14 +1197,20 @@ function renderStockTrader(playerProfile = readPlayerProfile()) {
   });
 
   const stock = selectedStock();
-  const position = selectedPosition();
+  const positions = portfolioPositions();
+  const selectedCode = selectedStockSymbol();
+  const position = positions.find((item) => item.code === selectedCode) || selectedPosition();
+  const portfolioValue = positions.reduce((sum, item) => sum + item.value, 0);
+  const portfolioShares = positions.reduce((sum, item) => sum + item.shares, 0);
   if (stockTraderSummary) {
     stockTraderSummary.textContent = canTrade
       ? "실거래 가능"
       : stockTraderLoading
         ? "거래소 확인 중"
         : playerProfile?.verified
-          ? "거래소 연결 필요"
+          ? liveMarket || stocks.length
+            ? "보유 주식 그래프"
+            : "거래소 연결 대기"
           : "인증 후 거래";
   }
   if (stockTraderBalance) {
@@ -1112,9 +1223,13 @@ function renderStockTrader(playerProfile = readPlayerProfile()) {
       : "현재가 --";
   }
   if (stockTraderPosition) {
-    stockTraderPosition.textContent = position
-      ? `보유 ${formatStockMoney(position.shares)}주 · 평가 ${formatStockMoney(position.value)}`
-      : "보유 0주";
+    if (stockSymbolSelect && position) {
+      stockTraderPosition.textContent = `보유 ${formatStockMoney(position.shares)}주 · 평가 ${formatStockMoney(position.value)}`;
+    } else {
+      stockTraderPosition.textContent = positions.length
+        ? `${positions.length}종목 · ${formatStockMoney(portfolioShares)}주 · 평가 ${formatStockMoney(portfolioValue)}`
+        : "보유 0주 · 평가 0";
+    }
   }
 
   if (!playerProfile?.verified) {
@@ -1123,9 +1238,17 @@ function renderStockTrader(playerProfile = readPlayerProfile()) {
     setStockTraderMessage("인증 확인을 다시 눌러 웹 토큰을 받아오세요.", "error");
   } else if (!playerApiBase) {
     setStockTraderMessage("VITE_PLAYER_API_BASE가 연결되면 실제 거래가 활성화됩니다.", "error");
-  } else if (!stocks.length && !stockTraderLoading) {
-    setStockTraderMessage("거래소 API를 불러오지 못했습니다.", "error");
+  } else if (stockTraderLoading) {
+    setStockTraderMessage("거래소와 보유 주식을 확인하는 중입니다.");
+  } else if (canTrade && livePortfolio) {
+    setStockTraderMessage("실시간 시세와 보유 주식이 연결되었습니다.", "success");
+  } else if (liveMarket) {
+    setStockTraderMessage("거래소 시세가 연결되었습니다. 보유 주식은 STOCK 화면과 동기화됩니다.");
+  } else {
+    setStockTraderMessage("실시간 거래소 연결을 확인 중입니다. 보유 주식 그래프는 가능한 데이터로 표시됩니다.");
   }
+
+  renderPortfolioGraph(playerProfile);
 }
 
 async function loadStockTrader(playerProfile, user = readStoredUser()) {
@@ -1138,10 +1261,19 @@ async function loadStockTrader(playerProfile, user = readStoredUser()) {
 
   stockTraderLoading = true;
   renderStockTrader(playerProfile);
+
   try {
     const market = await fetchPlayerJson("/stocks/market", { method: "GET" });
-    if (market?.ok) stockMarketPayload = market;
+    if (market?.ok && Array.isArray(market?.stocks) && market.stocks.length) {
+      stockMarketPayload = market;
+    } else {
+      stockMarketPayload = buildLoginFallbackMarket();
+    }
+  } catch {
+    stockMarketPayload = buildLoginFallbackMarket();
+  }
 
+  try {
     const portfolio = await fetchPlayerJson("/stocks/portfolio", {
       method: "POST",
       headers: {
@@ -1153,8 +1285,10 @@ async function loadStockTrader(playerProfile, user = readStoredUser()) {
       }),
     });
     if (portfolio?.ok) stockPortfolioPayload = portfolio;
-  } catch (error) {
-    setStockTraderMessage(error?.message || "거래소 정보를 불러오지 못했습니다.", "error");
+  } catch {
+    stockPortfolioPayload = stockPortfolioPayload?.ok
+      ? stockPortfolioPayload
+      : { ok: true, preview: true, balance: undefined, positions: [] };
   } finally {
     stockTraderLoading = false;
     renderStockTrader(readPlayerProfile(user));
