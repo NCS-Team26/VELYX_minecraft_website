@@ -38,8 +38,8 @@ jobs:
       VITE_GOOGLE_CLIENT_ID: ${{ secrets.VITE_GOOGLE_CLIENT_ID }}
       VITE_AUTH_API_BASE: ${{ secrets.VITE_AUTH_API_BASE }}
       VITE_PLAYER_API_BASE: /minecraft
-      VITE_PLAYER_API_FALLBACK_BASES: https://16z90u-ku7hk.tail16d543.ts.net/minecraft,https://minecraftserver1.tail16d543.ts.net/minecraft,https://api.nfoifsb.kr/minecraft
-      PLAYER_API_ORIGIN_DOMAIN: 16z90u-ku7hk.tail16d543.ts.net
+      VITE_PLAYER_API_FALLBACK_BASES: https://minecraftserver1.tail16d543.ts.net/minecraft,https://api.nfoifsb.kr/minecraft,https://16z90u-ku7hk.tail16d543.ts.net/minecraft
+      PLAYER_API_ORIGIN_DOMAIN: minecraftserver1.tail16d543.ts.net
       ALLOW_AWS_COSTS: ${{ github.event_name == 'workflow_dispatch' && inputs.allow_aws_costs || '1' }}
 
     steps:
