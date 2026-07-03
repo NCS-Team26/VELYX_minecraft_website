@@ -365,10 +365,18 @@ public final class StockExchange {
   private void advanceStock(StockState stock, StockDefinition definition, long at) {
     double price = Math.max(0.01, stock.currentPrice);
     double minutes = at / 60000.0;
-    double cycle = Math.sin((minutes + definition.symbol.hashCode()) * definition.cycleSpeed) * definition.volatility * 0.35;
+    double cycle = Math.sin((minutes + definition.symbol.hashCode()) * definition.cycleSpeed) * definition.volatility * 0.72;
+    double marketSwing =
+        Math.sin((minutes * definition.cycleSpeed * 0.52) + definition.symbol.hashCode() * 0.013)
+            * definition.volatility
+            * 0.48;
+    double technicalBreakout =
+        Math.sin((minutes * definition.cycleSpeed * 2.4) + price * 0.0007)
+            * definition.volatility
+            * 0.34;
     double anchor = ((definition.startPrice - price) / definition.startPrice) * definition.meanReversion;
-    double noise = random.nextGaussian() * definition.volatility;
-    double change = clamp(noise + cycle + anchor, -definition.maxTickMove, definition.maxTickMove);
+    double noise = random.nextGaussian() * definition.volatility * 1.28;
+    double change = clamp(noise + cycle + marketSwing + technicalBreakout + anchor, -definition.maxTickMove, definition.maxTickMove);
     double nextPrice = clampMoney(price * (1.0 + change), definition);
     stock.currentPrice = nextPrice;
     updateCandle(stock, at, nextPrice, 0, 0);
@@ -554,10 +562,10 @@ public final class StockExchange {
     }
 
     if (next.isEmpty()) {
-      next.put("DMD", fallbackDefinition("DMD", "다이아 광산", 3420.0, 24000L, 8200.0, 0.0045));
-      next.put("FARM", fallbackDefinition("FARM", "농산물 조합", 1280.0, 42000L, 12600.0, 0.0030));
-      next.put("LOG", fallbackDefinition("LOG", "건축 목재", 890.0, 36000L, 9400.0, 0.0038));
-      next.put("RED", fallbackDefinition("RED", "레드스톤 공업", 2160.0, 28000L, 7800.0, 0.0042));
+      next.put("DMD", fallbackDefinition("DMD", "다이아 광산", 3420.0, 24000L, 8200.0, 0.0165));
+      next.put("FARM", fallbackDefinition("FARM", "농산물 조합", 1280.0, 42000L, 12600.0, 0.0125));
+      next.put("LOG", fallbackDefinition("LOG", "건축 목재", 890.0, 36000L, 9400.0, 0.0145));
+      next.put("RED", fallbackDefinition("RED", "레드스톤 공업", 2160.0, 28000L, 7800.0, 0.0180));
     }
     return next;
   }
@@ -571,9 +579,9 @@ public final class StockExchange {
     definition.outstandingShares = outstandingShares;
     definition.liquidity = liquidity;
     definition.volatility = volatility;
-    definition.meanReversion = 0.0018;
-    definition.maxTickMove = 0.025;
-    definition.cycleSpeed = 0.007;
+    definition.meanReversion = 0.0023;
+    definition.maxTickMove = 0.062;
+    definition.cycleSpeed = 0.014;
     return definition;
   }
 

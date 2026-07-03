@@ -77,11 +77,17 @@ const STATUS_CACHE_KEY = "nfoifsb.statusCache";
 const PLAYER_HISTORY_KEY = "nfoifsb.playerHistory";
 const PLAYER_HISTORY_MAX = 48;
 const STOCKS = [
-  { code: "DMD", name: "다이아 광산", base: 3420, volume: 8420, drift: 0.048 },
-  { code: "FARM", name: "농산물 조합", base: 1280, volume: 12650, drift: 0.019 },
-  { code: "LOG", name: "건축 목재", base: 890, volume: 9340, drift: -0.012 },
-  { code: "RED", name: "레드스톤 공업", base: 2160, volume: 7990, drift: 0.033 },
+  { code: "DMD", name: "다이아 광산", base: 3420, volume: 8420, drift: 0.048, volatility: 0.022, marketBeta: 1.45 },
+  { code: "FARM", name: "농산물 조합", base: 1280, volume: 12650, drift: 0.019, volatility: 0.016, marketBeta: 1.05 },
+  { code: "LOG", name: "건축 목재", base: 890, volume: 9340, drift: -0.012, volatility: 0.019, marketBeta: 1.22 },
+  { code: "RED", name: "레드스톤 공업", base: 2160, volume: 7990, drift: 0.033, volatility: 0.024, marketBeta: 1.55 },
 ];
+const STOCK_MARKET_VOLATILITY_PROFILE = {
+  sp500: 0.012,
+  nasdaq: 0.019,
+  russell1000: 0.017,
+  technicalSwing: 0.028,
+};
 const FINANCIAL_PERIOD_COUNT = 4;
 const FINANCIAL_QUARTER_SEASONALITY = [0.94, 1.0, 1.02, 1.08];
 const STOCK_NEWS_IMAGES = [
@@ -1113,18 +1119,28 @@ function fallbackStockSeries(stock, tick, length = 96, stepMs = 15 * 60_000) {
   const volumeSeed = Number(stock.volume || stock.volume24h || 3000);
   const rawDrift = Number(stock.drift || stock.change24h || 0);
   const drift = Math.abs(rawDrift) > 1 ? rawDrift / 100 : rawDrift;
+  const beta = Number(stock.marketBeta || 1.2);
+  const stockVol = Number(stock.volatility || STOCK_MARKET_VOLATILITY_PROFILE.nasdaq);
+  const marketVol =
+    (STOCK_MARKET_VOLATILITY_PROFILE.sp500 * 0.34
+      + STOCK_MARKET_VOLATILITY_PROFILE.nasdaq * 0.38
+      + STOCK_MARKET_VOLATILITY_PROFILE.russell1000 * 0.28)
+    * beta;
   let previousClose = base;
   const count = Math.max(8, Math.floor(length));
   const now = Date.now();
   return Array.from({ length: count }, (_, index) => {
-    const wave = Math.sin((index + tick * 0.48) * 0.58 + base * 0.001) * 0.027;
-    const pulse = Math.cos((index + tick * 0.22) * 0.31 + volumeSeed * 0.0008) * 0.016;
+    const wave = Math.sin((index + tick * 0.48) * 0.58 + base * 0.001) * (0.018 + marketVol * 1.45);
+    const pulse = Math.cos((index + tick * 0.22) * 0.31 + volumeSeed * 0.0008) * (0.010 + stockVol * 0.88);
+    const momentum = Math.sin((index + tick * 0.72) * 0.17 + beta * 2.1) * STOCK_MARKET_VOLATILITY_PROFILE.technicalSwing;
+    const breakout = Math.sin((index + tick * 0.31) * 1.24 + base * 0.003) * stockVol * 0.72;
     const trend = drift * (index / Math.max(1, count - 1));
-    const price = base * (1 + wave + pulse + trend);
-    const volume = 24 + Math.abs(Math.sin(index * 0.7 + tick + base)) * 58;
+    const price = Math.max(1, base * (1 + wave + pulse + momentum + breakout + trend));
+    const volume = 30 + Math.abs(Math.sin(index * 0.7 + tick + base)) * 72 + Math.abs(momentum + breakout) * 1800;
     const open = previousClose;
-    const high = Math.max(open, price) * (1 + 0.004 + Math.abs(Math.sin(index + tick)) * 0.003);
-    const low = Math.min(open, price) * (1 - 0.004 - Math.abs(Math.cos(index + tick)) * 0.003);
+    const wickSpread = 0.006 + stockVol * 0.55 + Math.abs(Math.sin(index + tick)) * 0.006;
+    const high = Math.max(open, price) * (1 + wickSpread);
+    const low = Math.min(open, price) * (1 - wickSpread * 0.92);
     previousClose = price;
     return {
       open,
@@ -1177,7 +1193,7 @@ function buildFallbackMarket(tick) {
         low: point.low,
         close: point.price,
         volume: point.volume,
-        time: new Date(Date.now() - (31 - index) * 45 * 60 * 1000).toISOString(),
+        time: point.time || new Date(Date.now() - (history.length - 1 - index) * 15 * 60 * 1000).toISOString(),
       })),
     };
   });
@@ -1303,6 +1319,26 @@ function financialKstParts(source = new Date()) {
   };
 }
 
+function financialKstDateTimeParts(source = new Date()) {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Asia/Seoul",
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+    hour: "numeric",
+    minute: "numeric",
+    hourCycle: "h23",
+  }).formatToParts(source);
+  const get = (type) => Number(parts.find((part) => part.type === type)?.value);
+  return {
+    year: get("year"),
+    month: get("month"),
+    day: get("day"),
+    hour: get("hour"),
+    minute: get("minute"),
+  };
+}
+
 function formatFinancialDate(year, month, day = 1) {
   return `${year}.${String(month).padStart(2, "0")}.${String(day).padStart(2, "0")}`;
 }
@@ -1349,24 +1385,46 @@ function datePartsFromUtcDate(date) {
   };
 }
 
+function shiftKstDateParts(parts, dayOffset) {
+  const date = new Date(Date.UTC(parts.year, parts.month - 1, parts.day + dayOffset));
+  return datePartsFromUtcDate(date);
+}
+
+function formatStockNewsSlot(parts, slot) {
+  return `${formatFinancialDate(parts.year, parts.month, parts.day)} ${slot.label}`;
+}
+
 function currentStockNewsWeek(source = new Date()) {
-  const now = financialKstParts(source);
-  const today = new Date(Date.UTC(now.year, now.month - 1, now.day));
-  const mondayOffset = (today.getUTCDay() + 6) % 7;
-  const start = new Date(today);
-  start.setUTCDate(today.getUTCDate() - mondayOffset);
-  const end = new Date(start);
-  end.setUTCDate(start.getUTCDate() + 6);
-  const next = new Date(start);
-  next.setUTCDate(start.getUTCDate() + 7);
-  const startParts = datePartsFromUtcDate(start);
-  const endParts = datePartsFromUtcDate(end);
-  const nextParts = datePartsFromUtcDate(next);
+  const now = financialKstDateTimeParts(source);
+  const slots = [
+    { key: "morning", label: "아침 뉴스", hour: 8 },
+    { key: "lunch", label: "점심 뉴스", hour: 12 },
+    { key: "evening", label: "저녁 뉴스", hour: 18 },
+  ];
+  let activeSlot = slots[2];
+  let activeDate = shiftKstDateParts(now, -1);
+  let nextSlot = slots[0];
+  let nextDate = { year: now.year, month: now.month, day: now.day };
+  if (now.hour >= 18) {
+    activeSlot = slots[2];
+    activeDate = { year: now.year, month: now.month, day: now.day };
+    nextSlot = slots[0];
+    nextDate = shiftKstDateParts(now, 1);
+  } else if (now.hour >= 12) {
+    activeSlot = slots[1];
+    activeDate = { year: now.year, month: now.month, day: now.day };
+    nextSlot = slots[2];
+  } else if (now.hour >= 8) {
+    activeSlot = slots[0];
+    activeDate = { year: now.year, month: now.month, day: now.day };
+    nextSlot = slots[1];
+  }
   return {
-    key: formatFinancialDate(startParts.year, startParts.month, startParts.day),
-    label: `${formatFinancialDate(startParts.year, startParts.month, startParts.day)} 주간`,
-    range: `${formatFinancialDate(startParts.year, startParts.month, startParts.day)} - ${formatFinancialDate(endParts.year, endParts.month, endParts.day)}`,
-    nextUpdate: formatFinancialDate(nextParts.year, nextParts.month, nextParts.day),
+    key: `${formatFinancialDate(activeDate.year, activeDate.month, activeDate.day)}:${activeSlot.key}`,
+    label: formatStockNewsSlot(activeDate, activeSlot),
+    range: `${formatStockNewsSlot(activeDate, activeSlot)} 기준`,
+    nextUpdate: `${formatFinancialDate(nextDate.year, nextDate.month, nextDate.day)} ${String(nextSlot.hour).padStart(2, "0")}:00`,
+    cadence: "매일 08:00 · 12:00 · 18:00 KST",
   };
 }
 
@@ -1406,7 +1464,7 @@ function buildStockWeeklyNews(stock, metrics = {}, depth = {}) {
   const volatility = Number(metrics?.volatility || 0);
   const quality = buildStockFinancials(stock, metrics);
   const isBullish = change >= 0 || bidRatio >= 54 || quality.qualityScore >= 76;
-  const demandWord = pickStockNewsValue(["거래량", "호가 잔량", "체결강도", "주간 수급"], seed, 1);
+  const demandWord = pickStockNewsValue(["거래량", "호가 잔량", "체결강도", "회차 수급"], seed, 1);
   const riskWord = pickStockNewsValue(["재고 부담", "단기 과열", "레버리지 쏠림", "마진 둔화"], seed, 2);
   const goodImpact = Math.max(1.2, Math.abs(change) * 0.42 + quality.latest.fcfYield * 0.12 + 1.4);
   const badImpact = -(Math.max(0.8, volatility * 0.26 + Math.abs(50 - bidRatio) * 0.05));
@@ -1418,7 +1476,7 @@ function buildStockWeeklyNews(stock, metrics = {}, depth = {}) {
         ? `${name}, ${topic} 개선으로 이번 주 매수 관심 확대`
         : `${name}, ${riskWord} 이슈로 단기 변동성 경계`,
       summary: isBullish
-        ? `${demandWord} 지표와 Quality Score ${quality.qualityScore}점이 동시에 개선되며 ${code}의 주간 투자 심리가 강해졌습니다.`
+        ? `${demandWord} 지표와 Quality Score ${quality.qualityScore}점이 동시에 개선되며 ${code}의 단기 투자 심리가 강해졌습니다.`
         : `${formatStockPercent(volatility)} 변동성과 ${riskWord} 신호가 겹치며 ${code} 단기 포지션 관리 필요성이 커졌습니다.`,
       impact: isBullish ? `예상 영향 +${goodImpact.toFixed(1)}%` : `예상 영향 ${badImpact.toFixed(1)}%`,
     },
@@ -1442,7 +1500,7 @@ function buildStockWeeklyNews(stock, metrics = {}, depth = {}) {
       tone: volatility >= 7 ? "bad" : "neutral",
       tag: volatility >= 7 ? "악재" : "중립",
       title: `${week.label} 체크포인트: ${topic}, ${riskWord}, 거래량`,
-      summary: `AI 뉴스룸은 매주 월요일 KST 기준으로 새 이슈를 생성합니다. 이번 주 ${code}는 ${formatStockPercent(change, 1, true)} 가격 변동과 ${formatStockPercent(volatility)} 변동성을 함께 확인해야 합니다.`,
+      summary: `AI 뉴스룸은 매일 아침·점심·저녁 KST 기준으로 새 이슈를 생성합니다. 이번 ${week.label} ${code}는 ${formatStockPercent(change, 1, true)} 가격 변동과 ${formatStockPercent(volatility)} 변동성을 함께 확인해야 합니다.`,
       impact: `다음 생성 ${week.nextUpdate}`,
     },
   ];
@@ -1451,8 +1509,8 @@ function buildStockWeeklyNews(stock, metrics = {}, depth = {}) {
     week,
     code,
     name,
-    title: `${name} 주간 AI 뉴스룸`,
-    summary: `${week.range} 기준 서버 거래 데이터, 오더북, 재무 품질을 반영해 호재·악재 뉴스를 자동 생성했습니다.`,
+    title: `${name} AI 뉴스룸`,
+    summary: `${week.range} 서버 거래 데이터, 오더북, 재무 품질을 반영해 호재·악재 뉴스를 자동 생성했습니다.`,
     articles: articles.map((article, index) => ({
       ...article,
       image: STOCK_NEWS_IMAGES[index % STOCK_NEWS_IMAGES.length],
@@ -1798,16 +1856,16 @@ function renderStockFinancials(elements, stock, metrics, view = "income") {
 function renderStockNews(elements, stock, metrics, depth) {
   if (!elements?.list || !stock) return;
   const news = buildStockWeeklyNews(stock, metrics, depth);
-  if (elements.week) elements.week.textContent = `${news.week.label} · 매주 월요일 자동생성`;
+  if (elements.week) elements.week.textContent = `${news.week.label} · 매일 3회 자동생성`;
   if (elements.code) elements.code.textContent = `${news.code} NEWSROOM`;
   if (elements.title) elements.title.textContent = news.title;
   if (elements.summary) elements.summary.textContent = news.summary;
   if (elements.clock) {
     elements.clock.replaceChildren();
     const mode = document.createElement("span");
-    mode.textContent = "AI 자동생성";
+    mode.textContent = "AI 데일리 자동생성";
     const cycle = document.createElement("strong");
-    cycle.textContent = "매주 월요일";
+    cycle.textContent = news.week.cadence;
     const next = document.createElement("em");
     next.textContent = `KST 다음 생성 ${news.week.nextUpdate}`;
     elements.clock.append(mode, cycle, next);

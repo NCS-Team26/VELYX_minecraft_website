@@ -28,8 +28,8 @@ stock-market:
   candle-seconds: 900
   history-hours: 24
   fee-rate: 0.003
-  spread-rate: 0.0015
-  price-impact: 0.055
+  spread-rate: 0.0024
+  price-impact: 0.085
   max-order-shares: 500
   max-trades: 160
   broadcast-trades: true
@@ -40,37 +40,37 @@ stock-market:
       start-price: 3420.0
       outstanding-shares: 24000
       liquidity: 8200.0
-      volatility: 0.0045
-      mean-reversion: 0.0018
-      max-tick-move: 0.025
-      cycle-speed: 0.007
+      volatility: 0.0165
+      mean-reversion: 0.0024
+      max-tick-move: 0.065
+      cycle-speed: 0.013
     FARM:
       name: "농산물 조합"
       start-price: 1280.0
       outstanding-shares: 42000
       liquidity: 12600.0
-      volatility: 0.003
-      mean-reversion: 0.0016
-      max-tick-move: 0.02
-      cycle-speed: 0.006
+      volatility: 0.0125
+      mean-reversion: 0.002
+      max-tick-move: 0.052
+      cycle-speed: 0.011
     LOG:
       name: "건축 목재"
       start-price: 890.0
       outstanding-shares: 36000
       liquidity: 9400.0
-      volatility: 0.0038
-      mean-reversion: 0.0017
-      max-tick-move: 0.022
-      cycle-speed: 0.008
+      volatility: 0.0145
+      mean-reversion: 0.0022
+      max-tick-move: 0.058
+      cycle-speed: 0.014
     RED:
       name: "레드스톤 공업"
       start-price: 2160.0
       outstanding-shares: 28000
       liquidity: 7800.0
-      volatility: 0.0042
-      mean-reversion: 0.0018
-      max-tick-move: 0.025
-      cycle-speed: 0.0075
+      volatility: 0.018
+      mean-reversion: 0.0025
+      max-tick-move: 0.07
+      cycle-speed: 0.016
 
 actions:
   daily-reward:
