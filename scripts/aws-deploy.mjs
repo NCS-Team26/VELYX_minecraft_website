@@ -45,7 +45,7 @@ const distDir = join(process.cwd(), "dist");
 const distributionComment = "nfoifsb Minecraft server website";
 const originId = "site-s3";
 const playerApiOriginId = "minecraft-player-api";
-const playerApiOriginDomainName = process.env.PLAYER_API_ORIGIN_DOMAIN || "minecraftserver1.tail16d543.ts.net";
+const playerApiOriginDomainName = process.env.PLAYER_API_ORIGIN_DOMAIN || "16z90u-ku7hk.tail16d543.ts.net";
 const playerApiPathPattern = "/minecraft/*";
 const cachePolicyOptimized = "658327ea-f89d-4fab-a63d-7e88639e58f6";
 const cachePolicyDisabled = "4135ea2d-6df8-44a3-9df3-4b5a84be39ad";
@@ -178,7 +178,7 @@ function siteContentSecurityPolicy() {
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: https://mc-heads.net https://*.googleusercontent.com",
     "font-src 'self' data:",
-    "connect-src 'self' https://api.mcstatus.io https://accounts.google.com https://*.execute-api.ap-northeast-1.amazonaws.com https://api.nfoifsb.kr https://minecraftserver1.tail16d543.ts.net",
+    "connect-src 'self' https://api.mcstatus.io https://accounts.google.com https://*.execute-api.ap-northeast-1.amazonaws.com https://api.nfoifsb.kr https://16z90u-ku7hk.tail16d543.ts.net https://minecraftserver1.tail16d543.ts.net",
     "frame-src https://accounts.google.com",
     "form-action 'self'",
     "upgrade-insecure-requests",
