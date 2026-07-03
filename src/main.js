@@ -83,6 +83,56 @@ const STOCKS = [
   { code: "LOG", name: "건축 목재", base: 890, volume: 9340, drift: -0.012, volatility: 0.019, marketBeta: 1.22 },
   { code: "RED", name: "레드스톤 공업", base: 2160, volume: 7990, drift: 0.033, volatility: 0.024, marketBeta: 1.55 },
 ];
+const STOCK_INFO_META = {
+  DMD: {
+    icon: "◆",
+    asset: "DMDUSDT",
+    category: "Mining reserve",
+    rank: 1,
+    links: [
+      ["Official Website", "/stock.html"],
+      ["Whitepaper", "/rules.html"],
+      ["Explorer", "/status.html"],
+      ["Research", "/plugins.html"],
+    ],
+  },
+  FARM: {
+    icon: "♧",
+    asset: "FARMUSDT",
+    category: "Food supply",
+    rank: 2,
+    links: [
+      ["Official Website", "/stock.html"],
+      ["Whitepaper", "/rules.html"],
+      ["Explorer", "/status.html"],
+      ["Research", "/plugins.html"],
+    ],
+  },
+  LOG: {
+    icon: "▧",
+    asset: "LOGUSDT",
+    category: "Building materials",
+    rank: 3,
+    links: [
+      ["Official Website", "/stock.html"],
+      ["Whitepaper", "/join.html"],
+      ["Explorer", "/status.html"],
+      ["Research", "/plugins.html"],
+    ],
+  },
+  RED: {
+    icon: "✦",
+    asset: "REDUSDT",
+    category: "Redstone industry",
+    rank: 4,
+    links: [
+      ["Official Website", "/stock.html"],
+      ["Whitepaper", "/rules.html"],
+      ["Explorer", "/status.html"],
+      ["Research", "/plugins.html"],
+    ],
+  },
+};
 const STOCK_MARKET_VOLATILITY_PROFILE = {
   sp500: 0.012,
   nasdaq: 0.019,
@@ -2619,6 +2669,288 @@ function renderStockDetail(elements, stock, result) {
   if (elements.time) elements.time.textContent = formatStockTime(latestStockTime(stock));
 }
 
+function stockInfoMeta(stock) {
+  const code = stockCode(stock);
+  return STOCK_INFO_META[code] || {
+    icon: "●",
+    asset: `${code || "NFO"}USDT`,
+    category: "Server asset",
+    rank: 4,
+    links: [
+      ["Official Website", "/stock.html"],
+      ["Whitepaper", "/rules.html"],
+      ["Explorer", "/status.html"],
+      ["Research", "/plugins.html"],
+    ],
+  };
+}
+
+function stockOutstandingShares(stock, price) {
+  const marketCap = Number(stock?.marketCap);
+  const current = Math.max(1, Number(price || stock?.price || stock?.base) || 1);
+  if (Number.isFinite(marketCap) && marketCap > 0) return Math.max(1, Math.round(marketCap / current));
+  const profile = stockProfile(stock);
+  return Math.max(1, Math.round(Number(profile.volume || stock?.volume || 1000) * 3));
+}
+
+function stockInfoMarketCap(stock, result) {
+  const marketCap = Number(stock?.marketCap);
+  if (Number.isFinite(marketCap) && marketCap > 0) return marketCap;
+  return Math.max(1, Number(result?.price || stock?.price || 1)) * stockOutstandingShares(stock, result?.price);
+}
+
+function stockMarketDominance(stock, result, stocks) {
+  const marketCap = stockInfoMarketCap(stock, result);
+  const total = (Array.isArray(stocks) ? stocks : []).reduce((sum, item) => {
+    const price = Number(item?.price || item?.base || 1);
+    const cap = Number(item?.marketCap);
+    return sum + (Number.isFinite(cap) && cap > 0 ? cap : price * stockOutstandingShares(item, price));
+  }, 0);
+  return total > 0 ? (marketCap / total) * 100 : 0;
+}
+
+function stockFundingRate(stock, metrics) {
+  const change = Number(stock?.change24h || 0);
+  const volatility = Number(metrics?.volatility || 0);
+  return clampStockValue(0.01 + change / 900 + volatility / 2200, -0.045, 0.055);
+}
+
+function stockInfoMetricRow(label, value) {
+  const row = document.createElement("div");
+  const labelElement = document.createElement("span");
+  const valueElement = document.createElement("strong");
+  labelElement.textContent = label;
+  valueElement.textContent = value;
+  row.replaceChildren(labelElement, valueElement);
+  return row;
+}
+
+function stockInfoPill(text, href = "") {
+  const link = document.createElement("a");
+  link.textContent = text;
+  link.href = href || "#";
+  return link;
+}
+
+function renderStockCoinInfo(container, stock, result, metrics, stocks) {
+  const code = stockCode(stock);
+  const meta = stockInfoMeta(stock);
+  const price = Number(result?.price || stock?.price || stock?.base || 1);
+  const shares = stockOutstandingShares(stock, price);
+  const marketCap = stockInfoMarketCap(stock, result);
+  const volume = Number(result?.volume || stockDisplayVolume24h(stock));
+  const dominance = stockMarketDominance(stock, result, stocks);
+  const maxSupply = Math.max(shares, Math.round(shares * 1.08));
+  const totalSupply = Math.max(shares, Math.round(shares * 1.02));
+  const concentration = clampStockValue(8 + Math.abs(Number(stock?.change24h || 0)) * 0.32 + Number(metrics?.volatility || 0) * 0.18, 3, 42);
+
+  const header = document.createElement("div");
+  header.className = "stock-info-title";
+  const icon = document.createElement("span");
+  icon.textContent = meta.icon;
+  const title = document.createElement("div");
+  const strong = document.createElement("strong");
+  strong.textContent = meta.asset || `${code}USDT`;
+  const small = document.createElement("small");
+  small.textContent = `${stock?.name || code} · ${meta.category}`;
+  title.replaceChildren(strong, small);
+  header.replaceChildren(icon, title);
+
+  const stats = document.createElement("div");
+  stats.className = "stock-info-stats";
+  stats.replaceChildren(
+    stockInfoMetricRow("Rank", `No. ${meta.rank}`),
+    stockInfoMetricRow("Market Capitalization", formatStockKrw(marketCap)),
+    stockInfoMetricRow("Fully Diluted Market Cap", formatStockKrw(marketCap * (maxSupply / Math.max(1, shares)))),
+    stockInfoMetricRow("Market Dominance", formatStockPercent(dominance, 2)),
+    stockInfoMetricRow("Volume", `${formatStockNumber(volume)}주`),
+    stockInfoMetricRow("Volume/Market Cap", formatStockPercent((volume * price * 100) / Math.max(1, marketCap), 2)),
+    stockInfoMetricRow("Circulating Supply", `${formatStockNumber(shares)} ${code}`),
+    stockInfoMetricRow("Maximum Supply", `${formatStockNumber(maxSupply)} ${code}`),
+    stockInfoMetricRow("Total Supply", `${formatStockNumber(totalSupply)} ${code}`),
+    stockInfoMetricRow("Platform Concentration", formatStockPercent(concentration, 2)),
+  );
+
+  const links = document.createElement("aside");
+  links.className = "stock-info-links";
+  const issue = document.createElement("p");
+  issue.className = "stock-info-feedback";
+  issue.textContent = "Found an issue? ";
+  const feedback = document.createElement("a");
+  feedback.href = "/status.html";
+  feedback.textContent = "Submit FeedBack";
+  issue.append(feedback);
+  const linksTitle = document.createElement("h3");
+  linksTitle.textContent = "Links";
+  const linkGrid = document.createElement("div");
+  linkGrid.replaceChildren(...meta.links.map(([label, href]) => stockInfoPill(label, href)));
+  const note = document.createElement("p");
+  note.className = "stock-info-note";
+  note.textContent =
+    "Underlying data is sourced from AuroraLink market candles and Minecraft server trading records. This information is for in-game reference only.";
+  links.replaceChildren(issue, linksTitle, linkGrid, note);
+
+  const layout = document.createElement("div");
+  layout.className = "stock-info-layout";
+  const left = document.createElement("section");
+  left.replaceChildren(header, stats);
+  layout.replaceChildren(left, links);
+  container.replaceChildren(layout);
+}
+
+function renderStockTradingInfo(container, stock, result, metrics, depth) {
+  const code = stockCode(stock);
+  const spread = Number(depth?.spread || 0);
+  const volatility = Number(metrics?.volatility || 0);
+  const rows = [
+    ["Contract", `${code}USDT perpetual`],
+    ["Tick Size", "₩1"],
+    ["Order Types", "Market / Limit / Stop / OCO"],
+    ["Maker / Taker Fee", "0.30% / 0.30%"],
+    ["Current Spread", formatStockKrw(spread)],
+    ["24H Volatility", formatStockPercent(volatility, 2)],
+    ["Max Order Size", "500주"],
+    ["Settlement", "Server money"],
+  ];
+  renderStockInfoTable(container, "Trading Parameters", rows);
+}
+
+function renderStockMarginInfo(container, stock, metrics) {
+  const volatility = Number(metrics?.volatility || 0);
+  const maintenance = clampStockValue(4 + volatility * 0.42, 4, 18);
+  const rows = [
+    ["Margin Mode", "Cross / Isolated"],
+    ["Maximum Leverage", "5x"],
+    ["Initial Margin", "20.00% at 5x"],
+    ["Maintenance Margin", formatStockPercent(maintenance, 2)],
+    ["Liquidation Buffer", formatStockPercent(maintenance + 6, 2)],
+    ["Auto Deleverage", volatility >= 8 ? "High priority" : "Normal"],
+    ["Reduce Only", "Supported"],
+    ["Post Only", "Supported"],
+  ];
+  renderStockInfoTable(container, "Leverage & Margin", rows);
+}
+
+function renderStockFundingInfo(container, stock, metrics) {
+  const now = Date.now();
+  const rate = stockFundingRate(stock, metrics);
+  const rows = Array.from({ length: 8 }, (_, index) => {
+    const stepRate = rate + Math.sin(index * 0.9 + Number(stock?.price || 1) * 0.003) * 0.006;
+    return [
+      formatStockDateTime(new Date(now - index * 3 * 60 * 60 * 1000)),
+      formatStockPercent(stepRate, 4, true),
+      stepRate >= 0 ? "Long pays short" : "Short pays long",
+    ];
+  });
+  renderStockInfoTable(container, "Funding History", rows, ["Time", "Rate", "Direction"]);
+}
+
+function renderStockIndexInfo(container, stock, result, marketMeta, stocks) {
+  const marketIndex = Number(marketMeta?.index || 0);
+  const marketCap = stockInfoMarketCap(stock, result);
+  const totalCap = Math.max(
+    1,
+    (Array.isArray(stocks) ? stocks : []).reduce((sum, item) => sum + stockInfoMarketCap(item, { price: item?.price }), 0),
+  );
+  const rows = [
+    ["Index Symbol", "NFO Composite"],
+    ["Index Value", formatStockNumber(marketIndex)],
+    ["Mark Price", formatStockKrw(result?.price || stock?.price)],
+    ["Index Weight", formatStockPercent((marketCap / totalCap) * 100, 2)],
+    ["Oracle Source", "AuroraLink API"],
+    ["Update Cycle", "60 seconds"],
+    ["Candle Interval", "15 minutes"],
+    ["Session", marketMeta?.session || "24H LIVE"],
+  ];
+  renderStockInfoTable(container, "Index Info", rows);
+}
+
+function renderStockInfoTable(container, title, rows, headers = ["Parameter", "Value"]) {
+  const section = document.createElement("section");
+  section.className = "stock-info-table-panel";
+  const heading = document.createElement("h3");
+  heading.textContent = title;
+  const table = document.createElement("table");
+  const thead = document.createElement("thead");
+  const headRow = document.createElement("tr");
+  headers.forEach((label) => {
+    const th = document.createElement("th");
+    th.textContent = label;
+    headRow.append(th);
+  });
+  thead.append(headRow);
+  const tbody = document.createElement("tbody");
+  rows.forEach((row) => {
+    const tr = document.createElement("tr");
+    row.forEach((value) => {
+      const cell = document.createElement("td");
+      cell.textContent = value;
+      tr.append(cell);
+    });
+    tbody.append(tr);
+  });
+  table.replaceChildren(thead, tbody);
+  section.replaceChildren(heading, table);
+  container.replaceChildren(section);
+}
+
+function renderStockInfoTerminal(container, stock, result, metrics, depth, stocks, marketMeta, view) {
+  if (!container || !stock) return;
+  if (view === "trading") renderStockTradingInfo(container, stock, result, metrics, depth);
+  else if (view === "margin") renderStockMarginInfo(container, stock, metrics);
+  else if (view === "funding") renderStockFundingInfo(container, stock, metrics);
+  else if (view === "index") renderStockIndexInfo(container, stock, result, marketMeta, stocks);
+  else renderStockCoinInfo(container, stock, result, metrics, stocks);
+}
+
+function renderStockDataTerminal(summary, table, stock, result, tick, range) {
+  if (!summary && !table) return;
+  const series = stockSeries(stock, tick, range);
+  const rows = stockChartRows(series, range, "price");
+  if (summary) {
+    const latest = rows.at(-1) || {};
+    const first = rows[0] || {};
+    const summaryItems = [
+      ["Symbol", stockInfoMeta(stock).asset],
+      ["Last Price", formatStockKrw(result?.price || latest.close)],
+      ["Open", formatStockKrw(first.open || result?.open)],
+      ["High", formatStockKrw(result?.high)],
+      ["Low", formatStockKrw(result?.low)],
+      ["Volume", `${formatStockNumber(result?.volume)}주`],
+    ];
+    summary.replaceChildren(
+      ...summaryItems.map(([label, value]) => {
+        const item = document.createElement("span");
+        const em = document.createElement("em");
+        const strong = document.createElement("strong");
+        em.textContent = label;
+        strong.textContent = value;
+        item.replaceChildren(em, strong);
+        return item;
+      }),
+    );
+  }
+  if (table) {
+    const bodyRows = rows.slice(-18).reverse().map((point) => {
+      const tr = document.createElement("tr");
+      [
+        formatStockDateTime(point.time),
+        formatStockKrw(point.open),
+        formatStockKrw(point.high),
+        formatStockKrw(point.low),
+        formatStockKrw(point.close),
+        `${formatStockNumber(point.volume)}주`,
+      ].forEach((value) => {
+        const cell = document.createElement("td");
+        cell.textContent = value;
+        tr.append(cell);
+      });
+      return tr;
+    });
+    table.replaceChildren(...bodyRows);
+  }
+}
+
 function buildStockDepth(stock, groupSize = 1) {
   const price = Math.max(1, Number(stock.price) || 1);
   const volume = Math.max(10, stockDisplayVolume24h(stock));
@@ -2899,6 +3231,12 @@ function initStockExchange() {
   const list = document.querySelector("[data-stock-list]");
   if (!root || !chart || !list) return;
 
+  const mainViewButtons = document.querySelectorAll("[data-stock-main-view]");
+  const mainPanels = document.querySelectorAll("[data-stock-main-panel]");
+  const infoViewButtons = document.querySelectorAll("[data-stock-info-view]");
+  const infoBody = document.querySelector("[data-stock-info-body]");
+  const dataSummary = document.querySelector("[data-stock-data-summary]");
+  const dataTable = document.querySelector("[data-stock-data-table]");
   const ticker = document.querySelector("[data-stock-ticker]");
   const price = document.querySelectorAll("[data-stock-price]");
   const markPrice = document.querySelectorAll("[data-stock-mark-price]");
@@ -3004,6 +3342,8 @@ function initStockExchange() {
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   let market = buildFallbackMarket(0);
   let activeCode = market.stocks[0]?.symbol || market.stocks[0]?.code || "DMD";
+  let activeMainView = document.querySelector("[data-stock-main-view].is-active")?.dataset.stockMainView || "chart";
+  let activeInfoView = document.querySelector("[data-stock-info-view].is-active")?.dataset.stockInfoView || "coin";
   let activeRange = "1D";
   let activeSort = "market";
   let activeMode = document.querySelector("[data-stock-chart-mode].is-active")?.dataset.stockChartMode || "line";
@@ -3037,7 +3377,22 @@ function initStockExchange() {
     if (event.key === "Escape" && !newsElements.modal?.hidden) closeStockNewsDetail(newsElements);
   });
 
+  function syncStockMainPanels() {
+    mainViewButtons.forEach((button) => {
+      button.classList.toggle("is-active", button.dataset.stockMainView === activeMainView);
+    });
+    mainPanels.forEach((panel) => {
+      const isActive = panel.dataset.stockMainPanel === activeMainView;
+      panel.hidden = !isActive;
+      panel.classList.toggle("is-active", isActive);
+    });
+    infoViewButtons.forEach((button) => {
+      button.classList.toggle("is-active", button.dataset.stockInfoView === activeInfoView);
+    });
+  }
+
   function render() {
+    if (activeMainView === "chart") syncStockMainPanels();
     renderStockAuthLink(sessionUser || readStoredUser());
     const rawStocks = Array.isArray(market?.stocks) && market.stocks.length ? market.stocks : buildFallbackMarket(tick).stocks;
     const stocks = sortStocks(rawStocks, activeSort);
@@ -3117,11 +3472,14 @@ function initStockExchange() {
       depthMeter,
       groupSize: activeDepthGroup,
     });
+    renderStockInfoTerminal(infoBody, stock, result, metrics, depth, stocks, marketMeta, activeInfoView);
+    renderStockDataTerminal(dataSummary, dataTable, stock, result, tick, activeRange);
     renderStockPortfolio(portfolioList, portfolioBalance, portfolio, market);
     renderExpertPanel(expertElements, metrics, depth, stock, orderElements, activeSide);
     renderStockNews(newsElements, stock, metrics, depth);
     renderStockFinancials(financialElements, stock, metrics, activeFinancialView);
     renderOrderTicket(orderElements, stock, activeSide, playerProfile, portfolio, liveMarket, orderLoading, { metrics, depth });
+    syncStockMainPanels();
   }
 
   async function refreshMarket() {
@@ -3179,6 +3537,19 @@ function initStockExchange() {
   }
 
   render();
+  mainViewButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      activeMainView = button.dataset.stockMainView || "chart";
+      render();
+    });
+  });
+  infoViewButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      activeInfoView = button.dataset.stockInfoView || "coin";
+      activeMainView = "info";
+      render();
+    });
+  });
   rangeButtons.forEach((button) => {
     button.addEventListener("click", () => {
       activeRange = button.dataset.stockRange || "24H";

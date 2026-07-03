@@ -126,62 +126,94 @@
             <div class="stock-futures-layout">
               <section class="stock-panel stock-panel-main stock-pro-chart" aria-labelledby="stock-chart-title">
                 <div class="stock-chart-tabs">
-                  <button type="button" class="is-active">Chart</button>
-                  <button type="button">Info</button>
-                  <button type="button">Data</button>
+                  <button type="button" class="is-active" data-stock-main-view="chart">Chart</button>
+                  <button type="button" data-stock-main-view="info">Info</button>
+                  <button type="button" data-stock-main-view="data">Data</button>
                   <span data-stock-updated>실시간 갱신</span>
                 </div>
 
-                <div class="stock-control-deck" aria-label="차트 컨트롤">
-                  <div class="stock-range-tabs" aria-label="차트 범위">
-                    <button type="button" data-stock-range="1M">1s</button>
-                    <button type="button" data-stock-range="5M">15m</button>
-                    <button type="button" data-stock-range="15M">1H</button>
-                    <button type="button" data-stock-range="30M">4H</button>
-                    <button type="button" class="is-active" data-stock-range="1D">1D</button>
-                    <button type="button" data-stock-range="1W">1W</button>
-                    <button type="button" data-stock-range="1MO">1M</button>
-                    <button type="button" data-stock-range="ALL">All</button>
+                <div class="stock-main-panel is-active" data-stock-main-panel="chart">
+                  <div class="stock-control-deck" aria-label="차트 컨트롤">
+                    <div class="stock-range-tabs" aria-label="차트 범위">
+                      <button type="button" data-stock-range="1M">1s</button>
+                      <button type="button" data-stock-range="5M">15m</button>
+                      <button type="button" data-stock-range="15M">1H</button>
+                      <button type="button" data-stock-range="30M">4H</button>
+                      <button type="button" class="is-active" data-stock-range="1D">1D</button>
+                      <button type="button" data-stock-range="1W">1W</button>
+                      <button type="button" data-stock-range="1MO">1M</button>
+                      <button type="button" data-stock-range="ALL">All</button>
+                    </div>
+                    <div class="stock-tabs" aria-label="차트 표시">
+                      <button type="button" class="is-active" data-stock-chart-mode="candle">Original</button>
+                      <button type="button" data-stock-chart-mode="line">Trading View</button>
+                      <button type="button" data-stock-chart-mode="area">Depth</button>
+                    </div>
+                    <div class="stock-tabs" aria-label="차트 지표">
+                      <button type="button" class="is-active" data-stock-indicator="ma5">MA7</button>
+                      <button type="button" data-stock-indicator="ma20">MA25</button>
+                      <button type="button" class="is-active" data-stock-indicator="vwap">MA99</button>
+                    </div>
+                    <div class="stock-tabs" aria-label="가격 스케일">
+                      <button type="button" class="is-active" data-stock-scale="price">Last Price</button>
+                      <button type="button" data-stock-scale="percent">%</button>
+                    </div>
                   </div>
-                  <div class="stock-tabs" aria-label="차트 표시">
-                    <button type="button" class="is-active" data-stock-chart-mode="candle">Original</button>
-                    <button type="button" data-stock-chart-mode="line">Trading View</button>
-                    <button type="button" data-stock-chart-mode="area">Depth</button>
-                  </div>
-                  <div class="stock-tabs" aria-label="차트 지표">
-                    <button type="button" class="is-active" data-stock-indicator="ma5">MA7</button>
-                    <button type="button" data-stock-indicator="ma20">MA25</button>
-                    <button type="button" class="is-active" data-stock-indicator="vwap">MA99</button>
-                  </div>
-                  <div class="stock-tabs" aria-label="가격 스케일">
-                    <button type="button" class="is-active" data-stock-scale="price">Last Price</button>
-                    <button type="button" data-stock-scale="percent">%</button>
+
+                  <div class="stock-chart-shell">
+                    <div class="stock-chart-top">
+                      <div class="stock-ohlc-line" aria-label="선택 종목 시세">
+                        <span id="stock-chart-title">Open <strong data-stock-open>₩3,260</strong></span>
+                        <span>High <strong data-stock-high>₩3,520</strong></span>
+                        <span>Low <strong data-stock-low>₩3,260</strong></span>
+                        <span>Close <strong data-stock-price>₩3,420</strong></span>
+                        <span>Change <em data-stock-change>+4.8%</em></span>
+                      </div>
+                    </div>
+                    <div class="stock-chart-readout" data-stock-chart-readout aria-label="선택 캔들 요약"></div>
+                    <div class="stock-chart-stage stock-chart-pro" data-stock-chart role="img" aria-label="서버 주식 시세 그래프">
+                      <div class="stock-chart-watermark" aria-hidden="true">NFO</div>
+                      <div class="stock-chart-canvas" data-stock-chart-canvas></div>
+                      <div class="stock-chart-tooltip" data-stock-chart-tooltip hidden></div>
+                    </div>
+                    <div class="stock-axis" aria-hidden="true">
+                      <span data-stock-axis-start>과거</span>
+                      <span>중간</span>
+                      <span>최근</span>
+                      <span>현재</span>
+                    </div>
+                    <div class="stock-performance-grid" data-stock-performance aria-label="기간별 수익률"></div>
                   </div>
                 </div>
 
-                <div class="stock-chart-shell">
-                  <div class="stock-chart-top">
-                    <div class="stock-ohlc-line" aria-label="선택 종목 시세">
-                      <span id="stock-chart-title">Open <strong data-stock-open>₩3,260</strong></span>
-                      <span>High <strong data-stock-high>₩3,520</strong></span>
-                      <span>Low <strong data-stock-low>₩3,260</strong></span>
-                      <span>Close <strong data-stock-price>₩3,420</strong></span>
-                      <span>Change <em data-stock-change>+4.8%</em></span>
-                    </div>
+                <div class="stock-main-panel stock-info-terminal" data-stock-main-panel="info" hidden>
+                  <div class="stock-info-subtabs" aria-label="종목 정보 보기">
+                    <button type="button" class="is-active" data-stock-info-view="coin">Coin Info</button>
+                    <button type="button" data-stock-info-view="trading">Trading Parameters</button>
+                    <button type="button" data-stock-info-view="margin">Leverage &amp; Margin</button>
+                    <button type="button" data-stock-info-view="funding">Funding History</button>
+                    <button type="button" data-stock-info-view="index">Index Info</button>
                   </div>
-                  <div class="stock-chart-readout" data-stock-chart-readout aria-label="선택 캔들 요약"></div>
-                  <div class="stock-chart-stage stock-chart-pro" data-stock-chart role="img" aria-label="서버 주식 시세 그래프">
-                    <div class="stock-chart-watermark" aria-hidden="true">NFO</div>
-                    <div class="stock-chart-canvas" data-stock-chart-canvas></div>
-                    <div class="stock-chart-tooltip" data-stock-chart-tooltip hidden></div>
+                  <div class="stock-info-body" data-stock-info-body></div>
+                </div>
+
+                <div class="stock-main-panel stock-data-terminal" data-stock-main-panel="data" hidden>
+                  <div class="stock-data-summary" data-stock-data-summary></div>
+                  <div class="stock-data-table-wrap">
+                    <table class="stock-data-table">
+                      <thead>
+                        <tr>
+                          <th>Time</th>
+                          <th>Open</th>
+                          <th>High</th>
+                          <th>Low</th>
+                          <th>Close</th>
+                          <th>Volume</th>
+                        </tr>
+                      </thead>
+                      <tbody data-stock-data-table></tbody>
+                    </table>
                   </div>
-                  <div class="stock-axis" aria-hidden="true">
-                    <span data-stock-axis-start>과거</span>
-                    <span>중간</span>
-                    <span>최근</span>
-                    <span>현재</span>
-                  </div>
-                  <div class="stock-performance-grid" data-stock-performance aria-label="기간별 수익률"></div>
                 </div>
               </section>
 
