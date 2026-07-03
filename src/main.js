@@ -3152,7 +3152,7 @@ function renderStockInfoTerminal(container, stock, result, metrics, depth, stock
   else renderStockCoinInfo(container, stock, result, metrics, stocks);
 }
 
-function renderStockDataTerminal(summary, table, stock, result, tick, range) {
+function renderStockRawDataTerminal(summary, table, stock, result, tick, range) {
   if (!summary && !table) return;
   const series = stockSeries(stock, tick, range);
   const rows = stockChartRows(series, range, "price");
@@ -3189,6 +3189,390 @@ function renderStockDataTerminal(summary, table, stock, result, tick, range) {
         formatStockKrw(point.low),
         formatStockKrw(point.close),
         `${formatStockNumber(point.volume)}주`,
+      ].forEach((value) => {
+        const cell = document.createElement("td");
+        cell.textContent = value;
+        tr.append(cell);
+      });
+      return tr;
+    });
+    table.replaceChildren(...bodyRows);
+  }
+}
+
+function stockDataTimeLabel(value) {
+  const date = new Date(typeof value === "number" ? value * 1000 : value);
+  if (Number.isNaN(date.getTime())) return "--:--";
+  return new Intl.DateTimeFormat("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(date);
+}
+
+function formatStockDataCompact(value) {
+  const number = Number(value);
+  if (!Number.isFinite(number)) return "--";
+  const absolute = Math.abs(number);
+  if (absolute >= 1_000_000_000) return `${(number / 1_000_000_000).toFixed(2)}B`;
+  if (absolute >= 1_000_000) return `${(number / 1_000_000).toFixed(2)}M`;
+  if (absolute >= 10_000) return `${(number / 1_000).toFixed(1)}K`;
+  return formatStockNumber(Math.round(number));
+}
+
+function stockDataRange(values, paddingRatio = 0.12) {
+  const finite = values.map(Number).filter(Number.isFinite);
+  if (!finite.length) return { min: 0, max: 1 };
+  let min = Math.min(...finite);
+  let max = Math.max(...finite);
+  if (min === max) {
+    const padding = Math.max(0.01, Math.abs(max) * paddingRatio);
+    min -= padding;
+    max += padding;
+  } else {
+    const padding = (max - min) * paddingRatio;
+    min -= padding;
+    max += padding;
+  }
+  return { min, max };
+}
+
+function stockDataAxisLabels(values, formatter = formatStockDataCompact) {
+  const range = stockDataRange(values, 0.02);
+  return [range.max, (range.max + range.min) / 2, range.min].map((value) => formatter(value));
+}
+
+function stockDataY(value, range, top = 18, bottom = 206) {
+  const span = Math.max(0.0001, range.max - range.min);
+  const normalized = (Number(value) - range.min) / span;
+  return bottom - clampStockValue(normalized, 0, 1) * (bottom - top);
+}
+
+function stockDataX(index, length, width = 640) {
+  if (length <= 1) return 0;
+  return (index / (length - 1)) * width;
+}
+
+function stockDataLinePath(points, key, range) {
+  return points
+    .map((point, index) => {
+      const x = stockDataX(index, points.length).toFixed(2);
+      const y = stockDataY(point[key], range).toFixed(2);
+      return `${index === 0 ? "M" : "L"}${x} ${y}`;
+    })
+    .join(" ");
+}
+
+function appendStockDataGrid(svg) {
+  [18, 112, 206].forEach((y) => {
+    svg.append(
+      createSvg("line", {
+        x1: 0,
+        x2: 640,
+        y1: y,
+        y2: y,
+        class: "stock-data-grid-line",
+      }),
+    );
+  });
+}
+
+function stockDataLegendItem(label, type = "line") {
+  const item = document.createElement("span");
+  item.className = `stock-data-legend-item is-${type}`;
+  const marker = document.createElement("i");
+  const text = document.createElement("em");
+  text.textContent = label;
+  item.replaceChildren(marker, text);
+  return item;
+}
+
+function stockDataAxis(labelValues, formatter, className = "stock-data-y-axis") {
+  const axis = document.createElement("div");
+  axis.className = className;
+  axis.replaceChildren(
+    ...stockDataAxisLabels(labelValues, formatter).map((label) => {
+      const span = document.createElement("span");
+      span.textContent = label;
+      return span;
+    }),
+  );
+  return axis;
+}
+
+function stockDataXAxis(points) {
+  const axis = document.createElement("div");
+  axis.className = "stock-data-x-axis";
+  const labelIndexes = [0, Math.floor(points.length * 0.33), Math.floor(points.length * 0.66), points.length - 1];
+  axis.replaceChildren(
+    ...labelIndexes.map((index) => {
+      const span = document.createElement("span");
+      const point = points[Math.max(0, Math.min(points.length - 1, index))];
+      span.textContent = stockDataTimeLabel(point?.time);
+      return span;
+    }),
+  );
+  return axis;
+}
+
+function buildStockDerivativePoints(stock, rows, result, tick) {
+  const source = rows.slice(-36);
+  const codeSeed = stockFinancialSeed(stockCode(stock));
+  const firstClose = Math.max(1, Number(source[0]?.close || result?.open || stock?.price || stock?.base || 1));
+  const lastPrice = Math.max(1, Number(result?.price || stock?.price || source.at(-1)?.close || firstClose));
+  const baseShares = stockOutstandingShares(stock, lastPrice);
+  const baseInterest = Math.max(100, baseShares * (3.2 + codeSeed * 1.7));
+  const length = Math.max(1, source.length);
+
+  return source.map((point, index) => {
+    const close = Math.max(1, Number(point.close || point.price || lastPrice));
+    const previous = Math.max(1, Number(source[index - 1]?.close || close));
+    const momentum = (close - previous) / previous;
+    const totalMove = (close - firstClose) / firstClose;
+    const volume = Math.max(1, Number(point.volume) || 1);
+    const progress = index / Math.max(1, length - 1);
+    const wave = Math.sin(index * 0.46 + tick * 0.17 + codeSeed * 6);
+    const pulse = Math.cos(index * 0.29 + tick * 0.11 + codeSeed * 4);
+    const volumeBias = Math.log10(volume + 10) / 5;
+    const openInterest = Math.max(
+      10,
+      baseInterest * (1 + progress * (0.08 + codeSeed * 0.06) + totalMove * 0.18 + wave * 0.018 + volumeBias * 0.035),
+    );
+    const jump = index > length * (0.42 + codeSeed * 0.12) ? 0.035 + codeSeed * 0.035 : 0;
+    return {
+      time: point.time,
+      openInterest,
+      notional: openInterest * close,
+      accountsRatio: clampStockValue(1.74 + codeSeed * 0.16 + jump + totalMove * 0.18 + wave * 0.005, 1.05, 2.85),
+      positionsRatio: clampStockValue(1.08 + codeSeed * 0.14 + totalMove * 0.12 + pulse * 0.012 + momentum * 2.6, 0.72, 2.4),
+      longShortRatio: clampStockValue(1.46 + codeSeed * 0.34 + totalMove * 0.22 + wave * 0.009 + momentum * 3.2, 0.65, 3.2),
+    };
+  });
+}
+
+function stockDataPanelShell(title, controls = ["5m"]) {
+  const section = document.createElement("section");
+  section.className = "stock-data-card";
+
+  const head = document.createElement("div");
+  head.className = "stock-data-card-head";
+  const heading = document.createElement("h3");
+  heading.textContent = title;
+  const info = document.createElement("span");
+  info.className = "stock-data-info-icon";
+  info.textContent = "i";
+  head.replaceChildren(heading, info);
+
+  const controlRow = document.createElement("div");
+  controlRow.className = "stock-data-controls";
+  controlRow.replaceChildren(
+    ...controls.map((label) => {
+      const control = document.createElement("span");
+      control.textContent = label;
+      return control;
+    }),
+  );
+
+  section.append(head, controlRow);
+  return section;
+}
+
+function renderStockDataLinePanel(definition, points) {
+  const section = stockDataPanelShell(definition.title, definition.controls);
+  const values = points.map((point) => point[definition.key]);
+  const valueRange = stockDataRange(values);
+  const frame = document.createElement("div");
+  frame.className = "stock-data-chart-frame";
+  const plot = document.createElement("div");
+  plot.className = "stock-data-plot";
+  const svg = createSvg("svg", {
+    viewBox: "0 0 640 224",
+    preserveAspectRatio: "none",
+    role: "img",
+    "aria-label": definition.title,
+  });
+
+  appendStockDataGrid(svg);
+  svg.append(
+    createSvg("path", {
+      d: stockDataLinePath(points, definition.key, valueRange),
+      class: "stock-data-line",
+    }),
+  );
+  points.forEach((point, index) => {
+    if (index % 2 !== 0 && index !== points.length - 1) return;
+    svg.append(
+      createSvg("circle", {
+        cx: stockDataX(index, points.length).toFixed(2),
+        cy: stockDataY(point[definition.key], valueRange).toFixed(2),
+        r: 3.6,
+        class: "stock-data-dot",
+      }),
+    );
+  });
+
+  plot.replaceChildren(svg, stockDataXAxis(points));
+  frame.replaceChildren(stockDataAxis(values, definition.formatter), plot);
+
+  const legend = document.createElement("div");
+  legend.className = "stock-data-legend";
+  legend.append(stockDataLegendItem(definition.legend, "line"));
+
+  section.append(frame, legend);
+  return section;
+}
+
+function renderStockOpenInterestPanel(points) {
+  const section = stockDataPanelShell("Open Interest", ["5m", "Single"]);
+  const interestValues = points.map((point) => point.openInterest);
+  const notionalValues = points.map((point) => point.notional);
+  const interestRange = stockDataRange(interestValues);
+  const notionalRange = stockDataRange(notionalValues);
+
+  const frame = document.createElement("div");
+  frame.className = "stock-data-chart-frame has-right-axis";
+  const plot = document.createElement("div");
+  plot.className = "stock-data-plot";
+  const svg = createSvg("svg", {
+    viewBox: "0 0 640 224",
+    preserveAspectRatio: "none",
+    role: "img",
+    "aria-label": "Open Interest",
+  });
+  appendStockDataGrid(svg);
+
+  const barWidth = Math.max(5, (640 / Math.max(1, points.length)) * 0.42);
+  points.forEach((point, index) => {
+    const x = stockDataX(index, points.length);
+    const y = stockDataY(point.openInterest, interestRange);
+    const height = Math.max(2, 206 - y);
+    svg.append(
+      createSvg("rect", {
+        x: (x - barWidth / 2).toFixed(2),
+        y: y.toFixed(2),
+        width: barWidth.toFixed(2),
+        height: height.toFixed(2),
+        rx: 2,
+        class: "stock-data-bar",
+      }),
+    );
+  });
+  svg.append(
+    createSvg("path", {
+      d: stockDataLinePath(points, "notional", notionalRange),
+      class: "stock-data-line is-muted",
+    }),
+  );
+  points.forEach((point, index) => {
+    if (index % 2 !== 0 && index !== points.length - 1) return;
+    svg.append(
+      createSvg("circle", {
+        cx: stockDataX(index, points.length).toFixed(2),
+        cy: stockDataY(point.notional, notionalRange).toFixed(2),
+        r: 3.8,
+        class: "stock-data-dot is-muted",
+      }),
+    );
+  });
+
+  plot.replaceChildren(svg, stockDataXAxis(points));
+  frame.replaceChildren(
+    stockDataAxis(interestValues, formatStockDataCompact),
+    plot,
+    stockDataAxis(notionalValues, formatStockDataCompact, "stock-data-y-axis is-right"),
+  );
+
+  const legend = document.createElement("div");
+  legend.className = "stock-data-legend";
+  legend.replaceChildren(stockDataLegendItem("Open Interest", "bar"), stockDataLegendItem("Notional Value", "muted-line"));
+
+  section.append(frame, legend);
+  return section;
+}
+
+function renderStockDataAnalytics(container, stock, rows, result, tick) {
+  if (!container) return;
+  const points = buildStockDerivativePoints(stock, rows, result, tick);
+  if (!points.length) {
+    container.replaceChildren();
+    return;
+  }
+  const ratioFormatter = (value) => Number(value).toFixed(2);
+  container.replaceChildren(
+    renderStockOpenInterestPanel(points),
+    renderStockDataLinePanel(
+      {
+        title: "Top Trader Long/Short Ratio (Accounts)",
+        controls: ["5m"],
+        key: "accountsRatio",
+        legend: "Long/Short Ratio (Accounts)",
+        formatter: ratioFormatter,
+      },
+      points,
+    ),
+    renderStockDataLinePanel(
+      {
+        title: "Top Trader Long/Short Ratio (Positions)",
+        controls: ["5m"],
+        key: "positionsRatio",
+        legend: "Long/Short Ratio (Positions)",
+        formatter: ratioFormatter,
+      },
+      points,
+    ),
+    renderStockDataLinePanel(
+      {
+        title: "Long/Short Ratio",
+        controls: ["5m"],
+        key: "longShortRatio",
+        legend: "Long/Short Ratio",
+        formatter: ratioFormatter,
+      },
+      points,
+    ),
+  );
+}
+
+function renderStockDataTerminal(analytics, summary, table, stock, result, tick, range) {
+  if (!analytics && !summary && !table) return;
+  const series = stockSeries(stock, tick, range);
+  const rows = stockChartRows(series, range, "price");
+  renderStockDataAnalytics(analytics, stock, rows, result, tick);
+
+  if (summary) {
+    const latest = rows.at(-1) || {};
+    const first = rows[0] || {};
+    const summaryItems = [
+      ["Symbol", stockInfoMeta(stock).asset],
+      ["Last Price", formatStockKrw(result?.price || latest.close)],
+      ["Open", formatStockKrw(first.open || result?.open)],
+      ["High", formatStockKrw(result?.high)],
+      ["Low", formatStockKrw(result?.low)],
+      ["Volume", `${formatStockNumber(result?.volume)} shares`],
+    ];
+    summary.replaceChildren(
+      ...summaryItems.map(([label, value]) => {
+        const item = document.createElement("span");
+        const em = document.createElement("em");
+        const strong = document.createElement("strong");
+        em.textContent = label;
+        strong.textContent = value;
+        item.replaceChildren(em, strong);
+        return item;
+      }),
+    );
+  }
+
+  if (table) {
+    const bodyRows = rows.slice(-18).reverse().map((point) => {
+      const tr = document.createElement("tr");
+      [
+        formatStockDateTime(point.time),
+        formatStockKrw(point.open),
+        formatStockKrw(point.high),
+        formatStockKrw(point.low),
+        formatStockKrw(point.close),
+        `${formatStockNumber(point.volume)} shares`,
       ].forEach((value) => {
         const cell = document.createElement("td");
         cell.textContent = value;
@@ -3484,6 +3868,7 @@ function initStockExchange() {
   const mainPanels = document.querySelectorAll("[data-stock-main-panel]");
   const infoViewButtons = document.querySelectorAll("[data-stock-info-view]");
   const infoBody = document.querySelector("[data-stock-info-body]");
+  const dataAnalytics = document.querySelector("[data-stock-data-analytics]");
   const dataSummary = document.querySelector("[data-stock-data-summary]");
   const dataTable = document.querySelector("[data-stock-data-table]");
   const ticker = document.querySelector("[data-stock-ticker]");
@@ -3722,7 +4107,7 @@ function initStockExchange() {
       groupSize: activeDepthGroup,
     });
     renderStockInfoTerminal(infoBody, stock, result, metrics, depth, stocks, marketMeta, activeInfoView);
-    renderStockDataTerminal(dataSummary, dataTable, stock, result, tick, activeRange);
+    renderStockDataTerminal(dataAnalytics, dataSummary, dataTable, stock, result, tick, activeRange);
     renderStockPortfolio(portfolioList, portfolioBalance, portfolio, market);
     renderExpertPanel(expertElements, metrics, depth, stock, orderElements, activeSide);
     renderStockNews(newsElements, stock, metrics, depth);
