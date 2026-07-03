@@ -405,6 +405,42 @@
                 </ul>
               </section>
 
+              <section class="stock-panel stock-account-panel" aria-label="선물 계좌">
+                <div class="stock-board-heading">
+                  <span>Account</span>
+                  <span data-stock-account-mode>Single-Asset Mode</span>
+                </div>
+                <div class="stock-account-body">
+                  <div class="stock-account-gauge">
+                    <div>
+                      <span>Margin Ratio</span>
+                      <strong data-stock-account-margin-ratio>0.00%</strong>
+                    </div>
+                    <meter min="0" max="100" low="25" high="70" optimum="8" value="0" data-stock-account-meter></meter>
+                  </div>
+                  <dl class="stock-account-list">
+                    <div>
+                      <dt>Maintenance Margin</dt>
+                      <dd data-stock-account-maintenance>₩0</dd>
+                    </div>
+                    <div>
+                      <dt>Margin Balance</dt>
+                      <dd data-stock-account-balance>₩0</dd>
+                    </div>
+                    <div>
+                      <dt>Position Value</dt>
+                      <dd data-stock-account-position-value>₩0</dd>
+                    </div>
+                  </dl>
+                  <div class="stock-account-mode">Single-Asset Mode</div>
+                  <div class="stock-account-actions" aria-label="계좌 작업">
+                    <button type="button">Transfer</button>
+                    <button type="button">Buy Crypto</button>
+                    <button type="button">Swap</button>
+                  </div>
+                </div>
+              </section>
+
               <section class="stock-panel stock-expert-panel" aria-label="전문가 지표">
                 <div class="stock-board-heading">
                   <span>Technical Signal</span>
@@ -420,6 +456,22 @@
                   <span><em>예상 청산가</em><strong>--</strong></span>
                   <span><em>위험도</em><strong>--</strong></span>
                   <span><em>오더북 압력</em><strong>--</strong></span>
+                </div>
+              </section>
+
+              <section class="stock-panel stock-activity-panel" aria-label="선물 주문 활동">
+                <div class="stock-activity-tabs" data-stock-activity-tabs>
+                  <button type="button" class="is-active" data-stock-activity-view="positions">Positions(0)</button>
+                  <button type="button" data-stock-activity-view="open-orders">Open Orders(0)</button>
+                  <button type="button" data-stock-activity-view="order-history">Order History</button>
+                  <button type="button" data-stock-activity-view="trade-history">Trade History</button>
+                  <button type="button" data-stock-activity-view="transaction-history">Transaction History</button>
+                  <button type="button" data-stock-activity-view="position-history">Position History</button>
+                  <button type="button" data-stock-activity-view="bots">Bots</button>
+                  <button type="button" data-stock-activity-view="assets">Assets</button>
+                </div>
+                <div class="stock-activity-body" data-stock-activity-body>
+                  <div class="stock-activity-empty">Open Futures Account to trade</div>
                 </div>
               </section>
 

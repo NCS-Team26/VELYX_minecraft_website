@@ -134,10 +134,10 @@ const STOCK_INFO_META = {
   },
 };
 const STOCK_MARKET_VOLATILITY_PROFILE = {
-  sp500: 0.012,
-  nasdaq: 0.019,
-  russell1000: 0.017,
-  technicalSwing: 0.028,
+  sp500: 0.018,
+  nasdaq: 0.032,
+  russell1000: 0.028,
+  technicalSwing: 0.042,
 };
 const FINANCIAL_PERIOD_COUNT = 4;
 const FINANCIAL_QUARTER_SEASONALITY = [0.94, 1.0, 1.02, 1.08];
@@ -1322,9 +1322,15 @@ function fallbackStockSeries(stock, tick, length = 96, stepMs = 15 * 60_000) {
     const pulse = Math.cos((index + tick * 0.22) * 0.31 + volumeSeed * 0.0008) * (0.010 + stockVol * 0.88);
     const momentum = Math.sin((index + tick * 0.72) * 0.17 + beta * 2.1) * STOCK_MARKET_VOLATILITY_PROFILE.technicalSwing;
     const breakout = Math.sin((index + tick * 0.31) * 1.24 + base * 0.003) * stockVol * 0.72;
+    const microMove = Math.sin((index + tick * 0.9) * 2.13 + beta * 4.7) * stockVol * 0.42;
+    const shockGate = Math.sin((index + tick * 0.33) * 0.71 + base * 0.002);
+    const shock = shockGate > 0.88 ? stockVol * 1.85 : shockGate < -0.9 ? -stockVol * 1.65 : 0;
     const trend = drift * (index / Math.max(1, count - 1));
-    const price = Math.max(1, base * (1 + wave + pulse + momentum + breakout + trend));
-    const volume = 30 + Math.abs(Math.sin(index * 0.7 + tick + base)) * 72 + Math.abs(momentum + breakout) * 1800;
+    const price = Math.max(1, base * (1 + wave + pulse + momentum + breakout + microMove + shock + trend));
+    const volume =
+      44
+      + Math.abs(Math.sin(index * 0.7 + tick + base)) * 96
+      + Math.abs(momentum + breakout + microMove + shock) * 2600;
     const open = previousClose;
     const wickSpread = 0.006 + stockVol * 0.55 + Math.abs(Math.sin(index + tick)) * 0.006;
     const high = Math.max(open, price) * (1 + wickSpread);
@@ -1356,14 +1362,15 @@ function stockSeries(stock, tick, range = "24H") {
     }))
     .filter((point) => Number.isFinite(point.price) && point.price > 0);
 
-  if (series.length >= 2) {
+  const target = STOCK_RANGE_CONFIG[range]?.points || STOCK_RANGE_CONFIG["1D"].points;
+  const expectedLength = Number.isFinite(target) ? target : STOCK_RANGE_CONFIG["1D"].points;
+  if (series.length >= Math.min(48, expectedLength)) {
     const normalized = series.map((point, index) => ({
       ...point,
       volume: stockDerivedCandleVolume(stock, point, series[index - 1], index),
     }));
     return rangedStockSeries(normalized, range);
   }
-  const target = STOCK_RANGE_CONFIG[range]?.points || STOCK_RANGE_CONFIG["1D"].points;
   const fallbackLength = Number.isFinite(target) ? target : STOCK_RANGE_CONFIG["1D"].points;
   return rangedStockSeries(fallbackStockSeries(stock, tick, fallbackLength, stockRangeStepMs(range)), range);
 }
@@ -3807,23 +3814,28 @@ function renderStockPortfolio(list, balanceLabel, portfolio, market) {
   }
   if (!list) return;
   const positions = Array.isArray(portfolio?.positions) ? portfolio.positions : [];
-  if (!positions.length) {
+  const stocks = Array.isArray(market?.stocks) ? market.stocks : [];
+  const positionByCode = new Map(positions.map((position) => [position.symbol || position.code, position]));
+  const rows = stocks.length
+    ? stocks.map((stock) => ({ code: stockCode(stock), stock, position: positionByCode.get(stockCode(stock)) }))
+    : positions.map((position) => ({ code: position.symbol || position.code, stock: null, position }));
+
+  if (!rows.length) {
     const item = document.createElement("li");
     item.className = "is-empty";
     item.innerHTML = "<span>보유 종목 없음</span><strong>--</strong>";
     list.replaceChildren(item);
     return;
   }
-  const stocks = Array.isArray(market?.stocks) ? market.stocks : [];
+
   list.replaceChildren(
-    ...positions.map((position) => {
-      const code = position.symbol || position.code;
-      const stock = stocks.find((item) => stockCode(item) === code);
-      const shares = Number(position.shares ?? position.quantity ?? 0);
-      const value = Number(position.value ?? shares * Number(stock?.price || position.price || 0));
+    ...rows.map(({ code, stock, position }) => {
+      const shares = Number(position?.shares ?? position?.quantity ?? 0);
+      const value = Number(position?.value ?? shares * Number(stock?.price || position?.price || 0));
       const item = document.createElement("li");
+      if (!shares) item.className = "is-empty";
       const label = document.createElement("span");
-      label.textContent = `${code} · ${stock?.name || position.name || "포지션"}`;
+      label.textContent = `${code} · ${stock?.name || position?.name || "포지션"}`;
       const amount = document.createElement("strong");
       amount.textContent = `${formatStockNumber(shares)}주`;
       const detail = document.createElement("em");
@@ -3832,6 +3844,148 @@ function renderStockPortfolio(list, balanceLabel, portfolio, market) {
       return item;
     }),
   );
+}
+
+function stockPortfolioPositionValue(portfolio, market) {
+  const positions = Array.isArray(portfolio?.positions) ? portfolio.positions : [];
+  const stocks = Array.isArray(market?.stocks) ? market.stocks : [];
+  return positions.reduce((sum, position) => {
+    const code = position.symbol || position.code;
+    const stock = stocks.find((item) => stockCode(item) === code);
+    const shares = Number(position.shares ?? position.quantity ?? 0);
+    const value = Number(position.value ?? shares * Number(stock?.price || position.price || 0));
+    return sum + (Number.isFinite(value) ? value : 0);
+  }, 0);
+}
+
+function renderStockAccount(elements, portfolio, market) {
+  if (!elements?.ratio && !elements?.balance && !elements?.maintenance && !elements?.positionValue) return;
+  const cashBalance = Number(portfolio?.balance || 0);
+  const positionValue = stockPortfolioPositionValue(portfolio, market);
+  const marginBalance = Math.max(0, cashBalance + positionValue);
+  const maintenance = positionValue * 0.006;
+  const ratio = marginBalance > 0 ? (maintenance / marginBalance) * 100 : 0;
+  const clampedRatio = Math.max(0, Math.min(100, ratio));
+
+  if (elements.ratio) elements.ratio.textContent = `${clampedRatio.toFixed(2)}%`;
+  if (elements.meter) elements.meter.value = clampedRatio;
+  if (elements.maintenance) elements.maintenance.textContent = formatStockKrw(maintenance);
+  if (elements.balance) elements.balance.textContent = formatStockKrw(marginBalance);
+  if (elements.positionValue) elements.positionValue.textContent = formatStockKrw(positionValue);
+  if (elements.mode) elements.mode.textContent = "Single-Asset Mode";
+}
+
+function stockActivityEmpty(label = "Open Futures Account to trade") {
+  const empty = document.createElement("div");
+  empty.className = "stock-activity-empty";
+  empty.textContent = label;
+  return empty;
+}
+
+function stockActivityTable(headers, rows) {
+  const wrap = document.createElement("div");
+  wrap.className = "stock-activity-table-wrap";
+  const table = document.createElement("table");
+  table.className = "stock-activity-table";
+  const thead = document.createElement("thead");
+  const headRow = document.createElement("tr");
+  headers.forEach((header) => {
+    const th = document.createElement("th");
+    th.textContent = header;
+    headRow.append(th);
+  });
+  thead.append(headRow);
+  const tbody = document.createElement("tbody");
+  rows.forEach((row) => {
+    const tr = document.createElement("tr");
+    row.forEach((value) => {
+      const td = document.createElement("td");
+      td.textContent = value;
+      tr.append(td);
+    });
+    tbody.append(tr);
+  });
+  table.replaceChildren(thead, tbody);
+  wrap.append(table);
+  return wrap;
+}
+
+function renderStockActivityPanel(body, buttons, view, portfolio, market, activeCode) {
+  const positions = Array.isArray(portfolio?.positions) ? portfolio.positions : [];
+  const trades = (Array.isArray(market?.recentTrades) ? market.recentTrades : []).filter(
+    (trade) => !activeCode || (trade.symbol || trade.code) === activeCode,
+  );
+  const stocks = Array.isArray(market?.stocks) ? market.stocks : [];
+  const labels = {
+    positions: `Positions(${positions.length})`,
+    "open-orders": "Open Orders(0)",
+    "order-history": "Order History",
+    "trade-history": `Trade History${trades.length ? `(${trades.length})` : ""}`,
+    "transaction-history": "Transaction History",
+    "position-history": "Position History",
+    bots: "Bots",
+    assets: "Assets",
+  };
+
+  buttons.forEach((button) => {
+    const key = button.dataset.stockActivityView;
+    button.classList.toggle("is-active", key === view);
+    if (labels[key]) button.textContent = labels[key];
+  });
+  if (!body) return;
+
+  if (view === "positions" && positions.length) {
+    body.replaceChildren(
+      stockActivityTable(
+        ["Symbol", "Size", "Entry", "Mark", "Value"],
+        positions.map((position) => {
+          const code = position.symbol || position.code;
+          const stock = stocks.find((item) => stockCode(item) === code);
+          const shares = Number(position.shares ?? position.quantity ?? 0);
+          const entry = Number(position.entryPrice || position.price || stock?.price || 0);
+          const mark = Number(stock?.price || entry);
+          return [code, `${formatStockNumber(shares)}주`, formatStockKrw(entry), formatStockKrw(mark), formatStockKrw(shares * mark)];
+        }),
+      ),
+    );
+    return;
+  }
+
+  if (view === "trade-history" && trades.length) {
+    body.replaceChildren(
+      stockActivityTable(
+        ["Time", "Symbol", "Side", "Size", "Price"],
+        trades.slice(0, 12).map((trade) => [
+          formatStockTime(trade.time || trade.createdAt || trade.at),
+          trade.symbol || trade.code || activeCode,
+          trade.side === "sell" ? "Sell" : "Buy",
+          `${formatStockNumber(trade.quantity || trade.shares || 0)}주`,
+          formatStockKrw(trade.price),
+        ]),
+      ),
+    );
+    return;
+  }
+
+  if (view === "assets" && stocks.length) {
+    body.replaceChildren(
+      stockActivityTable(
+        ["Asset", "Name", "Last", "24H"],
+        stocks.map((stock) => [stockCode(stock), stock.name || stockCode(stock), formatStockKrw(stock.price), formatStockChange(stock.change24h)]),
+      ),
+    );
+    return;
+  }
+
+  const emptyLabels = {
+    bots: "No bots are running",
+    assets: "No assets loaded",
+    "open-orders": "No open orders",
+    "order-history": "No order history",
+    "transaction-history": "No transaction history",
+    "position-history": "No closed positions",
+  };
+  body.replaceChildren(stockActivityEmpty(emptyLabels[view] || "Open Futures Account to trade"));
 }
 
 function formatMetricPercent(value) {
@@ -4087,6 +4241,16 @@ function initStockExchange() {
   };
   const portfolioList = document.querySelector("[data-stock-portfolio]");
   const portfolioBalance = document.querySelector("[data-stock-portfolio-balance]");
+  const accountElements = {
+    mode: document.querySelector("[data-stock-account-mode]"),
+    ratio: document.querySelector("[data-stock-account-margin-ratio]"),
+    meter: document.querySelector("[data-stock-account-meter]"),
+    maintenance: document.querySelector("[data-stock-account-maintenance]"),
+    balance: document.querySelector("[data-stock-account-balance]"),
+    positionValue: document.querySelector("[data-stock-account-position-value]"),
+  };
+  const activityButtons = document.querySelectorAll("[data-stock-activity-view]");
+  const activityBody = document.querySelector("[data-stock-activity-body]");
   const orderForm = document.querySelector("[data-stock-order-form]");
   const orderElements = {
     root: orderForm,
@@ -4115,6 +4279,7 @@ function initStockExchange() {
   let activeMode = document.querySelector("[data-stock-chart-mode].is-active")?.dataset.stockChartMode || "line";
   let activeScale = document.querySelector("[data-stock-scale].is-active")?.dataset.stockScale || "price";
   let activeFinancialView = document.querySelector("[data-stock-financial-view].is-active")?.dataset.stockFinancialView || "income";
+  let activeActivityView = document.querySelector("[data-stock-activity-view].is-active")?.dataset.stockActivityView || "positions";
   let activeDepthGroup = Number(document.querySelector("[data-stock-depth-group].is-active")?.dataset.stockDepthGroup || 1);
   let activeIndicators = new Set(
     Array.from(document.querySelectorAll("[data-stock-indicator].is-active")).map(
@@ -4241,6 +4406,8 @@ function initStockExchange() {
     renderStockInfoTerminal(infoBody, stock, result, metrics, depth, stocks, marketMeta, activeInfoView);
     renderStockDataTerminal(dataAnalytics, dataSummary, dataTable, stock, result, tick, activeRange);
     renderStockPortfolio(portfolioList, portfolioBalance, portfolio, market);
+    renderStockAccount(accountElements, portfolio, market);
+    renderStockActivityPanel(activityBody, activityButtons, activeActivityView, portfolio, market, activeCode);
     renderExpertPanel(expertElements, metrics, depth, stock, orderElements, activeSide);
     renderStockNews(newsElements, stock, metrics, depth);
     renderStockFinancials(financialElements, stock, metrics, activeFinancialView);
@@ -4352,6 +4519,12 @@ function initStockExchange() {
   financialViewButtons.forEach((button) => {
     button.addEventListener("click", () => {
       activeFinancialView = button.dataset.stockFinancialView || "income";
+      render();
+    });
+  });
+  activityButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      activeActivityView = button.dataset.stockActivityView || "positions";
       render();
     });
   });

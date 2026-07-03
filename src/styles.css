@@ -5028,6 +5028,9 @@ body.stock-news-modal-open {
     "chart depth order"
     "chart trades order"
     "markets detail order"
+    "strength portfolio account"
+    "expert expert account"
+    "activity activity activity"
     "news news news"
     "financial financial financial";
   gap: 4px;
@@ -5074,15 +5077,23 @@ body.stock-news-modal-open {
 }
 
 .stock-strength-panel {
-  grid-column: 2;
+  grid-area: strength;
 }
 
 .stock-portfolio-panel {
-  grid-column: 3;
+  grid-area: portfolio;
+}
+
+.stock-account-panel {
+  grid-area: account;
 }
 
 .stock-expert-panel {
-  grid-column: 2 / 4;
+  grid-area: expert;
+}
+
+.stock-activity-panel {
+  grid-area: activity;
 }
 
 .stock-news-panel {
@@ -6039,7 +6050,18 @@ body.stock-news-modal-open {
 
 .stock-market-table tbody tr:hover,
 .stock-market-table tbody tr.is-active {
-  background: rgba(240, 185, 11, 0.08);
+  background: #202630;
+}
+
+.stock-market-table tbody tr.is-active {
+  box-shadow: inset 3px 0 0 var(--stock-yellow);
+}
+
+.stock-market-table tbody tr.is-active th,
+.stock-market-table tbody tr.is-active td,
+.stock-market-table tbody tr.is-active strong,
+.stock-market-table tbody tr.is-active span {
+  color: var(--stock-text);
 }
 
 .stock-market-table strong,
@@ -6054,6 +6076,199 @@ body.stock-news-modal-open {
 .stock-financial-ratios strong,
 .stock-financial-health strong {
   color: var(--stock-text);
+}
+
+.stock-portfolio-list li {
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 8px;
+}
+
+.stock-portfolio-list li.is-empty strong,
+.stock-portfolio-list li.is-empty em {
+  color: var(--stock-muted);
+}
+
+.stock-portfolio-list em {
+  overflow: hidden;
+  color: var(--stock-muted);
+  font-style: normal;
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stock-account-body {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+}
+
+.stock-account-gauge {
+  display: grid;
+  gap: 10px;
+}
+
+.stock-account-gauge > div,
+.stock-account-list div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.stock-account-gauge span,
+.stock-account-list dt {
+  color: var(--stock-muted);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.stock-account-gauge strong,
+.stock-account-list dd {
+  margin: 0;
+  color: var(--stock-text);
+  font-size: 15px;
+  font-weight: 950;
+  text-align: right;
+}
+
+.stock-account-gauge strong {
+  color: var(--stock-green);
+}
+
+.stock-account-gauge meter {
+  width: 100%;
+  height: 12px;
+  overflow: hidden;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(94, 102, 115, 0.22);
+}
+
+.stock-account-gauge meter::-webkit-meter-bar {
+  border: 0;
+  border-radius: 999px;
+  background: rgba(94, 102, 115, 0.22);
+}
+
+.stock-account-gauge meter::-webkit-meter-optimum-value {
+  border-radius: 999px;
+  background: var(--stock-green);
+}
+
+.stock-account-gauge meter::-moz-meter-bar {
+  border-radius: 999px;
+  background: var(--stock-green);
+}
+
+.stock-account-list {
+  display: grid;
+  gap: 9px;
+  margin: 0;
+  padding: 0;
+}
+
+.stock-account-mode {
+  display: grid;
+  place-items: center;
+  min-height: 42px;
+  border-radius: 6px;
+  color: var(--stock-text);
+  background: #2b3139;
+  font-size: 15px;
+  font-weight: 950;
+}
+
+.stock-account-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  padding-top: 4px;
+  border-top: 1px solid var(--stock-border);
+}
+
+.stock-account-actions button {
+  min-height: 40px;
+  border: 0;
+  border-radius: 6px;
+  color: var(--stock-text);
+  background: #2b3139;
+  font-size: 13px;
+  font-weight: 950;
+}
+
+.stock-activity-tabs {
+  display: flex;
+  gap: 18px;
+  min-height: 48px;
+  padding: 0 14px;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--stock-border);
+  scrollbar-width: thin;
+}
+
+.stock-activity-tabs button {
+  flex: 0 0 auto;
+  min-height: 48px;
+  border: 0;
+  border-radius: 0;
+  color: var(--stock-muted);
+  background: transparent;
+  font-size: 14px;
+  font-weight: 900;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.stock-activity-tabs button.is-active {
+  color: var(--stock-text);
+  box-shadow: inset 0 -3px 0 var(--stock-yellow);
+}
+
+.stock-activity-body {
+  min-height: 220px;
+  background: #151a20;
+}
+
+.stock-activity-empty {
+  display: grid;
+  place-items: center;
+  min-height: 220px;
+  color: var(--stock-soft);
+  font-size: 15px;
+  font-weight: 850;
+  text-align: center;
+}
+
+.stock-activity-table-wrap {
+  overflow-x: auto;
+}
+
+.stock-activity-table {
+  width: 100%;
+  min-width: 680px;
+  border-collapse: collapse;
+}
+
+.stock-activity-table th,
+.stock-activity-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--stock-border);
+  text-align: left;
+}
+
+.stock-activity-table th {
+  color: var(--stock-muted);
+  background: #1e2329;
+  font-size: 12px;
+  font-weight: 950;
+  text-transform: uppercase;
+}
+
+.stock-activity-table td {
+  color: var(--stock-text);
+  font-size: 13px;
+  font-weight: 850;
 }
 
 .stock-detail-body,
@@ -6178,14 +6393,11 @@ body.stock-news-modal-open {
       "depth order"
       "trades detail"
       "markets markets"
+      "strength portfolio"
+      "expert account"
+      "activity activity"
       "news news"
       "financial financial";
-  }
-
-  .stock-strength-panel,
-  .stock-portfolio-panel,
-  .stock-expert-panel {
-    grid-column: auto;
   }
 
   .stock-market-strip {
@@ -6215,6 +6427,11 @@ body.stock-news-modal-open {
       "trades"
       "markets"
       "detail"
+      "strength"
+      "portfolio"
+      "expert"
+      "account"
+      "activity"
       "news"
       "financial";
     padding: 4px;
@@ -6407,6 +6624,19 @@ body.stock-news-modal-open {
 
   .stock-order-ticket form {
     padding-inline: 12px;
+  }
+
+  .stock-account-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .stock-activity-tabs {
+    gap: 12px;
+    padding-inline: 12px;
+  }
+
+  .stock-activity-tabs button {
+    font-size: 13px;
   }
 
   .stock-news-head,
