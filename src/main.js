@@ -18,7 +18,7 @@ const FUNNEL_PLAYER_API_BASE = "https://minecraftserver1.tail16d543.ts.net/minec
 const LEGACY_PLAYER_API_BASE = "https://api.nfoifsb.kr/minecraft";
 const isHostedSite = ["www.nfoifsb.kr", "nfoifsb.kr"].includes(window.location.hostname);
 const PRODUCTION_PLAYER_API_BASE = isHostedSite ? PUBLIC_PLAYER_API_BASE : FUNNEL_PLAYER_API_BASE;
-const PRODUCTION_PLAYER_API_FALLBACK_BASE = `${WINDOWS_FUNNEL_PLAYER_API_BASE},${FUNNEL_PLAYER_API_BASE},${LEGACY_PLAYER_API_BASE}`;
+const PRODUCTION_PLAYER_API_FALLBACK_BASE = `${FUNNEL_PLAYER_API_BASE},${LEGACY_PLAYER_API_BASE},${WINDOWS_FUNNEL_PLAYER_API_BASE}`;
 
 function apiBaseList(...values) {
   return [

@@ -16,7 +16,7 @@ const funnelPlayerApiBase = "https://minecraftserver1.tail16d543.ts.net/minecraf
 const legacyPlayerApiBase = "https://api.nfoifsb.kr/minecraft";
 const isHostedSite = ["www.nfoifsb.kr", "nfoifsb.kr"].includes(window.location.hostname);
 const productionPlayerApiBase = isHostedSite ? publicPlayerApiBase : funnelPlayerApiBase;
-const productionPlayerApiFallbackBase = `${windowsFunnelPlayerApiBase},${funnelPlayerApiBase},${legacyPlayerApiBase}`;
+const productionPlayerApiFallbackBase = `${funnelPlayerApiBase},${legacyPlayerApiBase},${windowsFunnelPlayerApiBase}`;
 const localPlayerApiBase = isLocalHost ? "http://127.0.0.1:8787/minecraft" : "";
 function apiBaseList(...values) {
   return [
@@ -1011,14 +1011,14 @@ async function fetchPlayerJson(path, options = {}) {
 async function fetchPlayerJsonFrom(base, path, options = {}) {
   const controller = new AbortController();
   const timer = window.setTimeout(() => controller.abort(), 6000);
+  const headers = { ...(options.headers || {}) };
+  if (options.body && !headers["Content-Type"]) headers["Content-Type"] = "application/json";
   try {
     const response = await fetch(`${base}${path}`, {
       ...options,
+      cache: "no-store",
       signal: controller.signal,
-      headers: {
-        "Content-Type": "application/json",
-        ...(options.headers || {}),
-      },
+      headers,
     });
     const payload = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(payload?.message || `player api ${response.status}`);
