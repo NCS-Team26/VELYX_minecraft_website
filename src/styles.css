@@ -4491,6 +4491,12 @@ input:focus-visible,
   gap: 14px;
 }
 
+.stock-futures-nav .stock-futures-brand {
+  flex: 0 0 auto;
+  min-width: 126px;
+  margin-right: 18px;
+}
+
 .stock-futures-brand img {
   display: none;
 }
@@ -4613,6 +4619,12 @@ input:focus-visible,
   border: 0;
   border-bottom: 1px solid var(--stock-border);
   border-radius: 0;
+  scrollbar-width: none;
+}
+
+.stock-ticker::-webkit-scrollbar,
+.stock-market-strip::-webkit-scrollbar {
+  display: none;
 }
 
 .stock-ticker button {
@@ -4630,6 +4642,12 @@ input:focus-visible,
 .stock-ticker button:is(:hover, .is-active) {
   color: var(--stock-text);
   background: #1f232c;
+}
+
+.stock-pro-terminal.stock-exchange .stock-ticker button:is(:hover, .is-active) {
+  color: var(--stock-text);
+  background: #1f232c;
+  box-shadow: inset 0 -2px 0 var(--stock-yellow);
 }
 
 .stock-ticker strong,
@@ -4685,6 +4703,7 @@ input:focus-visible,
   overscroll-behavior-x: contain;
   background: var(--stock-panel);
   border-bottom: 1px solid var(--stock-border);
+  scrollbar-width: none;
 }
 
 .stock-market-pair,
@@ -4786,7 +4805,7 @@ input:focus-visible,
 
 .stock-futures-layout {
   display: grid;
-  grid-template-columns: minmax(680px, 1fr) 336px 424px;
+  grid-template-columns: minmax(560px, 1fr) minmax(286px, 320px) minmax(330px, 360px);
   grid-template-areas:
     "chart depth order"
     "chart trades order"
@@ -4796,6 +4815,10 @@ input:focus-visible,
   gap: 4px;
   align-items: start;
   padding: 4px;
+}
+
+.stock-pro-terminal .stock-panel-main {
+  padding: 0;
 }
 
 .stock-panel {
@@ -4913,24 +4936,29 @@ input:focus-visible,
 }
 
 .stock-control-deck {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto auto;
-  gap: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
   align-items: center;
   min-height: 48px;
   margin: 0;
-  padding: 0 14px;
+  padding: 6px 14px;
   border-bottom: 1px solid var(--stock-border);
 }
 
 .stock-control-deck .stock-tabs,
 .stock-control-deck .stock-range-tabs {
   display: flex;
-  flex-wrap: nowrap;
-  gap: 8px;
+  flex: 0 1 auto;
+  flex-wrap: wrap;
+  gap: 6px;
   padding: 0;
   border: 0;
-  overflow-x: auto;
+  overflow: visible;
+}
+
+.stock-control-deck .stock-range-tabs {
+  flex: 1 1 220px;
 }
 
 .stock-chart-shell {
@@ -4949,24 +4977,44 @@ input:focus-visible,
 .stock-ohlc-line {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 12px;
   width: 100%;
   max-width: 100%;
+  min-height: 38px;
   min-width: 0;
-  overflow-x: auto;
-  overscroll-behavior-x: contain;
+  overflow: hidden;
   color: var(--stock-muted);
   font-size: 12px;
   font-weight: 800;
-  white-space: nowrap;
+  white-space: normal;
 }
 
 .stock-ohlc-line strong,
 .stock-ohlc-line em {
+  display: inline;
   margin-left: 4px;
+  margin-top: 0;
   color: var(--stock-red);
+  font-size: 12px;
+  line-height: 1.2;
   font-style: normal;
   font-weight: 950;
+}
+
+.stock-pro-terminal .stock-chart-top span,
+.stock-pro-terminal .stock-ohlc-line strong,
+.stock-pro-terminal .stock-ohlc-line em {
+  display: inline;
+  color: var(--stock-muted);
+  font-size: 12px;
+  line-height: 1.2;
+  text-transform: none;
+}
+
+.stock-pro-terminal .stock-ohlc-line strong,
+.stock-pro-terminal .stock-ohlc-line em {
+  color: var(--stock-red);
 }
 
 .stock-chart-readout {
@@ -5518,7 +5566,7 @@ input:focus-visible,
   }
 
   .stock-market-strip {
-    grid-template-columns: repeat(8, minmax(138px, 1fr));
+    grid-template-columns: 260px repeat(7, 142px);
   }
 
   .stock-market-pair {
@@ -5560,6 +5608,11 @@ input:focus-visible,
 
   .stock-market-strip {
     min-height: 58px;
+    grid-template-columns: 250px repeat(7, 132px);
+  }
+
+  .stock-market-pair {
+    min-width: 250px;
   }
 
   .stock-market-price strong {

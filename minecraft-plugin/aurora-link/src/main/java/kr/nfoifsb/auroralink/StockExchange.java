@@ -365,21 +365,30 @@ public final class StockExchange {
   private void advanceStock(StockState stock, StockDefinition definition, long at) {
     double price = Math.max(0.01, stock.currentPrice);
     double minutes = at / 60000.0;
-    double cycle = Math.sin((minutes + definition.symbol.hashCode()) * definition.cycleSpeed) * definition.volatility * 0.72;
+    double cycle = Math.sin((minutes + definition.symbol.hashCode()) * definition.cycleSpeed) * definition.volatility * 0.48;
     double marketSwing =
         Math.sin((minutes * definition.cycleSpeed * 0.52) + definition.symbol.hashCode() * 0.013)
             * definition.volatility
-            * 0.48;
+            * 0.28;
     double technicalBreakout =
         Math.sin((minutes * definition.cycleSpeed * 2.4) + price * 0.0007)
             * definition.volatility
-            * 0.34;
-    double anchor = ((definition.startPrice - price) / definition.startPrice) * definition.meanReversion;
-    double noise = random.nextGaussian() * definition.volatility * 1.28;
+            * 0.20;
+    double anchor = ((definition.startPrice - price) / definition.startPrice) * definition.meanReversion * 1.65;
+    double noise = random.nextGaussian() * definition.volatility * 0.72;
     double change = clamp(noise + cycle + marketSwing + technicalBreakout + anchor, -definition.maxTickMove, definition.maxTickMove);
     double nextPrice = clampMoney(price * (1.0 + change), definition);
     stock.currentPrice = nextPrice;
-    updateCandle(stock, at, nextPrice, 0, 0);
+    long ambientVolume = ambientMarketVolume(definition, change, at);
+    int ambientTrades = Math.max(1, (int) Math.round(ambientVolume / Math.max(35.0, definition.liquidity * 0.018)));
+    updateCandle(stock, at, nextPrice, ambientVolume, ambientTrades);
+  }
+
+  private long ambientMarketVolume(StockDefinition definition, double change, long at) {
+    double minutes = at / 60000.0;
+    double rhythm = 0.5 + 0.5 * Math.abs(Math.sin(minutes * definition.cycleSpeed * 3.1 + definition.symbol.hashCode()));
+    double activity = 0.004 + Math.abs(change) * 1.15 + definition.volatility * 0.32 + rhythm * 0.006;
+    return Math.max(1L, Math.round(definition.liquidity * activity));
   }
 
   private void updateCandle(StockState stock, long at, double price, long volume, int trades) {

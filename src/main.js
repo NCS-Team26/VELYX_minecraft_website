@@ -1037,12 +1037,52 @@ function stockRangeStepMs(range) {
   return STOCK_RANGE_CONFIG[range]?.stepMs || STOCK_RANGE_CONFIG["1D"].stepMs;
 }
 
+function stockProfile(stock) {
+  const code = stockCode(stock);
+  return STOCKS.find((item) => item.code === code) || {};
+}
+
+function stockActivityVolumeBase(stock) {
+  const profile = stockProfile(stock);
+  const reported = Number(stock?.volume24h);
+  if (Number.isFinite(reported) && reported > 0) return Math.max(60, reported / 72);
+  const profileVolume = Number(profile.volume || stock?.volume || 0);
+  return Math.max(850, profileVolume * 0.14);
+}
+
+function stockDerivedCandleVolume(stock, point, previous, index) {
+  const rawVolume = Number(point?.volume);
+  if (Number.isFinite(rawVolume) && rawVolume > 0) return rawVolume;
+  const open = Number(point?.open ?? previous?.close ?? point?.price ?? 1);
+  const close = Number(point?.close ?? point?.price ?? open);
+  const high = Number(point?.high ?? Math.max(open, close));
+  const low = Number(point?.low ?? Math.min(open, close));
+  const reference = Math.max(1, Number(previous?.close ?? open ?? close ?? 1));
+  const rangePct = Math.max(0, (high - low) / reference);
+  const bodyPct = Math.abs(close - open) / reference;
+  const rhythm = 0.78 + Math.abs(Math.sin(index * 0.73 + reference * 0.001)) * 0.58;
+  const activity = 0.74 + Math.min(3.4, rangePct * 15 + bodyPct * 26);
+  return Math.max(25, Math.round(stockActivityVolumeBase(stock) * rhythm * activity));
+}
+
+function stockDisplayVolume24h(stock, tick = 0) {
+  const reported = Number(stock?.volume24h);
+  if (Number.isFinite(reported) && reported > 0) return reported;
+  return Math.round(stockSeries(stock, tick, "1D").reduce((sum, point) => sum + (Number(point.volume) || 0), 0));
+}
+
+function stockMarketDisplayVolume24h(stocks, marketMeta, tick = 0) {
+  const reported = Number(marketMeta?.volume24h);
+  if (Number.isFinite(reported) && reported > 0) return reported;
+  return stocks.reduce((sum, stock) => sum + stockDisplayVolume24h(stock, tick), 0);
+}
+
 function sortStocks(stocks, sortMode) {
   const sorted = [...stocks];
   if (sortMode === "change") {
     sorted.sort((left, right) => Number(right.change24h || 0) - Number(left.change24h || 0));
   } else if (sortMode === "volume") {
-    sorted.sort((left, right) => Number(right.volume24h || 0) - Number(left.volume24h || 0));
+    sorted.sort((left, right) => stockDisplayVolume24h(right) - stockDisplayVolume24h(left));
   }
   return sorted;
 }
@@ -1182,7 +1222,13 @@ function stockSeries(stock, tick, range = "24H") {
     }))
     .filter((point) => Number.isFinite(point.price) && point.price > 0);
 
-  if (series.length >= 2) return rangedStockSeries(series, range);
+  if (series.length >= 2) {
+    const normalized = series.map((point, index) => ({
+      ...point,
+      volume: stockDerivedCandleVolume(stock, point, series[index - 1], index),
+    }));
+    return rangedStockSeries(normalized, range);
+  }
   const target = STOCK_RANGE_CONFIG[range]?.points || STOCK_RANGE_CONFIG["1D"].points;
   const fallbackLength = Number.isFinite(target) ? target : STOCK_RANGE_CONFIG["1D"].points;
   return rangedStockSeries(fallbackStockSeries(stock, tick, fallbackLength, stockRangeStepMs(range)), range);
@@ -1540,8 +1586,9 @@ function buildStockFinancials(stock, metrics = {}) {
   const periodLabels = financialQuarterPeriods(quarterMeta);
   const price = Math.max(1, Number(stock?.price || stock?.base) || 1);
   const rawShares = Number(stock?.sharesOutstanding ?? stock?.shares ?? stock?.volume);
+  const displayVolume = stockDisplayVolume24h(stock);
   const marketCapInput = Number(stock?.marketCap);
-  const fallbackShares = Number.isFinite(rawShares) && rawShares > 0 ? rawShares : Math.max(1000, Math.round(Number(stock?.volume24h || 0) / 3));
+  const fallbackShares = Number.isFinite(rawShares) && rawShares > 0 ? rawShares : Math.max(1000, Math.round(displayVolume / 3));
   const marketCap = Number.isFinite(marketCapInput) && marketCapInput > 0 ? marketCapInput : price * fallbackShares;
   const shares = Math.max(1, Number.isFinite(rawShares) && rawShares > 0 ? rawShares : marketCap / price);
   const rawDrift = Number(stock?.drift || 0);
@@ -1555,7 +1602,7 @@ function buildStockFinancials(stock, metrics = {}) {
   const quarterlyGrowth = (1 + annualGrowth) ** 0.25 - 1;
   const currentSeasonality = FINANCIAL_QUARTER_SEASONALITY[quarterMeta.quarter - 1] || 1;
   const annualRevenue = Math.max(
-    marketCap * (0.68 + seed * 0.28) + price * Math.max(1, Number(stock?.volume24h || stock?.volume || 1)) * 0.012,
+    marketCap * (0.68 + seed * 0.28) + price * Math.max(1, displayVolume) * 0.012,
     marketCap * 0.52,
   );
   const grossMargin = clampStockValue(0.34 + seed * 0.16 + annualGrowth * 0.32 - volatility / 500, 0.24, 0.68);
@@ -2199,10 +2246,16 @@ function renderStockChart(container, stock, tick, selectedRange = "1D", options 
     state.viewKey = nextViewKey;
   }
 
+  const reportedVolume = Number(stock.volume24h);
+  const displayVolume =
+    Number.isFinite(reportedVolume) && reportedVolume > 0
+      ? reportedVolume
+      : rows.reduce((sum, point) => sum + point.volume, 0);
+
   return {
     price: Number(stock.price ?? last?.close ?? 0),
     change: Number(stock.change24h ?? (((last?.close || 0) - (first?.open || 1)) / Math.max(1, first?.open || 1)) * 100),
-    volume: Number(stock.volume24h ?? rows.reduce((sum, point) => sum + point.volume, 0)),
+    volume: displayVolume,
     open: Number(first?.open ?? first?.price ?? 0),
     high: Math.max(...rows.map((point) => Number(point.high || point.price))),
     low: Math.min(...rows.map((point) => Number(point.low || point.price))),
@@ -2338,13 +2391,14 @@ function renderStockTicker(ticker, stocks, activeCode, onSelect) {
   );
 }
 
-function renderStockRows(list, stocks, activeCode, onSelect) {
+function renderStockRows(list, stocks, activeCode, onSelect, tick = 0) {
   const rows = stocks.map((stock) => {
     const code = stockCode(stock);
     const changePercent = Number(stock.change24h || 0);
     const changeAmount = stockChangeValue(stock);
     const high = Number(stock.high24h || stock.price);
     const low = Number(stock.low24h || stock.price);
+    const displayVolume = stockDisplayVolume24h(stock, tick);
     const row = document.createElement(list.tagName === "TBODY" ? "tr" : "article");
     row.dataset.stockCode = code;
     row.className = code === activeCode ? "is-active" : "";
@@ -2372,7 +2426,7 @@ function renderStockRows(list, stocks, activeCode, onSelect) {
         { text: formatStockKrw(low), className: "stock-num" },
         { text: formatStockSignedKrw(changeAmount), className: changeAmount < 0 ? "is-down" : "is-up" },
         { text: formatStockChange(changePercent), className: changePercent < 0 ? "is-down" : "is-up" },
-        { text: `${formatStockNumber(stock.volume24h)}주`, className: "stock-num" },
+        { text: `${formatStockNumber(displayVolume)}주`, className: "stock-num" },
         { text: formatStockTime(latestStockTime(stock)), className: "stock-time" },
       ];
       row.append(nameCell);
@@ -2418,7 +2472,7 @@ function stockTradeTotals(stock, trades) {
 
   if (buy > 0 || sell > 0) return { buy, sell };
 
-  const volume = Math.max(20, Number(stock?.volume24h || stock?.volume || 1200));
+  const volume = Math.max(20, stockDisplayVolume24h(stock));
   const change = Number(stock?.change24h || 0);
   const bias = Math.max(0.22, Math.min(0.78, 0.5 + change / 140));
   return {
@@ -2469,7 +2523,7 @@ function renderStockDetail(elements, stock, result) {
 
 function buildStockDepth(stock, groupSize = 1) {
   const price = Math.max(1, Number(stock.price) || 1);
-  const volume = Math.max(10, Number(stock.volume24h) || 1200);
+  const volume = Math.max(10, stockDisplayVolume24h(stock));
   const group = Math.max(1, Number(groupSize) || 1);
   const spread = Math.max(group, price * 0.0025);
   const bestAsk = Math.ceil((price + spread / 2) / group) * group;
@@ -2881,6 +2935,8 @@ function initStockExchange() {
     });
     const metrics = stockTechnicalMetrics(stock, tick, activeRange);
     const marketMeta = market?.market || {};
+    const displayedStockVolume = result.volume;
+    const displayedMarketVolume = stockMarketDisplayVolume24h(stocks, marketMeta, tick);
 
     root.classList.toggle("is-live", liveMarket);
     setStockNodeText(symbol, activeCode);
@@ -2893,13 +2949,13 @@ function initStockExchange() {
     setStockNodeText(open, formatStockKrw(stock.open24h || result.open));
     setStockNodeText(high, formatStockKrw(stock.high24h || result.price));
     setStockNodeText(low, formatStockKrw(stock.low24h || result.price));
-    setStockNodeText(quoteVolume, `${formatStockNumber(stock.volume24h || result.volume)}주`);
+    setStockNodeText(quoteVolume, `${formatStockNumber(displayedStockVolume)}주`);
     setStockNodeText(indexValue, formatStockNumber(marketMeta.index));
     const indexDelta = Number(marketMeta.indexChange24h || 0);
     setStockNodeText(indexChange, formatStockChange(indexDelta));
     toggleStockNodeClass(indexChange, "is-down", indexDelta < 0);
     toggleStockNodeClass(indexChange, "is-up", indexDelta >= 0);
-    setStockNodeText(volume, `${formatStockNumber(marketMeta.volume24h || result.volume)}주`);
+    setStockNodeText(volume, `${formatStockNumber(displayedMarketVolume)}주`);
     setStockNodeText(cap, formatStockKrwCompact(marketMeta.marketCap));
     setStockNodeText(session, liveMarket ? marketMeta.session || "24H LIVE" : marketMeta.session || "API 대기");
     updated.forEach((label) => {
@@ -2933,7 +2989,7 @@ function initStockExchange() {
 
     const trades = selectedStockTrades(market?.recentTrades, activeCode);
     renderStockTicker(ticker, stocks, activeCode, selectStock);
-    renderStockRows(list, stocks, activeCode, selectStock);
+    renderStockRows(list, stocks, activeCode, selectStock, tick);
     renderStockTape(tape, trades.length ? trades : market?.recentTrades);
     renderStockChartReadout(chartReadout, stock, result);
     renderStockPerformance(performance, stock, tick);
