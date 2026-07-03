@@ -32,6 +32,8 @@
     "discord.js": "^14.26.4",
     "dotenv": "^17.4.2",
     "lightweight-charts": "^5.2.0",
+    "mc-assets": "^0.2.83",
+    "minecraft-icon-items": "^0.4.5",
     "pngjs": "^7.0.0",
     "three": "^0.185.0"
   },

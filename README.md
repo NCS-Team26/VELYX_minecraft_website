@@ -136,7 +136,7 @@ npm run build
 ```powershell
 $env:AWS_ACCESS_KEY_ID="..."
 $env:AWS_SECRET_ACCESS_KEY="..."
-$env:AWS_REGION="ap-northeast-2"
+$env:AWS_REGION="ap-northeast-1"
 ```
 
 그 다음:

@@ -154,6 +154,14 @@
                       <button type="button" class="is-active" data-stock-scale="price">Last Price</button>
                       <button type="button" data-stock-scale="percent">%</button>
                     </div>
+                    <button
+                      class="stock-chart-settings-button"
+                      type="button"
+                      data-stock-chart-settings-open
+                      aria-haspopup="dialog"
+                    >
+                      Settings
+                    </button>
                   </div>
 
                   <div class="stock-chart-shell">
@@ -214,12 +222,56 @@
                     </div>
                   </div>
                 </div>
+                <div class="stock-chart-settings-modal" data-stock-chart-settings-modal hidden>
+                  <div
+                    class="stock-chart-settings-dialog"
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="stock-chart-settings-title"
+                  >
+                    <div class="stock-chart-settings-head">
+                      <div>
+                        <span>Chart Settings</span>
+                        <h2 id="stock-chart-settings-title">Indicator & Display</h2>
+                      </div>
+                      <button
+                        class="stock-chart-settings-close"
+                        type="button"
+                        data-stock-chart-settings-close
+                        aria-label="Close chart settings"
+                      >
+                        x
+                      </button>
+                    </div>
+                    <div class="stock-chart-settings-tabs" data-stock-chart-settings-tabs></div>
+                    <div class="stock-chart-settings-body" data-stock-chart-settings-body></div>
+                    <div class="stock-chart-settings-foot">
+                      <button type="button" data-stock-chart-settings-reset>Reset</button>
+                      <button type="button" data-stock-chart-settings-save>Save</button>
+                    </div>
+                  </div>
+                </div>
               </section>
 
               <aside class="stock-panel stock-depth-panel" aria-label="오더북">
                 <div class="stock-board-heading">
                   <span>Order Book</span>
-                  <span data-stock-depth-ratio>매수 50%</span>
+                  <div class="stock-depth-heading-actions">
+                    <span data-stock-depth-ratio>Buy 50%</span>
+                    <button
+                      class="stock-depth-icon-button"
+                      type="button"
+                      data-stock-depth-settings-open
+                      aria-label="Open order book settings"
+                    >
+                      ...
+                    </button>
+                  </div>
+                </div>
+                <div class="stock-depth-mode-toggle" aria-label="Order book display mode">
+                  <button type="button" class="is-active" data-stock-depth-mode="both">Both</button>
+                  <button type="button" data-stock-depth-mode="asks">Ask</button>
+                  <button type="button" data-stock-depth-mode="bids">Bid</button>
                 </div>
                 <div class="stock-depth-tools" aria-label="호가 단위">
                   <button type="button" class="is-active" data-stock-depth-group="1">0.1</button>
@@ -241,16 +293,117 @@
                   <span style="width: 50%"></span>
                   <em>매수 압력 50%</em>
                 </div>
+                <div
+                  class="stock-depth-settings-modal"
+                  data-stock-depth-settings-modal
+                  hidden
+                  role="dialog"
+                  aria-modal="true"
+                  aria-labelledby="stock-depth-settings-title"
+                >
+                  <div class="stock-depth-settings-dialog">
+                    <div class="stock-depth-settings-head">
+                      <div>
+                        <span>Order Book Settings</span>
+                        <h2 id="stock-depth-settings-title">Depth & Click</h2>
+                      </div>
+                      <button
+                        class="stock-depth-settings-close"
+                        type="button"
+                        data-stock-depth-settings-close
+                        aria-label="Close order book settings"
+                      >
+                        x
+                      </button>
+                    </div>
+                    <div class="stock-depth-settings-grid">
+                      <label>
+                        <span>Display</span>
+                        <select data-stock-depth-setting="mode">
+                          <option value="both">Both sides</option>
+                          <option value="asks">Asks only</option>
+                          <option value="bids">Bids only</option>
+                        </select>
+                      </label>
+                      <label>
+                        <span>Group</span>
+                        <select data-stock-depth-setting="groupSize">
+                          <option value="1">0.1</option>
+                          <option value="5">1</option>
+                          <option value="10">5</option>
+                        </select>
+                      </label>
+                      <label>
+                        <span>Rows</span>
+                        <select data-stock-depth-setting="rows">
+                          <option value="5">5 rows</option>
+                          <option value="7">7 rows</option>
+                          <option value="10">10 rows</option>
+                          <option value="14">14 rows</option>
+                        </select>
+                      </label>
+                      <label>
+                        <span>Click Fill</span>
+                        <select data-stock-depth-setting="clickAction">
+                          <option value="price">Price only</option>
+                          <option value="price-size">Price + size</option>
+                        </select>
+                      </label>
+                      <label>
+                        <span>Mid Click</span>
+                        <select data-stock-depth-setting="midClick">
+                          <option value="price">Set price</option>
+                          <option value="off">Off</option>
+                        </select>
+                      </label>
+                      <label>
+                        <span>Depth Shade</span>
+                        <select data-stock-depth-setting="depthOpacity">
+                          <option value="0">Off</option>
+                          <option value="35">Soft</option>
+                          <option value="58">Normal</option>
+                          <option value="80">Strong</option>
+                        </select>
+                      </label>
+                      <label class="stock-depth-settings-check">
+                        <input type="checkbox" data-stock-depth-setting="autoSide" />
+                        <span>Auto side from row</span>
+                      </label>
+                      <label class="stock-depth-settings-check">
+                        <input type="checkbox" data-stock-depth-setting="showSum" />
+                        <span>Show cumulative sum</span>
+                      </label>
+                      <label class="stock-depth-settings-check">
+                        <input type="checkbox" data-stock-depth-setting="showDepth" />
+                        <span>Show depth background</span>
+                      </label>
+                      <label class="stock-depth-settings-check">
+                        <input type="checkbox" data-stock-depth-setting="showMeter" />
+                        <span>Show imbalance meter</span>
+                      </label>
+                      <label class="stock-depth-settings-check">
+                        <input type="checkbox" data-stock-depth-setting="flashSelection" />
+                        <span>Flash selected row</span>
+                      </label>
+                    </div>
+                    <div class="stock-depth-settings-foot">
+                      <button type="button" data-stock-depth-settings-reset>Reset</button>
+                      <button type="button" data-stock-depth-settings-save>Save</button>
+                    </div>
+                  </div>
+                </div>
               </aside>
 
               <aside class="stock-panel stock-order-ticket" aria-label="주문 패널">
                 <div class="stock-order-leverage">
-                  <button type="button">Cross</button>
+                  <button type="button" data-stock-margin-mode>Cross</button>
                   <select data-stock-order-leverage aria-label="레버리지">
                     <option value="1">1x</option>
                     <option value="2">2x</option>
                     <option value="3">3x</option>
                     <option value="5">5x</option>
+                    <option value="10">10x</option>
+                    <option value="20">20x</option>
                   </select>
                   <span>S</span>
                 </div>
@@ -267,34 +420,70 @@
                     </label>
                     <span data-stock-order-symbol>DMD</span>
                   </div>
-                  <label>
-                    <span>Price</span>
-                    <input data-stock-order-limit type="number" min="1" step="1" placeholder="현재가 기준" inputmode="numeric" />
-                  </label>
-                  <label>
-                    <span>Size</span>
-                    <input data-stock-order-quantity type="number" min="1" max="500" value="10" inputmode="numeric" />
-                  </label>
-                  <div class="stock-size-slider" aria-hidden="true">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                    <span></span>
+                  <div class="stock-order-available">
+                    <span>Avbl <strong data-stock-order-available>-- KRW</strong></span>
+                    <span>Max <strong data-stock-order-max>--</strong></span>
                   </div>
+                  <label class="stock-order-field">
+                    <span>Price</span>
+                    <div class="stock-order-input-combo">
+                      <input
+                        data-stock-order-limit
+                        type="number"
+                        min="1"
+                        step="1"
+                        placeholder="Current price"
+                        inputmode="numeric"
+                      />
+                      <button type="button" data-stock-order-bbo>BBO</button>
+                    </div>
+                  </label>
+                  <label class="stock-order-field">
+                    <span>Size</span>
+                    <div class="stock-order-input-combo stock-size-input-combo">
+                      <input data-stock-order-quantity type="number" min="1" max="500" value="10" inputmode="numeric" />
+                      <div class="stock-size-stepper" aria-label="Adjust size">
+                        <button type="button" data-stock-size-step="1" aria-label="Increase size">▲</button>
+                        <button type="button" data-stock-size-step="-1" aria-label="Decrease size">▼</button>
+                      </div>
+                    </div>
+                  </label>
+                  <div class="stock-size-slider">
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      step="1"
+                      value="0"
+                      data-stock-size-percent
+                      aria-label="Order size percent"
+                    />
+                    <div class="stock-size-marks" aria-label="Size percent shortcuts">
+                      <button type="button" data-stock-size-percent-button="0">0</button>
+                      <button type="button" data-stock-size-percent-button="25">25</button>
+                      <button type="button" data-stock-size-percent-button="50">50</button>
+                      <button type="button" data-stock-size-percent-button="75">75</button>
+                      <button type="button" data-stock-size-percent-button="100">100</button>
+                    </div>
+                  </div>
+                  <label class="stock-order-check stock-order-tpsl-toggle">
+                    <input type="checkbox" data-stock-order-tpsl-toggle checked />
+                    <span>TP/SL</span>
+                  </label>
                   <div class="stock-advanced-orders" aria-label="고급 주문 옵션">
                     <label>
                       <span>TP</span>
-                      <input data-stock-order-take-profit type="number" min="1" step="1" placeholder="익절가" inputmode="numeric" />
+                      <input data-stock-order-take-profit type="number" min="1" step="1" placeholder="Take profit" inputmode="numeric" />
                     </label>
                     <label>
                       <span>SL</span>
-                      <input data-stock-order-stop-loss type="number" min="1" step="1" placeholder="손절가" inputmode="numeric" />
+                      <input data-stock-order-stop-loss type="number" min="1" step="1" placeholder="Stop loss" inputmode="numeric" />
                     </label>
                     <label>
                       <span>POST</span>
                       <select data-stock-order-post-only>
                         <option value="off">Off</option>
-                        <option value="on">Post</option>
+                        <option value="on">Post Only</option>
                       </select>
                     </label>
                     <label>
@@ -302,6 +491,14 @@
                       <select data-stock-order-reduce-only>
                         <option value="off">Off</option>
                         <option value="on">Only</option>
+                      </select>
+                    </label>
+                    <label>
+                      <span>TIF</span>
+                      <select data-stock-order-time-in-force>
+                        <option value="GTC">GTC</option>
+                        <option value="IOC">IOC</option>
+                        <option value="FOK">FOK</option>
                       </select>
                     </label>
                   </div>

@@ -34,7 +34,9 @@ const playerApiBases = apiBaseList(
   localPlayerApiBase,
 );
 const playerApiBase = playerApiBases[0] || "";
+const MINECRAFT_ASSET_VERSION = "1.21.8";
 const MINECRAFT_TEXTURE_BASE = "https://assets.mcasset.cloud/latest/assets/minecraft/textures";
+const MINECRAFT_TEXTURE_FALLBACK_BASE = `https://raw.githubusercontent.com/PrismarineJS/minecraft-assets/master/data/${MINECRAFT_ASSET_VERSION}`;
 const EQUIPMENT_SLOTS = [
   ["mainHand", "주 손"],
   ["offHand", "보조 손"],
@@ -118,6 +120,11 @@ let stockPortfolioPayload = null;
 let stockTraderLoading = false;
 let inventoryView = readInventoryView();
 let currentInventoryPayload = null;
+let minecraftIconCatalog = null;
+let minecraftIconCatalogPromise = null;
+let minecraftAtlasContextPromise = null;
+const minecraftAtlasIconCache = new Map();
+const minecraftAtlasImageCache = new Map();
 
 function setMessage(text, tone = "info") {
   if (!message) return;
@@ -484,9 +491,325 @@ function normalizeMinecraftId(value) {
     .replace(/^\/+/, "");
 }
 
+function minecraftIconCatalogKey(item) {
+  const raw = String(item?.bukkit || item?.type || item?.key || item?.id || item?.texture || "").trim();
+  if (!raw) return "";
+  return normalizeMinecraftId(raw).toUpperCase();
+}
+
+function loadMinecraftIconCatalog() {
+  if (minecraftIconCatalog || minecraftIconCatalogPromise) return minecraftIconCatalogPromise;
+  minecraftIconCatalogPromise = import("minecraft-icon-items/data/itemsByBukkit.json")
+    .then((module) => {
+      minecraftIconCatalog = module.default || module || {};
+      if (currentInventoryPayload) renderInventory(currentInventoryPayload);
+      return minecraftIconCatalog;
+    })
+    .catch(() => {
+      minecraftIconCatalog = {};
+      return minecraftIconCatalog;
+    });
+  return minecraftIconCatalogPromise;
+}
+
+function bundledMinecraftIconSource(item) {
+  const key = minecraftIconCatalogKey(item);
+  if (!key) return "";
+  const entry = minecraftIconCatalog?.[key];
+  if (entry?.icon) return `data:image/png;base64,${entry.icon}`;
+  loadMinecraftIconCatalog();
+  return "";
+}
+
+function loadImageElement(src) {
+  if (!src) return Promise.reject(new Error("Missing image source."));
+  if (minecraftAtlasImageCache.has(src)) return minecraftAtlasImageCache.get(src);
+
+  const promise = new Promise((resolve, reject) => {
+    const image = new Image();
+    image.decoding = "async";
+    image.onload = () => resolve(image);
+    image.onerror = () => reject(new Error(`Minecraft atlas image failed: ${src}`));
+    image.src = src;
+  });
+  minecraftAtlasImageCache.set(src, promise);
+  return promise;
+}
+
+function loadMinecraftAtlasContext() {
+  if (minecraftAtlasContextPromise) return minecraftAtlasContextPromise;
+
+  minecraftAtlasContextPromise = Promise.all([
+    import("mc-assets/dist/itemsRenderer.js"),
+    import("mc-assets/dist/atlasParser.js"),
+    import("mc-assets/dist/blockStatesModels.json"),
+    import("mc-assets/dist/itemDefinitions.json"),
+    import("mc-assets/dist/itemsAtlases.json"),
+    import("mc-assets/dist/blocksAtlases.json"),
+    import("mc-assets/dist/itemsAtlasLatest.png?url"),
+    import("mc-assets/dist/itemsAtlasLegacy.png?url"),
+    import("mc-assets/dist/blocksAtlasLatest.png?url"),
+    import("mc-assets/dist/blocksAtlasLegacy.png?url"),
+    import("mc-assets/dist/stores.js"),
+    import("mc-assets/dist/itemDefinitions.js"),
+  ])
+    .then(
+      ([
+        rendererModule,
+        atlasParserModule,
+        blockStatesModule,
+        itemDefinitionsModule,
+        itemsAtlasesModule,
+        blocksAtlasesModule,
+        itemsAtlasLatestModule,
+        itemsAtlasLegacyModule,
+        blocksAtlasLatestModule,
+        blocksAtlasLegacyModule,
+        storesModule,
+        itemDefinitionsFns,
+      ]) => {
+      const blockStatesModels = blockStatesModule.default || blockStatesModule;
+      const itemDefinitions = itemDefinitionsModule.default || itemDefinitionsModule;
+      const itemsAtlasParser = new atlasParserModule.AtlasParser(
+        itemsAtlasesModule.default || itemsAtlasesModule,
+        itemsAtlasLatestModule.default || itemsAtlasLatestModule,
+        itemsAtlasLegacyModule.default || itemsAtlasLegacyModule,
+      );
+      const blocksAtlasParser = new atlasParserModule.AtlasParser(
+        blocksAtlasesModule.default || blocksAtlasesModule,
+        blocksAtlasLatestModule.default || blocksAtlasLatestModule,
+        blocksAtlasLegacyModule.default || blocksAtlasLegacyModule,
+      );
+      const renderer = new rendererModule.ItemsRenderer(
+        MINECRAFT_ASSET_VERSION,
+        blockStatesModels,
+        itemsAtlasParser,
+        blocksAtlasParser,
+      );
+      const itemDefinitionsStore = storesModule.getLoadedItemDefinitionsStore(itemDefinitions);
+      return {
+        renderer,
+        itemDefinitionsStore,
+        getItemDefinitionModelResolved: itemDefinitionsFns.getItemDefinitionModelResolved,
+        itemsAtlasParser,
+        blocksAtlasParser,
+      };
+    },
+    )
+    .catch((error) => {
+      console.warn("Minecraft atlas icon loading failed.", error);
+      return null;
+    });
+
+  return minecraftAtlasContextPromise;
+}
+
+function minecraftAtlasAliases(id) {
+  return [...new Set([id, ...minecraftStateAliases(id), ...itemTextureAliases(id), ...blockTextureAliases(id)])];
+}
+
+function minecraftStateAliases(id) {
+  const aliases = [];
+  const directAliases = {
+    bamboo_sapling: "bamboo",
+    beetroots: "beetroot_seeds",
+    bubble_column: "water_bucket",
+    carrots: "carrot",
+    cocoa: "cocoa_beans",
+    end_gateway: "ender_eye",
+    end_portal: "ender_eye",
+    fire: "flint_and_steel",
+    frosted_ice: "ice",
+    lava: "lava_bucket",
+    lava_cauldron: "cauldron",
+    moving_piston: "piston",
+    pitcher_crop: "pitcher_pod",
+    piston_head: "piston",
+    potatoes: "potato",
+    powder_snow_cauldron: "cauldron",
+    redstone_wall_torch: "redstone_torch",
+    redstone_wire: "redstone",
+    soul_fire: "soul_lantern",
+    soul_wall_torch: "soul_torch",
+    sweet_berry_bush: "sweet_berries",
+    tall_seagrass: "seagrass",
+    torchflower_crop: "torchflower_seeds",
+    wall_torch: "torch",
+    water: "water_bucket",
+    water_cauldron: "cauldron",
+  };
+
+  if (directAliases[id]) aliases.push(directAliases[id]);
+  if (id.startsWith("potted_")) aliases.push(id.replace(/^potted_/, ""), "flower_pot");
+  if (id.endsWith("_wall_sign")) aliases.push(id.replace(/_wall_sign$/, "_sign"));
+  if (id.endsWith("_wall_hanging_sign")) aliases.push(id.replace(/_wall_hanging_sign$/, "_hanging_sign"));
+  if (id.endsWith("_wall_banner")) aliases.push(id.replace(/_wall_banner$/, "_banner"));
+  if (id.endsWith("_wall_head")) aliases.push(id.replace(/_wall_head$/, "_head"));
+  if (id.endsWith("_wall_skull")) aliases.push(id.replace(/_wall_skull$/, "_skull"));
+  if (id.endsWith("_wall_fan")) aliases.push(id.replace(/_wall_fan$/, "_fan"));
+  if (id === "candle_cake") aliases.push("cake", "candle");
+  if (id.endsWith("_candle_cake")) aliases.push("cake", id.replace(/_candle_cake$/, "_candle"));
+  return aliases;
+}
+
+function resolveMinecraftAtlasIcon(context, id) {
+  const properties = { "minecraft:display_context": "gui" };
+  for (const alias of minecraftAtlasAliases(id)) {
+    const definition = context.getItemDefinitionModelResolved(
+      context.itemDefinitionsStore,
+      { version: MINECRAFT_ASSET_VERSION, name: alias, properties: { ...properties } },
+      context.renderer,
+    )?.modelResolved;
+    const direct = context.renderer.getItemTexture(alias, properties);
+    const resolved = definition || direct;
+    if (resolved?.slice || (resolved?.top && resolved?.left && resolved?.right)) return resolved;
+  }
+  return null;
+}
+
+function atlasParserFor(context, type) {
+  return type === "blocks" ? context.blocksAtlasParser : context.itemsAtlasParser;
+}
+
+async function drawAtlasSliceIcon(context, texture, size = 32) {
+  const parser = atlasParserFor(context, texture.type);
+  const atlas = parser.atlas.latest;
+  const image = await loadImageElement(parser.latestImage);
+  const [sourceX, sourceY, sourceWidth, sourceHeight] = texture.slice;
+  const canvas = document.createElement("canvas");
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext("2d");
+  ctx.imageSmoothingEnabled = false;
+
+  const scale = Math.min(size / sourceWidth, size / sourceHeight);
+  const width = Math.max(1, Math.round(sourceWidth * scale));
+  const height = Math.max(1, Math.round(sourceHeight * scale));
+  const x = Math.round((size - width) / 2);
+  const y = Math.round((size - height) / 2);
+  ctx.drawImage(image, sourceX, sourceY, sourceWidth, sourceHeight, x, y, width, height);
+
+  return { src: canvas.toDataURL("image/png"), type: texture.type, atlasWidth: atlas.width, atlasHeight: atlas.height };
+}
+
+function drawAtlasFace(ctx, image, slice, points, shade = "") {
+  const [sourceX, sourceY, sourceWidth, sourceHeight] = slice;
+  const [p0, p1, p2, p3] = points;
+  const a = (p1.x - p0.x) / sourceWidth;
+  const b = (p1.y - p0.y) / sourceWidth;
+  const c = (p3.x - p0.x) / sourceHeight;
+  const d = (p3.y - p0.y) / sourceHeight;
+  const e = p0.x - a * sourceX - c * sourceY;
+  const f = p0.y - b * sourceX - d * sourceY;
+
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(p0.x, p0.y);
+  ctx.lineTo(p1.x, p1.y);
+  ctx.lineTo(p2.x, p2.y);
+  ctx.lineTo(p3.x, p3.y);
+  ctx.closePath();
+  ctx.clip();
+  ctx.setTransform(a, b, c, d, e, f);
+  ctx.drawImage(image, sourceX, sourceY, sourceWidth, sourceHeight, sourceX, sourceY, sourceWidth, sourceHeight);
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  if (shade) {
+    ctx.fillStyle = shade;
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+async function drawAtlasBlockIcon(context, block, size = 32) {
+  const blocksImage = await loadImageElement(context.blocksAtlasParser.latestImage);
+  const itemsImage = await loadImageElement(context.itemsAtlasParser.latestImage);
+  const canvas = document.createElement("canvas");
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext("2d");
+  ctx.imageSmoothingEnabled = false;
+
+  const imageFor = (texture) => (texture.type === "blocks" ? blocksImage : itemsImage);
+  const scale = size / 32;
+  const point = (x, y) => ({ x: Math.round(x * scale), y: Math.round(y * scale) });
+
+  drawAtlasFace(
+    ctx,
+    imageFor(block.left),
+    block.left.slice,
+    [point(2, 8), point(16, 15), point(16, 31), point(2, 24)],
+    "rgba(0, 0, 0, 0.28)",
+  );
+  drawAtlasFace(
+    ctx,
+    imageFor(block.right),
+    block.right.slice,
+    [point(30, 8), point(16, 15), point(16, 31), point(30, 24)],
+    "rgba(0, 0, 0, 0.14)",
+  );
+  drawAtlasFace(
+    ctx,
+    imageFor(block.top),
+    block.top.slice,
+    [point(16, 1), point(30, 8), point(16, 15), point(2, 8)],
+    "rgba(255, 255, 255, 0.06)",
+  );
+
+  return { src: canvas.toDataURL("image/png"), type: "blocks" };
+}
+
+async function renderMinecraftAtlasIcon(item) {
+  const id = normalizeMinecraftId(item?.id || item?.key || item?.texture || item?.type || item?.name);
+  if (!id) return null;
+  if (minecraftAtlasIconCache.has(id)) return minecraftAtlasIconCache.get(id);
+
+  const promise = loadMinecraftAtlasContext().then(async (context) => {
+    if (!context) return null;
+    const resolved = resolveMinecraftAtlasIcon(context, id);
+    if (!resolved) return null;
+    if (resolved.slice) return drawAtlasSliceIcon(context, resolved);
+    if (resolved.top && resolved.left && resolved.right) return drawAtlasBlockIcon(context, resolved);
+    return null;
+  });
+
+  minecraftAtlasIconCache.set(id, promise);
+  return promise;
+}
+
+function applyInventoryImage(icon, src, { atlas = false, bundled = false, block = false } = {}) {
+  if (!src || !icon?.isConnected) return;
+  let image = icon.querySelector(".inventory-item-image");
+  if (!image) {
+    image = document.createElement("img");
+    image.className = "inventory-item-image";
+    image.alt = "";
+    image.decoding = "async";
+    image.draggable = false;
+    icon.prepend(image);
+  }
+  image.src = src;
+  image.dataset.inventoryIconMode = atlas ? "atlas" : bundled ? "bundled" : "fallback";
+  icon.classList.add("has-image");
+  icon.classList.toggle("has-atlas-image", atlas);
+  icon.classList.toggle("has-bundled-image", bundled);
+  icon.classList.toggle("is-block-texture", block);
+}
+
+function hydrateMinecraftAtlasIcon(icon, item) {
+  renderMinecraftAtlasIcon(item)
+    .then((result) => {
+      if (!result) return;
+      applyInventoryImage(icon, result.src, { atlas: true, block: result.type === "blocks" });
+    })
+    .catch(() => {});
+}
+
 function itemTextureCandidates(item) {
   const id = normalizeMinecraftId(item?.id || item?.key || item?.texture || item?.type || item?.name);
   const candidates = [];
+  const bundledIcon = bundledMinecraftIconSource(item);
+
+  if (bundledIcon) candidates.push(bundledIcon);
 
   [item?.iconUrl, item?.imageUrl, item?.textureUrl].forEach((url) => {
     if (typeof url === "string" && url.startsWith("https://")) candidates.push(url);
@@ -498,10 +821,12 @@ function itemTextureCandidates(item) {
   });
 
   if (id) {
-    itemTextureAliases(id).forEach((alias) => {
+    [...minecraftStateAliases(id), ...itemTextureAliases(id)].forEach((alias) => {
+      candidates.push(`${MINECRAFT_TEXTURE_FALLBACK_BASE}/items/${alias}.png`);
       candidates.push(`${MINECRAFT_TEXTURE_BASE}/item/${alias}.png`);
     });
-    blockTextureAliases(id).forEach((alias) => {
+    [...minecraftStateAliases(id), ...blockTextureAliases(id)].forEach((alias) => {
+      candidates.push(`${MINECRAFT_TEXTURE_FALLBACK_BASE}/blocks/${alias}.png`);
       candidates.push(`${MINECRAFT_TEXTURE_BASE}/block/${alias}.png`);
     });
   }
@@ -570,6 +895,8 @@ function createInventoryIcon(item) {
     icon.style.setProperty("--durability-color", durabilityColor(clampedPercent));
   }
 
+  hydrateMinecraftAtlasIcon(icon, item);
+
   const candidates = itemTextureCandidates(item);
   if (candidates.length) {
     const image = document.createElement("img");
@@ -577,20 +904,26 @@ function createInventoryIcon(item) {
     image.alt = "";
     image.decoding = "async";
     image.draggable = false;
+    image.dataset.inventoryIconMode = "fallback";
     let index = 0;
 
     image.addEventListener("load", () => {
+      if (image.dataset.inventoryIconMode === "atlas") return;
+      const source = image.currentSrc || image.src;
       icon.classList.add("has-image");
-      icon.classList.toggle("is-block-texture", image.src.includes("/textures/block/"));
+      icon.classList.remove("has-atlas-image");
+      icon.classList.toggle("has-bundled-image", source.startsWith("data:image/png;base64,"));
+      icon.classList.toggle("is-block-texture", source.includes("/textures/block/") || source.includes("/blocks/"));
     });
     image.addEventListener("error", () => {
+      if (image.dataset.inventoryIconMode === "atlas") return;
       index += 1;
       if (index < candidates.length) {
         image.src = candidates[index];
         return;
       }
       image.remove();
-      icon.classList.remove("has-image", "is-block-texture");
+      icon.classList.remove("has-image", "has-atlas-image", "has-bundled-image", "is-block-texture");
     });
 
     image.src = candidates[index];

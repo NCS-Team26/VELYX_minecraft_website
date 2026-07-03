@@ -25,6 +25,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -111,34 +112,44 @@ public final class BridgeHttpServer {
 
     String clientKey = exchange.getRemoteAddress().getAddress().getHostAddress();
     if (!rateLimiter.allow(clientKey)) {
-      sendJson(exchange, 429, Map.of("ok", false, "message", "Too many requests."));
+      safeSendJson(exchange, 429, Map.of("ok", false, "message", "Too many requests."));
       return;
     }
 
     try {
       Map<String, Object> response = route(exchange);
-      sendJson(exchange, 200, response);
+      safeSendJson(exchange, 200, response);
     } catch (HttpError error) {
-      sendJson(exchange, error.status, error.payload());
+      safeSendJson(exchange, error.status, error.payload());
     } catch (PlayerActions.ActionException error) {
       Map<String, Object> payload = new HashMap<>();
       payload.put("ok", false);
       payload.put("message", error.getMessage());
       payload.putAll(error.extra);
-      sendJson(exchange, error.status, payload);
+      safeSendJson(exchange, error.status, payload);
     } catch (StockExchange.StockException error) {
-      sendJson(exchange, error.status, error.payload());
+      safeSendJson(exchange, error.status, error.payload());
     } catch (JsonSyntaxException error) {
-      sendJson(exchange, 400, Map.of("ok", false, "message", "Invalid JSON body."));
+      safeSendJson(exchange, 400, Map.of("ok", false, "message", "Invalid JSON body."));
     } catch (Exception error) {
+      if (isClientDisconnect(error)) {
+        plugin.getLogger().fine("AuroraLink API client disconnected before response completed.");
+        closeQuietly(exchange);
+        return;
+      }
       plugin.getLogger().warning("AuroraLink API request failed: " + error.getMessage());
-      sendJson(exchange, 500, Map.of("ok", false, "message", "Internal server error."));
+      safeSendJson(exchange, 500, Map.of("ok", false, "message", "Internal server error."));
     }
   }
 
   private Map<String, Object> route(HttpExchange exchange) throws Exception {
     String method = exchange.getRequestMethod().toUpperCase(Locale.ROOT);
     String path = pathAfterBase(exchange.getRequestURI());
+    if ("HEAD".equals(method)) method = "GET";
+
+    if ("GET".equals(method) && "/".equals(path)) {
+      return Map.of("ok", true, "service", "AuroraLink");
+    }
 
     if ("GET".equals(method) && "/server/overview".equals(path)) {
       return serverOverview();
@@ -619,7 +630,14 @@ public final class BridgeHttpServer {
   private <T> T sync(Callable<T> task) throws Exception {
     if (Bukkit.isPrimaryThread()) return task.call();
     Future<T> future = Bukkit.getScheduler().callSyncMethod(plugin, task);
-    return future.get(5, TimeUnit.SECONDS);
+    try {
+      return future.get(5, TimeUnit.SECONDS);
+    } catch (ExecutionException error) {
+      Throwable cause = error.getCause();
+      if (cause instanceof Exception exception) throw exception;
+      if (cause instanceof Error fatal) throw fatal;
+      throw error;
+    }
   }
 
   private void applyCors(HttpExchange exchange) {
@@ -632,7 +650,7 @@ public final class BridgeHttpServer {
       response.set("Access-Control-Allow-Origin", origin);
       response.set("Vary", "Origin");
     }
-    response.set("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+    response.set("Access-Control-Allow-Methods", "GET,HEAD,POST,OPTIONS");
     response.set("Access-Control-Allow-Headers", "Content-Type,Authorization,X-Aurora-Link-Token,X-Aurora-Admin-Token");
     response.set("Access-Control-Max-Age", "86400");
   }
@@ -640,9 +658,54 @@ public final class BridgeHttpServer {
   private void sendJson(HttpExchange exchange, int status, Map<String, Object> payload) throws IOException {
     byte[] bytes = gson.toJson(payload).getBytes(StandardCharsets.UTF_8);
     exchange.getResponseHeaders().set("Content-Type", "application/json; charset=utf-8");
+    if ("HEAD".equalsIgnoreCase(exchange.getRequestMethod())) {
+      exchange.sendResponseHeaders(status, -1);
+      exchange.close();
+      return;
+    }
     exchange.sendResponseHeaders(status, bytes.length);
     exchange.getResponseBody().write(bytes);
     exchange.close();
+  }
+
+  private void safeSendJson(HttpExchange exchange, int status, Map<String, Object> payload) {
+    try {
+      sendJson(exchange, status, payload);
+    } catch (IOException error) {
+      if (isClientDisconnect(error)) {
+        plugin.getLogger().fine("AuroraLink API client disconnected before response completed.");
+      } else {
+        plugin.getLogger().warning("AuroraLink API response failed: " + error.getMessage());
+      }
+      closeQuietly(exchange);
+    }
+  }
+
+  private void closeQuietly(HttpExchange exchange) {
+    try {
+      exchange.close();
+    } catch (Exception ignored) {
+      // The connection is already gone.
+    }
+  }
+
+  private boolean isClientDisconnect(Throwable error) {
+    for (Throwable current = error; current != null; current = current.getCause()) {
+      if (current instanceof IOException) {
+        String message = current.getMessage();
+        if (message == null) continue;
+        String normalized = message.toLowerCase(Locale.ROOT);
+        if (normalized.contains("broken pipe")
+            || normalized.contains("connection reset")
+            || normalized.contains("connection reset by peer")
+            || normalized.contains("forcibly closed")
+            || normalized.contains("connection aborted")
+            || normalized.contains("stream is closed")) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   private static String itemName(ItemStack stack) {

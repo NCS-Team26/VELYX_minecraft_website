@@ -242,6 +242,158 @@ const STOCK_RANGE_CONFIG = {
   "1MO": { points: 240, stepMs: 3 * 60 * 60_000, label: "1달 전" },
   ALL: { points: Infinity, stepMs: 15 * 60_000, label: "전체" },
 };
+const STOCK_CHART_SETTINGS_KEY = "nfoifsb.stockChartSettings";
+const STOCK_DEPTH_SETTINGS_KEY = "nfoifsb.stockDepthSettings";
+const STOCK_MAX_LEVERAGE = 20;
+const STOCK_CHART_SETTING_TABS = [
+  { id: "main", label: "Main Indicator" },
+  { id: "sub", label: "Sub Indicator" },
+  { id: "trading", label: "Sub - Trading Data" },
+  { id: "custom", label: "Customized" },
+  { id: "backtest", label: "Backtest" },
+];
+const STOCK_LINE_STYLES = [
+  { value: "0", label: "Solid" },
+  { value: "1", label: "Dotted" },
+  { value: "2", label: "Dashed" },
+  { value: "3", label: "Large dashed" },
+];
+const STOCK_SOURCE_OPTIONS = [
+  { value: "close", label: "Close" },
+  { value: "open", label: "Open" },
+  { value: "high", label: "High" },
+  { value: "low", label: "Low" },
+  { value: "hl2", label: "HL2" },
+  { value: "hlc3", label: "HLC3" },
+  { value: "ohlc4", label: "OHLC4" },
+];
+const STOCK_CHART_THEME_PRESETS = {
+  exchange: {
+    label: "Exchange dark",
+    background: "#151a23",
+    textColor: "#848e9c",
+    gridColor: "rgba(94, 102, 115, 0.18)",
+  },
+  midnight: {
+    label: "Midnight",
+    background: "#0b0e11",
+    textColor: "#b7bdc6",
+    gridColor: "rgba(91, 141, 239, 0.16)",
+  },
+  light: {
+    label: "Light desk",
+    background: "#f5f7fb",
+    textColor: "#344054",
+    gridColor: "rgba(88, 96, 105, 0.18)",
+  },
+};
+const DEFAULT_STOCK_DEPTH_SETTINGS = {
+  version: 1,
+  mode: "both",
+  groupSize: 1,
+  rows: 7,
+  clickAction: "price",
+  midClick: "price",
+  autoSide: true,
+  showSum: true,
+  showDepth: true,
+  showMeter: true,
+  depthOpacity: 58,
+  flashSelection: true,
+};
+const DEFAULT_STOCK_CHART_SETTINGS = {
+  version: 1,
+  mode: "candle",
+  scale: "price",
+  main: {
+    ma: {
+      enabled: true,
+      source: "close",
+      items: [
+        { id: "ma1", label: "MA1", enabled: true, period: 7, color: "#f0b90b", lineWidth: 2, lineStyle: 0 },
+        { id: "ma2", label: "MA2", enabled: false, period: 25, color: "#d946ef", lineWidth: 2, lineStyle: 0 },
+        { id: "ma3", label: "MA3", enabled: true, period: 99, color: "#a970ff", lineWidth: 2, lineStyle: 0 },
+        { id: "ma4", label: "MA4", enabled: false, period: 0, color: "#e5486d", lineWidth: 2, lineStyle: 2 },
+        { id: "ma5", label: "MA5", enabled: false, period: 0, color: "#4caf5b", lineWidth: 2, lineStyle: 2 },
+        { id: "ma6", label: "MA6", enabled: false, period: 0, color: "#ff8a1f", lineWidth: 2, lineStyle: 2 },
+      ],
+    },
+    ema: {
+      enabled: false,
+      source: "close",
+      items: [
+        { id: "ema1", label: "EMA1", enabled: true, period: 12, color: "#5b8def", lineWidth: 2, lineStyle: 0 },
+        { id: "ema2", label: "EMA2", enabled: true, period: 26, color: "#22c55e", lineWidth: 2, lineStyle: 0 },
+        { id: "ema3", label: "EMA3", enabled: false, period: 50, color: "#f97316", lineWidth: 2, lineStyle: 2 },
+      ],
+    },
+    wma: {
+      enabled: false,
+      source: "close",
+      items: [
+        { id: "wma1", label: "WMA1", enabled: true, period: 9, color: "#38bdf8", lineWidth: 2, lineStyle: 0 },
+        { id: "wma2", label: "WMA2", enabled: false, period: 21, color: "#fb7185", lineWidth: 2, lineStyle: 2 },
+      ],
+    },
+    vwap: { enabled: false, color: "#5b8def", lineWidth: 2, lineStyle: 2 },
+    boll: {
+      enabled: false,
+      source: "close",
+      period: 20,
+      multiplier: 2,
+      upperColor: "#f59e0b",
+      middleColor: "#94a3b8",
+      lowerColor: "#f59e0b",
+      lineWidth: 1,
+      lineStyle: 2,
+    },
+  },
+  sub: {
+    volume: true,
+    volumeMa: true,
+    volumeMaPeriod: 20,
+    volumeMaColor: "#4fd1c5",
+    rsi: false,
+    rsiPeriod: 14,
+    rsiColor: "#f59e0b",
+    macd: false,
+    macdFast: 12,
+    macdSlow: 26,
+    macdSignal: 9,
+    macdColor: "#5b8def",
+    macdSignalColor: "#f97316",
+  },
+  trading: {
+    tooltip: true,
+    ohlc: true,
+    performance: true,
+    watermark: true,
+    priceLine: true,
+    lastValue: false,
+    crosshair: true,
+    scrollZoom: true,
+  },
+  custom: {
+    theme: "exchange",
+    background: "#151a23",
+    textColor: "#848e9c",
+    upColor: "#0ecb81",
+    downColor: "#f6465d",
+    lineColor: "#f0b90b",
+    areaTopColor: "rgba(240, 185, 11, 0.26)",
+    areaBottomColor: "rgba(240, 185, 11, 0.02)",
+    gridOpacity: 18,
+    barSpacing: 7,
+    candleBorders: true,
+  },
+  backtest: {
+    strategy: "ma-cross",
+    fastPeriod: 7,
+    slowPeriod: 25,
+    capital: 1000000,
+    feeBps: 4,
+  },
+};
 const PAGE_LINKS = new Map([
   ["/status.html", "status"],
   ["/plugins.html", "plugins"],
@@ -1501,6 +1653,705 @@ function stockTechnicalMetrics(stock, tick, range) {
   return { rsi, macd, signal, volatility, vwapGap, price: last };
 }
 
+function cloneStockChartSettings(value = DEFAULT_STOCK_CHART_SETTINGS) {
+  return JSON.parse(JSON.stringify(value));
+}
+
+function clampStockSettingNumber(value, min, max, fallback, integer = true) {
+  const number = Number(value);
+  if (!Number.isFinite(number)) return fallback;
+  const clamped = Math.min(max, Math.max(min, number));
+  return integer ? Math.round(clamped) : clamped;
+}
+
+function stockSettingColor(value, fallback) {
+  return /^#[0-9a-f]{6}$/i.test(String(value || "")) ? String(value) : fallback;
+}
+
+function normalizeStockLineSetting(source, fallback, options = {}) {
+  const periodMin = options.allowZeroPeriod ? 0 : 1;
+  return {
+    ...fallback,
+    ...(source || {}),
+    enabled: Boolean(source?.enabled ?? fallback.enabled),
+    period: clampStockSettingNumber(source?.period, periodMin, 500, fallback.period),
+    color: stockSettingColor(source?.color, fallback.color),
+    lineWidth: clampStockSettingNumber(source?.lineWidth, 1, 5, fallback.lineWidth),
+    lineStyle: clampStockSettingNumber(source?.lineStyle, 0, 3, fallback.lineStyle),
+  };
+}
+
+function normalizeStockLineGroup(source, fallback, options = {}) {
+  const incoming = Array.isArray(source?.items) ? source.items : [];
+  return {
+    ...fallback,
+    ...(source || {}),
+    enabled: Boolean(source?.enabled ?? fallback.enabled),
+    source: STOCK_SOURCE_OPTIONS.some((item) => item.value === source?.source) ? source.source : fallback.source,
+    items: fallback.items.map((item, index) => {
+      const candidate = incoming.find((entry) => entry?.id === item.id) || incoming[index];
+      return normalizeStockLineSetting(candidate, item, options);
+    }),
+  };
+}
+
+function sanitizeStockChartSettings(source = {}) {
+  const fallback = cloneStockChartSettings();
+  const customSource = source.custom || {};
+  const theme = STOCK_CHART_THEME_PRESETS[customSource.theme] ? customSource.theme : fallback.custom.theme;
+  const themePreset = STOCK_CHART_THEME_PRESETS[theme];
+  const settings = {
+    ...fallback,
+    ...(source || {}),
+    mode: ["candle", "line", "area"].includes(source.mode) ? source.mode : fallback.mode,
+    scale: ["price", "percent"].includes(source.scale) ? source.scale : fallback.scale,
+    main: {
+      ma: normalizeStockLineGroup(source.main?.ma, fallback.main.ma, { allowZeroPeriod: true }),
+      ema: normalizeStockLineGroup(source.main?.ema, fallback.main.ema),
+      wma: normalizeStockLineGroup(source.main?.wma, fallback.main.wma),
+      vwap: {
+        ...fallback.main.vwap,
+        ...(source.main?.vwap || {}),
+        enabled: Boolean(source.main?.vwap?.enabled ?? fallback.main.vwap.enabled),
+        color: stockSettingColor(source.main?.vwap?.color, fallback.main.vwap.color),
+        lineWidth: clampStockSettingNumber(source.main?.vwap?.lineWidth, 1, 5, fallback.main.vwap.lineWidth),
+        lineStyle: clampStockSettingNumber(source.main?.vwap?.lineStyle, 0, 3, fallback.main.vwap.lineStyle),
+      },
+      boll: {
+        ...fallback.main.boll,
+        ...(source.main?.boll || {}),
+        enabled: Boolean(source.main?.boll?.enabled ?? fallback.main.boll.enabled),
+        source: STOCK_SOURCE_OPTIONS.some((item) => item.value === source.main?.boll?.source)
+          ? source.main.boll.source
+          : fallback.main.boll.source,
+        period: clampStockSettingNumber(source.main?.boll?.period, 2, 300, fallback.main.boll.period),
+        multiplier: clampStockSettingNumber(source.main?.boll?.multiplier, 0.5, 5, fallback.main.boll.multiplier, false),
+        upperColor: stockSettingColor(source.main?.boll?.upperColor, fallback.main.boll.upperColor),
+        middleColor: stockSettingColor(source.main?.boll?.middleColor, fallback.main.boll.middleColor),
+        lowerColor: stockSettingColor(source.main?.boll?.lowerColor, fallback.main.boll.lowerColor),
+        lineWidth: clampStockSettingNumber(source.main?.boll?.lineWidth, 1, 5, fallback.main.boll.lineWidth),
+        lineStyle: clampStockSettingNumber(source.main?.boll?.lineStyle, 0, 3, fallback.main.boll.lineStyle),
+      },
+    },
+    sub: {
+      ...fallback.sub,
+      ...(source.sub || {}),
+      volume: Boolean(source.sub?.volume ?? fallback.sub.volume),
+      volumeMa: Boolean(source.sub?.volumeMa ?? fallback.sub.volumeMa),
+      volumeMaPeriod: clampStockSettingNumber(source.sub?.volumeMaPeriod, 1, 300, fallback.sub.volumeMaPeriod),
+      volumeMaColor: stockSettingColor(source.sub?.volumeMaColor, fallback.sub.volumeMaColor),
+      rsi: Boolean(source.sub?.rsi ?? fallback.sub.rsi),
+      rsiPeriod: clampStockSettingNumber(source.sub?.rsiPeriod, 2, 100, fallback.sub.rsiPeriod),
+      rsiColor: stockSettingColor(source.sub?.rsiColor, fallback.sub.rsiColor),
+      macd: Boolean(source.sub?.macd ?? fallback.sub.macd),
+      macdFast: clampStockSettingNumber(source.sub?.macdFast, 2, 100, fallback.sub.macdFast),
+      macdSlow: clampStockSettingNumber(source.sub?.macdSlow, 3, 200, fallback.sub.macdSlow),
+      macdSignal: clampStockSettingNumber(source.sub?.macdSignal, 2, 100, fallback.sub.macdSignal),
+      macdColor: stockSettingColor(source.sub?.macdColor, fallback.sub.macdColor),
+      macdSignalColor: stockSettingColor(source.sub?.macdSignalColor, fallback.sub.macdSignalColor),
+    },
+    trading: {
+      ...fallback.trading,
+      ...(source.trading || {}),
+      tooltip: Boolean(source.trading?.tooltip ?? fallback.trading.tooltip),
+      ohlc: Boolean(source.trading?.ohlc ?? fallback.trading.ohlc),
+      performance: Boolean(source.trading?.performance ?? fallback.trading.performance),
+      watermark: Boolean(source.trading?.watermark ?? fallback.trading.watermark),
+      priceLine: Boolean(source.trading?.priceLine ?? fallback.trading.priceLine),
+      lastValue: Boolean(source.trading?.lastValue ?? fallback.trading.lastValue),
+      crosshair: Boolean(source.trading?.crosshair ?? fallback.trading.crosshair),
+      scrollZoom: Boolean(source.trading?.scrollZoom ?? fallback.trading.scrollZoom),
+    },
+    custom: {
+      ...fallback.custom,
+      ...customSource,
+      theme,
+      background: stockSettingColor(customSource.background, themePreset.background),
+      textColor: stockSettingColor(customSource.textColor, themePreset.textColor),
+      upColor: stockSettingColor(customSource.upColor, fallback.custom.upColor),
+      downColor: stockSettingColor(customSource.downColor, fallback.custom.downColor),
+      lineColor: stockSettingColor(customSource.lineColor, fallback.custom.lineColor),
+      areaTopColor: customSource.areaTopColor || fallback.custom.areaTopColor,
+      areaBottomColor: customSource.areaBottomColor || fallback.custom.areaBottomColor,
+      gridOpacity: clampStockSettingNumber(customSource.gridOpacity, 0, 60, fallback.custom.gridOpacity),
+      barSpacing: clampStockSettingNumber(customSource.barSpacing, 3, 18, fallback.custom.barSpacing),
+      candleBorders: Boolean(customSource.candleBorders ?? fallback.custom.candleBorders),
+    },
+    backtest: {
+      ...fallback.backtest,
+      ...(source.backtest || {}),
+      strategy: ["ma-cross", "ema-cross", "price-vwap"].includes(source.backtest?.strategy)
+        ? source.backtest.strategy
+        : fallback.backtest.strategy,
+      fastPeriod: clampStockSettingNumber(source.backtest?.fastPeriod, 2, 100, fallback.backtest.fastPeriod),
+      slowPeriod: clampStockSettingNumber(source.backtest?.slowPeriod, 3, 300, fallback.backtest.slowPeriod),
+      capital: clampStockSettingNumber(source.backtest?.capital, 1000, 1000000000, fallback.backtest.capital),
+      feeBps: clampStockSettingNumber(source.backtest?.feeBps, 0, 100, fallback.backtest.feeBps),
+    },
+  };
+  if (settings.sub.macdFast >= settings.sub.macdSlow) settings.sub.macdSlow = settings.sub.macdFast + 1;
+  if (settings.backtest.fastPeriod >= settings.backtest.slowPeriod) settings.backtest.slowPeriod = settings.backtest.fastPeriod + 1;
+  return settings;
+}
+
+function readStockChartSettings() {
+  try {
+    const raw = localStorage.getItem(STOCK_CHART_SETTINGS_KEY);
+    return sanitizeStockChartSettings(raw ? JSON.parse(raw) : {});
+  } catch {
+    return sanitizeStockChartSettings();
+  }
+}
+
+function writeStockChartSettings(settings) {
+  try {
+    localStorage.setItem(STOCK_CHART_SETTINGS_KEY, JSON.stringify(sanitizeStockChartSettings(settings)));
+  } catch {
+    // Chart settings still work for the current session without persistence.
+  }
+}
+
+function cloneStockDepthSettings(value = DEFAULT_STOCK_DEPTH_SETTINGS) {
+  return JSON.parse(JSON.stringify(value));
+}
+
+function sanitizeStockDepthSettings(source = {}) {
+  const fallback = cloneStockDepthSettings();
+  const groupSize = [1, 5, 10].includes(Number(source.groupSize)) ? Number(source.groupSize) : fallback.groupSize;
+  return {
+    ...fallback,
+    ...(source || {}),
+    mode: ["both", "asks", "bids"].includes(source.mode) ? source.mode : fallback.mode,
+    groupSize,
+    rows: clampStockSettingNumber(source.rows, 5, 14, fallback.rows),
+    clickAction: ["price", "price-size"].includes(source.clickAction) ? source.clickAction : fallback.clickAction,
+    midClick: ["price", "off"].includes(source.midClick) ? source.midClick : fallback.midClick,
+    autoSide: Boolean(source.autoSide ?? fallback.autoSide),
+    showSum: Boolean(source.showSum ?? fallback.showSum),
+    showDepth: Boolean(source.showDepth ?? fallback.showDepth),
+    showMeter: Boolean(source.showMeter ?? fallback.showMeter),
+    depthOpacity: clampStockSettingNumber(source.depthOpacity, 0, 90, fallback.depthOpacity),
+    flashSelection: Boolean(source.flashSelection ?? fallback.flashSelection),
+  };
+}
+
+function readStockDepthSettings() {
+  try {
+    const raw = localStorage.getItem(STOCK_DEPTH_SETTINGS_KEY);
+    return sanitizeStockDepthSettings(raw ? JSON.parse(raw) : {});
+  } catch {
+    return sanitizeStockDepthSettings();
+  }
+}
+
+function writeStockDepthSettings(settings) {
+  try {
+    localStorage.setItem(STOCK_DEPTH_SETTINGS_KEY, JSON.stringify(sanitizeStockDepthSettings(settings)));
+  } catch {
+    // Order book settings still work for the current session without persistence.
+  }
+}
+
+function stockToolbarIndicatorSet(settings) {
+  const enabled = new Set();
+  const ma = settings.main?.ma;
+  if (!ma?.enabled) return enabled;
+  ma.items.forEach((item) => {
+    if (item.enabled && item.period > 0) enabled.add(item.id);
+  });
+  return enabled;
+}
+
+function setStockToolbarIndicator(settings, id, enabled) {
+  const item = settings.main.ma.items.find((entry) => entry.id === id);
+  if (!item) return;
+  settings.main.ma.enabled = true;
+  item.enabled = enabled;
+  if (!item.period) {
+    const fallback = DEFAULT_STOCK_CHART_SETTINGS.main.ma.items.find((entry) => entry.id === id);
+    item.period = fallback?.period || 7;
+  }
+}
+
+function stockIndicatorSourceValue(point, source = "close") {
+  if (source === "open") return Number(point.open);
+  if (source === "high") return Number(point.high);
+  if (source === "low") return Number(point.low);
+  if (source === "hl2") return (Number(point.high) + Number(point.low)) / 2;
+  if (source === "hlc3") return (Number(point.high) + Number(point.low) + Number(point.close)) / 3;
+  if (source === "ohlc4") return (Number(point.open) + Number(point.high) + Number(point.low) + Number(point.close)) / 4;
+  return Number(point.close || point.price);
+}
+
+function weightedMovingAverage(values, period) {
+  const windowSize = Math.max(1, Math.round(Number(period) || 1));
+  return values.map((_, index) => {
+    const start = Math.max(0, index - windowSize + 1);
+    const slice = values.slice(start, index + 1);
+    const weightSum = (slice.length * (slice.length + 1)) / 2;
+    return slice.reduce((sum, value, sliceIndex) => sum + Number(value) * (sliceIndex + 1), 0) / Math.max(1, weightSum);
+  });
+}
+
+function bollingerBands(values, period, multiplier) {
+  const windowSize = Math.max(2, Math.round(Number(period) || 20));
+  const factor = Math.max(0.1, Number(multiplier) || 2);
+  return values.map((_, index) => {
+    const start = Math.max(0, index - windowSize + 1);
+    const slice = values.slice(start, index + 1).map(Number);
+    const mean = slice.reduce((sum, value) => sum + value, 0) / Math.max(1, slice.length);
+    const variance = slice.reduce((sum, value) => sum + (value - mean) ** 2, 0) / Math.max(1, slice.length);
+    const deviation = Math.sqrt(variance);
+    return { upper: mean + deviation * factor, middle: mean, lower: mean - deviation * factor };
+  });
+}
+
+function macdSeries(values, fastPeriod, slowPeriod, signalPeriod) {
+  const fast = emaSeries(values, fastPeriod);
+  const slow = emaSeries(values, slowPeriod);
+  const macd = fast.map((value, index) => value - (slow[index] || value));
+  const signal = emaSeries(macd, signalPeriod);
+  const histogram = macd.map((value, index) => value - (signal[index] || 0));
+  return { macd, signal, histogram };
+}
+
+function runStockBacktest(series, settings) {
+  const rows = Array.isArray(series) ? series : [];
+  const closes = rows.map((point) => Number(point.close || point.price)).filter((value) => Number.isFinite(value) && value > 0);
+  if (closes.length < 4) {
+    return { trades: 0, finalEquity: settings.capital, returnPct: 0, winRate: 0, maxDrawdown: 0 };
+  }
+  const capital = Math.max(1000, Number(settings.capital) || 1000000);
+  const fee = Math.max(0, Number(settings.feeBps) || 0) / 10000;
+  const fastPeriod = Math.max(2, Number(settings.fastPeriod) || 7);
+  const slowPeriod = Math.max(fastPeriod + 1, Number(settings.slowPeriod) || 25);
+  const fast =
+    settings.strategy === "ema-cross" ? emaSeries(closes, fastPeriod) : movingAverage(closes, fastPeriod);
+  const slow =
+    settings.strategy === "price-vwap"
+      ? vwapSeries(rows).map((value) => Number(value) || 0)
+      : settings.strategy === "ema-cross"
+        ? emaSeries(closes, slowPeriod)
+        : movingAverage(closes, slowPeriod);
+  let cash = capital;
+  let quantity = 0;
+  let entryPrice = 0;
+  let wins = 0;
+  let trades = 0;
+  let peak = capital;
+  let maxDrawdown = 0;
+  for (let index = 1; index < closes.length; index += 1) {
+    const price = closes[index];
+    const previousFast = settings.strategy === "price-vwap" ? closes[index - 1] : fast[index - 1];
+    const currentFast = settings.strategy === "price-vwap" ? price : fast[index];
+    const previousSlow = slow[index - 1];
+    const currentSlow = slow[index];
+    const crossUp = previousFast <= previousSlow && currentFast > currentSlow;
+    const crossDown = previousFast >= previousSlow && currentFast < currentSlow;
+    if (!quantity && crossUp) {
+      quantity = (cash * (1 - fee)) / price;
+      cash = 0;
+      entryPrice = price;
+      trades += 1;
+    } else if (quantity && crossDown) {
+      const proceeds = quantity * price * (1 - fee);
+      if (price > entryPrice) wins += 1;
+      cash = proceeds;
+      quantity = 0;
+      trades += 1;
+    }
+    const equity = cash + quantity * price;
+    peak = Math.max(peak, equity);
+    maxDrawdown = Math.max(maxDrawdown, ((peak - equity) / Math.max(1, peak)) * 100);
+  }
+  const finalEquity = cash + quantity * closes.at(-1);
+  const closedTrades = Math.max(1, Math.floor(trades / 2));
+  return {
+    trades,
+    finalEquity,
+    returnPct: ((finalEquity - capital) / capital) * 100,
+    winRate: (wins / closedTrades) * 100,
+    maxDrawdown,
+  };
+}
+
+function stockSettingsElement(tag, className = "", text = "") {
+  const element = document.createElement(tag);
+  if (className) element.className = className;
+  if (text) element.textContent = text;
+  return element;
+}
+
+function stockSettingsField(label, control, note = "") {
+  const wrapper = stockSettingsElement("label", "stock-chart-setting-field");
+  const labelElement = stockSettingsElement("span", "", label);
+  wrapper.append(labelElement, control);
+  if (note) wrapper.append(stockSettingsElement("small", "", note));
+  return wrapper;
+}
+
+function stockSettingsCheckbox(label, checked, onChange) {
+  const input = document.createElement("input");
+  input.type = "checkbox";
+  input.checked = Boolean(checked);
+  input.addEventListener("change", () => onChange(input.checked));
+  const wrapper = stockSettingsElement("label", "stock-chart-setting-check");
+  wrapper.append(input, stockSettingsElement("span", "", label));
+  return wrapper;
+}
+
+function stockSettingsNumber(value, onChange, options = {}) {
+  const input = document.createElement("input");
+  input.type = "number";
+  input.value = String(value ?? 0);
+  if (options.min !== undefined) input.min = String(options.min);
+  if (options.max !== undefined) input.max = String(options.max);
+  input.step = String(options.step ?? 1);
+  input.addEventListener("input", () => onChange(input.value));
+  return input;
+}
+
+function stockSettingsColor(value, onChange) {
+  const input = document.createElement("input");
+  input.type = "color";
+  input.value = stockSettingColor(value, "#f0b90b");
+  input.addEventListener("input", () => onChange(input.value));
+  return input;
+}
+
+function stockSettingsSelect(value, options, onChange) {
+  const select = document.createElement("select");
+  options.forEach((option) => {
+    const node = document.createElement("option");
+    node.value = String(option.value);
+    node.textContent = option.label;
+    if (String(option.value) === String(value)) node.selected = true;
+    select.append(node);
+  });
+  select.addEventListener("change", () => onChange(select.value));
+  return select;
+}
+
+function stockSettingsPanel(title, summary = "") {
+  const panel = stockSettingsElement("section", "stock-chart-setting-panel");
+  const heading = stockSettingsElement("div", "stock-chart-setting-panel-head");
+  heading.append(stockSettingsElement("strong", "", title));
+  if (summary) heading.append(stockSettingsElement("span", "", summary));
+  panel.append(heading);
+  return panel;
+}
+
+function appendStockLineRows(panel, group, typeLabel, onStructuralChange) {
+  const header = stockSettingsElement("div", "stock-chart-setting-row is-header");
+  header.append(
+    stockSettingsCheckbox(`${typeLabel} enabled`, group.enabled, (checked) => {
+      group.enabled = checked;
+      onStructuralChange();
+    }),
+    stockSettingsField(
+      "Source",
+      stockSettingsSelect(group.source, STOCK_SOURCE_OPTIONS, (value) => {
+        group.source = value;
+      }),
+    ),
+  );
+  panel.append(header);
+  group.items.forEach((item) => {
+    const row = stockSettingsElement("div", "stock-chart-setting-row");
+    row.append(
+      stockSettingsCheckbox(item.label, group.enabled && item.enabled, (checked) => {
+        group.enabled = true;
+        item.enabled = checked;
+        onStructuralChange();
+      }),
+      stockSettingsField(
+        "Period",
+        stockSettingsNumber(item.period, (value) => {
+          item.period = clampStockSettingNumber(value, 0, 500, item.period);
+        }, { min: 0, max: 500 }),
+      ),
+      stockSettingsField(
+        "Style",
+        stockSettingsSelect(item.lineStyle, STOCK_LINE_STYLES, (value) => {
+          item.lineStyle = clampStockSettingNumber(value, 0, 3, item.lineStyle);
+        }),
+      ),
+      stockSettingsField(
+        "Width",
+        stockSettingsNumber(item.lineWidth, (value) => {
+          item.lineWidth = clampStockSettingNumber(value, 1, 5, item.lineWidth);
+        }, { min: 1, max: 5 }),
+      ),
+      stockSettingsField("Color", stockSettingsColor(item.color, (value) => {
+        item.color = value;
+      })),
+    );
+    panel.append(row);
+  });
+}
+
+function renderStockChartSettingsTabs(elements, activeTab, onSelect) {
+  if (!elements.tabs) return;
+  elements.tabs.replaceChildren(
+    ...STOCK_CHART_SETTING_TABS.map((tab) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.textContent = tab.label;
+      button.className = tab.id === activeTab ? "is-active" : "";
+      button.addEventListener("click", () => onSelect(tab.id));
+      return button;
+    }),
+  );
+}
+
+function renderStockChartMainSettings(body, draft, rerender) {
+  const maPanel = stockSettingsPanel("MA - Moving Average", "Configure up to six moving averages.");
+  appendStockLineRows(maPanel, draft.main.ma, "MA", rerender);
+  const emaPanel = stockSettingsPanel("EMA - Exponential Moving Average");
+  appendStockLineRows(emaPanel, draft.main.ema, "EMA", rerender);
+  const wmaPanel = stockSettingsPanel("WMA - Weighted Moving Average");
+  appendStockLineRows(wmaPanel, draft.main.wma, "WMA", rerender);
+  const extras = stockSettingsPanel("VWAP / BOLL");
+  const vwapRow = stockSettingsElement("div", "stock-chart-setting-row");
+  vwapRow.append(
+    stockSettingsCheckbox("VWAP", draft.main.vwap.enabled, (checked) => {
+      draft.main.vwap.enabled = checked;
+      rerender();
+    }),
+    stockSettingsField("Style", stockSettingsSelect(draft.main.vwap.lineStyle, STOCK_LINE_STYLES, (value) => {
+      draft.main.vwap.lineStyle = clampStockSettingNumber(value, 0, 3, draft.main.vwap.lineStyle);
+    })),
+    stockSettingsField("Width", stockSettingsNumber(draft.main.vwap.lineWidth, (value) => {
+      draft.main.vwap.lineWidth = clampStockSettingNumber(value, 1, 5, draft.main.vwap.lineWidth);
+    }, { min: 1, max: 5 })),
+    stockSettingsField("Color", stockSettingsColor(draft.main.vwap.color, (value) => {
+      draft.main.vwap.color = value;
+    })),
+  );
+  const bollRow = stockSettingsElement("div", "stock-chart-setting-row");
+  bollRow.append(
+    stockSettingsCheckbox("BOLL", draft.main.boll.enabled, (checked) => {
+      draft.main.boll.enabled = checked;
+      rerender();
+    }),
+    stockSettingsField("Period", stockSettingsNumber(draft.main.boll.period, (value) => {
+      draft.main.boll.period = clampStockSettingNumber(value, 2, 300, draft.main.boll.period);
+    }, { min: 2, max: 300 })),
+    stockSettingsField("Multiplier", stockSettingsNumber(draft.main.boll.multiplier, (value) => {
+      draft.main.boll.multiplier = clampStockSettingNumber(value, 0.5, 5, draft.main.boll.multiplier, false);
+    }, { min: 0.5, max: 5, step: 0.1 })),
+    stockSettingsField("Source", stockSettingsSelect(draft.main.boll.source, STOCK_SOURCE_OPTIONS, (value) => {
+      draft.main.boll.source = value;
+    })),
+    stockSettingsField("Upper", stockSettingsColor(draft.main.boll.upperColor, (value) => {
+      draft.main.boll.upperColor = value;
+    })),
+    stockSettingsField("Middle", stockSettingsColor(draft.main.boll.middleColor, (value) => {
+      draft.main.boll.middleColor = value;
+    })),
+    stockSettingsField("Lower", stockSettingsColor(draft.main.boll.lowerColor, (value) => {
+      draft.main.boll.lowerColor = value;
+    })),
+  );
+  extras.append(vwapRow, bollRow);
+  body.append(maPanel, emaPanel, wmaPanel, extras);
+}
+
+function renderStockChartSubSettings(body, draft, rerender) {
+  const panel = stockSettingsPanel("Sub Indicators", "Volume, RSI, and MACD render in lower chart zones.");
+  const volumeRow = stockSettingsElement("div", "stock-chart-setting-row");
+  volumeRow.append(
+    stockSettingsCheckbox("Volume", draft.sub.volume, (checked) => {
+      draft.sub.volume = checked;
+      rerender();
+    }),
+    stockSettingsCheckbox("Volume MA", draft.sub.volumeMa, (checked) => {
+      draft.sub.volumeMa = checked;
+      rerender();
+    }),
+    stockSettingsField("Volume MA period", stockSettingsNumber(draft.sub.volumeMaPeriod, (value) => {
+      draft.sub.volumeMaPeriod = clampStockSettingNumber(value, 1, 300, draft.sub.volumeMaPeriod);
+    }, { min: 1, max: 300 })),
+    stockSettingsField("Volume MA color", stockSettingsColor(draft.sub.volumeMaColor, (value) => {
+      draft.sub.volumeMaColor = value;
+    })),
+  );
+  const rsiRow = stockSettingsElement("div", "stock-chart-setting-row");
+  rsiRow.append(
+    stockSettingsCheckbox("RSI", draft.sub.rsi, (checked) => {
+      draft.sub.rsi = checked;
+      rerender();
+    }),
+    stockSettingsField("Period", stockSettingsNumber(draft.sub.rsiPeriod, (value) => {
+      draft.sub.rsiPeriod = clampStockSettingNumber(value, 2, 100, draft.sub.rsiPeriod);
+    }, { min: 2, max: 100 })),
+    stockSettingsField("Color", stockSettingsColor(draft.sub.rsiColor, (value) => {
+      draft.sub.rsiColor = value;
+    })),
+  );
+  const macdRow = stockSettingsElement("div", "stock-chart-setting-row");
+  macdRow.append(
+    stockSettingsCheckbox("MACD", draft.sub.macd, (checked) => {
+      draft.sub.macd = checked;
+      rerender();
+    }),
+    stockSettingsField("Fast", stockSettingsNumber(draft.sub.macdFast, (value) => {
+      draft.sub.macdFast = clampStockSettingNumber(value, 2, 100, draft.sub.macdFast);
+    }, { min: 2, max: 100 })),
+    stockSettingsField("Slow", stockSettingsNumber(draft.sub.macdSlow, (value) => {
+      draft.sub.macdSlow = clampStockSettingNumber(value, 3, 200, draft.sub.macdSlow);
+    }, { min: 3, max: 200 })),
+    stockSettingsField("Signal", stockSettingsNumber(draft.sub.macdSignal, (value) => {
+      draft.sub.macdSignal = clampStockSettingNumber(value, 2, 100, draft.sub.macdSignal);
+    }, { min: 2, max: 100 })),
+    stockSettingsField("MACD", stockSettingsColor(draft.sub.macdColor, (value) => {
+      draft.sub.macdColor = value;
+    })),
+    stockSettingsField("Signal", stockSettingsColor(draft.sub.macdSignalColor, (value) => {
+      draft.sub.macdSignalColor = value;
+    })),
+  );
+  panel.append(volumeRow, rsiRow, macdRow);
+  body.append(panel);
+}
+
+function renderStockTradingSettings(body, draft, rerender) {
+  const panel = stockSettingsPanel("Trading Data", "Control readouts and chart interactions.");
+  [
+    ["Tooltip", "tooltip"],
+    ["OHLC top line", "ohlc"],
+    ["Performance row", "performance"],
+    ["Watermark", "watermark"],
+    ["Price line", "priceLine"],
+    ["Last values", "lastValue"],
+    ["Crosshair", "crosshair"],
+    ["Scroll zoom", "scrollZoom"],
+  ].forEach(([label, key]) => {
+    panel.append(
+      stockSettingsCheckbox(label, draft.trading[key], (checked) => {
+        draft.trading[key] = checked;
+        rerender();
+      }),
+    );
+  });
+  body.append(panel);
+}
+
+function renderStockCustomSettings(body, draft, rerender) {
+  const panel = stockSettingsPanel("Customized", "Tune chart theme, colors, scale, and spacing.");
+  const themeOptions = Object.entries(STOCK_CHART_THEME_PRESETS).map(([value, preset]) => ({ value, label: preset.label }));
+  const modeOptions = [
+    { value: "candle", label: "Candles" },
+    { value: "line", label: "Line" },
+    { value: "area", label: "Area" },
+  ];
+  const scaleOptions = [
+    { value: "price", label: "Last price" },
+    { value: "percent", label: "Percent" },
+  ];
+  const row = stockSettingsElement("div", "stock-chart-setting-row");
+  row.append(
+    stockSettingsField("Theme", stockSettingsSelect(draft.custom.theme, themeOptions, (value) => {
+      const preset = STOCK_CHART_THEME_PRESETS[value] || STOCK_CHART_THEME_PRESETS.exchange;
+      draft.custom.theme = value;
+      draft.custom.background = preset.background;
+      draft.custom.textColor = preset.textColor;
+      rerender();
+    })),
+    stockSettingsField("Chart type", stockSettingsSelect(draft.mode, modeOptions, (value) => {
+      draft.mode = value;
+    })),
+    stockSettingsField("Scale", stockSettingsSelect(draft.scale, scaleOptions, (value) => {
+      draft.scale = value;
+    })),
+    stockSettingsField("Background", stockSettingsColor(draft.custom.background, (value) => {
+      draft.custom.background = value;
+    })),
+    stockSettingsField("Text", stockSettingsColor(draft.custom.textColor, (value) => {
+      draft.custom.textColor = value;
+    })),
+    stockSettingsField("Up", stockSettingsColor(draft.custom.upColor, (value) => {
+      draft.custom.upColor = value;
+    })),
+    stockSettingsField("Down", stockSettingsColor(draft.custom.downColor, (value) => {
+      draft.custom.downColor = value;
+    })),
+    stockSettingsField("Line", stockSettingsColor(draft.custom.lineColor, (value) => {
+      draft.custom.lineColor = value;
+    })),
+    stockSettingsField("Grid opacity", stockSettingsNumber(draft.custom.gridOpacity, (value) => {
+      draft.custom.gridOpacity = clampStockSettingNumber(value, 0, 60, draft.custom.gridOpacity);
+    }, { min: 0, max: 60 })),
+    stockSettingsField("Bar spacing", stockSettingsNumber(draft.custom.barSpacing, (value) => {
+      draft.custom.barSpacing = clampStockSettingNumber(value, 3, 18, draft.custom.barSpacing);
+    }, { min: 3, max: 18 })),
+    stockSettingsCheckbox("Candle borders", draft.custom.candleBorders, (checked) => {
+      draft.custom.candleBorders = checked;
+    }),
+  );
+  panel.append(row);
+  body.append(panel);
+}
+
+function renderStockBacktestSettings(body, draft, context, rerender) {
+  const panel = stockSettingsPanel("Backtest", "Run a quick strategy simulation on the visible series.");
+  const strategyOptions = [
+    { value: "ma-cross", label: "MA cross" },
+    { value: "ema-cross", label: "EMA cross" },
+    { value: "price-vwap", label: "Price / VWAP" },
+  ];
+  const row = stockSettingsElement("div", "stock-chart-setting-row");
+  row.append(
+    stockSettingsField("Strategy", stockSettingsSelect(draft.backtest.strategy, strategyOptions, (value) => {
+      draft.backtest.strategy = value;
+      rerender();
+    })),
+    stockSettingsField("Fast", stockSettingsNumber(draft.backtest.fastPeriod, (value) => {
+      draft.backtest.fastPeriod = clampStockSettingNumber(value, 2, 100, draft.backtest.fastPeriod);
+    }, { min: 2, max: 100 })),
+    stockSettingsField("Slow", stockSettingsNumber(draft.backtest.slowPeriod, (value) => {
+      draft.backtest.slowPeriod = clampStockSettingNumber(value, 3, 300, draft.backtest.slowPeriod);
+    }, { min: 3, max: 300 })),
+    stockSettingsField("Capital", stockSettingsNumber(draft.backtest.capital, (value) => {
+      draft.backtest.capital = clampStockSettingNumber(value, 1000, 1000000000, draft.backtest.capital);
+    }, { min: 1000, max: 1000000000, step: 1000 })),
+    stockSettingsField("Fee bps", stockSettingsNumber(draft.backtest.feeBps, (value) => {
+      draft.backtest.feeBps = clampStockSettingNumber(value, 0, 100, draft.backtest.feeBps);
+    }, { min: 0, max: 100 })),
+  );
+  const runButton = document.createElement("button");
+  runButton.type = "button";
+  runButton.className = "stock-chart-backtest-run";
+  runButton.textContent = "Run Backtest";
+  runButton.addEventListener("click", rerender);
+  row.append(runButton);
+  const result = runStockBacktest(context.series, sanitizeStockChartSettings(draft).backtest);
+  const results = stockSettingsElement("div", "stock-chart-backtest-result");
+  [
+    ["Final equity", formatStockKrw(result.finalEquity)],
+    ["Return", formatStockChange(result.returnPct)],
+    ["Trades", formatStockNumber(result.trades)],
+    ["Win rate", `${result.winRate.toFixed(1)}%`],
+    ["Max drawdown", `${result.maxDrawdown.toFixed(1)}%`],
+  ].forEach(([label, value]) => {
+    const item = stockSettingsElement("span");
+    item.append(stockSettingsElement("em", "", label), stockSettingsElement("strong", "", value));
+    results.append(item);
+  });
+  panel.append(row, results);
+  body.append(panel);
+}
+
+function renderStockChartSettingsBody(elements, draft, activeTab, context, rerender) {
+  if (!elements.body) return;
+  elements.body.replaceChildren();
+  if (activeTab === "sub") renderStockChartSubSettings(elements.body, draft, rerender);
+  else if (activeTab === "trading") renderStockTradingSettings(elements.body, draft, rerender);
+  else if (activeTab === "custom") renderStockCustomSettings(elements.body, draft, rerender);
+  else if (activeTab === "backtest") renderStockBacktestSettings(elements.body, draft, context, rerender);
+  else renderStockChartMainSettings(elements.body, draft, rerender);
+}
+
 function stockFinancialSeed(code) {
   return (
     String(code || "")
@@ -2669,9 +3520,51 @@ function createStockChartState(container) {
     priceLineVisible: false,
     lastValueVisible: false,
   });
+  const volumeMa = addStockSeries(chart, LineSeries, {
+    color: DEFAULT_STOCK_CHART_SETTINGS.sub.volumeMaColor,
+    lineWidth: 1,
+    priceLineVisible: false,
+    lastValueVisible: false,
+    priceScaleId: "",
+  });
+  const rsi = addStockSeries(chart, LineSeries, {
+    color: DEFAULT_STOCK_CHART_SETTINGS.sub.rsiColor,
+    lineWidth: 2,
+    priceLineVisible: false,
+    lastValueVisible: false,
+    priceScaleId: "rsi",
+  });
+  const macd = addStockSeries(chart, LineSeries, {
+    color: DEFAULT_STOCK_CHART_SETTINGS.sub.macdColor,
+    lineWidth: 2,
+    priceLineVisible: false,
+    lastValueVisible: false,
+    priceScaleId: "macd",
+  });
+  const macdSignal = addStockSeries(chart, LineSeries, {
+    color: DEFAULT_STOCK_CHART_SETTINGS.sub.macdSignalColor,
+    lineWidth: 1,
+    lineStyle: 2,
+    priceLineVisible: false,
+    lastValueVisible: false,
+    priceScaleId: "macd",
+  });
+  const macdHistogram = addStockSeries(chart, HistogramSeries, {
+    priceLineVisible: false,
+    lastValueVisible: false,
+    priceScaleId: "macd",
+  });
 
   chart.priceScale("").applyOptions({
     scaleMargins: { top: 0.80, bottom: 0 },
+  });
+  chart.priceScale("rsi").applyOptions({
+    scaleMargins: { top: 0.72, bottom: 0.12 },
+    visible: false,
+  });
+  chart.priceScale("macd").applyOptions({
+    scaleMargins: { top: 0.72, bottom: 0.12 },
+    visible: false,
   });
 
   const state = {
@@ -2681,18 +3574,53 @@ function createStockChartState(container) {
     chartMount,
     container,
     dataByTime: new Map(),
+    indicatorSeries: new Map(),
     line,
     ma5,
     ma20,
+    macd,
+    macdHistogram,
+    macdSignal,
+    rsi,
     tooltip: container.querySelector("[data-stock-chart-tooltip]"),
     vwap,
     volume,
+    volumeMa,
     viewKey: "",
   };
 
   chart.subscribeCrosshairMove((param) => renderStockChartTooltip(state, param));
   stockChartStates.set(container, state);
   return state;
+}
+
+function stockLineSeriesOptions(setting, settings, priceScaleId = "right") {
+  return {
+    color: setting.color,
+    lineWidth: setting.lineWidth,
+    lineStyle: setting.lineStyle,
+    lastValueVisible: settings.trading.lastValue,
+    priceLineVisible: false,
+    priceScaleId,
+  };
+}
+
+function ensureStockLineSeries(state, id, setting, settings, priceScaleId = "right") {
+  let series = state.indicatorSeries.get(id);
+  const options = stockLineSeriesOptions(setting, settings, priceScaleId);
+  if (!series) {
+    series = addStockSeries(state.chart, LineSeries, options);
+    state.indicatorSeries.set(id, series);
+  } else {
+    series.applyOptions(options);
+  }
+  return series;
+}
+
+function clearUnusedStockSeries(state, usedIds) {
+  state.indicatorSeries.forEach((series, id) => {
+    if (!usedIds.has(id)) series.setData([]);
+  });
 }
 
 function setStockSeriesVisible(state, mode) {
@@ -2703,6 +3631,10 @@ function setStockSeriesVisible(state, mode) {
 
 function renderStockChartTooltip(state, param) {
   const { container, tooltip } = state;
+  if (!state.settings?.trading?.tooltip) {
+    if (tooltip) tooltip.hidden = true;
+    return;
+  }
   if (!tooltip || !param?.point || !param?.time) {
     if (tooltip) tooltip.hidden = true;
     return;
@@ -2745,13 +3677,17 @@ function renderStockChartTooltip(state, param) {
 
 function renderStockChart(container, stock, tick, selectedRange = "1D", options = {}) {
   const series = stockSeries(stock, tick, selectedRange);
-  const rows = stockChartRows(series, selectedRange, options.scale);
+  const settings = sanitizeStockChartSettings(options.settings || {});
+  const chartMode = options.mode || settings.mode || "candle";
+  const scale = options.scale || settings.scale || "price";
+  const rows = stockChartRows(series, selectedRange, scale);
   const last = rows.at(-1) || rows[0];
   const first = rows[0] || last;
-  const indicators = options.indicators || new Set();
-  const chartMode = options.mode || "candle";
   const state = stockChartStates.get(container) || createStockChartState(container);
-  const priceFormatter = options.scale === "percent" ? (value) => `${value.toFixed(2)}%` : (value) => formatStockKrw(value);
+  const priceFormatter = scale === "percent" ? (value) => `${value.toFixed(2)}%` : (value) => formatStockKrw(value);
+  const gridOpacity = Math.max(0, Math.min(0.6, settings.custom.gridOpacity / 100));
+  const gridColor = `rgba(94, 102, 115, ${gridOpacity})`;
+  const hasSubPane = settings.sub.volume || settings.sub.volumeMa || settings.sub.rsi || settings.sub.macd;
   const candleData = rows.map((point) => ({
     time: point.time,
     open: point.scaledOpen,
@@ -2763,31 +3699,208 @@ function renderStockChart(container, stock, tick, selectedRange = "1D", options 
   const volumeData = rows.map((point) => ({
     time: point.time,
     value: point.volume,
-    color: point.close >= point.open ? "rgba(14, 203, 129, 0.48)" : "rgba(246, 70, 93, 0.52)",
+    color: point.close >= point.open ? `${settings.custom.upColor}80` : `${settings.custom.downColor}85`,
   }));
   const basePrice = Math.max(1, Number(series[0]?.price || series[0]?.close) || 1);
   const closes = rows.map((point) => point.close);
-  const toLineData = (values) =>
+  const usedDynamicSeries = new Set();
+  const toScaledLineData = (values) =>
     values.map((value, index) => ({
       time: rows[index].time,
-      value: stockChartValue(value, basePrice, options.scale),
+      value: stockChartValue(value, basePrice, scale),
     }));
+  const toRawLineData = (values) =>
+    values.map((value, index) => ({
+      time: rows[index].time,
+      value: Number(value) || 0,
+    }));
+  const setDynamicLine = (id, values, setting, priceScaleId = "right", scaled = true) => {
+    usedDynamicSeries.add(id);
+    const lineSeries = ensureStockLineSeries(state, id, setting, settings, priceScaleId);
+    lineSeries.setData(scaled ? toScaledLineData(values) : toRawLineData(values));
+  };
+  const addLineGroup = (group, calculator) => {
+    if (!group.enabled) return;
+    const sourceValues = rows.map((point) => stockIndicatorSourceValue(point, group.source));
+    group.items.forEach((item) => {
+      if (!item.enabled || item.period <= 0) return;
+      setDynamicLine(item.id, calculator(sourceValues, item.period), item);
+    });
+  };
 
   state.dataByTime = new Map(rows.map((point) => [String(point.time), point]));
+  state.settings = settings;
   state.chart.applyOptions({
+    layout: {
+      background: { type: ColorType.Solid, color: settings.custom.background },
+      textColor: settings.custom.textColor,
+      fontSize: 12,
+      fontFamily: "Inter, Pretendard, system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
+    },
+    grid: {
+      vertLines: { color: gridColor },
+      horzLines: { color: gridColor },
+    },
     localization: { priceFormatter },
-    rightPriceScale: { scaleMargins: { top: 0.08, bottom: 0.28 } },
+    rightPriceScale: { scaleMargins: { top: 0.08, bottom: hasSubPane ? 0.30 : 0.08 } },
+    timeScale: {
+      barSpacing: settings.custom.barSpacing,
+      rightOffset: 8,
+      timeVisible: true,
+      secondsVisible: selectedRange === "1M",
+    },
+    crosshair: {
+      mode: CrosshairMode.Normal,
+      vertLine: {
+        color: "rgba(240, 185, 11, 0.58)",
+        labelBackgroundColor: "#f0b90b",
+        style: 2,
+        visible: settings.trading.crosshair,
+      },
+      horzLine: {
+        color: "rgba(240, 185, 11, 0.58)",
+        labelBackgroundColor: "#f0b90b",
+        style: 2,
+        visible: settings.trading.crosshair,
+      },
+    },
+    handleScroll: {
+      mouseWheel: settings.trading.scrollZoom,
+      pressedMouseMove: true,
+      horzTouchDrag: true,
+      vertTouchDrag: false,
+    },
+    handleScale: {
+      axisPressedMouseMove: true,
+      mouseWheel: settings.trading.scrollZoom,
+      pinch: settings.trading.scrollZoom,
+    },
+  });
+  state.chart.priceScale("").applyOptions({
+    scaleMargins: { top: hasSubPane ? 0.80 : 0.94, bottom: 0 },
+    visible: settings.sub.volume || settings.sub.volumeMa,
+  });
+  state.chart.priceScale("rsi").applyOptions({
+    scaleMargins: { top: settings.sub.macd ? 0.70 : 0.76, bottom: settings.sub.macd ? 0.17 : 0.08 },
+    visible: settings.sub.rsi,
+  });
+  state.chart.priceScale("macd").applyOptions({
+    scaleMargins: { top: settings.sub.rsi ? 0.82 : 0.76, bottom: 0.04 },
+    visible: settings.sub.macd,
+  });
+  state.candle.applyOptions({
+    upColor: settings.custom.upColor,
+    downColor: settings.custom.downColor,
+    borderUpColor: settings.custom.candleBorders ? settings.custom.upColor : "transparent",
+    borderDownColor: settings.custom.candleBorders ? settings.custom.downColor : "transparent",
+    wickUpColor: settings.custom.upColor,
+    wickDownColor: settings.custom.downColor,
+    priceLineColor: settings.custom.downColor,
+    priceLineVisible: settings.trading.priceLine,
+    lastValueVisible: settings.trading.lastValue,
+  });
+  state.line.applyOptions({
+    color: settings.custom.lineColor,
+    lineWidth: 3,
+    priceLineColor: settings.custom.lineColor,
+    priceLineVisible: settings.trading.priceLine,
+    lastValueVisible: settings.trading.lastValue,
+  });
+  state.area.applyOptions({
+    lineColor: settings.custom.lineColor,
+    topColor: settings.custom.areaTopColor,
+    bottomColor: settings.custom.areaBottomColor,
+    priceLineColor: settings.custom.lineColor,
+    priceLineVisible: settings.trading.priceLine,
+    lastValueVisible: settings.trading.lastValue,
+  });
+  state.volume.applyOptions({
+    lastValueVisible: settings.trading.lastValue,
+    priceLineVisible: false,
   });
   state.candle.setData(candleData);
   state.line.setData(lineData);
   state.area.setData(lineData);
-  state.volume.setData(volumeData);
-  state.ma5.setData(indicators.has("ma5") ? toLineData(movingAverage(closes, 5)) : []);
-  state.ma20.setData(indicators.has("ma20") ? toLineData(movingAverage(closes, 20)) : []);
-  state.vwap.setData(indicators.has("vwap") ? toLineData(vwapSeries(rows)) : []);
+  state.volume.setData(settings.sub.volume ? volumeData : []);
+  state.ma5.setData([]);
+  state.ma20.setData([]);
+  state.vwap.setData([]);
+  addLineGroup(settings.main.ma, movingAverage);
+  addLineGroup(settings.main.ema, emaSeries);
+  addLineGroup(settings.main.wma, weightedMovingAverage);
+  if (settings.main.vwap.enabled) setDynamicLine("vwap", vwapSeries(rows), settings.main.vwap);
+  if (settings.main.boll.enabled) {
+    const sourceValues = rows.map((point) => stockIndicatorSourceValue(point, settings.main.boll.source));
+    const bands = bollingerBands(sourceValues, settings.main.boll.period, settings.main.boll.multiplier);
+    setDynamicLine(
+      "boll-upper",
+      bands.map((point) => point.upper),
+      { ...settings.main.boll, color: settings.main.boll.upperColor },
+    );
+    setDynamicLine(
+      "boll-middle",
+      bands.map((point) => point.middle),
+      { ...settings.main.boll, color: settings.main.boll.middleColor },
+    );
+    setDynamicLine(
+      "boll-lower",
+      bands.map((point) => point.lower),
+      { ...settings.main.boll, color: settings.main.boll.lowerColor },
+    );
+  }
+  if (settings.sub.volumeMa) {
+    state.volumeMa.applyOptions({
+      color: settings.sub.volumeMaColor,
+      lastValueVisible: settings.trading.lastValue,
+      priceLineVisible: false,
+    });
+    state.volumeMa.setData(toRawLineData(movingAverage(rows.map((point) => point.volume), settings.sub.volumeMaPeriod)));
+  } else {
+    state.volumeMa.setData([]);
+  }
+  if (settings.sub.rsi) {
+    const rsiValues = closes.map((_, index) => relativeStrengthIndex(closes.slice(0, index + 1), settings.sub.rsiPeriod));
+    state.rsi.applyOptions({
+      color: settings.sub.rsiColor,
+      lastValueVisible: settings.trading.lastValue,
+      priceLineVisible: false,
+    });
+    state.rsi.setData(toRawLineData(rsiValues));
+  } else {
+    state.rsi.setData([]);
+  }
+  if (settings.sub.macd) {
+    const macdData = macdSeries(closes, settings.sub.macdFast, settings.sub.macdSlow, settings.sub.macdSignal);
+    state.macd.applyOptions({
+      color: settings.sub.macdColor,
+      lastValueVisible: settings.trading.lastValue,
+      priceLineVisible: false,
+    });
+    state.macdSignal.applyOptions({
+      color: settings.sub.macdSignalColor,
+      lastValueVisible: settings.trading.lastValue,
+      priceLineVisible: false,
+    });
+    state.macd.setData(toRawLineData(macdData.macd));
+    state.macdSignal.setData(toRawLineData(macdData.signal));
+    state.macdHistogram.setData(
+      macdData.histogram.map((value, index) => ({
+        time: rows[index].time,
+        value,
+        color: value >= 0 ? `${settings.custom.upColor}66` : `${settings.custom.downColor}66`,
+      })),
+    );
+  } else {
+    state.macd.setData([]);
+    state.macdSignal.setData([]);
+    state.macdHistogram.setData([]);
+  }
+  clearUnusedStockSeries(state, usedDynamicSeries);
   setStockSeriesVisible(state, chartMode);
+  container.querySelector(".stock-chart-watermark")?.toggleAttribute("hidden", !settings.trading.watermark);
+  container.style.background = settings.custom.background;
 
-  const nextViewKey = `${stockCode(stock)}:${selectedRange}:${chartMode}:${options.scale}`;
+  const nextViewKey = `${stockCode(stock)}:${selectedRange}:${chartMode}:${scale}`;
   if (state.viewKey !== nextViewKey) {
     state.chart.timeScale().fitContent();
     state.viewKey = nextViewKey;
@@ -3734,17 +4847,18 @@ function renderStockDataTerminal(analytics, summary, table, stock, result, tick,
   }
 }
 
-function buildStockDepth(stock, groupSize = 1) {
+function buildStockDepth(stock, groupSize = 1, rowCount = DEFAULT_STOCK_DEPTH_SETTINGS.rows) {
   const price = Math.max(1, Number(stock.price) || 1);
   const volume = Math.max(10, stockDisplayVolume24h(stock));
   const group = Math.max(1, Number(groupSize) || 1);
+  const rows = clampStockSettingNumber(rowCount, 5, 14, DEFAULT_STOCK_DEPTH_SETTINGS.rows);
   const spread = Math.max(group, price * 0.0025);
   const bestAsk = Math.ceil((price + spread / 2) / group) * group;
   const bestBid = Math.max(group, Math.floor((price - spread / 2) / group) * group);
   const asks = [];
   const bids = [];
 
-  Array.from({ length: 8 }, (_, index) => {
+  Array.from({ length: rows }, (_, index) => {
     const step = index + 1;
     const askQuantity = Math.max(1, Math.round((volume / 118) * (1 + Math.sin(price * 0.01 + step) * 0.28 + step * 0.09)));
     const bidQuantity = Math.max(1, Math.round((volume / 118) * (1 + Math.cos(price * 0.012 + step) * 0.24 + step * 0.1)));
@@ -3814,6 +4928,116 @@ function renderStockOrderBook(book, stock, options = {}) {
     const label = options.depthMeter.querySelector("em");
     if (fill) fill.style.width = `${depth.bidRatio}%`;
     if (label) label.textContent = `매수 압력 ${depth.bidRatio}% · 매도 ${100 - depth.bidRatio}%`;
+  }
+  return depth;
+}
+
+function stockDepthLevelMatches(a, b) {
+  if (!a || !b) return false;
+  return a.side === b.side && Math.abs(Number(a.price) - Number(b.price)) < 0.0001;
+}
+
+function renderInteractiveDepthLevels(list, levels, maxTotal, options = {}) {
+  if (!list) return;
+  const rows = (options.reverse ? [...levels].reverse() : levels).map((level) => {
+    const row = document.createElement("li");
+    row.className = level.side === "ask" ? "is-ask" : "is-bid";
+    row.classList.toggle("is-clickable", Boolean(options.onSelect));
+    row.classList.toggle(
+      "is-selected",
+      Boolean(options.flashSelection && stockDepthLevelMatches(level, options.selectedLevel)),
+    );
+    row.style.setProperty(
+      "--depth",
+      options.showDepth
+        ? `${Math.max(6, (Number(level.total || 0) / Math.max(1, maxTotal)) * 100).toFixed(1)}%`
+        : "0%",
+    );
+    row.dataset.stockDepthSide = level.side;
+    row.dataset.stockDepthPrice = String(level.price);
+    row.dataset.stockDepthQuantity = String(level.quantity);
+
+    if (options.onSelect) {
+      const select = () => options.onSelect(level);
+      row.tabIndex = 0;
+      row.setAttribute("role", "button");
+      row.setAttribute(
+        "aria-label",
+        `${level.side === "ask" ? "Ask" : "Bid"} ${formatStockKrw(level.price)} size ${formatStockNumber(level.quantity)}`,
+      );
+      row.addEventListener("click", select);
+      row.addEventListener("keydown", (event) => {
+        if (event.key !== "Enter" && event.key !== " ") return;
+        event.preventDefault();
+        select();
+      });
+    }
+
+    const price = document.createElement("strong");
+    price.className = "stock-depth-price";
+    price.textContent = formatStockKrw(level.price);
+    const quantity = document.createElement("span");
+    quantity.textContent = formatStockNumber(level.quantity);
+    const total = document.createElement("em");
+    total.hidden = !options.showSum;
+    total.textContent = formatStockNumber(level.total);
+    row.append(price, quantity, total);
+    return row;
+  });
+  list.replaceChildren(...rows);
+}
+
+function renderStockOrderBookPanel(book, stock, options = {}) {
+  if (!stock) return null;
+  const settings = sanitizeStockDepthSettings(options.settings || { groupSize: options.groupSize });
+  const depth = buildStockDepth(stock, settings.groupSize, settings.rows);
+  const showAsks = settings.mode !== "bids";
+  const showBids = settings.mode !== "asks";
+  const levelOptions = {
+    showDepth: settings.showDepth && settings.depthOpacity > 0,
+    showSum: settings.showSum,
+    flashSelection: settings.flashSelection,
+    selectedLevel: options.selectedLevel,
+    onSelect: options.onSelect,
+  };
+
+  if (options.panel) {
+    options.panel.classList.toggle("is-depth-asks-only", settings.mode === "asks");
+    options.panel.classList.toggle("is-depth-bids-only", settings.mode === "bids");
+    options.panel.classList.toggle("is-depth-sum-hidden", !settings.showSum);
+    options.panel.classList.toggle("is-depth-background-off", !settings.showDepth || settings.depthOpacity <= 0);
+    options.panel.style.setProperty("--depth-opacity", String(Math.max(0, Math.min(90, settings.depthOpacity)) / 100));
+  }
+  if (options.asksBook) options.asksBook.hidden = !showAsks;
+  if (book) book.hidden = !showBids;
+
+  renderInteractiveDepthLevels(options.asksBook, showAsks ? depth.asks : [], depth.maxTotal, {
+    ...levelOptions,
+    reverse: true,
+  });
+  renderInteractiveDepthLevels(book, showBids ? depth.bids : [], depth.maxTotal, levelOptions);
+
+  if (options.midPrice) {
+    options.midPrice.replaceChildren();
+    options.midPrice.dataset.stockDepthMid = String(depth.mid);
+    options.midPrice.classList.toggle("is-clickable", settings.midClick !== "off");
+    options.midPrice.tabIndex = settings.midClick !== "off" ? 0 : -1;
+    options.midPrice.setAttribute("role", settings.midClick !== "off" ? "button" : "presentation");
+    const price = document.createElement("strong");
+    price.textContent = formatStockKrw(depth.mid);
+    const spread = document.createElement("span");
+    spread.textContent = `Spread ${formatStockKrw(depth.spread)} / ${depth.spreadPercent.toFixed(2)}%`;
+    options.midPrice.append(price, spread);
+  }
+  if (options.ratioLabel) {
+    options.ratioLabel.textContent = `Buy ${depth.bidRatio}%`;
+  }
+  if (options.depthMeter) {
+    options.depthMeter.hidden = !settings.showMeter;
+    const fill = options.depthMeter.querySelector("span");
+    const label = options.depthMeter.querySelector("em");
+    if (fill) fill.style.width = `${depth.bidRatio}%`;
+    if (label) label.textContent = `Buy pressure ${depth.bidRatio}% / Sell ${100 - depth.bidRatio}%`;
   }
   return depth;
 }
@@ -4070,7 +5294,7 @@ function renderExpertPanel(elements, metrics, depth, stock, orderElements, activ
 
   if (elements.risk) {
     const price = Math.max(1, Number(stock?.price) || metrics.price || 1);
-    const leverage = Math.max(1, Math.min(5, Number(orderElements?.leverage?.value || 1)));
+    const leverage = Math.max(1, Math.min(STOCK_MAX_LEVERAGE, Number(orderElements?.leverage?.value || 1)));
     const liq = liquidationPrice(price, leverage, activeSide);
     const risk = orderRiskLabel(leverage, metrics.volatility, depth);
     const pressure = `매수 ${depth?.bidRatio ?? 50}%`;
@@ -4096,6 +5320,36 @@ function setTradeMessage(element, text, tone = "info") {
   element.classList.toggle("is-success", tone === "success");
 }
 
+function stockOrderBalance(stock, portfolio) {
+  const balance = Number(portfolio?.balance);
+  if (Number.isFinite(balance) && balance > 0) return { value: balance, preview: false };
+  const price = Math.max(1, Number(stock?.price || stock?.base) || 1);
+  return { value: Math.max(1_000_000, price * 500), preview: true };
+}
+
+function stockOrderMaxQuantity(stock, portfolio, side, leverage, executionPrice, reduceOnly = false) {
+  const price = Math.max(1, Number(executionPrice || stock?.price) || 1);
+  const position = stockPosition(portfolio, stockCode(stock));
+  const positionQuantity = Math.max(0, Number(position?.shares ?? position?.quantity ?? 0));
+  if (reduceOnly) return Math.floor(positionQuantity);
+
+  const balance = stockOrderBalance(stock, portfolio).value;
+  const maxByMargin = Math.floor((balance * Math.max(1, leverage) * 0.98) / price);
+  return Math.max(1, Math.min(999_999, maxByMargin));
+}
+
+function syncStockOrderPercentControl(elements, quantity, maxQuantity) {
+  const percent = maxQuantity > 0 ? Math.min(100, Math.max(0, (Number(quantity) / maxQuantity) * 100)) : 0;
+  if (elements.percent) {
+    elements.percent.value = String(Math.round(percent));
+    elements.percent.style.setProperty("--percent", `${percent.toFixed(1)}%`);
+  }
+  elements.percentButtons?.forEach((button) => {
+    const marker = Number(button.dataset.stockSizePercentButton || 0);
+    button.classList.toggle("is-active", Math.abs(marker - percent) <= 3);
+  });
+}
+
 function renderOrderTicket(elements, stock, side, playerProfile, portfolio, liveMarket = false, loading = false, expert = {}) {
   if (!elements?.root || !stock) return;
   const quantity = Math.max(1, Math.floor(Number(elements.quantity?.value || 1)));
@@ -4104,9 +5358,12 @@ function renderOrderTicket(elements, stock, side, playerProfile, portfolio, live
   const limitPrice = Math.max(0, Number(elements.limit?.value || 0));
   const usesLimitPrice = ["limit", "stop-limit", "oco"].includes(orderType);
   const executionPrice = usesLimitPrice && limitPrice > 0 ? limitPrice : price;
-  const leverage = Math.max(1, Math.min(5, Number(elements.leverage?.value || 1)));
+  const leverage = Math.max(1, Math.min(STOCK_MAX_LEVERAGE, Number(elements.leverage?.value || 1)));
   const takeProfit = Math.max(0, Number(elements.takeProfit?.value || 0));
   const stopLoss = Math.max(0, Number(elements.stopLoss?.value || 0));
+  const tpSlEnabled = elements.tpSlToggle ? Boolean(elements.tpSlToggle.checked) : true;
+  const reduceOnly = elements.reduceOnly?.value === "on";
+  const timeInForce = elements.timeInForce?.value || "GTC";
   const feeRate = 0.003;
   const notional = executionPrice * quantity;
   const margin = notional / leverage;
@@ -4116,9 +5373,24 @@ function renderOrderTicket(elements, stock, side, playerProfile, portfolio, live
   const canTrade = Boolean(playerProfile?.verified && playerProfile?.webToken && PLAYER_API_BASES.length && liveMarket && stock && !loading);
   const liq = liquidationPrice(executionPrice, leverage, side);
   const risk = orderRiskLabel(leverage, expert.metrics?.volatility, expert.depth);
+  const balance = stockOrderBalance(stock, portfolio);
+  const maxQuantity = stockOrderMaxQuantity(stock, portfolio, side, leverage, executionPrice, reduceOnly);
 
   if (elements.symbol) elements.symbol.textContent = stockCode(stock);
   if (elements.side) elements.side.textContent = side === "sell" ? "매도" : "매수";
+  if (elements.available) {
+    elements.available.textContent = balance.preview ? `Preview ${formatStockKrw(balance.value)}` : formatStockKrw(balance.value);
+  }
+  if (elements.max) elements.max.textContent = `${formatStockNumber(maxQuantity)} shares`;
+  if (elements.limit) {
+    elements.limit.disabled = orderType === "market";
+    elements.limit.placeholder = orderType === "market" ? "Market Price" : "Current price";
+  }
+  if (elements.quantity) elements.quantity.max = String(Math.max(1, maxQuantity));
+  if (elements.takeProfit) elements.takeProfit.disabled = !tpSlEnabled;
+  if (elements.stopLoss) elements.stopLoss.disabled = !tpSlEnabled;
+  elements.advanced?.classList.toggle("is-tpsl-off", !tpSlEnabled);
+  syncStockOrderPercentControl(elements, quantity, maxQuantity);
   if (elements.estimate) {
     elements.estimate.replaceChildren();
     [
@@ -4131,7 +5403,9 @@ function renderOrderTicket(elements, stock, side, playerProfile, portfolio, live
       [side === "sell" ? "예상 입금" : "예상 필요", formatStockKrw(total)],
       ["청산가", liq ? formatStockKrw(liq) : "현물 없음"],
       ["위험도", risk],
-      ["TP / SL", `${takeProfit ? formatStockKrw(takeProfit) : "--"} / ${stopLoss ? formatStockKrw(stopLoss) : "--"}`],
+      ["TP / SL", tpSlEnabled ? `${takeProfit ? formatStockKrw(takeProfit) : "--"} / ${stopLoss ? formatStockKrw(stopLoss) : "--"}` : "Off"],
+      ["TIF / Post", `${timeInForce} / ${elements.postOnly?.value === "on" ? "Post" : "Off"}`],
+      ["Max", `${formatStockNumber(maxQuantity)} shares`],
       ["보유", position ? `${formatStockNumber(position.shares ?? position.quantity ?? 0)}주` : "0주"],
     ].forEach(([label, value]) => {
       const item = document.createElement("span");
@@ -4189,12 +5463,22 @@ function initStockExchange() {
   const modeButtons = document.querySelectorAll("[data-stock-chart-mode]");
   const scaleButtons = document.querySelectorAll("[data-stock-scale]");
   const indicatorButtons = document.querySelectorAll("[data-stock-indicator]");
+  const chartSettingsElements = {
+    open: document.querySelector("[data-stock-chart-settings-open]"),
+    modal: document.querySelector("[data-stock-chart-settings-modal]"),
+    close: document.querySelector("[data-stock-chart-settings-close]"),
+    tabs: document.querySelector("[data-stock-chart-settings-tabs]"),
+    body: document.querySelector("[data-stock-chart-settings-body]"),
+    reset: document.querySelector("[data-stock-chart-settings-reset]"),
+    save: document.querySelector("[data-stock-chart-settings-save]"),
+  };
   const financialViewButtons = document.querySelectorAll("[data-stock-financial-view]");
   const axisStart = document.querySelector("[data-stock-axis-start]");
   const chartReadout = document.querySelector("[data-stock-chart-readout]");
   const performance = document.querySelector("[data-stock-performance]");
   const tape = document.querySelector("[data-trade-tape]");
   const orderBook = document.querySelector("[data-stock-order-book]");
+  const depthPanel = document.querySelector(".stock-depth-panel");
   const detailElements = {
     symbol: document.querySelector("[data-stock-detail-symbol]"),
     name: document.querySelector("[data-stock-detail-name]"),
@@ -4214,6 +5498,15 @@ function initStockExchange() {
   const depthMid = document.querySelector("[data-stock-mid-price]");
   const depthMeter = document.querySelector("[data-stock-depth-meter]");
   const depthGroupButtons = document.querySelectorAll("[data-stock-depth-group]");
+  const depthModeButtons = document.querySelectorAll("[data-stock-depth-mode]");
+  const depthSettingsElements = {
+    open: document.querySelector("[data-stock-depth-settings-open]"),
+    modal: document.querySelector("[data-stock-depth-settings-modal]"),
+    close: document.querySelector("[data-stock-depth-settings-close]"),
+    reset: document.querySelector("[data-stock-depth-settings-reset]"),
+    save: document.querySelector("[data-stock-depth-settings-save]"),
+    inputs: document.querySelectorAll("[data-stock-depth-setting]"),
+  };
   const expertElements = {
     signal: document.querySelector("[data-stock-expert-signal]"),
     metrics: document.querySelector("[data-stock-expert-metrics]"),
@@ -4269,10 +5562,20 @@ function initStockExchange() {
     type: document.querySelector("[data-stock-order-type]"),
     limit: document.querySelector("[data-stock-order-limit]"),
     leverage: document.querySelector("[data-stock-order-leverage]"),
+    marginMode: document.querySelector("[data-stock-margin-mode]"),
+    available: document.querySelector("[data-stock-order-available]"),
+    max: document.querySelector("[data-stock-order-max]"),
+    bbo: document.querySelector("[data-stock-order-bbo]"),
+    percent: document.querySelector("[data-stock-size-percent]"),
+    percentButtons: document.querySelectorAll("[data-stock-size-percent-button]"),
+    sizeStepButtons: document.querySelectorAll("[data-stock-size-step]"),
     takeProfit: document.querySelector("[data-stock-order-take-profit]"),
     stopLoss: document.querySelector("[data-stock-order-stop-loss]"),
+    tpSlToggle: document.querySelector("[data-stock-order-tpsl-toggle]"),
     postOnly: document.querySelector("[data-stock-order-post-only]"),
     reduceOnly: document.querySelector("[data-stock-order-reduce-only]"),
+    timeInForce: document.querySelector("[data-stock-order-time-in-force]"),
+    advanced: document.querySelector(".stock-advanced-orders"),
     symbol: document.querySelector("[data-stock-order-symbol]"),
     side: document.querySelector("[data-stock-order-side-label]"),
     estimate: document.querySelector("[data-stock-order-estimate]"),
@@ -4287,17 +5590,20 @@ function initStockExchange() {
   let activeInfoView = document.querySelector("[data-stock-info-view].is-active")?.dataset.stockInfoView || "coin";
   let activeRange = "1D";
   let activeSort = "market";
-  let activeMode = document.querySelector("[data-stock-chart-mode].is-active")?.dataset.stockChartMode || "line";
-  let activeScale = document.querySelector("[data-stock-scale].is-active")?.dataset.stockScale || "price";
+  let chartSettings = readStockChartSettings();
+  let draftChartSettings = cloneStockChartSettings(chartSettings);
+  let depthSettings = readStockDepthSettings();
+  let draftDepthSettings = cloneStockDepthSettings(depthSettings);
+  let activeSettingsTab = "main";
+  let activeMode = chartSettings.mode || document.querySelector("[data-stock-chart-mode].is-active")?.dataset.stockChartMode || "line";
+  let activeScale = chartSettings.scale || document.querySelector("[data-stock-scale].is-active")?.dataset.stockScale || "price";
   let activeFinancialView = document.querySelector("[data-stock-financial-view].is-active")?.dataset.stockFinancialView || "income";
   let activeActivityView = document.querySelector("[data-stock-activity-view].is-active")?.dataset.stockActivityView || "positions";
-  let activeDepthGroup = Number(document.querySelector("[data-stock-depth-group].is-active")?.dataset.stockDepthGroup || 1);
-  let activeIndicators = new Set(
-    Array.from(document.querySelectorAll("[data-stock-indicator].is-active")).map(
-      (button) => button.dataset.stockIndicator,
-    ),
-  );
+  let activeDepthGroup = depthSettings.groupSize || Number(document.querySelector("[data-stock-depth-group].is-active")?.dataset.stockDepthGroup || 1);
+  let activeIndicators = stockToolbarIndicatorSet(chartSettings);
   let activeSide = "buy";
+  let selectedDepthLevel = null;
+  let selectedDepthTimer = 0;
   let portfolio = null;
   let playerProfile = readPlayerProfile(sessionUser || readStoredUser());
   let liveMarket = false;
@@ -4311,12 +5617,252 @@ function initStockExchange() {
 
   const currentPlayerProfile = () => readPlayerProfile(sessionUser || readStoredUser());
 
+  function currentStock() {
+    const stocks = Array.isArray(market?.stocks) && market.stocks.length ? market.stocks : buildFallbackMarket(tick).stocks;
+    return stocks.find((item) => stockCode(item) === activeCode) || stocks[0];
+  }
+
+  function chartSettingsContext() {
+    const stock = currentStock();
+    return {
+      range: activeRange,
+      series: stockSeries(stock, tick, activeRange),
+      stock,
+    };
+  }
+
+  function syncChartSettingsState(settings) {
+    chartSettings = sanitizeStockChartSettings(settings);
+    activeMode = chartSettings.mode;
+    activeScale = chartSettings.scale;
+    activeIndicators = stockToolbarIndicatorSet(chartSettings);
+  }
+
+  function renderChartSettingsModal() {
+    if (!chartSettingsElements.modal || chartSettingsElements.modal.hidden) return;
+    const rerender = () => renderChartSettingsModal();
+    renderStockChartSettingsTabs(chartSettingsElements, activeSettingsTab, (tab) => {
+      activeSettingsTab = tab;
+      renderChartSettingsModal();
+    });
+    renderStockChartSettingsBody(
+      chartSettingsElements,
+      draftChartSettings,
+      activeSettingsTab,
+      chartSettingsContext(),
+      rerender,
+    );
+  }
+
+  function openChartSettingsModal() {
+    if (!chartSettingsElements.modal) return;
+    draftChartSettings = cloneStockChartSettings(chartSettings);
+    chartSettingsElements.modal.hidden = false;
+    document.body.classList.add("stock-chart-settings-open");
+    renderChartSettingsModal();
+  }
+
+  function closeChartSettingsModal() {
+    if (!chartSettingsElements.modal) return;
+    chartSettingsElements.modal.hidden = true;
+    document.body.classList.remove("stock-chart-settings-open");
+  }
+
+  function saveChartSettingsModal() {
+    syncChartSettingsState(draftChartSettings);
+    writeStockChartSettings(chartSettings);
+    closeChartSettingsModal();
+    render();
+  }
+
+  function resetChartSettingsModal() {
+    draftChartSettings = cloneStockChartSettings();
+    syncChartSettingsState(draftChartSettings);
+    writeStockChartSettings(chartSettings);
+    render();
+    renderChartSettingsModal();
+  }
+
+  function syncDepthSettingsInputs(settings) {
+    const next = sanitizeStockDepthSettings(settings);
+    depthSettingsElements.inputs.forEach((input) => {
+      const key = input.dataset.stockDepthSetting;
+      if (!key || !(key in next)) return;
+      if (input.type === "checkbox") input.checked = Boolean(next[key]);
+      else input.value = String(next[key]);
+    });
+  }
+
+  function readDepthSettingsInputs(base = draftDepthSettings) {
+    const next = { ...base };
+    depthSettingsElements.inputs.forEach((input) => {
+      const key = input.dataset.stockDepthSetting;
+      if (!key) return;
+      next[key] = input.type === "checkbox" ? input.checked : input.value;
+    });
+    return sanitizeStockDepthSettings(next);
+  }
+
+  function syncDepthSettingsState(settings) {
+    depthSettings = sanitizeStockDepthSettings(settings);
+    activeDepthGroup = depthSettings.groupSize;
+  }
+
+  function openDepthSettingsModal() {
+    if (!depthSettingsElements.modal) return;
+    draftDepthSettings = cloneStockDepthSettings(depthSettings);
+    syncDepthSettingsInputs(draftDepthSettings);
+    depthSettingsElements.modal.hidden = false;
+    document.body.classList.add("stock-depth-settings-open");
+  }
+
+  function closeDepthSettingsModal() {
+    if (!depthSettingsElements.modal) return;
+    depthSettingsElements.modal.hidden = true;
+    document.body.classList.remove("stock-depth-settings-open");
+  }
+
+  function saveDepthSettingsModal() {
+    draftDepthSettings = readDepthSettingsInputs();
+    syncDepthSettingsState(draftDepthSettings);
+    writeStockDepthSettings(depthSettings);
+    closeDepthSettingsModal();
+    render();
+  }
+
+  function resetDepthSettingsModal() {
+    draftDepthSettings = cloneStockDepthSettings();
+    syncDepthSettingsState(draftDepthSettings);
+    writeStockDepthSettings(depthSettings);
+    syncDepthSettingsInputs(depthSettings);
+    render();
+  }
+
+  function applyDepthRowToOrder(level, options = {}) {
+    if (!level || !orderElements.root) return;
+    const priceValue = Math.max(1, Math.round(Number(level.price) || 1));
+    const quantityValue = Math.max(1, Math.round(Number(level.quantity) || 1));
+    selectedDepthLevel = { side: level.side, price: Number(level.price), quantity: Number(level.quantity) };
+
+    if (depthSettings.autoSide && !options.keepSide) {
+      activeSide = level.side === "ask" ? "buy" : "sell";
+    }
+    if (orderElements.limit) orderElements.limit.value = String(priceValue);
+    if (orderElements.type?.value === "market") orderElements.type.value = "limit";
+    if (depthSettings.clickAction === "price-size" && orderElements.quantity) {
+      const min = Math.max(1, Number(orderElements.quantity.min || 1));
+      const max = Math.max(min, Number(orderElements.quantity.max || quantityValue));
+      orderElements.quantity.value = String(Math.min(max, Math.max(min, quantityValue)));
+    }
+
+    window.clearTimeout(selectedDepthTimer);
+    if (depthSettings.flashSelection) {
+      selectedDepthTimer = window.setTimeout(() => {
+        selectedDepthLevel = null;
+        render();
+      }, 1200);
+    }
+    const sideLabel = level.side === "ask" ? "ask" : "bid";
+    render();
+    setTradeMessage(orderElements.message, `Order book ${sideLabel} ${formatStockKrw(priceValue)} selected`, "info");
+  }
+
+  function applyDepthMidToOrder() {
+    if (depthSettings.midClick === "off" || !depthMid?.dataset.stockDepthMid) return;
+    applyDepthRowToOrder(
+      {
+        side: activeSide === "sell" ? "bid" : "ask",
+        price: Number(depthMid.dataset.stockDepthMid),
+        quantity: Number(orderElements.quantity?.value || 1),
+      },
+      { keepSide: true },
+    );
+  }
+
+  function currentOrderExecutionPrice(stock = currentStock()) {
+    const marketPrice = Math.max(1, Number(stock?.price) || 1);
+    const orderType = orderElements.type?.value || "market";
+    const limitPrice = Math.max(0, Number(orderElements.limit?.value || 0));
+    return ["limit", "stop-limit", "oco"].includes(orderType) && limitPrice > 0 ? limitPrice : marketPrice;
+  }
+
+  function currentOrderMaxQuantity(stock = currentStock()) {
+    const leverage = Math.max(1, Math.min(STOCK_MAX_LEVERAGE, Number(orderElements.leverage?.value || 1)));
+    const reduceOnly = orderElements.reduceOnly?.value === "on";
+    return stockOrderMaxQuantity(stock, portfolio, activeSide, leverage, currentOrderExecutionPrice(stock), reduceOnly);
+  }
+
+  function setOrderQuantity(value, shouldRender = true) {
+    if (!orderElements.quantity) return;
+    const max = Math.max(1, currentOrderMaxQuantity());
+    const next = Math.max(1, Math.min(max, Math.round(Number(value) || 1)));
+    orderElements.quantity.value = String(next);
+    if (shouldRender) render();
+  }
+
+  function applyOrderPercent(percent) {
+    const max = Math.max(1, currentOrderMaxQuantity());
+    const next = Math.max(1, Math.floor((max * Math.max(0, Math.min(100, Number(percent) || 0))) / 100));
+    setOrderQuantity(next);
+  }
+
+  function applyBboPrice() {
+    const stock = currentStock();
+    if (!stock || !orderElements.limit) return;
+    const depth = buildStockDepth(stock, activeDepthGroup, depthSettings.rows);
+    const level = activeSide === "sell" ? depth.bids[0] : depth.asks[0];
+    if (!level) return;
+    orderElements.limit.value = String(Math.max(1, Math.round(Number(level.price) || 1)));
+    if (orderElements.type) orderElements.type.value = "limit";
+    render();
+    setTradeMessage(orderElements.message, `BBO ${formatStockKrw(level.price)} applied`, "info");
+  }
+
+  function toggleMarginMode() {
+    if (!orderElements.marginMode) return;
+    const next = orderElements.marginMode.dataset.stockMarginMode === "isolated" ? "cross" : "isolated";
+    orderElements.marginMode.dataset.stockMarginMode = next;
+    orderElements.marginMode.textContent = next === "isolated" ? "Isolated" : "Cross";
+    orderElements.marginMode.setAttribute("aria-pressed", String(next === "isolated"));
+    render();
+  }
+
   newsElements.modalClose?.addEventListener("click", () => closeStockNewsDetail(newsElements));
   newsElements.modal?.addEventListener("click", (event) => {
     if (event.target === newsElements.modal) closeStockNewsDetail(newsElements);
   });
+  chartSettingsElements.open?.addEventListener("click", openChartSettingsModal);
+  chartSettingsElements.close?.addEventListener("click", closeChartSettingsModal);
+  chartSettingsElements.save?.addEventListener("click", saveChartSettingsModal);
+  chartSettingsElements.reset?.addEventListener("click", resetChartSettingsModal);
+  chartSettingsElements.modal?.addEventListener("click", (event) => {
+    if (event.target === chartSettingsElements.modal) closeChartSettingsModal();
+  });
+  depthSettingsElements.open?.addEventListener("click", openDepthSettingsModal);
+  depthSettingsElements.close?.addEventListener("click", closeDepthSettingsModal);
+  depthSettingsElements.save?.addEventListener("click", saveDepthSettingsModal);
+  depthSettingsElements.reset?.addEventListener("click", resetDepthSettingsModal);
+  depthSettingsElements.inputs.forEach((input) => {
+    input.addEventListener("input", () => {
+      draftDepthSettings = readDepthSettingsInputs();
+    });
+    input.addEventListener("change", () => {
+      draftDepthSettings = readDepthSettingsInputs();
+    });
+  });
+  depthSettingsElements.modal?.addEventListener("click", (event) => {
+    if (event.target === depthSettingsElements.modal) closeDepthSettingsModal();
+  });
+  depthMid?.addEventListener("click", applyDepthMidToOrder);
+  depthMid?.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    event.preventDefault();
+    applyDepthMidToOrder();
+  });
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape" && !newsElements.modal?.hidden) closeStockNewsDetail(newsElements);
+    if (event.key === "Escape" && !chartSettingsElements.modal?.hidden) closeChartSettingsModal();
+    if (event.key === "Escape" && !depthSettingsElements.modal?.hidden) closeDepthSettingsModal();
   });
 
   function syncStockMainPanels() {
@@ -4340,10 +5886,14 @@ function initStockExchange() {
     const stocks = sortStocks(rawStocks, activeSort);
     const stock = stocks.find((item) => stockCode(item) === activeCode) || stocks[0];
     activeCode = stockCode(stock);
+    chartSettings.mode = activeMode;
+    chartSettings.scale = activeScale;
+    chartSettings = sanitizeStockChartSettings(chartSettings);
+    activeIndicators = stockToolbarIndicatorSet(chartSettings);
     const result = renderStockChart(chart, stock, tick, activeRange, {
       mode: activeMode,
       scale: activeScale,
-      indicators: activeIndicators,
+      settings: chartSettings,
     });
     const metrics = stockTechnicalMetrics(stock, tick, activeRange);
     const marketMeta = market?.market || {};
@@ -4392,6 +5942,11 @@ function initStockExchange() {
       button.classList.toggle("is-active", button.dataset.stockFinancialView === activeFinancialView);
     });
     if (axisStart) axisStart.textContent = STOCK_RANGE_CONFIG[activeRange]?.label || `${activeRange} 전`;
+    depthSettings = sanitizeStockDepthSettings({ ...depthSettings, groupSize: activeDepthGroup });
+    syncDepthSettingsInputs(draftDepthSettings);
+    depthModeButtons.forEach((button) => {
+      button.classList.toggle("is-active", button.dataset.stockDepthMode === depthSettings.mode);
+    });
     depthGroupButtons.forEach((button) => {
       button.classList.toggle("is-active", Number(button.dataset.stockDepthGroup || 1) === activeDepthGroup);
     });
@@ -4403,16 +5958,25 @@ function initStockExchange() {
     renderStockTicker(ticker, stocks, activeCode, selectStock);
     renderStockRows(list, stocks, activeCode, selectStock, tick);
     renderStockTape(tape, trades.length ? trades : market?.recentTrades);
-    renderStockChartReadout(chartReadout, stock, result);
-    renderStockPerformance(performance, stock, tick);
+    const chartTop = chart.closest(".stock-chart-shell")?.querySelector(".stock-chart-top");
+    if (chartTop) chartTop.hidden = !chartSettings.trading.ohlc;
+    if (chartReadout) chartReadout.hidden = !chartSettings.trading.ohlc;
+    if (chartSettings.trading.ohlc) renderStockChartReadout(chartReadout, stock, result);
+    else chartReadout?.replaceChildren();
+    if (performance) performance.hidden = !chartSettings.trading.performance;
+    if (chartSettings.trading.performance) renderStockPerformance(performance, stock, tick);
+    else performance?.replaceChildren();
     renderStockDetail(detailElements, stock, result);
     renderStockStrength(strengthElements, stock, trades);
-    const depth = renderStockOrderBook(orderBook, stock, {
+    const depth = renderStockOrderBookPanel(orderBook, stock, {
+      panel: depthPanel,
       asksBook: orderAsks,
       ratioLabel: depthRatio,
       midPrice: depthMid,
       depthMeter,
-      groupSize: activeDepthGroup,
+      settings: depthSettings,
+      selectedLevel: selectedDepthLevel,
+      onSelect: applyDepthRowToOrder,
     });
     renderStockInfoTerminal(infoBody, stock, result, metrics, depth, stocks, marketMeta, activeInfoView);
     renderStockDataTerminal(dataAnalytics, dataSummary, dataTable, stock, result, tick, activeRange);
@@ -4509,12 +6073,16 @@ function initStockExchange() {
   modeButtons.forEach((button) => {
     button.addEventListener("click", () => {
       activeMode = button.dataset.stockChartMode || "line";
+      chartSettings.mode = activeMode;
+      writeStockChartSettings(chartSettings);
       render();
     });
   });
   scaleButtons.forEach((button) => {
     button.addEventListener("click", () => {
       activeScale = button.dataset.stockScale || "price";
+      chartSettings.scale = activeScale;
+      writeStockChartSettings(chartSettings);
       render();
     });
   });
@@ -4522,8 +6090,10 @@ function initStockExchange() {
     button.addEventListener("click", () => {
       const indicator = button.dataset.stockIndicator;
       if (!indicator) return;
-      if (activeIndicators.has(indicator)) activeIndicators.delete(indicator);
-      else activeIndicators.add(indicator);
+      const nextState = !activeIndicators.has(indicator);
+      setStockToolbarIndicator(chartSettings, indicator, nextState);
+      activeIndicators = stockToolbarIndicatorSet(chartSettings);
+      writeStockChartSettings(chartSettings);
       render();
     });
   });
@@ -4539,9 +6109,22 @@ function initStockExchange() {
       render();
     });
   });
+  depthModeButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      depthSettings.mode = button.dataset.stockDepthMode || "both";
+      depthSettings = sanitizeStockDepthSettings(depthSettings);
+      draftDepthSettings = cloneStockDepthSettings(depthSettings);
+      writeStockDepthSettings(depthSettings);
+      render();
+    });
+  });
   depthGroupButtons.forEach((button) => {
     button.addEventListener("click", () => {
       activeDepthGroup = Math.max(1, Number(button.dataset.stockDepthGroup || 1));
+      depthSettings.groupSize = activeDepthGroup;
+      depthSettings = sanitizeStockDepthSettings(depthSettings);
+      draftDepthSettings = cloneStockDepthSettings(depthSettings);
+      writeStockDepthSettings(depthSettings);
       render();
     });
   });
@@ -4551,6 +6134,22 @@ function initStockExchange() {
       render();
     });
   });
+  orderElements.marginMode?.addEventListener("click", toggleMarginMode);
+  orderElements.bbo?.addEventListener("click", applyBboPrice);
+  orderElements.sizeStepButtons?.forEach((button) => {
+    button.addEventListener("click", () => {
+      const step = Number(button.dataset.stockSizeStep || 0);
+      setOrderQuantity(Number(orderElements.quantity?.value || 1) + step);
+    });
+  });
+  orderElements.percent?.addEventListener("input", () => {
+    applyOrderPercent(orderElements.percent.value);
+  });
+  orderElements.percentButtons?.forEach((button) => {
+    button.addEventListener("click", () => {
+      applyOrderPercent(button.dataset.stockSizePercentButton || 0);
+    });
+  });
   [
     orderElements.quantity,
     orderElements.type,
@@ -4558,8 +6157,10 @@ function initStockExchange() {
     orderElements.leverage,
     orderElements.takeProfit,
     orderElements.stopLoss,
+    orderElements.tpSlToggle,
     orderElements.postOnly,
     orderElements.reduceOnly,
+    orderElements.timeInForce,
   ]
     .filter(Boolean)
     .forEach((element) => {
@@ -4573,11 +6174,26 @@ function initStockExchange() {
     const orderType = orderElements.type?.value || "market";
     const limitPrice = Math.max(0, Number(orderElements.limit?.value || 0));
     const usesLimitPrice = ["limit", "stop-limit", "oco"].includes(orderType);
-    const leverage = Math.max(1, Math.min(5, Number(orderElements.leverage?.value || 1)));
+    const leverage = Math.max(1, Math.min(STOCK_MAX_LEVERAGE, Number(orderElements.leverage?.value || 1)));
     const takeProfit = Math.max(0, Number(orderElements.takeProfit?.value || 0));
     const stopLoss = Math.max(0, Number(orderElements.stopLoss?.value || 0));
+    const tpSlEnabled = orderElements.tpSlToggle ? Boolean(orderElements.tpSlToggle.checked) : true;
     const sideLabel = activeSide === "buy" ? "매수" : "매도";
     playerProfile = currentPlayerProfile();
+    const canTrade = Boolean(playerProfile?.verified && playerProfile?.webToken && PLAYER_API_BASES.length && liveMarket && stock);
+    if (!canTrade) {
+      render();
+      setTradeMessage(
+        orderElements.message,
+        !PLAYER_API_BASES.length
+          ? "API connection is required for live orders."
+          : !liveMarket
+            ? "Live market is loading. Try again in a moment."
+            : "Login and character verification are required for live orders.",
+        PLAYER_API_BASES.length ? "info" : "error",
+      );
+      return;
+    }
     orderLoading = true;
     if (orderElements.submit) orderElements.submit.disabled = true;
     render();
@@ -4586,10 +6202,12 @@ function initStockExchange() {
         orderType,
         limitPrice: usesLimitPrice && limitPrice > 0 ? limitPrice : undefined,
         leverage,
-        takeProfit: takeProfit > 0 ? takeProfit : undefined,
-        stopLoss: stopLoss > 0 ? stopLoss : undefined,
+        takeProfit: tpSlEnabled && takeProfit > 0 ? takeProfit : undefined,
+        stopLoss: tpSlEnabled && stopLoss > 0 ? stopLoss : undefined,
         postOnly: orderElements.postOnly?.value === "on",
         reduceOnly: orderElements.reduceOnly?.value === "on",
+        timeInForce: orderElements.timeInForce?.value || "GTC",
+        marginMode: orderElements.marginMode?.dataset.stockMarginMode || "cross",
       });
       if (payload?.market?.ok) {
         market = payload.market;

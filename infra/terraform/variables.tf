@@ -1,7 +1,7 @@
 variable "aws_region" {
   description = "AWS region for the S3 bucket."
   type        = string
-  default     = "ap-northeast-2"
+  default     = "ap-northeast-1"
 }
 
 variable "allow_billable_resources" {

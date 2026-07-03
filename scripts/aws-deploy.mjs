@@ -40,7 +40,7 @@ import { extname, join, relative, sep } from "node:path";
 
 requireAwsCostOptIn("AWS website deploy");
 
-const region = process.env.AWS_REGION || process.env.AWS_DEFAULT_REGION || "ap-northeast-2";
+const region = process.env.AWS_REGION || process.env.AWS_DEFAULT_REGION || "ap-northeast-1";
 const distDir = join(process.cwd(), "dist");
 const distributionComment = "nfoifsb Minecraft server website";
 const originId = "site-s3";

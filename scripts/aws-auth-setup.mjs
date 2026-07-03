@@ -46,7 +46,7 @@ import { join } from "node:path";
 
 requireAwsCostOptIn("AWS auth backend setup");
 
-const region = process.env.AWS_REGION || process.env.AWS_DEFAULT_REGION || "ap-northeast-2";
+const region = process.env.AWS_REGION || process.env.AWS_DEFAULT_REGION || "ap-northeast-1";
 const stackName = process.env.AUTH_STACK_NAME || "nfoifsb-auth";
 const siteDomain = process.env.SITE_DOMAIN || "www.nfoifsb.kr";
 const localOrigins = ["http://127.0.0.1:5173", "http://localhost:5173"];
@@ -123,6 +123,7 @@ async function ensureSesStatus() {
   const status = {
     from: authEmailFrom,
     identity: sesIdentity,
+    readyForEmailDelivery: false,
     productionAccessEnabled: null,
     verifiedForSending: null,
     dkimStatus: "",
@@ -175,6 +176,7 @@ async function ensureSesStatus() {
   } else if (status.verifiedForSending === false) {
     status.warning = `SES identity ${sesIdentity} is not verified for sending.`;
   }
+  status.readyForEmailDelivery = status.productionAccessEnabled === true && status.verifiedForSending === true;
 
   return status;
 }
@@ -635,7 +637,9 @@ async function main() {
       from: authEmailFrom,
       appBaseUrl: authAppBaseUrl,
       ses: sesStatus,
-      note: "The sender identity must be verified in Amazon SES before production email delivery works.",
+      note: sesStatus.readyForEmailDelivery
+        ? "Amazon SES is verified and production email delivery is enabled in the configured region."
+        : "The sender identity must be verified and SES production access must be enabled before production email delivery works.",
     },
     security: {
       passwordStorage: "PBKDF2-SHA256 with per-user salt and Lambda pepper",
