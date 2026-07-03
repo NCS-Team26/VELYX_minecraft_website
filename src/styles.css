@@ -6083,6 +6083,26 @@ body.stock-news-modal-open {
   color: var(--stock-text);
 }
 
+.stock-pro-terminal.stock-exchange .stock-market-table tbody tr:hover,
+.stock-pro-terminal.stock-exchange .stock-market-table tbody tr.is-active {
+  background: #202630;
+}
+
+.stock-pro-terminal.stock-exchange .stock-market-table tbody tr.is-active {
+  box-shadow: inset 3px 0 0 var(--stock-yellow);
+}
+
+.stock-pro-terminal.stock-exchange .stock-market-table tbody tr.is-active th,
+.stock-pro-terminal.stock-exchange .stock-market-table tbody tr.is-active td,
+.stock-pro-terminal.stock-exchange .stock-market-table tbody tr.is-active strong {
+  color: var(--stock-text);
+}
+
+.stock-pro-terminal.stock-exchange .stock-market-table tbody tr.is-active th span,
+.stock-pro-terminal.stock-exchange .stock-market-table tbody tr.is-active .stock-time {
+  color: var(--stock-muted);
+}
+
 .stock-market-table strong,
 .trade-tape strong,
 .stock-detail-body > strong,
