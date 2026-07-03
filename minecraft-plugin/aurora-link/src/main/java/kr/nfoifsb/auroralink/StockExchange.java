@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import java.io.IOException;
 import java.io.Reader;
-import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -33,6 +32,7 @@ public final class StockExchange {
   private StoredData data = new StoredData();
   private Map<String, StockDefinition> definitions = new LinkedHashMap<>();
   private BukkitTask tickerTask;
+  private BukkitTask saveTask;
   private boolean enabled;
   private int tickSeconds;
   private int candleSeconds;
@@ -55,7 +55,7 @@ public final class StockExchange {
     bootstrapStocks();
     synchronized (this) {
       advanceToNow();
-      save();
+      saveNow();
     }
 
     if (!enabled) {
@@ -73,8 +73,12 @@ public final class StockExchange {
       tickerTask.cancel();
       tickerTask = null;
     }
+    if (saveTask != null) {
+      saveTask.cancel();
+      saveTask = null;
+    }
     synchronized (this) {
-      save();
+      saveNow();
     }
   }
 
@@ -84,8 +88,7 @@ public final class StockExchange {
 
   public synchronized Map<String, Object> marketSnapshot() {
     ensureEnabled();
-    advanceToNow();
-    save();
+    if (advanceToNow()) requestSave();
 
     List<Map<String, Object>> stocks = data.stocks.values().stream()
         .map(this::stockPayload)
@@ -121,7 +124,7 @@ public final class StockExchange {
 
   public synchronized Map<String, Object> portfolioSnapshot(LinkStore.LinkedPlayer link) {
     ensureEnabled();
-    advanceToNow();
+    if (advanceToNow()) requestSave();
     Map<String, Integer> holdings = holdingsFor(link.uuid);
     Map<String, Double> averages = averagesFor(link.uuid);
     List<Map<String, Object>> positions = new ArrayList<>();
@@ -244,7 +247,7 @@ public final class StockExchange {
     trade.at = now;
     data.trades.add(trade);
     trimTrades();
-    save();
+    requestSave();
 
     maybeBroadcastTrade(trade);
 
@@ -277,7 +280,7 @@ public final class StockExchange {
       Files.createDirectories(dataPath.getParent());
       if (!Files.exists(dataPath)) {
         data = new StoredData().ensure();
-        save();
+        saveNow();
         return;
       }
       try (Reader reader = Files.newBufferedReader(dataPath, StandardCharsets.UTF_8)) {
@@ -290,12 +293,35 @@ public final class StockExchange {
     }
   }
 
-  private void save() {
+  private void saveNow() {
+    writeJson(gson.toJson(data.ensure()));
+  }
+
+  private synchronized void requestSave() {
+    if (!plugin.isEnabled()) {
+      saveNow();
+      return;
+    }
+    if (saveTask != null) return;
+    saveTask =
+        Bukkit.getScheduler()
+            .runTaskLaterAsynchronously(
+                plugin,
+                () -> {
+                  String json;
+                  synchronized (this) {
+                    saveTask = null;
+                    json = gson.toJson(data.ensure());
+                  }
+                  writeJson(json);
+                },
+                20L);
+  }
+
+  private void writeJson(String json) {
     try {
       Files.createDirectories(dataPath.getParent());
-      try (Writer writer = Files.newBufferedWriter(dataPath, StandardCharsets.UTF_8)) {
-        gson.toJson(data.ensure(), writer);
-      }
+      Files.writeString(dataPath, json, StandardCharsets.UTF_8);
     } catch (IOException error) {
       plugin.getLogger().severe("Failed to save AuroraLink stock data: " + error.getMessage());
     }
@@ -333,19 +359,19 @@ public final class StockExchange {
     try {
       synchronized (this) {
         if (!enabled) return;
-        advanceToNow();
-        save();
+        if (advanceToNow()) requestSave();
       }
     } catch (RuntimeException error) {
       plugin.getLogger().warning("AuroraLink stock ticker failed: " + error.getMessage());
     }
   }
 
-  private void advanceToNow() {
+  private boolean advanceToNow() {
     long now = System.currentTimeMillis();
     long step = tickSeconds * 1000L;
     long last = data.lastAdvancedAt > 0 ? Math.min(data.lastAdvancedAt, now) : now;
     int ticks = (int) Math.min(2000, Math.max(0L, (now - last) / step));
+    boolean changed = ticks > 0;
     long tickAt = last;
     for (int index = 0; index < ticks; index += 1) {
       tickAt += step;
@@ -355,8 +381,12 @@ public final class StockExchange {
       data.lastAdvancedAt = tickAt;
     }
 
-    if (data.lastAdvancedAt <= 0) data.lastAdvancedAt = now;
+    if (data.lastAdvancedAt <= 0) {
+      data.lastAdvancedAt = now;
+      changed = true;
+    }
     pruneAll();
+    return changed;
   }
 
   private void advanceStock(StockState stock, StockDefinition definition, long at) {

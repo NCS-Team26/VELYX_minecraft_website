@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import java.io.IOException;
 import java.io.Reader;
-import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -16,7 +15,9 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitTask;
 
 public final class LinkStore {
   private static final SecureRandom RANDOM = new SecureRandom();
@@ -25,6 +26,7 @@ public final class LinkStore {
   private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
   private final Path dataPath;
   private StoredData data = new StoredData();
+  private BukkitTask saveTask;
 
   public LinkStore(AuroraLinkPlugin plugin) {
     this.plugin = plugin;
@@ -51,11 +53,42 @@ public final class LinkStore {
   }
 
   public synchronized void save() {
+    if (saveTask != null) {
+      saveTask.cancel();
+      saveTask = null;
+    }
+    saveNow();
+  }
+
+  private void saveNow() {
+    writeJson(gson.toJson(data.ensureMaps()));
+  }
+
+  private synchronized void requestSave() {
+    if (!plugin.isEnabled()) {
+      saveNow();
+      return;
+    }
+    if (saveTask != null) return;
+    saveTask =
+        Bukkit.getScheduler()
+            .runTaskLaterAsynchronously(
+                plugin,
+                () -> {
+                  String json;
+                  synchronized (this) {
+                    saveTask = null;
+                    json = gson.toJson(data.ensureMaps());
+                  }
+                  writeJson(json);
+                },
+                20L);
+  }
+
+  private void writeJson(String json) {
     try {
       Files.createDirectories(dataPath.getParent());
-      try (Writer writer = Files.newBufferedWriter(dataPath, StandardCharsets.UTF_8)) {
-        gson.toJson(data.ensureMaps(), writer);
-      }
+      Files.writeString(dataPath, json, StandardCharsets.UTF_8);
     } catch (IOException error) {
       plugin.getLogger().severe("Failed to save AuroraLink data: " + error.getMessage());
     }
@@ -91,7 +124,7 @@ public final class LinkStore {
         Objects.equals(entry.getValue().nicknameKey, pending.nicknameKey)
             || Objects.equals(entry.getValue().accountKey, pending.accountKey));
     data.pendingByCode.put(code, pending);
-    save();
+    requestSave();
     return pending;
   }
 
@@ -99,14 +132,14 @@ public final class LinkStore {
     cleanupExpired();
     PendingVerification pending = data.pendingByCode.remove(code);
     if (pending == null) {
-      save();
+      requestSave();
       return LinkResult.failed("Verification code was not found or has expired.");
     }
 
     String playerNameKey = key(player.getName());
     if (!Objects.equals(pending.nicknameKey, playerNameKey)) {
       data.pendingByCode.put(code, pending);
-      save();
+      requestSave();
       return LinkResult.failed("The website nickname does not match this player.");
     }
 
@@ -124,7 +157,7 @@ public final class LinkStore {
 
     data.linksByAccount.put(link.accountKey, link);
     data.linksByNickname.put(link.nicknameKey, link);
-    save();
+    requestSave();
     return LinkResult.success(link);
   }
 
@@ -184,7 +217,7 @@ public final class LinkStore {
     data.pendingByCode.entrySet().removeIf(entry ->
         Objects.equals(entry.getValue().nicknameKey, nicknameKey)
             && Objects.equals(entry.getValue().accountKey, accountKey));
-    save();
+    requestSave();
     return link;
   }
 
@@ -207,7 +240,7 @@ public final class LinkStore {
 
   public synchronized void markCooldown(String playerKey, String action) {
     data.cooldowns.computeIfAbsent(playerKey, ignored -> new HashMap<>()).put(action, Instant.now().toEpochMilli());
-    save();
+    requestSave();
   }
 
   public synchronized int linkedCount() {

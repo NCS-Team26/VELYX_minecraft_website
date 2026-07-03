@@ -34,6 +34,7 @@ import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -140,7 +141,7 @@ public final class BridgeHttpServer {
     String path = pathAfterBase(exchange.getRequestURI());
 
     if ("GET".equals(method) && "/server/overview".equals(path)) {
-      return sync(this::serverOverview);
+      return serverOverview();
     }
 
     if ("POST".equals(method) && "/verification/start".equals(path)) {
@@ -267,10 +268,34 @@ public final class BridgeHttpServer {
   private String playerUuid(String nickname) {
     Player online = Bukkit.getPlayerExact(nickname);
     if (online != null) return online.getUniqueId().toString();
-    return Bukkit.getOfflinePlayer(nickname).getUniqueId().toString();
+
+    OfflinePlayer cached = offlinePlayerIfCached(nickname);
+    if (cached != null && cached.getUniqueId() != null) {
+      return cached.getUniqueId().toString();
+    }
+
+    throw new HttpError(409, "Player must join the server once before linking.");
   }
 
-  private Map<String, Object> serverOverview() {
+  private OfflinePlayer offlinePlayerIfCached(String nickname) {
+    try {
+      Method reflected = Bukkit.class.getMethod("getOfflinePlayerIfCached", String.class);
+      Object cached = reflected.invoke(null, nickname);
+      return cached instanceof OfflinePlayer offlinePlayer ? offlinePlayer : null;
+    } catch (ReflectiveOperationException ignored) {
+      return null;
+    }
+  }
+
+  private Map<String, Object> serverOverview() throws Exception {
+    Map<String, Object> response = sync(this::minecraftOverview);
+    response.put("memory", memorySnapshot());
+    response.put("system", systemSnapshot());
+    response.put("updatedAt", Instant.now().toString());
+    return response;
+  }
+
+  private Map<String, Object> minecraftOverview() {
     List<Map<String, Object>> players = Bukkit.getOnlinePlayers().stream()
         .map(player -> {
           Map<String, Object> item = new HashMap<>();
@@ -289,10 +314,7 @@ public final class BridgeHttpServer {
     response.put("linkedPlayers", linkStore.linkedCount());
     response.put("economyProvider", plugin.economy() == null ? "" : plugin.economy().getName());
     response.put("players", Map.of("online", players.size(), "max", Bukkit.getMaxPlayers(), "list", players));
-    response.put("memory", memorySnapshot());
-    response.put("system", systemSnapshot());
     response.put("tps", readTps());
-    response.put("updatedAt", Instant.now().toString());
     return response;
   }
 
