@@ -8,6 +8,7 @@
     "dev:local": "node scripts/dev-local.mjs",
     "auth:dev": "node server/auth/local-server.mjs",
     "admin:create": "node scripts/create-admin-user.mjs",
+    "admin:create:aws": "node scripts/create-aws-admin-user.mjs",
     "build": "vite build",
     "discord:register": "node discord-bot/register-commands.mjs",
     "discord:start": "node discord-bot/index.mjs",

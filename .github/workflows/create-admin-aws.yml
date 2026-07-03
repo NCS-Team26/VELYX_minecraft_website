@@ -1,0 +1,80 @@
+name: Create production admin account
+
+on:
+  workflow_dispatch:
+    inputs:
+      allow_aws_costs:
+        description: "Type 1 to allow this AWS DynamoDB user update"
+        required: true
+        default: "0"
+      admin_email:
+        description: "Production admin email"
+        required: true
+        default: "admin@nfoifsb.kr"
+      admin_nickname:
+        description: "Production admin nickname"
+        required: true
+        default: "Admin"
+
+concurrency:
+  group: aws-production-admin
+  cancel-in-progress: false
+
+jobs:
+  create-admin:
+    name: Create admin user
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    env:
+      AWS_REGION: ${{ secrets.AWS_REGION || 'ap-northeast-1' }}
+      AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION || 'ap-northeast-1' }}
+      AUTH_STACK_NAME: ${{ secrets.AUTH_STACK_NAME || 'nfoifsb-auth' }}
+      AUTH_PEPPER: ${{ secrets.AUTH_PEPPER }}
+      ADMIN_EMAIL: ${{ inputs.admin_email }}
+      ADMIN_NICKNAME: ${{ inputs.admin_nickname }}
+      ALLOW_AWS_COSTS: ${{ inputs.allow_aws_costs }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Stop unless AWS update is explicitly allowed
+        if: ${{ inputs.allow_aws_costs != '1' }}
+        run: |
+          echo "Production admin creation is blocked. Re-run with allow_aws_costs=1 only when intentional."
+          exit 1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: arn:aws:iam::358982198253:role/GitHubActionsMincraftServerWebsiteDeployRole
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Create or update admin account
+        run: npm run admin:create:aws
+
+      - name: Add safe summary
+        run: |
+          echo "Production admin account was created or updated." >> "$GITHUB_STEP_SUMMARY"
+          echo "Email: ${ADMIN_EMAIL}" >> "$GITHUB_STEP_SUMMARY"
+          echo "The generated password is stored in the admin-output artifact." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload admin output
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: admin-output
+          path: admin-output.json
+          if-no-files-found: ignore
