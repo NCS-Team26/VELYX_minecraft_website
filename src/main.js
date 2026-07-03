@@ -1652,16 +1652,11 @@ function stockNewsImagesFor(code) {
   return images.length ? images : STOCK_NEWS_IMAGES.DEFAULT;
 }
 
+const stockNewsSourceImageCache = new Map();
+const stockNewsCompositeCache = new Map();
+
 function stockNewsSceneTheme(code) {
   return STOCK_NEWS_SCENE_THEMES[code] || STOCK_NEWS_SCENE_THEMES.DEFAULT;
-}
-
-function stockNewsSvgText(value) {
-  return String(value || "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;");
 }
 
 function stockNewsNumber(seed, offset = 0) {
@@ -1672,113 +1667,247 @@ function stockNewsRange(seed, offset, min, max) {
   return min + stockNewsNumber(seed, offset) * (max - min);
 }
 
-function stockNewsRect(x, y, width, height, fill, extra = "") {
-  return `<rect x="${Math.round(x)}" y="${Math.round(y)}" width="${Math.round(width)}" height="${Math.round(height)}" fill="${fill}"${extra}/>`;
+function stockNewsRng(seed) {
+  let state = Math.floor(stockNewsNumber(seed, 777) * 4294967296) >>> 0;
+  return () => {
+    state = (state + 0x6d2b79f5) >>> 0;
+    let value = state;
+    value = Math.imul(value ^ (value >>> 15), value | 1);
+    value ^= value + Math.imul(value ^ (value >>> 7), value | 61);
+    return ((value ^ (value >>> 14)) >>> 0) / 4294967296;
+  };
 }
 
-function stockNewsBlockField(theme, seed, code) {
-  const blocks = [];
-  for (let row = 0; row < 5; row += 1) {
-    for (let column = 0; column < 20; column += 1) {
-      const x = column * 80;
-      const y = 520 + row * 76;
-      const roll = stockNewsNumber(seed, row * 31 + column);
-      const fill = roll > 0.83 ? theme.groundLight : roll > 0.48 ? theme.ground : theme.groundDark;
-      blocks.push(stockNewsRect(x, y, 81, 77, fill));
-      if ((code === "DMD" && roll > 0.9) || (code === "RED" && roll > 0.88)) {
-        blocks.push(stockNewsRect(x + 16, y + 16, 16, 16, theme.accent));
-        blocks.push(stockNewsRect(x + 44, y + 38, 12, 12, theme.accentSoft));
-      }
-      if (code === "FARM" && row < 3 && roll > 0.55) {
-        blocks.push(stockNewsRect(x + 18, y + 8, 10, 42, theme.accent));
-        blocks.push(stockNewsRect(x + 48, y + 12, 10, 38, theme.accentSoft));
-      }
-      if (code === "LOG" && roll > 0.66) {
-        blocks.push(stockNewsRect(x + 10, y + 20, 54, 16, theme.accent));
-        blocks.push(stockNewsRect(x + 18, y + 42, 50, 14, theme.secondary));
-      }
+function stockNewsLoadSourceImage(src) {
+  if (stockNewsSourceImageCache.has(src)) return stockNewsSourceImageCache.get(src);
+  const promise = new Promise((resolve, reject) => {
+    const image = new Image();
+    image.decoding = "async";
+    image.onload = () => resolve(image);
+    image.onerror = () => reject(new Error(`Unable to load stock news image: ${src}`));
+    image.src = src;
+  });
+  stockNewsSourceImageCache.set(src, promise);
+  return promise;
+}
+
+function stockNewsPositionRatio(position = "50% 50%") {
+  const [x = "50%", y = "50%"] = String(position).split(/\s+/);
+  const parse = (value) => {
+    const number = Number(String(value).replace("%", ""));
+    return Number.isFinite(number) ? clampStockValue(number / 100, 0, 1) : 0.5;
+  };
+  return { x: parse(x), y: parse(y) };
+}
+
+function stockNewsDrawCover(ctx, image, width, height, position) {
+  const ratio = Math.max(width / image.naturalWidth, height / image.naturalHeight);
+  const drawWidth = image.naturalWidth * ratio;
+  const drawHeight = image.naturalHeight * ratio;
+  const align = stockNewsPositionRatio(position);
+  const dx = (width - drawWidth) * align.x;
+  const dy = (height - drawHeight) * align.y;
+  ctx.drawImage(image, dx, dy, drawWidth, drawHeight);
+}
+
+function stockNewsFillRoundRect(ctx, x, y, width, height, radius) {
+  const size = Math.min(radius, width / 2, height / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + size, y);
+  ctx.lineTo(x + width - size, y);
+  ctx.quadraticCurveTo(x + width, y, x + width, y + size);
+  ctx.lineTo(x + width, y + height - size);
+  ctx.quadraticCurveTo(x + width, y + height, x + width - size, y + height);
+  ctx.lineTo(x + size, y + height);
+  ctx.quadraticCurveTo(x, y + height, x, y + height - size);
+  ctx.lineTo(x, y + size);
+  ctx.quadraticCurveTo(x, y, x + size, y);
+  ctx.closePath();
+}
+
+function stockNewsDrawGlow(ctx, x, y, radius, color, alpha = 0.45) {
+  const glow = ctx.createRadialGradient(x, y, 0, x, y, radius);
+  glow.addColorStop(0, color);
+  glow.addColorStop(0.36, `${color}99`);
+  glow.addColorStop(1, `${color}00`);
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.fillStyle = glow;
+  ctx.fillRect(x - radius, y - radius, radius * 2, radius * 2);
+  ctx.restore();
+}
+
+function stockNewsDrawColorGrade(ctx, theme, imageData, rng, width, height) {
+  const toneColor = imageData.tone === "bad" ? "#e5484d" : imageData.tone === "good" ? "#1faa69" : "#1e64d6";
+  ctx.save();
+  let gradient = ctx.createLinearGradient(0, 0, width, height);
+  gradient.addColorStop(0, `${theme.sky}38`);
+  gradient.addColorStop(0.52, "rgba(8, 14, 17, 0.04)");
+  gradient.addColorStop(1, "rgba(0, 0, 0, 0.44)");
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, width, height);
+
+  gradient = ctx.createLinearGradient(0, 0, width, 0);
+  gradient.addColorStop(0, "rgba(4, 10, 13, 0.58)");
+  gradient.addColorStop(0.5, "rgba(4, 10, 13, 0)");
+  gradient.addColorStop(1, "rgba(4, 10, 13, 0.42)");
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, width, height);
+
+  stockNewsDrawGlow(ctx, stockNewsRange(imageData.seed, 34, 150, 1380), stockNewsRange(imageData.seed, 35, 80, 400), 420, theme.accent, 0.22);
+  stockNewsDrawGlow(ctx, stockNewsRange(imageData.seed, 36, 620, 1500), stockNewsRange(imageData.seed, 37, 420, 820), 520, toneColor, 0.18);
+
+  ctx.globalAlpha = 0.22;
+  ctx.strokeStyle = "#ffffff";
+  ctx.lineWidth = 1;
+  for (let i = 0; i < 18; i += 1) {
+    const y = stockNewsRange(imageData.seed, 50 + i, 0, height);
+    ctx.beginPath();
+    ctx.moveTo(0, Math.round(y));
+    ctx.lineTo(width, Math.round(y));
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function stockNewsDrawTopicDetails(ctx, theme, imageData, rng, width, height) {
+  ctx.save();
+  const accent = imageData.tone === "bad" ? "#ff525d" : imageData.tone === "good" ? theme.accent : "#4f8cff";
+  ctx.shadowColor = accent;
+  ctx.shadowBlur = 22;
+
+  if (imageData.code === "DMD") {
+    for (let i = 0; i < 22; i += 1) {
+      const x = stockNewsRange(imageData.seed, 120 + i, 80, width - 90);
+      const y = stockNewsRange(imageData.seed, 160 + i, 110, height - 90);
+      const size = stockNewsRange(imageData.seed, 190 + i, 10, 30);
+      ctx.fillStyle = i % 3 === 0 ? theme.accentSoft : theme.accent;
+      ctx.globalAlpha = stockNewsRange(imageData.seed, 210 + i, 0.35, 0.86);
+      ctx.beginPath();
+      ctx.moveTo(x, y - size);
+      ctx.lineTo(x + size * 0.9, y);
+      ctx.lineTo(x, y + size);
+      ctx.lineTo(x - size * 0.9, y);
+      ctx.closePath();
+      ctx.fill();
+    }
+  } else if (imageData.code === "FARM") {
+    for (let i = 0; i < 34; i += 1) {
+      const x = stockNewsRange(imageData.seed, 220 + i, 40, width - 40);
+      const y = stockNewsRange(imageData.seed, 260 + i, height * 0.45, height - 30);
+      const stalk = stockNewsRange(imageData.seed, 300 + i, 36, 96);
+      ctx.strokeStyle = i % 2 ? theme.accent : theme.accentSoft;
+      ctx.lineWidth = stockNewsRange(imageData.seed, 340 + i, 4, 8);
+      ctx.globalAlpha = 0.48;
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(x + stockNewsRange(imageData.seed, 360 + i, -18, 18), y - stalk);
+      ctx.stroke();
+      ctx.fillStyle = theme.accentSoft;
+      ctx.fillRect(x - 8, y - stalk - 10, 16, 20);
+    }
+  } else if (imageData.code === "LOG") {
+    for (let i = 0; i < 12; i += 1) {
+      const x = stockNewsRange(imageData.seed, 420 + i, 80, width - 300);
+      const y = stockNewsRange(imageData.seed, 450 + i, height * 0.45, height - 110);
+      const logWidth = stockNewsRange(imageData.seed, 480 + i, 110, 230);
+      const logHeight = stockNewsRange(imageData.seed, 510 + i, 28, 54);
+      ctx.globalAlpha = 0.6;
+      ctx.fillStyle = i % 2 ? "#6f4323" : "#a56831";
+      stockNewsFillRoundRect(ctx, x, y, logWidth, logHeight, 12);
+      ctx.fill();
+      ctx.strokeStyle = "#d39a57";
+      ctx.lineWidth = 4;
+      ctx.strokeRect(x + 12, y + 8, logWidth - 24, logHeight - 16);
+    }
+  } else {
+    for (let i = 0; i < 10; i += 1) {
+      const x = stockNewsRange(imageData.seed, 540 + i, 80, width - 120);
+      const y = stockNewsRange(imageData.seed, 570 + i, 120, height - 160);
+      const step = stockNewsRange(imageData.seed, 600 + i, 70, 150);
+      ctx.strokeStyle = i % 2 ? theme.accent : theme.accentSoft;
+      ctx.lineWidth = stockNewsRange(imageData.seed, 630 + i, 7, 14);
+      ctx.globalAlpha = 0.56;
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(x + step, y);
+      ctx.lineTo(x + step, y + step * 0.45);
+      ctx.lineTo(x + step * 1.62, y + step * 0.45);
+      ctx.stroke();
+      ctx.fillStyle = theme.accent;
+      ctx.fillRect(x + step - 13, y - 13, 26, 26);
     }
   }
-  return blocks.join("");
+  ctx.restore();
 }
 
-function stockNewsMarketGlyphs(theme, article, seed, index) {
-  const toneColor = article.tone === "bad" ? "#e5484d" : article.tone === "good" ? "#1faa69" : "#1e64d6";
-  const bars = [];
-  for (let i = 0; i < 9; i += 1) {
-    const height = stockNewsRange(seed, 90 + i, 48, 210);
-    const x = 1070 + i * 42;
-    const y = 470 - height;
-    bars.push(stockNewsRect(x, y, 24, height, i % 2 === index % 2 ? toneColor : theme.accent, ' opacity="0.82"'));
-    bars.push(stockNewsRect(x, y + height, 24, 8, "#ffffff", ' opacity="0.2"'));
-  }
-  const pulseY = article.tone === "bad" ? 230 : 190;
-  return `
-    <g opacity="0.92">
-      ${bars.join("")}
-      <polyline points="1000,${pulseY + 90} 1080,${pulseY + 50} 1160,${pulseY + 72} 1240,${pulseY + 28} 1320,${pulseY + 44} 1400,${pulseY - 8} 1500,${pulseY + 22}" fill="none" stroke="${toneColor}" stroke-width="16" stroke-linecap="square" stroke-linejoin="miter"/>
-      <polyline points="1000,${pulseY + 130} 1080,${pulseY + 90} 1160,${pulseY + 112} 1240,${pulseY + 68} 1320,${pulseY + 84} 1400,${pulseY + 32} 1500,${pulseY + 62}" fill="none" stroke="#ffffff" stroke-width="5" opacity="0.32"/>
-    </g>
-  `;
-}
+function stockNewsDrawMarketHud(ctx, theme, imageData, rng, width, height) {
+  const toneColor = imageData.tone === "bad" ? "#ff4f61" : imageData.tone === "good" ? "#25d38a" : "#4c8dff";
+  const panelX = stockNewsRange(imageData.seed, 700, width * 0.54, width * 0.66);
+  const panelY = stockNewsRange(imageData.seed, 701, 86, 168);
+  const panelWidth = stockNewsRange(imageData.seed, 702, 420, 520);
+  const panelHeight = stockNewsRange(imageData.seed, 703, 260, 340);
+  ctx.save();
+  ctx.globalAlpha = 0.92;
+  ctx.fillStyle = "rgba(4, 12, 18, 0.48)";
+  stockNewsFillRoundRect(ctx, panelX, panelY, panelWidth, panelHeight, 24);
+  ctx.fill();
+  ctx.strokeStyle = `${theme.accent}88`;
+  ctx.lineWidth = 3;
+  ctx.stroke();
 
-function stockNewsSceneObjects(code, theme, seed, article, index) {
-  const offset = stockNewsRange(seed, 20, -40, 40);
-  if (code === "DMD") {
-    return `
-      ${stockNewsRect(160 + offset, 190, 62, 340, theme.secondary)}
-      ${stockNewsRect(408 + offset, 150, 70, 382, theme.secondary)}
-      ${stockNewsRect(130 + offset, 170, 380, 44, theme.secondary)}
-      ${stockNewsRect(185, 590, 910, 22, "#171717")}
-      ${stockNewsRect(210, 624, 890, 18, "#171717")}
-      ${stockNewsRect(300 + offset, 520, 170, 82, "#62696e")}
-      ${stockNewsRect(332 + offset, 488, 104, 46, theme.accent, ' opacity="0.95"')}
-      ${stockNewsRect(650, 298, 42, 138, theme.accent, ' opacity="0.78"')}
-      ${stockNewsRect(706, 250, 30, 92, theme.accentSoft, ' opacity="0.74"')}
-      ${stockNewsRect(760, 332, 28, 92, theme.accent, ' opacity="0.68"')}
-      <circle cx="252" cy="438" r="24" fill="${theme.lamp}" opacity="0.9"/>
-      <circle cx="510" cy="346" r="18" fill="${theme.lamp}" opacity="0.76"/>
-    `;
+  ctx.globalAlpha = 0.24;
+  ctx.strokeStyle = "#ffffff";
+  ctx.lineWidth = 1;
+  for (let i = 1; i < 5; i += 1) {
+    const y = panelY + (panelHeight / 5) * i;
+    ctx.beginPath();
+    ctx.moveTo(panelX + 28, y);
+    ctx.lineTo(panelX + panelWidth - 28, y);
+    ctx.stroke();
   }
-  if (code === "FARM") {
-    return `
-      ${stockNewsRect(120, 358, 460, 80, "#8dbd39")}
-      ${stockNewsRect(120, 452, 540, 82, "#6fa633")}
-      ${stockNewsRect(700, 348, 270, 172, theme.secondary)}
-      ${stockNewsRect(738, 278, 194, 86, "#c94f35")}
-      ${stockNewsRect(790, 410, 92, 110, "#55391f")}
-      ${stockNewsRect(1010, 386, 190, 122, "#d6a642")}
-      ${stockNewsRect(1046, 338, 118, 64, "#f0d06a")}
-      ${stockNewsRect(210 + offset, 285, 30, 160, theme.accent)}
-      ${stockNewsRect(278 + offset, 305, 28, 142, theme.accentSoft)}
-      ${stockNewsRect(352 + offset, 292, 32, 154, theme.accent)}
-    `;
+
+  const points = [];
+  const pointCount = 9;
+  for (let i = 0; i < pointCount; i += 1) {
+    const progress = i / (pointCount - 1);
+    const drift = imageData.tone === "bad" ? progress * 0.28 : imageData.tone === "good" ? -progress * 0.28 : Math.sin(progress * Math.PI * 2) * 0.08;
+    const noise = stockNewsRange(imageData.seed, 740 + i, -0.2, 0.2);
+    points.push({
+      x: panelX + 34 + progress * (panelWidth - 68),
+      y: panelY + panelHeight * (0.56 + drift + noise),
+    });
   }
-  if (code === "LOG") {
-    return `
-      ${stockNewsRect(120, 362, 520, 162, "#6f4928")}
-      ${stockNewsRect(158, 326, 432, 46, "#8a5c32")}
-      ${stockNewsRect(680, 308, 92, 214, theme.secondary)}
-      ${stockNewsRect(760, 270, 330, 40, theme.secondary)}
-      ${stockNewsRect(1054, 302, 42, 156, theme.secondary)}
-      ${stockNewsRect(242 + offset, 548, 340, 52, theme.accent)}
-      ${stockNewsRect(204 + offset, 612, 382, 50, "#8f5e2f")}
-      ${stockNewsRect(172 + offset, 674, 420, 48, "#b27435")}
-      ${stockNewsRect(1030, 444, 250, 58, theme.groundLight)}
-      ${stockNewsRect(1058, 414, 198, 38, theme.accent)}
-    `;
+  ctx.globalAlpha = 1;
+  ctx.shadowColor = toneColor;
+  ctx.shadowBlur = 18;
+  ctx.strokeStyle = toneColor;
+  ctx.lineWidth = 8;
+  ctx.beginPath();
+  points.forEach((point, index) => {
+    if (index === 0) ctx.moveTo(point.x, point.y);
+    else ctx.lineTo(point.x, point.y);
+  });
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+
+  for (let i = 0; i < pointCount - 1; i += 1) {
+    const candleX = panelX + 44 + i * ((panelWidth - 88) / (pointCount - 1));
+    const candleHeight = stockNewsRange(imageData.seed, 780 + i, 42, 136);
+    const baseY = panelY + panelHeight - 42;
+    ctx.fillStyle = i % 2 || imageData.tone === "bad" ? "#d84d59" : "#2fd084";
+    ctx.globalAlpha = 0.78;
+    ctx.fillRect(candleX, baseY - candleHeight, 17, candleHeight);
   }
-  return `
-    ${stockNewsRect(112, 320, 520, 218, "#20262d")}
-    ${stockNewsRect(166, 250, 360, 88, "#333943")}
-    ${stockNewsRect(706, 230, 112, 306, "#343941")}
-    ${stockNewsRect(850, 318, 390, 94, "#242a31")}
-    ${stockNewsRect(890, 430, 460, 60, "#1a1f25")}
-    ${stockNewsRect(190, 392, 74, 74, theme.accent, ' opacity="0.86"')}
-    ${stockNewsRect(328, 382, 54, 54, theme.accentSoft, ' opacity="0.74"')}
-    ${stockNewsRect(472, 404, 86, 48, theme.accent, ' opacity="0.8"')}
-    <polyline points="210,600 360,530 520,574 700,496 890,552 1040,480 1260,520" fill="none" stroke="${theme.accent}" stroke-width="18" stroke-linecap="square" stroke-linejoin="miter"/>
-  `;
+
+  const volumeBase = panelY + panelHeight + 38;
+  for (let i = 0; i < 18; i += 1) {
+    const barHeight = stockNewsRange(imageData.seed, 820 + i, 32, 120);
+    ctx.fillStyle = i % 3 === 0 ? toneColor : theme.accent;
+    ctx.globalAlpha = 0.46;
+    ctx.fillRect(panelX + i * 26, volumeBase - barHeight, 14, barHeight);
+  }
+  ctx.restore();
 }
 
 function buildGeneratedStockNewsImage(article, context, index) {
@@ -1787,45 +1916,68 @@ function buildGeneratedStockNewsImage(article, context, index) {
   const fallbackImages = stockNewsImagesFor(code);
   const fallback = fallbackImages[index % fallbackImages.length];
   const imageSeed = `${seed}:${index}:${article.title}:${article.tone}`;
-  const cloudColor = article.tone === "bad" ? "#3b3037" : "#ffffff";
-  const toneGlow = article.tone === "bad" ? "#e5484d" : article.tone === "good" ? "#1faa69" : "#1e64d6";
-  const title = stockNewsSvgText(`${name} ${topic} ${article.tag}`);
-  const blocks = stockNewsBlockField(theme, imageSeed, code);
-  const sceneObjects = stockNewsSceneObjects(code, theme, imageSeed, article, index);
-  const glyphs = stockNewsMarketGlyphs(theme, article, imageSeed, index);
-  const sunX = stockNewsRange(imageSeed, 120, 1120, 1450);
-  const sunY = stockNewsRange(imageSeed, 121, 72, 180);
-  const svg = `
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900" role="img" aria-label="${title}">
-      <defs>
-        <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="${theme.sky}"/>
-          <stop offset="100%" stop-color="${theme.horizon}"/>
-        </linearGradient>
-        <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-          <feDropShadow dx="18" dy="22" stdDeviation="0" flood-color="#000000" flood-opacity="0.28"/>
-        </filter>
-      </defs>
-      <rect width="1600" height="900" fill="url(#sky)"/>
-      <rect x="${Math.round(sunX)}" y="${Math.round(sunY)}" width="92" height="92" fill="${theme.lamp}" opacity="${article.tone === "bad" ? "0.36" : "0.72"}"/>
-      ${stockNewsRect(130, 120, 210, 42, cloudColor, ' opacity="0.22"')}
-      ${stockNewsRect(250, 82, 280, 54, cloudColor, ' opacity="0.18"')}
-      ${stockNewsRect(980, 132, 240, 46, cloudColor, ' opacity="0.16"')}
-      <g filter="url(#shadow)">${sceneObjects}</g>
-      <g>${blocks}</g>
-      ${glyphs}
-      <rect x="0" y="0" width="1600" height="900" fill="${toneGlow}" opacity="0.08"/>
-      <rect x="0" y="0" width="1600" height="900" fill="none" stroke="${theme.accent}" stroke-width="18" opacity="0.28"/>
-      <rect x="0" y="0" width="1600" height="900" fill="#000000" opacity="0.08"/>
-    </svg>
-  `.trim();
   return {
-    src: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`,
-    position: "50% 50%",
+    src: fallback?.src || "/assets/hero-world-1920.jpg",
+    baseSrc: fallback?.src || "/assets/hero-world-1920.jpg",
+    position: fallback?.position || "50% 50%",
+    key: `${imageSeed}:${fallback?.src || "fallback"}`,
+    seed: imageSeed,
+    code,
+    tone: article.tone,
+    visualType: ["lead", "orderbook", "financial", "briefing"][index % 4],
     generated: true,
     fallback: fallback?.src || "/assets/hero-world-1920.jpg",
     description: `${week.label} ${name} ${topic} ${article.tag} 마인크래프트풍 생성 이미지`,
   };
+}
+
+async function generateStockNewsComposite(imageData) {
+  if (!imageData?.generated || !imageData.baseSrc) return imageData?.src || "";
+  if (stockNewsCompositeCache.has(imageData.key)) return stockNewsCompositeCache.get(imageData.key);
+  const promise = stockNewsLoadSourceImage(imageData.baseSrc)
+    .then((source) => {
+      const width = 1600;
+      const height = 900;
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d", { alpha: false });
+      const theme = stockNewsSceneTheme(imageData.code);
+      const rng = stockNewsRng(imageData.seed);
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = "high";
+      stockNewsDrawCover(ctx, source, width, height, imageData.position);
+      stockNewsDrawColorGrade(ctx, theme, imageData, rng, width, height);
+      stockNewsDrawTopicDetails(ctx, theme, imageData, rng, width, height);
+      stockNewsDrawMarketHud(ctx, theme, imageData, rng, width, height);
+      return canvas.toDataURL("image/jpeg", 0.9);
+    })
+    .catch(() => imageData.fallback || imageData.src || "");
+  stockNewsCompositeCache.set(imageData.key, promise);
+  return promise;
+}
+
+function attachStockNewsImage(image, imageData, fallbackAlt) {
+  if (!image || !imageData) return;
+  image.alt = imageData.description || fallbackAlt;
+  image.style.objectPosition = imageData.position || "50% 50%";
+  image.dataset.generated = imageData.generated ? "true" : "false";
+  image.dataset.compositeReady = "false";
+  image.dataset.fallbackUsed = "false";
+  image.dataset.newsImageKey = imageData.key || "";
+  image.onerror = () => {
+    if (imageData.fallback && image.dataset.fallbackUsed !== "true") {
+      image.dataset.fallbackUsed = "true";
+      image.src = imageData.fallback;
+    }
+  };
+  image.src = imageData.src;
+  if (!imageData.generated) return;
+  generateStockNewsComposite(imageData).then((src) => {
+    if (!src || image.dataset.newsImageKey !== imageData.key) return;
+    image.dataset.compositeReady = src === imageData.fallback ? "fallback" : "true";
+    image.src = src;
+  });
 }
 
 function buildStockNewsDetails(article, context) {
@@ -2264,17 +2416,7 @@ function openStockNewsDetail(elements, news, article) {
   document.body.classList.add("stock-news-modal-open");
   elements.modal.dataset.tone = article.tone;
   if (elements.modalImage) {
-    elements.modalImage.src = article.image.src;
-    elements.modalImage.alt = article.image.description || `${news.name} ${article.tag} 상세 뉴스 이미지`;
-    elements.modalImage.style.objectPosition = article.image.position;
-    elements.modalImage.dataset.generated = article.image.generated ? "true" : "false";
-    elements.modalImage.dataset.fallbackUsed = "false";
-    elements.modalImage.onerror = () => {
-      if (article.image.fallback && elements.modalImage.dataset.fallbackUsed !== "true") {
-        elements.modalImage.dataset.fallbackUsed = "true";
-        elements.modalImage.src = article.image.fallback;
-      }
-    };
+    attachStockNewsImage(elements.modalImage, article.image, `${news.name} ${article.tag} 상세 뉴스 이미지`);
   }
   if (elements.modalTag) elements.modalTag.textContent = article.tag;
   if (elements.modalSource) elements.modalSource.textContent = `${article.source} · ${news.week.range}`;
@@ -2330,19 +2472,9 @@ function renderStockNews(elements, stock, metrics, depth) {
       const imageWrap = document.createElement("div");
       imageWrap.className = "stock-news-image";
       const image = document.createElement("img");
-      image.src = article.image.src;
-      image.alt = article.image.description || `${news.name} ${article.tag} 뉴스 이미지`;
       image.loading = "eager";
       image.decoding = "async";
-      image.style.objectPosition = article.image.position;
-      image.dataset.generated = article.image.generated ? "true" : "false";
-      image.dataset.fallbackUsed = "false";
-      image.onerror = () => {
-        if (article.image.fallback && image.dataset.fallbackUsed !== "true") {
-          image.dataset.fallbackUsed = "true";
-          image.src = article.image.fallback;
-        }
-      };
+      attachStockNewsImage(image, article.image, `${news.name} ${article.tag} 뉴스 이미지`);
       imageWrap.append(image);
 
       const body = document.createElement("div");

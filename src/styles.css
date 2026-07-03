@@ -3744,7 +3744,12 @@ input:focus-visible,
 .stock-news-image img[data-generated="true"],
 .stock-news-dialog-media img[data-generated="true"] {
   background: #101923;
-  image-rendering: pixelated;
+  transition: filter var(--motion-med) ease;
+}
+
+.stock-news-image img[data-composite-ready="false"],
+.stock-news-dialog-media img[data-composite-ready="false"] {
+  filter: saturate(0.92) contrast(0.96);
 }
 
 .stock-news-card > div:last-child {
