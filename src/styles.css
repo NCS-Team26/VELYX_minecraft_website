@@ -1,13 +1,22 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Manrope:wght@600;700;800&display=swap");
+
 :root {
   color: var(--text);
   background: var(--bg-solid);
   color-scheme: dark;
-  font-family:
-    Pretendard, Inter, "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic",
-    ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: var(--font-sans);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
+  --font-sans:
+    Inter, "SF Pro Text", "Segoe UI Variable", "Segoe UI", ui-sans-serif, system-ui,
+    -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  --font-display:
+    Manrope, Inter, "SF Pro Display", "Segoe UI Variable Display", "Segoe UI",
+    ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono:
+    "SFMono-Regular", "Cascadia Mono", "JetBrains Mono", Consolas, "Liberation Mono",
+    monospace;
 
   /* light theme tokens (default) */
   --text: #161c19;
@@ -214,6 +223,7 @@ body {
   min-width: 320px;
   overflow-x: clip;
   color: var(--text);
+  font-family: var(--font-sans);
   background: var(--bg-grad);
   background-color: var(--bg-solid);
   background-size: cover;
@@ -224,8 +234,23 @@ body {
 
 button,
 a,
-input {
+input,
+select,
+textarea {
   font: inherit;
+}
+
+h1,
+h2,
+h3,
+h4,
+.brand,
+.nav-links,
+.nav-login,
+.eyebrow,
+.section-heading,
+.stock-brand-mark {
+  font-family: var(--font-display);
 }
 
 button {
@@ -245,9 +270,11 @@ a {
   position: sticky;
   top: 0;
   z-index: 20;
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(132px, 1fr) auto minmax(132px, 1fr);
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
+  column-gap: 18px;
   height: 48px;
   padding: 0 28px;
   color: var(--text);
@@ -262,6 +289,7 @@ a {
 }
 
 .brand {
+  justify-self: start;
   display: inline-flex;
   align-items: center;
   gap: 9px;
@@ -277,10 +305,14 @@ a {
 }
 
 .nav-links {
+  grid-column: 2;
+  justify-self: center;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: clamp(10px, 1.4vw, 22px);
-  font-size: 13px;
+  font-size: 13.5px;
+  font-weight: 720;
 }
 
 .nav-links a {
@@ -355,6 +387,8 @@ a {
 }
 
 .nav-toggle {
+  grid-column: 3;
+  justify-self: end;
   display: none;
   place-items: center;
   width: 38px;
@@ -1025,7 +1059,7 @@ a {
 }
 
 .join-steps code {
-  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-family: var(--font-mono);
   font-weight: 850;
 }
 
@@ -1058,7 +1092,7 @@ a {
 .address-row code {
   min-width: 0;
   overflow-wrap: anywhere;
-  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-family: var(--font-mono);
   font-size: 19px;
   font-weight: 800;
 }
@@ -1304,11 +1338,12 @@ a {
 
 @media (max-width: 820px) {
   .site-nav {
+    grid-template-columns: minmax(108px, 1fr) auto minmax(108px, 1fr);
     padding: 0 16px;
   }
 
   .nav-links {
-    gap: 14px;
+    gap: 8px;
   }
 
   .hero {
@@ -1351,12 +1386,22 @@ a {
 }
 
 @media (max-width: 640px) {
+  .site-nav {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .brand {
+    grid-column: 1;
+  }
+
   .nav-toggle {
+    grid-column: 2;
     display: grid;
     flex: 0 0 auto;
   }
 
   .nav-links {
+    grid-column: 1 / -1;
     display: none;
     position: absolute;
     top: 48px;

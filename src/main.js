@@ -1143,13 +1143,13 @@ function initNav() {
   const close = () => {
     nav.classList.remove("nav-open");
     toggle.setAttribute("aria-expanded", "false");
-    toggle.setAttribute("aria-label", "메뉴 열기");
+    toggle.setAttribute("aria-label", "Open menu");
   };
 
   toggle.addEventListener("click", () => {
     const open = nav.classList.toggle("nav-open");
     toggle.setAttribute("aria-expanded", String(open));
-    toggle.setAttribute("aria-label", open ? "메뉴 닫기" : "메뉴 열기");
+    toggle.setAttribute("aria-label", open ? "Close menu" : "Open menu");
   });
 
   // Close after navigating or hitting login.
