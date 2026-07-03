@@ -6265,6 +6265,13 @@ function initScrollReveal() {
       entries.forEach((entry) => {
         if (!entry.isIntersecting) return;
         entry.target.classList.add("is-visible");
+        entry.target.addEventListener(
+          "transitionend",
+          () => {
+            entry.target.classList.add("reveal-done");
+          },
+          { once: true },
+        );
         obs.unobserve(entry.target);
       });
     },

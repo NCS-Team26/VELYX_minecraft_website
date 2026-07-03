@@ -512,7 +512,7 @@ a {
 
 .hero h1 {
   color: rgba(244, 250, 246, 0.98);
-  font-size: clamp(48px, 9vw, 112px);
+  font-size: clamp(48px, 6.75rem, 108px);
   line-height: 0.96;
   font-weight: 850;
   text-shadow:
@@ -525,7 +525,7 @@ a {
   margin: 18px auto 0;
   max-width: 680px;
   color: rgba(228, 240, 232, 0.9);
-  font-size: clamp(19px, 2.2vw, 28px);
+  font-size: clamp(19px, 1.55rem, 25px);
   line-height: 1.28;
   font-weight: 700;
   overflow-wrap: anywhere;
@@ -632,7 +632,7 @@ a {
 .join-card h1,
 .join-card h2 {
   color: var(--text);
-  font-size: clamp(32px, 5vw, 56px);
+  font-size: clamp(32px, 3.25rem, 52px);
   line-height: 1.02;
   font-weight: 820;
   overflow-wrap: normal;
@@ -705,7 +705,7 @@ a {
 .status-panel strong {
   display: block;
   margin-top: 22px;
-  font-size: clamp(54px, 8vw, 92px);
+  font-size: clamp(54px, 5.25rem, 84px);
   line-height: 0.9;
 }
 
@@ -802,7 +802,7 @@ a {
 .plugin-grid strong {
   display: block;
   margin-top: 10px;
-  font-size: clamp(22px, 3vw, 34px);
+  font-size: clamp(22px, 2rem, 32px);
   line-height: 1.08;
 }
 
@@ -1116,7 +1116,7 @@ a {
 }
 
 .category-feature strong {
-  font-size: clamp(25px, 4vw, 42px);
+  font-size: clamp(25px, 2.5rem, 40px);
   line-height: 1.06;
 }
 
@@ -1371,7 +1371,7 @@ a {
     overflow-y: auto;
     overscroll-behavior: contain;
     padding: 10px;
-    border-radius: 12px;
+    border-radius: 8px;
     color: #eef5f2;
     background: rgba(13, 20, 17, 0.96);
     border: 1px solid rgba(255, 255, 255, 0.12);
@@ -1428,7 +1428,7 @@ a {
 
 @media (max-width: 560px) {
   .hero h1 {
-    font-size: clamp(40px, 14.5vw, 58px);
+    font-size: 44px;
   }
 
   .hero-copy {
@@ -1444,7 +1444,7 @@ a {
   .rules-section h2,
   .join-card h1,
   .join-card h2 {
-    font-size: clamp(24px, 7vw, 30px);
+    font-size: 26px;
     word-break: keep-all;
   }
 
@@ -1508,7 +1508,7 @@ a {
   height: 40px;
   padding: 9px;
   margin-bottom: 14px;
-  border-radius: 11px;
+  border-radius: 8px;
   color: #2f7a3f;
   background: rgba(47, 179, 68, 0.1);
 }
@@ -1858,9 +1858,13 @@ input:focus-visible,
 
 /* footer */
 .site-footer {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 18px;
   width: min(1120px, calc(100% - 32px));
   margin: 0 auto;
-  padding: 40px 0 56px;
+  padding: 28px 0 34px;
   border-top: 1px solid var(--border);
   color: var(--text-faint);
   font-size: 13px;
@@ -1871,8 +1875,9 @@ input:focus-visible,
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 14px;
+  min-width: 0;
 }
 
 .site-footer .footer-brand {
@@ -1898,37 +1903,44 @@ input:focus-visible,
 }
 
 .footer-theme-row {
-  display: flex;
-  flex-direction: column;
+  display: inline-flex;
+  flex-wrap: wrap;
   align-items: center;
-  justify-content: center;
-  gap: 14px;
-  margin-top: 24px;
-  padding-top: 24px;
-  border-top: 1px solid var(--border);
+  justify-content: flex-end;
+  gap: 8px;
+  justify-self: end;
+  max-width: min(100%, 560px);
+  padding: 6px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background:
+    linear-gradient(135deg, var(--theme-accent-soft), transparent 48%),
+    color-mix(in srgb, var(--card) 82%, transparent);
+  box-shadow: 0 18px 46px rgba(6, 16, 12, 0.1);
+  backdrop-filter: blur(18px) saturate(145%);
 }
 
 .footer-theme-toggle {
   position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 12px;
-  min-width: 210px;
-  min-height: 48px;
-  padding: 7px 16px 7px 9px;
+  gap: 10px;
+  min-width: 0;
+  min-height: 42px;
+  padding: 5px 12px 5px 6px;
   overflow: hidden;
   border: 1px solid var(--border);
-  border-radius: 999px;
+  border-radius: 8px;
   color: var(--text);
-  background: var(--card);
-  box-shadow: 0 16px 42px var(--theme-accent-soft);
+  background: color-mix(in srgb, var(--card-solid) 82%, transparent);
+  box-shadow: none;
   cursor: pointer;
-  backdrop-filter: blur(16px) saturate(150%);
+  backdrop-filter: blur(14px) saturate(145%);
 }
 
 .footer-theme-toggle:hover {
   border-color: var(--theme-accent-border);
-  box-shadow: 0 20px 50px var(--theme-accent-glow);
+  box-shadow: 0 12px 26px var(--theme-accent-glow);
 }
 
 .footer-theme-icon {
@@ -1968,19 +1980,20 @@ input:focus-visible,
   font-size: 12px;
   line-height: 1.25;
   font-weight: 650;
+  white-space: nowrap;
 }
 
 .footer-theme-customizer {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  min-height: 38px;
-  padding: 6px 8px 6px 12px;
+  min-height: 42px;
+  padding: 6px 8px 6px 10px;
   border: 1px solid var(--border);
-  border-radius: 999px;
+  border-radius: 8px;
   color: var(--text-faint);
-  background: color-mix(in srgb, var(--card) 82%, transparent);
-  backdrop-filter: blur(16px) saturate(150%);
+  background: color-mix(in srgb, var(--card-solid) 76%, transparent);
+  backdrop-filter: blur(14px) saturate(145%);
 }
 
 .footer-theme-customizer > span {
@@ -1992,13 +2005,13 @@ input:focus-visible,
 .theme-palette {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
+  gap: 6px;
 }
 
 .theme-preset-button {
   position: relative;
-  width: 26px;
-  height: 26px;
+  width: 28px;
+  height: 28px;
   padding: 0;
   border: 1px solid var(--border);
   border-radius: 999px;
@@ -2117,14 +2130,14 @@ input:focus-visible,
 .stats-inner article {
   padding: 22px 14px;
   text-align: center;
-  border-radius: 16px;
+  border-radius: 8px;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.09);
 }
 
 .stats-inner strong {
   display: block;
-  font-size: clamp(34px, 5vw, 54px);
+  font-size: clamp(34px, 3.25rem, 52px);
   font-weight: 850;
   line-height: 1;
   background: linear-gradient(180deg, #eaffee, #9be6ad);
@@ -2203,7 +2216,7 @@ input:focus-visible,
 .market-copy h3 {
   margin: 0;
   color: var(--text);
-  font-size: clamp(28px, 4vw, 44px);
+  font-size: clamp(28px, 2.55rem, 41px);
   line-height: 1.04;
   font-weight: 820;
 }
@@ -2259,7 +2272,7 @@ input:focus-visible,
 .economy-subheading h2 {
   margin: 0;
   color: var(--text);
-  font-size: clamp(24px, 3vw, 34px);
+  font-size: clamp(24px, 2rem, 32px);
   line-height: 1.12;
   font-weight: 880;
 }
@@ -2329,7 +2342,7 @@ input:focus-visible,
 .economy-market-heading h2 {
   margin: 0;
   color: var(--text);
-  font-size: clamp(28px, 4vw, 46px);
+  font-size: clamp(28px, 2.65rem, 42px);
   line-height: 1.05;
   font-weight: 860;
 }
@@ -2423,7 +2436,7 @@ input:focus-visible,
 .stock-terminal-top h3 {
   margin: 0;
   color: var(--text);
-  font-size: clamp(24px, 3vw, 36px);
+  font-size: clamp(24px, 2.1rem, 34px);
   line-height: 1.08;
   font-weight: 860;
 }
@@ -2586,7 +2599,7 @@ input:focus-visible,
   display: block;
   margin-top: 6px;
   color: var(--text);
-  font-size: clamp(18px, 2vw, 24px);
+  font-size: clamp(18px, 1.35rem, 22px);
   line-height: 1;
   font-weight: 880;
 }
@@ -2620,7 +2633,7 @@ input:focus-visible,
   display: block;
   margin-top: 4px;
   color: var(--text);
-  font-size: clamp(26px, 3.4vw, 42px);
+  font-size: clamp(26px, 2.45rem, 39px);
   line-height: 1;
   font-weight: 900;
 }
@@ -3214,7 +3227,7 @@ input:focus-visible,
 .stock-workspace-head h1 {
   margin: 0;
   color: var(--text);
-  font-size: clamp(34px, 5vw, 68px);
+  font-size: clamp(34px, 4rem, 64px);
   line-height: 0.98;
   font-weight: 900;
   letter-spacing: 0;
@@ -4150,7 +4163,7 @@ input:focus-visible,
   display: block;
   margin-top: 5px;
   color: var(--stock-text);
-  font-size: clamp(23px, 3vw, 38px);
+  font-size: clamp(23px, 2.2rem, 35px);
   line-height: 1.05;
   font-weight: 950;
 }
@@ -4426,7 +4439,7 @@ body.stock-news-modal-open {
 .stock-news-dialog-body h2 {
   margin: 0;
   color: var(--stock-text);
-  font-size: clamp(24px, 3.2vw, 40px);
+  font-size: clamp(24px, 2.35rem, 38px);
   line-height: 1.08;
   font-weight: 950;
 }
@@ -4513,7 +4526,7 @@ body.stock-news-modal-open {
   display: block;
   margin-top: 5px;
   color: var(--stock-text);
-  font-size: clamp(24px, 3.2vw, 40px);
+  font-size: clamp(24px, 2.35rem, 38px);
   line-height: 1;
   font-weight: 950;
 }
@@ -4830,7 +4843,7 @@ body.stock-news-modal-open {
   position: relative;
   margin: 0;
   overflow: hidden;
-  border-radius: 14px;
+  border-radius: 8px;
   border: 1px solid var(--border);
   box-shadow: 0 18px 50px rgba(0, 0, 0, 0.14);
 }
@@ -4872,18 +4885,38 @@ body.stock-news-modal-open {
   object-position: 100% 42%;
 }
 
+@media (max-width: 860px) {
+  .site-footer {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding-bottom: 38px;
+  }
+
+  .footer-theme-row {
+    justify-self: stretch;
+    justify-content: space-between;
+    max-width: none;
+  }
+}
+
 @media (max-width: 640px) {
   .footer-info-row {
     justify-content: center;
     text-align: center;
   }
 
+  .footer-theme-row {
+    justify-content: center;
+  }
+
   .footer-theme-toggle {
-    width: min(100%, 260px);
+    width: 100%;
+    max-width: 320px;
   }
 
   .footer-theme-customizer {
-    width: min(100%, 320px);
+    width: 100%;
+    max-width: 320px;
     justify-content: center;
     border-radius: 8px;
   }
@@ -6516,7 +6549,7 @@ body.stock-chart-settings-open {
   inset: 38% auto auto 31%;
   z-index: 1;
   color: rgba(94, 102, 115, 0.08);
-  font-size: clamp(52px, 8vw, 120px);
+  font-size: clamp(52px, 6.5rem, 104px);
   font-weight: 950;
   letter-spacing: 0;
   pointer-events: none;

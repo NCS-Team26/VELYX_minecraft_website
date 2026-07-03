@@ -159,7 +159,7 @@ a {
 .auth-heading h1 {
   margin: 0;
   color: #f5fff9;
-  font-size: clamp(40px, 9vw, 56px);
+  font-size: clamp(40px, 3.25rem, 52px);
   line-height: 1;
   letter-spacing: 0;
   text-shadow: 0 12px 38px rgba(0, 0, 0, 0.35);
@@ -1619,7 +1619,7 @@ select:focus-visible {
   }
 
   .inventory-grid {
-    --inventory-slot-size: clamp(26px, 7.5vw, 32px);
+    --inventory-slot-size: clamp(26px, 1.875rem, 30px);
 
     gap: 3px;
     padding: 7px;
@@ -1653,5 +1653,146 @@ select:focus-visible {
   .auto-login-button:hover,
   .auth-secondary-actions button:hover {
     transform: none;
+  }
+}
+
+/* ===== auth surface refresh: compact app shell, modern glass, stable mobile ratios ===== */
+:root {
+  --auth-shell-wide: min(1120px, calc(100% - 32px));
+  --auth-glass: rgba(8, 18, 18, 0.74);
+  --auth-line: rgba(203, 244, 226, 0.18);
+  --auth-shadow: 0 28px 90px rgba(0, 0, 0, 0.44);
+}
+
+body {
+  background:
+    linear-gradient(90deg, rgba(4, 8, 10, 0.9), rgba(7, 14, 16, 0.5) 48%, rgba(4, 8, 10, 0.74)),
+    linear-gradient(180deg, rgba(5, 10, 11, 0.18), rgba(5, 10, 11, 0.8)),
+    image-set(url("/assets/hero-world-960.jpg") 1x, url("/assets/hero-world-1920.jpg") 2x) center / cover no-repeat,
+    #07100f;
+}
+
+.auth-page {
+  padding: 28px 16px;
+}
+
+.auth-page::before {
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+  background-size: 68px 68px;
+  mask-image: linear-gradient(180deg, transparent, #000 18%, #000 82%, transparent);
+  opacity: 0.36;
+  animation: none;
+}
+
+.auth-shell,
+.auth-shell:has(.character-panel:not([hidden])) {
+  width: var(--auth-shell-wide);
+  grid-template-columns: minmax(320px, 430px) minmax(0, 1fr);
+  gap: 16px;
+}
+
+.auth-shell:not(:has(.character-panel:not([hidden]))) {
+  width: min(560px, calc(100% - 32px));
+  grid-template-columns: minmax(0, 520px);
+}
+
+.auth-panel,
+.character-panel {
+  border-color: var(--auth-line);
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.08), transparent 38%),
+    linear-gradient(180deg, rgba(12, 26, 26, 0.92), rgba(7, 16, 15, 0.8)),
+    var(--auth-glass);
+  box-shadow: var(--auth-shadow);
+}
+
+.auth-heading h1 {
+  font-size: clamp(40px, 3.15rem, 50px);
+}
+
+.auth-form input,
+.character-form input,
+.stock-trader select,
+.stock-trader input {
+  min-height: 48px;
+  transition:
+    border-color 160ms ease,
+    background 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.auth-primary,
+.stock-trader-actions button {
+  background: linear-gradient(135deg, #7ee7b4 0%, #79d8ff 100%);
+  color: #061110;
+}
+
+.auth-primary,
+.auth-ghost,
+.auth-secondary-actions button,
+.google-login-fallback,
+.web-action-button,
+.stock-trader-actions button {
+  transition:
+    transform 180ms cubic-bezier(0.22, 1, 0.36, 1),
+    filter 180ms ease,
+    box-shadow 180ms ease,
+    border-color 180ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .auth-primary:hover,
+  .auth-ghost:hover,
+  .auth-secondary-actions button:hover,
+  .google-login-fallback:hover,
+  .web-action-button:hover,
+  .stock-trader-actions button:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.05);
+  }
+}
+
+.auth-profile,
+.verify-card,
+.character-stats > div,
+.web-actions,
+.stock-trader,
+.inventory-toolbar,
+.inventory-equipment,
+.inventory-grid {
+  border-color: var(--auth-line);
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.06), transparent 40%),
+    rgba(232, 246, 240, 0.07);
+}
+
+.inventory-grid,
+.inventory-equipment {
+  image-rendering: pixelated;
+}
+
+@media (max-width: 900px) {
+  .auth-shell,
+  .auth-shell:has(.character-panel:not([hidden])) {
+    width: min(580px, calc(100% - 24px));
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 460px) {
+  .auth-page {
+    padding: 12px;
+  }
+
+  .auth-shell,
+  .auth-shell:has(.character-panel:not([hidden])),
+  .auth-shell:not(:has(.character-panel:not([hidden]))) {
+    width: 100%;
+  }
+
+  .auth-heading h1 {
+    font-size: 38px;
   }
 }
