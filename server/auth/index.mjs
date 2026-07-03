@@ -937,6 +937,67 @@ async function handleAdminSummary(event, origin) {
   );
 }
 
+async function handleInternalCreateAdminUser(event) {
+  const email = normalizeEmail(event.email);
+  const nickname = normalizeNickname(event.nickname || "Admin") || "Admin";
+  const password = String(event.password || "");
+
+  if (!validateEmail(email)) throw clientError(400, "Admin email is invalid.");
+  if (password.length < 8 || password.length > 128) {
+    throw clientError(400, "Admin password must be 8 to 128 characters.");
+  }
+
+  const salt = randomBytes(16).toString("base64");
+  const now = new Date().toISOString();
+  const attributes = {
+    email: s(email),
+    nickname: s(nickname),
+    passwordHash: s(hashPassword(password, salt)),
+    passwordSalt: s(salt),
+    passwordIterations: n(passwordIterations),
+    provider: s("site"),
+    emailVerified: b(true),
+    roles: { SS: ["admin"] },
+    updatedAt: s(now),
+  };
+  const challengeAttributes = [
+    "emailVerificationTokenHash",
+    "emailVerificationCodeHash",
+    "emailVerificationExpiresAt",
+    "passwordResetTokenHash",
+    "passwordResetCodeHash",
+    "passwordResetExpiresAt",
+    "resetRequestedAt",
+  ];
+
+  const existing = await getUser(email);
+  if (existing) {
+    await updateUser(email, attributes, challengeAttributes);
+  } else {
+    try {
+      await putUser({
+        pk: s(userKey(email)),
+        ...attributes,
+        createdAt: s(now),
+      });
+    } catch (error) {
+      if (error.name !== "ConditionalCheckFailedException") throw error;
+      await updateUser(email, attributes, challengeAttributes);
+    }
+  }
+
+  return {
+    ok: true,
+    user: {
+      email,
+      name: nickname,
+      roles: ["admin"],
+      emailVerified: true,
+    },
+    updatedAt: now,
+  };
+}
+
 export async function handler(event) {
   const origin = event.headers?.origin || event.headers?.Origin || "";
   const method = event.requestContext?.http?.method || event.httpMethod || "";
@@ -953,6 +1014,18 @@ export async function handler(event) {
 
   if ((authStore === "dynamodb" && !tableName) || !authPepper) {
     return response(500, { message: "Auth service is not configured." }, origin);
+  }
+
+  if (event?.internalTask === "createAdminUser") {
+    try {
+      return await handleInternalCreateAdminUser(event);
+    } catch (error) {
+      console.error("Internal admin creation failed", {
+        name: error?.name,
+        message: error?.message,
+      });
+      return { ok: false, message: error?.message || "Internal admin creation failed." };
+    }
   }
 
   try {

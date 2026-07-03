@@ -1,7 +1,6 @@
-import { pbkdf2Sync, randomBytes } from "node:crypto";
+import { randomBytes } from "node:crypto";
 import { writeFileSync } from "node:fs";
-import { DynamoDBClient, UpdateItemCommand } from "@aws-sdk/client-dynamodb";
-import { GetFunctionConfigurationCommand, LambdaClient } from "@aws-sdk/client-lambda";
+import { InvokeCommand, LambdaClient } from "@aws-sdk/client-lambda";
 import { GetCallerIdentityCommand, STSClient } from "@aws-sdk/client-sts";
 import { requireAwsCostOptIn } from "./require-aws-cost-opt-in.mjs";
 
@@ -11,8 +10,6 @@ const region = process.env.AWS_REGION || process.env.AWS_DEFAULT_REGION || "ap-n
 const stackName = process.env.AUTH_STACK_NAME || "nfoifsb-auth";
 const tableName = process.env.AUTH_USERS_TABLE || process.env.USERS_TABLE || `${stackName}-users`;
 const functionName = process.env.AUTH_FUNCTION_NAME || `${stackName}-api`;
-let authPepper = process.env.AUTH_PEPPER || "";
-const passwordIterations = Number(process.env.PASSWORD_ITERATIONS || 210000);
 const outputFile = process.env.ADMIN_OUTPUT_FILE || "admin-output.json";
 const lambda = new LambdaClient({ region });
 
@@ -20,35 +17,8 @@ function normalizeEmail(value) {
   return String(value || "").trim().toLowerCase();
 }
 
-function userKey(email) {
-  return `EMAIL#${email}`;
-}
-
-function s(value) {
-  return { S: String(value) };
-}
-
-function n(value) {
-  return { N: String(value) };
-}
-
-function b(value) {
-  return { BOOL: Boolean(value) };
-}
-
 function validateEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-}
-
-function hashPassword(password, salt) {
-  return pbkdf2Sync(`${password}:${authPepper}`, salt, passwordIterations, 32, "sha256").toString("base64");
-}
-
-async function loadAuthPepper() {
-  if (authPepper) return;
-
-  const config = await lambda.send(new GetFunctionConfigurationCommand({ FunctionName: functionName }));
-  authPepper = config.Environment?.Variables?.AUTH_PEPPER || "";
 }
 
 const email = normalizeEmail(process.env.ADMIN_EMAIL || "admin@nfoifsb.kr");
@@ -61,70 +31,35 @@ if (!validateEmail(email)) {
 if (password.length < 8 || password.length > 128) {
   throw new Error("ADMIN_PASSWORD must be 8 to 128 characters.");
 }
-if (!Number.isSafeInteger(passwordIterations) || passwordIterations < 100000) {
-  throw new Error("PASSWORD_ITERATIONS must be a safe integer greater than or equal to 100000.");
-}
 
 if (process.env.GITHUB_ACTIONS === "true") {
   process.stdout.write(`::add-mask::${password}\n`);
 }
 
 const now = new Date().toISOString();
-const salt = randomBytes(16).toString("base64");
-const key = userKey(email);
-const dynamodb = new DynamoDBClient({ region });
 const sts = new STSClient({ region });
 const identity = await sts.send(new GetCallerIdentityCommand({}));
 
-await loadAuthPepper();
-
-if (!authPepper) {
-  throw new Error(`AUTH_PEPPER was not provided and could not be read from Lambda function ${functionName}.`);
-}
-
-await dynamodb.send(
-  new UpdateItemCommand({
-    TableName: tableName,
-    Key: {
-      pk: s(key),
-    },
-    UpdateExpression: [
-      "SET #email = :email",
-      "#nickname = :nickname",
-      "#passwordHash = :passwordHash",
-      "#passwordSalt = :passwordSalt",
-      "#passwordIterations = :passwordIterations",
-      "#provider = :provider",
-      "#emailVerified = :emailVerified",
-      "#roles = :roles",
-      "#createdAt = if_not_exists(#createdAt, :now)",
-      "#updatedAt = :now",
-    ].join(", "),
-    ExpressionAttributeNames: {
-      "#email": "email",
-      "#nickname": "nickname",
-      "#passwordHash": "passwordHash",
-      "#passwordSalt": "passwordSalt",
-      "#passwordIterations": "passwordIterations",
-      "#provider": "provider",
-      "#emailVerified": "emailVerified",
-      "#roles": "roles",
-      "#createdAt": "createdAt",
-      "#updatedAt": "updatedAt",
-    },
-    ExpressionAttributeValues: {
-      ":email": s(email),
-      ":nickname": s(nickname),
-      ":passwordHash": s(hashPassword(password, salt)),
-      ":passwordSalt": s(salt),
-      ":passwordIterations": n(passwordIterations),
-      ":provider": s("site"),
-      ":emailVerified": b(true),
-      ":roles": { SS: ["admin"] },
-      ":now": s(now),
-    },
+const invokeResult = await lambda.send(
+  new InvokeCommand({
+    FunctionName: functionName,
+    Payload: Buffer.from(
+      JSON.stringify({
+        internalTask: "createAdminUser",
+        email,
+        nickname,
+        password,
+      }),
+    ),
   }),
 );
+
+const rawPayload = Buffer.from(invokeResult.Payload || []).toString("utf8");
+const payload = rawPayload ? JSON.parse(rawPayload) : {};
+
+if (invokeResult.FunctionError || payload.ok !== true) {
+  throw new Error(`Lambda admin creation failed: ${JSON.stringify(payload)}`);
+}
 
 const output = {
   email,
