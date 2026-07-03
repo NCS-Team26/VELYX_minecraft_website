@@ -288,6 +288,7 @@ function authUserFromResponse(payload) {
     picture: user.picture || "",
     provider: user.provider || "site",
     sub: user.sub || "",
+    roles: Array.isArray(user.roles) ? user.roles : [],
     emailVerified: user.emailVerified === true,
     signedInAt: user.signedInAt || new Date().toISOString(),
     sessionToken: payload?.session?.token || "",

@@ -499,7 +499,7 @@ async function ensureApi() {
   const cors = {
     AllowOrigins: corsOrigins,
     AllowHeaders: ["Content-Type", "Authorization"],
-    AllowMethods: ["OPTIONS", "POST"],
+    AllowMethods: ["OPTIONS", "GET", "POST"],
     MaxAge: 86400,
   };
   const existing = await findApi();
@@ -553,6 +553,8 @@ async function ensureRoutes(apiId, integrationId) {
   const target = `integrations/${integrationId}`;
 
   for (const routeKey of [
+    "GET /auth/me",
+    "GET /auth/admin/summary",
     "POST /auth/signup",
     "POST /auth/verify-email",
     "POST /auth/resend-verification",

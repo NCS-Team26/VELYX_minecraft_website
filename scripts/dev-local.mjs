@@ -10,6 +10,7 @@ function start(name, command, args, env = {}) {
       ...process.env,
       ...env,
     },
+    shell: process.platform === "win32" && command === npmCommand,
     stdio: ["ignore", "pipe", "pipe"],
   });
 

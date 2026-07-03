@@ -4,6 +4,13 @@ provider "aws" {
 
 resource "random_id" "suffix" {
   byte_length = 4
+
+  lifecycle {
+    precondition {
+      condition     = var.allow_billable_resources
+      error_message = "Terraform is blocked because this stack creates billable AWS resources. Re-run with -var allow_billable_resources=true only when intentional."
+    }
+  }
 }
 
 locals {

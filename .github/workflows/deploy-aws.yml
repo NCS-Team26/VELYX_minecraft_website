@@ -1,9 +1,6 @@
 name: Deploy website to AWS
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
     inputs:
       allow_aws_costs:
@@ -40,7 +37,7 @@ jobs:
       VITE_PLAYER_API_BASE: /minecraft
       VITE_PLAYER_API_FALLBACK_BASES: https://minecraftserver1.tail16d543.ts.net/minecraft,https://api.nfoifsb.kr/minecraft
       PLAYER_API_ORIGIN_DOMAIN: minecraftserver1.tail16d543.ts.net
-      ALLOW_AWS_COSTS: ${{ github.event_name == 'workflow_dispatch' && inputs.allow_aws_costs || '1' }}
+      ALLOW_AWS_COSTS: ${{ inputs.allow_aws_costs }}
 
     steps:
       - name: Checkout repository

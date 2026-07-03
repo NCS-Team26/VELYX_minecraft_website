@@ -58,7 +58,7 @@ function response(statusCode, body, origin, extraHeaders = {}) {
     headers: {
       "Access-Control-Allow-Origin": corsOrigin(origin),
       "Access-Control-Allow-Headers": "Content-Type, Authorization",
-      "Access-Control-Allow-Methods": "OPTIONS, POST",
+      "Access-Control-Allow-Methods": "OPTIONS, GET, POST",
       "Cache-Control": "no-store",
       "Content-Security-Policy": "default-src 'none'; frame-ancestors 'none'; base-uri 'none'",
       "Content-Type": "application/json; charset=utf-8",
@@ -224,6 +224,7 @@ function signSession(user) {
     name: user.name,
     provider: user.provider || "site",
     sub: user.sub || "",
+    roles: Array.isArray(user.roles) ? user.roles : [],
     emailVerified: Boolean(user.emailVerified),
     iat: now,
     exp: now + sessionTtlSeconds,
@@ -236,6 +237,26 @@ function signSession(user) {
   };
 }
 
+function roleListFromAttribute(attribute) {
+  if (!attribute) return [];
+  if (Array.isArray(attribute.SS)) return attribute.SS;
+  if (attribute.S) return attribute.S.split(",");
+  if (Array.isArray(attribute.L)) {
+    return attribute.L.map((item) => item.S || "").filter(Boolean);
+  }
+  return [];
+}
+
+function rolesFromItem(item) {
+  return [
+    ...new Set(
+      [...roleListFromAttribute(item.roles), ...roleListFromAttribute(item.role)]
+        .map((role) => String(role).trim().toLowerCase())
+        .filter(Boolean),
+    ),
+  ];
+}
+
 function publicUser(item, providerOverride = "") {
   return {
     email: item.email.S,
@@ -243,9 +264,52 @@ function publicUser(item, providerOverride = "") {
     picture: item.picture?.S || "",
     provider: providerOverride || item.provider?.S || "site",
     sub: item.googleSub?.S || "",
+    roles: rolesFromItem(item),
     emailVerified: item.emailVerified?.BOOL === true,
     signedInAt: new Date().toISOString(),
   };
+}
+
+function getBearerToken(event) {
+  const authorization = event.headers?.authorization || event.headers?.Authorization || "";
+  const match = /^Bearer\s+(.+)$/i.exec(String(authorization).trim());
+  return match ? match[1].trim() : "";
+}
+
+function verifySessionToken(token) {
+  const [encodedPayload, signature] = String(token || "").split(".");
+  if (!encodedPayload || !signature) throw clientError(401, "로그인이 필요합니다.");
+
+  const expected = createHmac("sha256", authPepper).update(encodedPayload).digest("base64url");
+  const actualBuffer = Buffer.from(signature);
+  const expectedBuffer = Buffer.from(expected);
+  if (actualBuffer.length !== expectedBuffer.length || !timingSafeEqual(actualBuffer, expectedBuffer)) {
+    throw clientError(401, "세션을 확인할 수 없습니다.");
+  }
+
+  let payload;
+  try {
+    payload = JSON.parse(Buffer.from(encodedPayload, "base64url").toString("utf8"));
+  } catch {
+    throw clientError(401, "세션을 확인할 수 없습니다.");
+  }
+
+  const now = Math.floor(Date.now() / 1000);
+  if (!payload.email || Number(payload.exp || 0) <= now) {
+    throw clientError(401, "세션이 만료되었습니다.");
+  }
+  return payload;
+}
+
+async function requireUser(event) {
+  const payload = verifySessionToken(getBearerToken(event));
+  const item = await getUser(normalizeEmail(payload.email));
+  if (!item) throw clientError(401, "계정을 찾을 수 없습니다.");
+  return publicUser(item);
+}
+
+function isAdminUser(user) {
+  return Array.isArray(user?.roles) && user.roles.includes("admin");
 }
 
 async function getUser(email) {
@@ -846,6 +910,33 @@ async function handleGoogle(body, origin) {
   return response(200, { user, session: signSession(user) }, origin);
 }
 
+async function handleMe(event, origin) {
+  const user = await requireUser(event);
+  return response(200, { user }, origin);
+}
+
+async function handleAdminSummary(event, origin) {
+  const user = await requireUser(event);
+  if (!isAdminUser(user)) {
+    return response(403, { message: "관리자 권한이 필요합니다." }, origin);
+  }
+
+  return response(
+    200,
+    {
+      user,
+      permissions: ["notice:write", "community:moderate", "resources:write", "settings:read"],
+      categories: [
+        { key: "notice", label: "공지" },
+        { key: "community", label: "커뮤니티" },
+        { key: "resources", label: "자료실" },
+      ],
+      checkedAt: new Date().toISOString(),
+    },
+    origin,
+  );
+}
+
 export async function handler(event) {
   const origin = event.headers?.origin || event.headers?.Origin || "";
   const method = event.requestContext?.http?.method || event.httpMethod || "";
@@ -869,6 +960,12 @@ export async function handler(event) {
     const ip = sourceIp(event);
     const email = normalizeEmail(body.email);
 
+    if (method === "GET" && path.endsWith("/auth/me")) {
+      return await handleMe(event, origin);
+    }
+    if (method === "GET" && path.endsWith("/auth/admin/summary")) {
+      return await handleAdminSummary(event, origin);
+    }
     if (method === "POST" && path.endsWith("/auth/signup")) {
       const limited = await rateLimitResponse(origin, [
         { scope: "signup-ip", identity: ip, limit: 30, windowSeconds: 3600 },

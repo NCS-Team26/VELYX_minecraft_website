@@ -14,8 +14,12 @@ export default defineConfig({
         status: resolve(rootDir, "status.html"),
         plugins: resolve(rootDir, "plugins.html"),
         stock: resolve(rootDir, "stock.html"),
+        notice: resolve(rootDir, "notice.html"),
+        community: resolve(rootDir, "community.html"),
+        resources: resolve(rootDir, "resources.html"),
         rules: resolve(rootDir, "rules.html"),
         join: resolve(rootDir, "join.html"),
+        admin: resolve(rootDir, "admin.html"),
       },
       output: {
         manualChunks(id) {

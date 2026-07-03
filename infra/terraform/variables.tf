@@ -4,6 +4,12 @@ variable "aws_region" {
   default     = "ap-northeast-2"
 }
 
+variable "allow_billable_resources" {
+  description = "Set true only when you intentionally allow Terraform to create or update billable AWS resources."
+  type        = bool
+  default     = false
+}
+
 variable "site_domain" {
   description = "Optional custom domain for the website. Keep nfoifsb.kr for Minecraft and use www.nfoifsb.kr for the website."
   type        = string

@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex" />
+    <meta name="description" content="nfoifsb.kr 관리자 패널" />
+    <meta name="theme-color" content="#0d1411" />
+    <link rel="icon" type="image/png" href="/assets/server-icon.png" />
+    <title>Admin - nfoifsb.kr</title>
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem("nfoifsb.theme");
+          var p = localStorage.getItem("nfoifsb.themePreset");
+          var theme = t === "dark" || t === "light" ? t : "dark";
+          document.documentElement.setAttribute("data-theme", theme);
+          if (["forest", "cave", "amethyst", "ember", "ocean"].includes(p))
+            document.documentElement.setAttribute("data-theme-preset", p);
+        } catch (e) {
+          document.documentElement.setAttribute("data-theme", "dark");
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="app">
+      <a class="skip-link" href="#content">본문으로 건너가기</a>
+      <header class="site-nav" aria-label="Primary navigation">
+        <a class="brand" href="/" aria-label="nfoifsb home">
+          <img src="/assets/server-icon.png" alt="" />
+          <span>nfoifsb</span>
+        </a>
+        <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-nav" aria-label="메뉴 열기" data-nav-toggle>
+          <span aria-hidden="true">☰</span>
+        </button>
+        <nav class="nav-links" id="primary-nav" aria-label="Site pages">
+          <a href="/status.html" data-section-link="status">Status</a>
+          <a href="/plugins.html" data-section-link="plugins">Economy</a>
+          <a href="/stock.html" data-section-link="stock">STOCK</a>
+          <a href="/notice.html" data-section-link="notice">공지</a>
+          <a href="/community.html" data-section-link="community">커뮤니티</a>
+          <a href="/resources.html" data-section-link="resources">자료실</a>
+          <a href="/rules.html" data-section-link="rules">Rules</a>
+          <a href="/join.html" data-section-link="join">Join</a>
+          <a href="/admin.html" data-section-link="admin" data-admin-link hidden>Admin</a>
+          <a class="nav-login" href="/login.html" data-open-login>Login</a>
+        </nav>
+      </header>
+
+      <main id="content" class="screen-main admin-main">
+        <section class="admin-section page-screen" aria-labelledby="admin-title">
+          <div class="section-heading" data-reveal>
+            <p class="eyebrow">Admin</p>
+            <h1 id="admin-title">관리자 패널</h1>
+            <p class="screen-copy" data-admin-identity>로그인이 필요합니다.</p>
+          </div>
+
+          <div class="admin-status" data-admin-status data-tone="idle">관리자 권한 확인 중</div>
+
+          <div class="admin-denied" data-admin-denied hidden>
+            <strong>접근할 수 없습니다.</strong>
+            <p>관리자 계정으로 로그인해야 합니다.</p>
+            <a class="stock-trade-link" href="/login.html" data-admin-login>로그인</a>
+          </div>
+
+          <div class="admin-workspace" data-admin-workspace hidden>
+            <section class="admin-card" aria-labelledby="admin-permission-title">
+              <span>Role</span>
+              <h2 id="admin-permission-title">권한</h2>
+              <ul class="admin-permissions" data-admin-permissions></ul>
+              <p>확인: <time data-admin-checked-at>대기 중</time></p>
+            </section>
+
+            <form class="admin-card admin-form" data-admin-form>
+              <span>Content</span>
+              <h2>카테고리 초안</h2>
+              <label>
+                <span>카테고리</span>
+                <select name="category">
+                  <option value="notice">공지</option>
+                  <option value="community">커뮤니티</option>
+                  <option value="resources">자료실</option>
+                </select>
+              </label>
+              <label>
+                <span>제목</span>
+                <input name="title" type="text" autocomplete="off" maxlength="80" required />
+              </label>
+              <label>
+                <span>내용</span>
+                <textarea name="body" rows="5" maxlength="600" required></textarea>
+              </label>
+              <button class="primary-action" type="submit">초안 저장</button>
+            </form>
+
+            <section class="admin-card admin-draft-card" aria-labelledby="admin-drafts-title">
+              <span>Drafts</span>
+              <h2 id="admin-drafts-title">저장된 초안</h2>
+              <ul class="admin-drafts" data-admin-drafts></ul>
+            </section>
+          </div>
+        </section>
+      </main>
+
+      <footer class="site-footer" id="site-footer">
+        <div class="footer-info-row">
+          <span class="footer-brand"><img src="/assets/server-icon.png" alt="" /> nfoifsb.kr</span>
+          <span>관리자 패널</span>
+          <a href="#content">맨 위로</a>
+        </div>
+      </footer>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+    <script type="module" src="/src/admin.js"></script>
+  </body>
+</html>

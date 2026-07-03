@@ -1,5 +1,11 @@
 # nfoifsb.kr Minecraft Site
 
+## AWS 비용 방지 메모
+
+이 작업본은 기본 상태에서 AWS 리소스를 만들지 않도록 막혀 있습니다. 로컬 실행은 `npm run dev:local`, 관리자 계정 생성은 `npm run admin:create`를 사용하세요. AWS 배포나 인증 백엔드 생성은 `ALLOW_AWS_COSTS=1`을 명시적으로 넣기 전에는 실패합니다.
+
+자세한 내용은 [`docs/aws-zero-cost.md`](docs/aws-zero-cost.md)를 참고하세요.
+
 `nfoifsb.kr` 마인크래프트 서버용 정적 웹사이트입니다.
 
 루트 도메인 `nfoifsb.kr`은 마크 서버 접속 주소로 계속 쓰고, 웹사이트는 우선 CloudFront 기본 주소로 공개하거나 나중에 `www.nfoifsb.kr`에 붙이는 구성을 권장합니다.

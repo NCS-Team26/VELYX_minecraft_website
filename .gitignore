@@ -10,6 +10,8 @@ terraform.tfstate
 terraform.tfstate.backup
 *.tfvars
 vite-dev*.log
+auth-*.log
+site-*.log
 source-assets
 deploy-output.json
 auth-output.json
