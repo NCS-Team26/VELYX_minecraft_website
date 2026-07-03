@@ -971,13 +971,7 @@ function formatStockMultiple(value) {
 }
 
 function formatStockKrwCompact(value) {
-  const number = Number(value);
-  if (!Number.isFinite(number)) return "--";
-  const sign = number < 0 ? "-" : "";
-  const absolute = Math.abs(number);
-  if (absolute >= 1000000) return `${sign}₩${(absolute / 1000000).toFixed(1)}M`;
-  if (absolute >= 1000) return `${sign}₩${(absolute / 1000).toFixed(1)}K`;
-  return formatStockKrw(number);
+  return formatStockKrw(value);
 }
 
 function formatStockSignedKrw(value) {
