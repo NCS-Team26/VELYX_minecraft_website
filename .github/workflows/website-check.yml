@@ -3,7 +3,7 @@ name: Website check
 on:
   pull_request:
   push:
-    branches-ignore:
+    branches:
       - main
 
 jobs:
