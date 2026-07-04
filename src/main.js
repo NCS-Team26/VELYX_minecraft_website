@@ -77,6 +77,10 @@ const PLAYER_PROFILES_KEY = "nfoifsb.playerProfiles";
 const STATUS_CACHE_KEY = "nfoifsb.statusCache";
 const PLAYER_HISTORY_KEY = "nfoifsb.playerHistory";
 const PLAYER_HISTORY_MAX = 48;
+const STOCK_HISTORY_CACHE_KEY = "nfoifsb.stockHistoryCache.v1";
+const STOCK_HISTORY_BUCKET_MS = 15 * 60 * 1000;
+const STOCK_HISTORY_CACHE_MAX_AGE_MS = 45 * 24 * 60 * 60 * 1000;
+const STOCK_HISTORY_CACHE_MAX_POINTS = 4320;
 const STOCKS = [
   { code: "DMD", name: "다이아 광산", base: 3420, volume: 8420, drift: 0.048, volatility: 0.022, marketBeta: 1.45 },
   { code: "FARM", name: "농업 길드", base: 1280, volume: 12650, drift: 0.019, volatility: 0.016, marketBeta: 1.05 },
@@ -1300,6 +1304,119 @@ function stockCode(stock) {
   return stock?.symbol || stock?.code || "";
 }
 
+function stockHistoryCache() {
+  return readJsonStorage(STOCK_HISTORY_CACHE_KEY, {});
+}
+
+function writeStockHistoryCache(cache) {
+  try {
+    localStorage.setItem(STOCK_HISTORY_CACHE_KEY, JSON.stringify(cache));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function stockHistoryTime(value) {
+  if (!value) return 0;
+  const parsed = typeof value === "number" ? value : Date.parse(value);
+  if (!Number.isFinite(parsed)) return 0;
+  return parsed < 10_000_000_000 ? parsed * 1000 : parsed;
+}
+
+function stockHistoryBucketTime(value) {
+  const time = stockHistoryTime(value);
+  if (!time) return 0;
+  return Math.floor(time / STOCK_HISTORY_BUCKET_MS) * STOCK_HISTORY_BUCKET_MS;
+}
+
+function normalizeStockHistoryPoint(stock, point, fallbackTime = "") {
+  if (!point) return null;
+  const close = Number(point.close ?? point.price ?? point.value ?? stock?.price);
+  if (!Number.isFinite(close) || close <= 0) return null;
+  const open = Number(point.open ?? point.price ?? point.value ?? close);
+  const high = Number(point.high ?? Math.max(open, close));
+  const low = Number(point.low ?? Math.min(open, close));
+  const timeValue = point.time || point.at || point.startedAt || point.timestamp || fallbackTime;
+  const bucketTime = stockHistoryBucketTime(timeValue);
+  if (!bucketTime) return null;
+  return {
+    open: Number.isFinite(open) && open > 0 ? open : close,
+    high: Number.isFinite(high) && high > 0 ? high : Math.max(open, close),
+    low: Number.isFinite(low) && low > 0 ? low : Math.min(open, close),
+    close,
+    price: close,
+    volume: Math.max(0, Number(point.volume) || 0),
+    time: new Date(bucketTime).toISOString(),
+    _time: bucketTime,
+  };
+}
+
+function compactStockHistory(points) {
+  const cutoff = Date.now() - STOCK_HISTORY_CACHE_MAX_AGE_MS;
+  const buckets = new Map();
+  points
+    .map((point) => normalizeStockHistoryPoint(null, point))
+    .filter((point) => point && point._time >= cutoff)
+    .sort((left, right) => left._time - right._time)
+    .forEach((point) => {
+      const existing = buckets.get(point._time);
+      if (!existing) {
+        buckets.set(point._time, { ...point });
+        return;
+      }
+      existing.high = Math.max(existing.high, point.high);
+      existing.low = Math.min(existing.low, point.low);
+      existing.close = point.close;
+      existing.price = point.close;
+      existing.volume = Math.max(existing.volume, point.volume);
+      existing.time = point.time;
+    });
+  return [...buckets.values()]
+    .sort((left, right) => left._time - right._time)
+    .slice(-STOCK_HISTORY_CACHE_MAX_POINTS)
+    .map(({ _time, ...point }) => point);
+}
+
+function stockIncomingHistory(stock) {
+  const history = Array.isArray(stock?.history) ? stock.history : [];
+  const normalized = history
+    .map((point) => normalizeStockHistoryPoint(stock, point))
+    .filter(Boolean);
+  const latestTime = stock?.updatedAt || stock?.lastUpdatedAt || history.at(-1)?.time || history.at(-1)?.at || new Date().toISOString();
+  const latestPoint = normalizeStockHistoryPoint(
+    stock,
+    {
+      open: stock?.open ?? stock?.open24h ?? stock?.price,
+      high: stock?.high ?? stock?.high24h ?? stock?.price,
+      low: stock?.low ?? stock?.low24h ?? stock?.price,
+      close: stock?.price,
+      price: stock?.price,
+      volume: stock?.lastVolume ?? stock?.candleVolume ?? stock?.intervalVolume ?? 0,
+      time: latestTime,
+    },
+    latestTime,
+  );
+  if (latestPoint) normalized.push(latestPoint);
+  return compactStockHistory(normalized);
+}
+
+function stockUsesPersistentHistory(stock) {
+  return Boolean(stockCode(stock)) && !stock?.preview && !stock?.synthetic && !stock?.fallback;
+}
+
+function stockMergedHistory(stock) {
+  const incoming = stockIncomingHistory(stock);
+  if (!stockUsesPersistentHistory(stock)) return incoming;
+  const code = stockCode(stock);
+  const cache = stockHistoryCache();
+  const cached = Array.isArray(cache[code]) ? cache[code] : [];
+  const merged = compactStockHistory([...cached, ...incoming]);
+  cache[code] = merged;
+  writeStockHistoryCache(cache);
+  return merged;
+}
+
 function stockOpenPrice(stock) {
   const open = Number(stock?.open24h);
   if (Number.isFinite(open) && open > 0) return open;
@@ -1319,7 +1436,7 @@ function stockChangeValue(stock) {
 }
 
 function latestStockTime(stock) {
-  const history = Array.isArray(stock?.history) ? stock.history : [];
+  const history = stockMergedHistory(stock);
   const last = history.at(-1);
   return last?.time || last?.at || stock?.updatedAt || stock?.lastUpdatedAt;
 }
@@ -1512,7 +1629,7 @@ function fallbackStockSeries(stock, tick, length = 96, stepMs = 15 * 60_000) {
 }
 
 function stockSeries(stock, tick, range = "24H") {
-  const history = Array.isArray(stock?.history) ? stock.history : [];
+  const history = stockMergedHistory(stock);
   const series = history
     .map((point) => ({
       open: Number(point.open ?? point.price ?? point.value ?? point.close),
@@ -1546,6 +1663,7 @@ function buildFallbackMarket(tick) {
     return {
       ...stock,
       symbol: stock.code,
+      preview: true,
       price: last.price,
       open24h: first.price,
       change24h: ((last.price - first.price) / first.price) * 100,
@@ -1564,6 +1682,7 @@ function buildFallbackMarket(tick) {
   const index = 12480 + Math.round(Math.sin(tick * 0.42) * 82);
   return {
     ok: true,
+    preview: true,
     market: {
       index,
       indexChange24h: 0.8 + Math.sin(tick * 0.36) * 0.7,
