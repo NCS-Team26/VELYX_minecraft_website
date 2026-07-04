@@ -937,9 +937,9 @@ function renderAuthState(user = sessionUser || readStoredUser()) {
     return;
   }
 
-  loginButton.textContent = "로그인";
+  loginButton.textContent = "Login";
   loginButton.classList.remove("is-authenticated");
-  loginButton.setAttribute("aria-label", "로그인");
+  loginButton.setAttribute("aria-label", "Login");
 }
 
 function applyAuthEvent(eventData) {
