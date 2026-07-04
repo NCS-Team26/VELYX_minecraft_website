@@ -1,12 +1,12 @@
 <!doctype html>
-<html lang="en">
+<html lang="ko">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Follow nfoifsb.kr community posts, team recruitment, trade listings, and world updates." />
     <meta name="theme-color" content="#0d1411" />
     <link rel="icon" type="image/png" href="/assets/server-icon.png" />
-    <title>Community - nfoifsb.kr</title>
+    <title>커뮤니티 - nfoifsb.kr</title>
     <script>
       (function () {
         try {
@@ -24,67 +24,102 @@
   </head>
   <body>
     <div id="app">
-      <a class="skip-link" href="#content">Skip to content</a>
-      <header class="site-nav" aria-label="Primary navigation">
-        <a class="brand" href="/" aria-label="nfoifsb home">
+      <a class="skip-link" href="#content">본문으로 이동</a>
+      <header class="site-nav" aria-label="주요 메뉴">
+        <a class="brand" href="/" aria-label="nfoifsb 홈">
           <img src="/assets/server-icon.png" alt="" />
           <span>nfoifsb</span>
         </a>
-        <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-nav" aria-label="Open menu" data-nav-toggle>
+        <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-nav" aria-label="메뉴 열기" data-nav-toggle>
           <span aria-hidden="true">☰</span>
         </button>
-        <nav class="nav-links" id="primary-nav" aria-label="Site pages">
-          <a href="/status.html" data-section-link="status">Status</a>
-          <a href="/plugins.html" data-section-link="plugins">Economy</a>
-          <a href="/stock.html" data-section-link="stock">STOCK</a>
-          <a href="/notice.html" data-section-link="notice">Notice</a>
-          <a href="/community.html" data-section-link="community">Community</a>
-          <a href="/resources.html" data-section-link="resources">Resources</a>
-          <a href="/rules.html" data-section-link="rules">Rules</a>
-          <a href="/join.html" data-section-link="join">Join</a>
-          <a href="/admin.html" data-section-link="admin" data-admin-link hidden>Admin</a>
-          <a class="nav-login" href="/login.html" data-open-login>Login</a>
+        <nav class="nav-links" id="primary-nav" aria-label="사이트 페이지">
+          <a href="/status.html" data-section-link="status">상태</a>
+          <a href="/plugins.html" data-section-link="plugins">경제</a>
+          <a href="/stock.html" data-section-link="stock">주식</a>
+          <a href="/notice.html" data-section-link="notice">공지</a>
+          <a href="/community.html" data-section-link="community">커뮤니티</a>
+          <a href="/resources.html" data-section-link="resources">자료실</a>
+          <a href="/rules.html" data-section-link="rules">규칙</a>
+          <a href="/join.html" data-section-link="join">접속</a>
+          <a href="/admin.html" data-section-link="admin" data-admin-link hidden>관리자</a>
+          <a class="nav-login" href="/login.html" data-open-login>로그인</a>
         </nav>
       </header>
 
       <main id="content" class="screen-main category-main">
         <section class="category-section page-screen" aria-labelledby="community-title">
           <div class="section-heading" data-reveal>
-            <p class="eyebrow">Community</p>
-            <h1 id="community-title">Community</h1>
-            <p class="screen-copy">Team recruitment, trade offers, screenshots, and world updates in one place.</p>
+            <p class="eyebrow">커뮤니티</p>
+            <h1 id="community-title">커뮤니티</h1>
+            <p class="screen-copy">팀 모집, 거래 제안, 스크린샷, 월드 소식을 직접 작성하고 확인합니다.</p>
           </div>
 
           <div class="category-board" data-reveal>
             <article>
-              <span>Recruiting</span>
-              <strong>Shared Storage Team</strong>
-              <p>Looking for players who can join at least twice a week.</p>
+              <span>모집</span>
+              <strong>공용 창고 팀원 모집</strong>
+              <p>주 2회 이상 접속 가능한 유저를 찾습니다.</p>
             </article>
             <article>
-              <span>Trade</span>
-              <strong>Long-Term Diamond Buy Order</strong>
-              <p>Bulk purchases are priced against the latest STOCK market reference.</p>
+              <span>거래</span>
+              <strong>다이아 장기 매수</strong>
+              <p>대량 거래는 최신 주식 시장 기준가를 참고해 가격을 맞춥니다.</p>
             </article>
             <article>
-              <span>Screenshot</span>
-              <strong>Central Market Phase One</strong>
-              <p>Shop plots and auction boards have been rearranged for cleaner traffic flow.</p>
+              <span>스크린샷</span>
+              <strong>중앙 시장 1차 정리</strong>
+              <p>상점 구역과 경매 게시판을 이동 동선에 맞춰 재배치했습니다.</p>
             </article>
             <article>
-              <span>Question</span>
-              <strong>Claim Expansion Rules</strong>
-              <p>Check the protection rules first, then ask an admin for an expansion review.</p>
+              <span>질문</span>
+              <strong>토지 확장 규칙</strong>
+              <p>보호 규칙을 먼저 확인한 뒤 관리자에게 확장 검토를 요청하세요.</p>
             </article>
           </div>
+
+          <section class="user-post-workspace" data-user-posts="community" data-user-post-label="커뮤니티" data-reveal>
+            <div class="user-post-head">
+              <span>직접 작성</span>
+              <strong>커뮤니티 글쓰기</strong>
+              <p>모집, 거래, 질문, 월드 소식을 작성해 커뮤니티 목록에 남깁니다.</p>
+            </div>
+            <form class="user-post-form" data-user-post-form>
+              <label>
+                <span>분류</span>
+                <select name="category" data-user-post-category>
+                  <option value="잡담">잡담</option>
+                  <option value="모집">모집</option>
+                  <option value="거래">거래</option>
+                  <option value="질문">질문</option>
+                  <option value="스크린샷">스크린샷</option>
+                </select>
+              </label>
+              <label>
+                <span>작성자</span>
+                <input name="author" data-user-post-author maxlength="24" placeholder="닉네임" />
+              </label>
+              <label class="user-post-wide">
+                <span>제목</span>
+                <input name="title" data-user-post-title maxlength="80" required placeholder="제목을 입력하세요" />
+              </label>
+              <label class="user-post-wide">
+                <span>내용</span>
+                <textarea name="body" data-user-post-body rows="5" maxlength="1000" required placeholder="내용을 입력하세요"></textarea>
+              </label>
+              <button type="submit">게시하기</button>
+              <p data-user-post-status aria-live="polite"></p>
+            </form>
+            <div class="user-post-list" data-user-post-list aria-live="polite"></div>
+          </section>
         </section>
       </main>
 
       <footer class="site-footer" id="site-footer">
         <div class="footer-info-row">
           <span class="footer-brand"><img src="/assets/server-icon.png" alt="" /> nfoifsb.kr</span>
-          <span>Paper 26.1.2 · Community</span>
-          <a href="#content">Back to top</a>
+          <span>Paper 26.1.2 · 커뮤니티</span>
+          <a href="#content">맨 위로</a>
         </div>
       </footer>
     </div>

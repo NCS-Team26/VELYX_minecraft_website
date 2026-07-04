@@ -60,9 +60,9 @@
   </head>
   <body>
     <div id="app">
-      <a class="skip-link" href="#top">Skip to content</a>
-      <header class="site-nav" aria-label="Primary navigation">
-        <a class="brand" href="/" aria-label="nfoifsb home">
+      <a class="skip-link" href="#top">본문으로 이동</a>
+      <header class="site-nav" aria-label="주요 메뉴">
+        <a class="brand" href="/" aria-label="nfoifsb 홈">
           <img src="/assets/server-icon.png" alt="" />
           <span>nfoifsb</span>
         </a>
@@ -71,22 +71,22 @@
           type="button"
           aria-expanded="false"
           aria-controls="primary-nav"
-          aria-label="Open menu"
+          aria-label="메뉴 열기"
           data-nav-toggle
         >
           <span aria-hidden="true">☰</span>
         </button>
-        <nav class="nav-links" id="primary-nav" aria-label="Site pages">
-          <a href="/status.html" data-section-link="status">Status</a>
-          <a href="/plugins.html" data-section-link="plugins">Economy</a>
-          <a href="/stock.html" data-section-link="stock">STOCK</a>
-          <a href="/notice.html" data-section-link="notice">Notice</a>
-          <a href="/community.html" data-section-link="community">Community</a>
-          <a href="/resources.html" data-section-link="resources">Resources</a>
-          <a href="/rules.html" data-section-link="rules">Rules</a>
-          <a href="/join.html" data-section-link="join">Join</a>
-          <a href="/admin.html" data-section-link="admin" data-admin-link hidden>Admin</a>
-          <a class="nav-login" href="/login.html" data-open-login>Login</a>
+        <nav class="nav-links" id="primary-nav" aria-label="사이트 페이지">
+          <a href="/status.html" data-section-link="status">상태</a>
+          <a href="/plugins.html" data-section-link="plugins">경제</a>
+          <a href="/stock.html" data-section-link="stock">주식</a>
+          <a href="/notice.html" data-section-link="notice">공지</a>
+          <a href="/community.html" data-section-link="community">커뮤니티</a>
+          <a href="/resources.html" data-section-link="resources">자료실</a>
+          <a href="/rules.html" data-section-link="rules">규칙</a>
+          <a href="/join.html" data-section-link="join">접속</a>
+          <a href="/admin.html" data-section-link="admin" data-admin-link hidden>관리자</a>
+          <a class="nav-login" href="/login.html" data-open-login>로그인</a>
         </nav>
       </header>
 
@@ -97,7 +97,7 @@
           </div>
           <div class="hero-shade"></div>
           <div class="hero-content">
-            <p class="eyebrow">Economy survival</p>
+            <p class="eyebrow">경제 야생</p>
             <h1 id="hero-title">nfoifsb.kr</h1>
             <p class="hero-copy">캐고, 팔고, 사고, 지키는 흐름이 살아 있는 경제 야생 서버.</p>
             <ul class="hero-meta" aria-label="서버 요약">
@@ -121,7 +121,7 @@
 
         <section class="status-band" id="status" aria-labelledby="status-title">
           <div class="section-heading" data-reveal>
-            <p class="eyebrow">Live status</p>
+            <p class="eyebrow">실시간 상태</p>
             <h2 id="status-title"><span>지금 접속 가능한지</span> <span>바로 확인.</span></h2>
           </div>
 
@@ -145,7 +145,7 @@
                   <circle cx="12" cy="12" r="9" />
                   <path d="M3 12h18M12 3c2.5 2.5 2.5 16 0 18M12 3c-2.5 2.5-2.5 16 0 18" />
                 </svg>
-                <span>Address</span>
+                <span>주소</span>
                 <strong>nfoifsb.kr</strong>
               </article>
               <article>
@@ -153,14 +153,14 @@
                   <path d="M12 2l9 5v10l-9 5-9-5V7z" />
                   <path d="M12 2v20M3 7l9 5 9-5" />
                 </svg>
-                <span>Version</span>
+                <span>버전</span>
                 <strong data-version>Paper 26.1.2</strong>
               </article>
               <article>
                 <svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" />
                 </svg>
-                <span>World Border</span>
+                <span>월드 경계</span>
                 <strong>59,999,968</strong>
               </article>
               <article class="ram-live-card">
@@ -169,7 +169,7 @@
                   <rect x="9" y="9" width="6" height="6" rx="1" />
                   <path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3" />
                 </svg>
-                <span>Memory</span>
+                <span>메모리</span>
                 <strong data-ram-summary>실시간 확인 중</strong>
                 <em data-ram-percent>--</em>
                 <div class="meter ram-card-meter" aria-hidden="true">
@@ -196,7 +196,7 @@
                   <path d="M10 5v11" />
                   <path d="M10 20a2 2 0 0 0 2-2" />
                 </svg>
-                <span>Temperature</span>
+                <span>온도</span>
                 <strong data-temp-summary>실시간 확인 중</strong>
                 <div class="meter metric-card-meter temperature-meter" aria-hidden="true">
                   <span data-temp-meter></span>
@@ -208,27 +208,27 @@
 
           <div class="section-dashboard status-dashboard" data-reveal>
             <article class="dashboard-card">
-              <span>Status cache</span>
+              <span>상태 캐시</span>
               <strong data-cache-state>실시간 확인 준비 중</strong>
               <p data-last-checked>상태 값을 아직 받아오지 않았습니다.</p>
             </article>
             <article class="dashboard-card">
-              <span>Response</span>
+              <span>응답 속도</span>
               <strong data-latency>-- ms</strong>
               <p data-status-health>API 응답을 기다리고 있습니다.</p>
             </article>
             <article class="dashboard-card">
-              <span>Players</span>
+              <span>접속자</span>
               <strong data-player-summary>--</strong>
               <p>접속자 수와 슬롯 사용률을 같이 표시합니다.</p>
             </article>
             <article class="dashboard-card dashboard-wide">
-              <span>Message of the day</span>
-              <strong>Server MOTD</strong>
+              <span>오늘의 서버 메시지</span>
+              <strong>서버 MOTD</strong>
               <p data-motd>서버 메시지를 불러오고 있습니다.</p>
             </article>
             <article class="dashboard-card dashboard-wide">
-              <span>Player history</span>
+              <span>접속자 기록</span>
               <canvas class="player-chart" data-player-chart width="480" height="72" aria-hidden="true"></canvas>
               <p>최근 접속자 추이를 자동으로 기록해서 보여줍니다.</p>
             </article>
@@ -238,19 +238,19 @@
         <section class="stats-band" aria-label="서버 한눈에">
           <div class="stats-inner" data-reveal>
             <article>
-              <strong>Shop</strong>
+              <strong>상점</strong>
               <span>유저 상점</span>
             </article>
             <article>
-              <strong>Trade</strong>
+              <strong>거래</strong>
               <span>직거래와 경매</span>
             </article>
             <article>
-              <strong>Claim</strong>
+              <strong>보호</strong>
               <span>토지 보호</span>
             </article>
             <article>
-              <strong>Rank</strong>
+              <strong>성장</strong>
               <span>경제 성장</span>
             </article>
           </div>
@@ -258,7 +258,7 @@
 
         <section class="economy-section" aria-labelledby="economy-title">
           <div class="section-heading" data-reveal>
-            <p class="eyebrow">Economy loop</p>
+            <p class="eyebrow">경제 순환</p>
             <h2 id="economy-title"><span>야생에서 번 돈이</span> <span>다음 목표가 되는 서버.</span></h2>
             <p class="screen-copy">
               광질, 농사, 사냥, 건축 재료 수집이 전부 시장으로 연결되고, 시장에서 번 돈은 다시
@@ -291,7 +291,7 @@
 
           <div class="market-board" data-reveal>
             <div class="market-copy">
-              <p class="eyebrow">Market board</p>
+              <p class="eyebrow">시장 게시판</p>
               <h3>초반 시장 예시</h3>
               <p>
                 실제 가격은 서버 상황에 맞춰 조정되지만, 웹사이트에서는 신규 유저가 어떤 품목을
@@ -324,21 +324,21 @@
 
           <div class="economy-stock-teaser" data-reveal>
             <div>
-              <p class="eyebrow">Stock marketplace</p>
-              <h3>실시간 주식장은 Economy 메뉴 안에서 운영합니다.</h3>
+              <p class="eyebrow">주식 마켓플레이스</p>
+              <h3>실시간 주식장은 경제 메뉴 안에서 운영합니다.</h3>
               <p>
                 홈에서는 서버 경제 흐름만 가볍게 안내하고, 종목 시세 · 차트 · 최근 체결 · 웹 거래
-                진입은 Economy 페이지에 모았습니다.
+                진입은 경제 페이지에 모았습니다.
               </p>
             </div>
-            <a class="stock-trade-link" href="/stock.html">STOCK 마켓플레이스 보기</a>
+            <a class="stock-trade-link" href="/stock.html">주식 마켓플레이스 보기</a>
           </div>
         </section>
 
         <div class="feature-band">
         <section class="feature-section" aria-labelledby="feature-title">
           <div class="section-heading" data-reveal>
-            <p class="eyebrow">Why here</p>
+            <p class="eyebrow">서버 특징</p>
             <h2 id="feature-title">경제는 선명하게, 야생은 그대로.</h2>
           </div>
           <div class="feature-grid" data-reveal>
@@ -371,7 +371,7 @@
 
         <section class="world-section" aria-labelledby="world-title">
           <div class="world-copy" data-reveal>
-            <p class="eyebrow">Survival first</p>
+            <p class="eyebrow">야생 우선</p>
             <h2 id="world-title">거점은 내 자산, 탐험은 시장의 원료.</h2>
             <p>
               월드는 넓게 열어두되 경제의 중심은 스폰과 유저 상점가에 모입니다. 멀리 나가 희귀
@@ -439,7 +439,7 @@
         <div class="plugin-band">
         <section class="plugin-section" id="plugins" aria-labelledby="plugin-title">
           <div class="section-heading" data-reveal>
-            <p class="eyebrow">Economy stack</p>
+            <p class="eyebrow">경제 구성</p>
             <h2 id="plugin-title">경제 서버에 필요한 축만 선명하게.</h2>
           </div>
           <div class="plugin-grid" data-reveal>
@@ -499,22 +499,22 @@
           </div>
           <div class="section-dashboard plugin-dashboard" data-reveal>
             <article class="dashboard-card">
-              <span>Wallet</span>
+              <span>지갑</span>
               <strong>돈은 서버 안에서 순환</strong>
               <p>판매, 보상, 거래, 보호 비용이 하나의 경제 흐름으로 연결됩니다.</p>
             </article>
             <article class="dashboard-card">
-              <span>Commerce</span>
+              <span>상거래</span>
               <strong>상점가와 경매장</strong>
               <p>고정 가격 상점과 공개 경매를 함께 둬 초보와 고인물 모두 거래할 수 있습니다.</p>
             </article>
             <article class="dashboard-card">
-              <span>Protection</span>
+              <span>보호</span>
               <strong>재산 보호 우선</strong>
               <p>상점, 창고, 거점 보호를 경제 서버의 기본 규칙으로 둡니다.</p>
             </article>
             <article class="dashboard-card dashboard-wide">
-              <span>Ops note</span>
+              <span>운영 메모</span>
               <strong>경제 밸런스 운영 기준</strong>
               <p>돈이 너무 쉽게 풀리지 않도록 보상과 판매 가격은 천천히 조정하고, 유저 거래를 우선합니다.</p>
             </article>
@@ -524,7 +524,7 @@
 
         <section class="rules-section" id="rules" aria-labelledby="rules-title">
           <div data-reveal>
-            <p class="eyebrow">Rules</p>
+            <p class="eyebrow">규칙</p>
             <h2 id="rules-title">경제가 망가지지 않는 쪽으로.</h2>
           </div>
           <ol class="rules-list" data-reveal>
@@ -555,7 +555,7 @@
           <div class="join-layout" data-reveal>
             <div class="join-card">
               <img src="/assets/server-icon.png" alt="" />
-              <p class="eyebrow">Join</p>
+              <p class="eyebrow">접속</p>
               <h2 id="join-title">접속해서 첫 거래까지 빠르게.</h2>
               <div class="address-row">
                 <code>nfoifsb.kr</code>
@@ -593,7 +593,7 @@
             nfoifsb.kr
           </span>
           <span>Paper 26.1.2 · 경제 야생 서버</span>
-          <a href="#top">Back to top ↑</a>
+          <a href="#top">맨 위로 ↑</a>
         </div>
         <div class="footer-theme-row">
           <button class="footer-theme-toggle" type="button" data-theme-toggle>

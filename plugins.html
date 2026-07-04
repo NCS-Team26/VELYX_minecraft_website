@@ -10,7 +10,7 @@
     <meta name="theme-color" content="#0d1411" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0d1411" media="(prefers-color-scheme: dark)" />
     <link rel="icon" type="image/png" href="/assets/server-icon.png" />
-    <title>Economy - nfoifsb.kr</title>
+    <title>경제 - nfoifsb.kr</title>
     <script>
       (function () {
         try {
@@ -28,9 +28,9 @@
   </head>
   <body>
     <div id="app">
-      <a class="skip-link" href="#content">Skip to content</a>
-      <header class="site-nav" aria-label="Primary navigation">
-        <a class="brand" href="/" aria-label="nfoifsb home">
+      <a class="skip-link" href="#content">본문으로 이동</a>
+      <header class="site-nav" aria-label="주요 메뉴">
+        <a class="brand" href="/" aria-label="nfoifsb 홈">
           <img src="/assets/server-icon.png" alt="" />
           <span>nfoifsb</span>
         </a>
@@ -39,22 +39,22 @@
           type="button"
           aria-expanded="false"
           aria-controls="primary-nav"
-          aria-label="Open menu"
+          aria-label="메뉴 열기"
           data-nav-toggle
         >
           <span aria-hidden="true">☰</span>
         </button>
-        <nav class="nav-links" id="primary-nav" aria-label="Site pages">
-          <a href="/status.html" data-section-link="status">Status</a>
-          <a href="/plugins.html" data-section-link="plugins">Economy</a>
-          <a href="/stock.html" data-section-link="stock">STOCK</a>
-          <a href="/notice.html" data-section-link="notice">Notice</a>
-          <a href="/community.html" data-section-link="community">Community</a>
-          <a href="/resources.html" data-section-link="resources">Resources</a>
-          <a href="/rules.html" data-section-link="rules">Rules</a>
-          <a href="/join.html" data-section-link="join">Join</a>
-          <a href="/admin.html" data-section-link="admin" data-admin-link hidden>Admin</a>
-          <a class="nav-login" href="/login.html" data-open-login>Login</a>
+        <nav class="nav-links" id="primary-nav" aria-label="사이트 페이지">
+          <a href="/status.html" data-section-link="status">상태</a>
+          <a href="/plugins.html" data-section-link="plugins">경제</a>
+          <a href="/stock.html" data-section-link="stock">주식</a>
+          <a href="/notice.html" data-section-link="notice">공지</a>
+          <a href="/community.html" data-section-link="community">커뮤니티</a>
+          <a href="/resources.html" data-section-link="resources">자료실</a>
+          <a href="/rules.html" data-section-link="rules">규칙</a>
+          <a href="/join.html" data-section-link="join">접속</a>
+          <a href="/admin.html" data-section-link="admin" data-admin-link hidden>관리자</a>
+          <a class="nav-login" href="/login.html" data-open-login>로그인</a>
         </nav>
       </header>
 
@@ -62,24 +62,24 @@
         <div class="plugin-band">
           <section class="plugin-section page-screen" aria-labelledby="plugin-title">
             <div class="section-heading" data-reveal>
-              <p class="eyebrow">Economy stack</p>
+              <p class="eyebrow">경제 구성</p>
               <h1 id="plugin-title">경제 시스템</h1>
               <p class="screen-copy">
-                Economy 메뉴에서는 서버 경제 흐름, STOCK 마켓플레이스, 상점과 경매 운영 방식을 한 번에 확인합니다.
+                경제 메뉴에서는 서버 경제 흐름, 주식 마켓플레이스, 상점과 경매 운영 방식을 한 번에 확인합니다.
               </p>
             </div>
 
             <div class="economy-page-tabs" data-reveal aria-label="경제 페이지 바로가기">
-              <a href="/stock.html">STOCK</a>
+              <a href="/stock.html">주식</a>
               <a href="#economy-plugins">상점 · 경매</a>
               <a href="#economy-balance">운영 밸런스</a>
             </div>
 
             <section class="stock-marketplace-section" id="stock-marketplace" aria-labelledby="stock-marketplace-title">
               <div class="economy-market-heading" data-reveal>
-                <p class="eyebrow">Marketplace</p>
-                <h2 id="stock-marketplace-title">Economy 마켓플레이스</h2>
-                <p>서버에서 돈이 오가는 핵심 장소만 간단하게 모았습니다. 상세 차트와 주문은 STOCK 화면에서 분리해 봅니다.</p>
+                <p class="eyebrow">마켓플레이스</p>
+                <h2 id="stock-marketplace-title">경제 마켓플레이스</h2>
+                <p>서버에서 돈이 오가는 핵심 장소만 간단하게 모았습니다. 상세 차트와 주문은 주식 화면에서 분리해 봅니다.</p>
               </div>
 
               <div class="economy-market-snapshot" data-reveal>
@@ -99,16 +99,16 @@
                   <p>상점가에서 플레이어가 직접 가격을 정하고 물건을 팝니다.</p>
                 </article>
                 <article>
-                  <span>STOCK</span>
+                  <span>주식</span>
                   <strong>전용 거래 화면</strong>
-                  <p>차트, 호가, 체결, 매수와 매도는 STOCK 화면에서 따로 봅니다.</p>
-                  <a class="stock-trade-link" href="/stock.html">STOCK 열기</a>
+                  <p>차트, 호가, 체결, 매수와 매도는 주식 화면에서 따로 봅니다.</p>
+                  <a class="stock-trade-link" href="/stock.html">주식 열기</a>
                 </article>
               </div>
             </section>
 
             <div class="economy-subheading" id="economy-plugins" data-reveal>
-              <p class="eyebrow">Shop and auction</p>
+              <p class="eyebrow">상점과 경매</p>
               <h2>상점과 경매를 받쳐주는 경제 구성</h2>
             </div>
 
@@ -170,7 +170,7 @@
 
             <div class="market-board" id="economy-balance" data-reveal>
               <div class="market-copy">
-                <p class="eyebrow">Balance plan</p>
+                <p class="eyebrow">밸런스 계획</p>
                 <h2>돈이 너무 빨리 풀리지 않게.</h2>
                 <p>
                   초반에는 기본 재료와 식량 거래를 살리고, 중반부터 장비, 인챈트, 건축 의뢰가
@@ -203,22 +203,22 @@
 
             <div class="section-dashboard plugin-dashboard" data-reveal>
               <article class="dashboard-card">
-                <span>Wallet</span>
+                <span>지갑</span>
                 <strong>공통 지갑</strong>
                 <p>보상, 거래, 상점, 경매 수익이 같은 잔액으로 쌓입니다.</p>
               </article>
               <article class="dashboard-card">
-                <span>Market</span>
+                <span>시장</span>
                 <strong>상점가 중심</strong>
                 <p>스폰 주변에 유저 상점 흐름을 모아 신규 유저도 가격을 파악하기 쉽게 합니다.</p>
               </article>
               <article class="dashboard-card">
-                <span>Safety</span>
+                <span>안전</span>
                 <strong>거래 기록 우선</strong>
                 <p>거래 분쟁은 채팅 기록, 스크린샷, 좌표를 기준으로 확인합니다.</p>
               </article>
               <article class="dashboard-card dashboard-wide">
-                <span>Ops note</span>
+                <span>운영 메모</span>
                 <strong>추가 플러그인 기준</strong>
                 <p>경제를 단번에 무너뜨리는 자동 판매, 과한 보상, 무제한 자원 생성 기능은 신중하게 적용합니다.</p>
               </article>
@@ -234,7 +234,7 @@
             nfoifsb.kr
           </span>
           <span>Paper 26.1.2 · 경제 야생 서버</span>
-          <a href="#content">Back to top</a>
+          <a href="#content">맨 위로</a>
         </div>
         <div class="footer-theme-row">
           <button class="footer-theme-toggle" type="button" data-theme-toggle>

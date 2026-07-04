@@ -78,58 +78,58 @@ const STATUS_CACHE_KEY = "nfoifsb.statusCache";
 const PLAYER_HISTORY_KEY = "nfoifsb.playerHistory";
 const PLAYER_HISTORY_MAX = 48;
 const STOCKS = [
-  { code: "DMD", name: "Diamond Mine", base: 3420, volume: 8420, drift: 0.048, volatility: 0.022, marketBeta: 1.45 },
-  { code: "FARM", name: "Farming Guild", base: 1280, volume: 12650, drift: 0.019, volatility: 0.016, marketBeta: 1.05 },
-  { code: "LOG", name: "Builder Timber", base: 890, volume: 9340, drift: -0.012, volatility: 0.019, marketBeta: 1.22 },
-  { code: "RED", name: "Redstone Works", base: 2160, volume: 7990, drift: 0.033, volatility: 0.024, marketBeta: 1.55 },
+  { code: "DMD", name: "다이아 광산", base: 3420, volume: 8420, drift: 0.048, volatility: 0.022, marketBeta: 1.45 },
+  { code: "FARM", name: "농업 길드", base: 1280, volume: 12650, drift: 0.019, volatility: 0.016, marketBeta: 1.05 },
+  { code: "LOG", name: "건축 목재", base: 890, volume: 9340, drift: -0.012, volatility: 0.019, marketBeta: 1.22 },
+  { code: "RED", name: "레드스톤 공방", base: 2160, volume: 7990, drift: 0.033, volatility: 0.024, marketBeta: 1.55 },
 ];
 const STOCK_INFO_META = {
   DMD: {
     icon: "◆",
     asset: "DMD/KRW",
-    category: "Mining reserve",
+    category: "채굴 자산",
     rank: 1,
     links: [
-      ["Official Website", "/stock.html"],
-      ["Whitepaper", "/rules.html"],
-      ["Explorer", "/status.html"],
-      ["Research", "/plugins.html"],
+      ["공식 화면", "/stock.html"],
+      ["규칙 문서", "/rules.html"],
+      ["서버 상태", "/status.html"],
+      ["경제 분석", "/plugins.html"],
     ],
   },
   FARM: {
     icon: "♧",
     asset: "FARM/KRW",
-    category: "Food supply",
+    category: "식량 공급",
     rank: 2,
     links: [
-      ["Official Website", "/stock.html"],
-      ["Whitepaper", "/rules.html"],
-      ["Explorer", "/status.html"],
-      ["Research", "/plugins.html"],
+      ["공식 화면", "/stock.html"],
+      ["규칙 문서", "/rules.html"],
+      ["서버 상태", "/status.html"],
+      ["경제 분석", "/plugins.html"],
     ],
   },
   LOG: {
     icon: "▧",
     asset: "LOG/KRW",
-    category: "Building materials",
+    category: "건축 자재",
     rank: 3,
     links: [
-      ["Official Website", "/stock.html"],
-      ["Whitepaper", "/join.html"],
-      ["Explorer", "/status.html"],
-      ["Research", "/plugins.html"],
+      ["공식 화면", "/stock.html"],
+      ["접속 안내", "/join.html"],
+      ["서버 상태", "/status.html"],
+      ["경제 분석", "/plugins.html"],
     ],
   },
   RED: {
     icon: "✦",
     asset: "RED/KRW",
-    category: "Redstone industry",
+    category: "레드스톤 산업",
     rank: 4,
     links: [
-      ["Official Website", "/stock.html"],
-      ["Whitepaper", "/rules.html"],
-      ["Explorer", "/status.html"],
-      ["Research", "/plugins.html"],
+      ["공식 화면", "/stock.html"],
+      ["규칙 문서", "/rules.html"],
+      ["서버 상태", "/status.html"],
+      ["경제 분석", "/plugins.html"],
     ],
   },
 };
@@ -231,57 +231,57 @@ const STOCK_NEWS_SCENE_THEMES = {
   },
 };
 const STOCK_RANGE_CONFIG = {
-  "1M": { points: 10, stepMs: 60_000, label: "1 min ago" },
-  "5M": { points: 16, stepMs: 60_000, label: "5 min ago" },
-  "15M": { points: 24, stepMs: 60_000, label: "15 min ago" },
-  "30M": { points: 32, stepMs: 60_000, label: "30 min ago" },
-  "1H": { points: 40, stepMs: 90_000, label: "1 hour ago" },
-  "5H": { points: 56, stepMs: 5 * 60_000, label: "5 hours ago" },
-  "1D": { points: 96, stepMs: 15 * 60_000, label: "1 day ago" },
-  "1W": { points: 160, stepMs: 60 * 60_000, label: "1 week ago" },
-  "1MO": { points: 240, stepMs: 3 * 60 * 60_000, label: "1 month ago" },
-  ALL: { points: Infinity, stepMs: 15 * 60_000, label: "All" },
+  "1M": { points: 10, stepMs: 60_000, label: "1분 전" },
+  "5M": { points: 16, stepMs: 60_000, label: "5분 전" },
+  "15M": { points: 24, stepMs: 60_000, label: "15분 전" },
+  "30M": { points: 32, stepMs: 60_000, label: "30분 전" },
+  "1H": { points: 40, stepMs: 90_000, label: "1시간 전" },
+  "5H": { points: 56, stepMs: 5 * 60_000, label: "5시간 전" },
+  "1D": { points: 96, stepMs: 15 * 60_000, label: "1일 전" },
+  "1W": { points: 160, stepMs: 60 * 60_000, label: "1주 전" },
+  "1MO": { points: 240, stepMs: 3 * 60 * 60_000, label: "1개월 전" },
+  ALL: { points: Infinity, stepMs: 15 * 60_000, label: "전체" },
 };
 const STOCK_CHART_SETTINGS_KEY = "nfoifsb.stockChartSettings";
 const STOCK_DEPTH_SETTINGS_KEY = "nfoifsb.stockDepthSettings";
 const STOCK_MAX_LEVERAGE = 20;
 const STOCK_CHART_SETTING_TABS = [
-  { id: "main", label: "Main Indicator" },
-  { id: "sub", label: "Sub Indicator" },
-  { id: "trading", label: "Sub - Trading Data" },
-  { id: "custom", label: "Customized" },
-  { id: "backtest", label: "Backtest" },
+  { id: "main", label: "주요 지표" },
+  { id: "sub", label: "보조 지표" },
+  { id: "trading", label: "거래 데이터" },
+  { id: "custom", label: "사용자 설정" },
+  { id: "backtest", label: "백테스트" },
 ];
 const STOCK_LINE_STYLES = [
-  { value: "0", label: "Solid" },
-  { value: "1", label: "Dotted" },
-  { value: "2", label: "Dashed" },
-  { value: "3", label: "Large dashed" },
+  { value: "0", label: "실선" },
+  { value: "1", label: "점선" },
+  { value: "2", label: "파선" },
+  { value: "3", label: "긴 파선" },
 ];
 const STOCK_SOURCE_OPTIONS = [
-  { value: "close", label: "Close" },
-  { value: "open", label: "Open" },
-  { value: "high", label: "High" },
-  { value: "low", label: "Low" },
+  { value: "close", label: "종가" },
+  { value: "open", label: "시가" },
+  { value: "high", label: "고가" },
+  { value: "low", label: "저가" },
   { value: "hl2", label: "HL2" },
   { value: "hlc3", label: "HLC3" },
   { value: "ohlc4", label: "OHLC4" },
 ];
 const STOCK_CHART_THEME_PRESETS = {
   exchange: {
-    label: "Exchange dark",
+    label: "거래소 다크",
     background: "#151a23",
     textColor: "#848e9c",
     gridColor: "rgba(94, 102, 115, 0.18)",
   },
   midnight: {
-    label: "Midnight",
+    label: "미드나이트",
     background: "#0b0e11",
     textColor: "#b7bdc6",
     gridColor: "rgba(91, 141, 239, 0.16)",
   },
   light: {
-    label: "Light desk",
+    label: "라이트 데스크",
     background: "#f5f7fb",
     textColor: "#344054",
     gridColor: "rgba(88, 96, 105, 0.18)",
@@ -367,7 +367,7 @@ const DEFAULT_STOCK_CHART_SETTINGS = {
     tooltip: true,
     ohlc: true,
     performance: true,
-    watermark: true,
+    watermark: false,
     priceLine: true,
     lastValue: false,
     crosshair: true,
@@ -933,9 +933,9 @@ function renderAuthState(user = sessionUser || readStoredUser()) {
     return;
   }
 
-  loginButton.textContent = "Login";
+  loginButton.textContent = "로그인";
   loginButton.classList.remove("is-authenticated");
-  loginButton.setAttribute("aria-label", "Login");
+  loginButton.setAttribute("aria-label", "로그인");
 }
 
 function applyAuthEvent(eventData) {
@@ -1143,13 +1143,13 @@ function initNav() {
   const close = () => {
     nav.classList.remove("nav-open");
     toggle.setAttribute("aria-expanded", "false");
-    toggle.setAttribute("aria-label", "Open menu");
+    toggle.setAttribute("aria-label", "메뉴 열기");
   };
 
   toggle.addEventListener("click", () => {
     const open = nav.classList.toggle("nav-open");
     toggle.setAttribute("aria-expanded", String(open));
-    toggle.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+    toggle.setAttribute("aria-label", open ? "메뉴 닫기" : "메뉴 열기");
   });
 
   // Close after navigating or hitting login.
@@ -1447,7 +1447,7 @@ async function submitStockTrade(playerProfile, symbol, side, quantity, order = {
     throw new Error("캐릭터 인증 후 거래할 수 있습니다.");
   }
   if (!PLAYER_API_BASES.length) {
-    throw new Error("Live Buy/Sell orders are enabled when VITE_PLAYER_API_BASE is connected.");
+    throw new Error("VITE_PLAYER_API_BASE가 연결되면 실시간 매수/매도 주문이 활성화됩니다.");
   }
   return fetchPlayerApiJson("/stocks/trade", STOCK_TRADE_TIMEOUT_MS, {
     method: "POST",
@@ -1569,7 +1569,7 @@ function buildFallbackMarket(tick) {
       indexChange24h: 0.8 + Math.sin(tick * 0.36) * 0.7,
       volume24h: stocks.reduce((sum, stock) => sum + stock.volume24h, 0),
       marketCap: stocks.reduce((sum, stock) => sum + stock.marketCap, 0),
-      session: PLAYER_API_BASES.length ? "API WAIT" : "Preview",
+      session: PLAYER_API_BASES.length ? "API 대기" : "미리보기",
       updatedAt: new Date().toISOString(),
     },
     stocks,
@@ -2044,12 +2044,12 @@ function stockSettingsPanel(title, summary = "") {
 function appendStockLineRows(panel, group, typeLabel, onStructuralChange) {
   const header = stockSettingsElement("div", "stock-chart-setting-row is-header");
   header.append(
-    stockSettingsCheckbox(`${typeLabel} enabled`, group.enabled, (checked) => {
+    stockSettingsCheckbox(`${typeLabel} 사용`, group.enabled, (checked) => {
       group.enabled = checked;
       onStructuralChange();
     }),
     stockSettingsField(
-      "Source",
+      "기준값",
       stockSettingsSelect(group.source, STOCK_SOURCE_OPTIONS, (value) => {
         group.source = value;
       }),
@@ -2065,24 +2065,24 @@ function appendStockLineRows(panel, group, typeLabel, onStructuralChange) {
         onStructuralChange();
       }),
       stockSettingsField(
-        "Period",
+        "기간",
         stockSettingsNumber(item.period, (value) => {
           item.period = clampStockSettingNumber(value, 0, 500, item.period);
         }, { min: 0, max: 500 }),
       ),
       stockSettingsField(
-        "Style",
+        "선 스타일",
         stockSettingsSelect(item.lineStyle, STOCK_LINE_STYLES, (value) => {
           item.lineStyle = clampStockSettingNumber(value, 0, 3, item.lineStyle);
         }),
       ),
       stockSettingsField(
-        "Width",
+        "두께",
         stockSettingsNumber(item.lineWidth, (value) => {
           item.lineWidth = clampStockSettingNumber(value, 1, 5, item.lineWidth);
         }, { min: 1, max: 5 }),
       ),
-      stockSettingsField("Color", stockSettingsColor(item.color, (value) => {
+      stockSettingsField("색상", stockSettingsColor(item.color, (value) => {
         item.color = value;
       })),
     );
@@ -2105,11 +2105,11 @@ function renderStockChartSettingsTabs(elements, activeTab, onSelect) {
 }
 
 function renderStockChartMainSettings(body, draft, rerender) {
-  const maPanel = stockSettingsPanel("MA - Moving Average", "Configure up to six moving averages.");
+  const maPanel = stockSettingsPanel("MA - 이동평균", "이동평균선을 최대 6개까지 설정합니다.");
   appendStockLineRows(maPanel, draft.main.ma, "MA", rerender);
-  const emaPanel = stockSettingsPanel("EMA - Exponential Moving Average");
+  const emaPanel = stockSettingsPanel("EMA - 지수 이동평균");
   appendStockLineRows(emaPanel, draft.main.ema, "EMA", rerender);
-  const wmaPanel = stockSettingsPanel("WMA - Weighted Moving Average");
+  const wmaPanel = stockSettingsPanel("WMA - 가중 이동평균");
   appendStockLineRows(wmaPanel, draft.main.wma, "WMA", rerender);
   const extras = stockSettingsPanel("VWAP / BOLL");
   const vwapRow = stockSettingsElement("div", "stock-chart-setting-row");
@@ -2118,13 +2118,13 @@ function renderStockChartMainSettings(body, draft, rerender) {
       draft.main.vwap.enabled = checked;
       rerender();
     }),
-    stockSettingsField("Style", stockSettingsSelect(draft.main.vwap.lineStyle, STOCK_LINE_STYLES, (value) => {
+    stockSettingsField("선 스타일", stockSettingsSelect(draft.main.vwap.lineStyle, STOCK_LINE_STYLES, (value) => {
       draft.main.vwap.lineStyle = clampStockSettingNumber(value, 0, 3, draft.main.vwap.lineStyle);
     })),
-    stockSettingsField("Width", stockSettingsNumber(draft.main.vwap.lineWidth, (value) => {
+    stockSettingsField("두께", stockSettingsNumber(draft.main.vwap.lineWidth, (value) => {
       draft.main.vwap.lineWidth = clampStockSettingNumber(value, 1, 5, draft.main.vwap.lineWidth);
     }, { min: 1, max: 5 })),
-    stockSettingsField("Color", stockSettingsColor(draft.main.vwap.color, (value) => {
+    stockSettingsField("색상", stockSettingsColor(draft.main.vwap.color, (value) => {
       draft.main.vwap.color = value;
     })),
   );
@@ -2134,22 +2134,22 @@ function renderStockChartMainSettings(body, draft, rerender) {
       draft.main.boll.enabled = checked;
       rerender();
     }),
-    stockSettingsField("Period", stockSettingsNumber(draft.main.boll.period, (value) => {
+    stockSettingsField("기간", stockSettingsNumber(draft.main.boll.period, (value) => {
       draft.main.boll.period = clampStockSettingNumber(value, 2, 300, draft.main.boll.period);
     }, { min: 2, max: 300 })),
-    stockSettingsField("Multiplier", stockSettingsNumber(draft.main.boll.multiplier, (value) => {
+    stockSettingsField("배수", stockSettingsNumber(draft.main.boll.multiplier, (value) => {
       draft.main.boll.multiplier = clampStockSettingNumber(value, 0.5, 5, draft.main.boll.multiplier, false);
     }, { min: 0.5, max: 5, step: 0.1 })),
-    stockSettingsField("Source", stockSettingsSelect(draft.main.boll.source, STOCK_SOURCE_OPTIONS, (value) => {
+    stockSettingsField("기준값", stockSettingsSelect(draft.main.boll.source, STOCK_SOURCE_OPTIONS, (value) => {
       draft.main.boll.source = value;
     })),
-    stockSettingsField("Upper", stockSettingsColor(draft.main.boll.upperColor, (value) => {
+    stockSettingsField("상단선", stockSettingsColor(draft.main.boll.upperColor, (value) => {
       draft.main.boll.upperColor = value;
     })),
-    stockSettingsField("Middle", stockSettingsColor(draft.main.boll.middleColor, (value) => {
+    stockSettingsField("중앙선", stockSettingsColor(draft.main.boll.middleColor, (value) => {
       draft.main.boll.middleColor = value;
     })),
-    stockSettingsField("Lower", stockSettingsColor(draft.main.boll.lowerColor, (value) => {
+    stockSettingsField("하단선", stockSettingsColor(draft.main.boll.lowerColor, (value) => {
       draft.main.boll.lowerColor = value;
     })),
   );
@@ -2158,21 +2158,21 @@ function renderStockChartMainSettings(body, draft, rerender) {
 }
 
 function renderStockChartSubSettings(body, draft, rerender) {
-  const panel = stockSettingsPanel("Sub Indicators", "Volume, RSI, and MACD render in lower chart zones.");
+  const panel = stockSettingsPanel("보조 지표", "거래량, RSI, MACD를 하단 지표 영역에 표시합니다.");
   const volumeRow = stockSettingsElement("div", "stock-chart-setting-row");
   volumeRow.append(
-    stockSettingsCheckbox("Volume", draft.sub.volume, (checked) => {
+    stockSettingsCheckbox("거래량", draft.sub.volume, (checked) => {
       draft.sub.volume = checked;
       rerender();
     }),
-    stockSettingsCheckbox("Volume MA", draft.sub.volumeMa, (checked) => {
+    stockSettingsCheckbox("거래량 이동평균", draft.sub.volumeMa, (checked) => {
       draft.sub.volumeMa = checked;
       rerender();
     }),
-    stockSettingsField("Volume MA period", stockSettingsNumber(draft.sub.volumeMaPeriod, (value) => {
+    stockSettingsField("거래량 MA 기간", stockSettingsNumber(draft.sub.volumeMaPeriod, (value) => {
       draft.sub.volumeMaPeriod = clampStockSettingNumber(value, 1, 300, draft.sub.volumeMaPeriod);
     }, { min: 1, max: 300 })),
-    stockSettingsField("Volume MA color", stockSettingsColor(draft.sub.volumeMaColor, (value) => {
+    stockSettingsField("거래량 MA 색상", stockSettingsColor(draft.sub.volumeMaColor, (value) => {
       draft.sub.volumeMaColor = value;
     })),
   );
@@ -2182,10 +2182,10 @@ function renderStockChartSubSettings(body, draft, rerender) {
       draft.sub.rsi = checked;
       rerender();
     }),
-    stockSettingsField("Period", stockSettingsNumber(draft.sub.rsiPeriod, (value) => {
+    stockSettingsField("기간", stockSettingsNumber(draft.sub.rsiPeriod, (value) => {
       draft.sub.rsiPeriod = clampStockSettingNumber(value, 2, 100, draft.sub.rsiPeriod);
     }, { min: 2, max: 100 })),
-    stockSettingsField("Color", stockSettingsColor(draft.sub.rsiColor, (value) => {
+    stockSettingsField("색상", stockSettingsColor(draft.sub.rsiColor, (value) => {
       draft.sub.rsiColor = value;
     })),
   );
@@ -2195,19 +2195,19 @@ function renderStockChartSubSettings(body, draft, rerender) {
       draft.sub.macd = checked;
       rerender();
     }),
-    stockSettingsField("Fast", stockSettingsNumber(draft.sub.macdFast, (value) => {
+    stockSettingsField("단기", stockSettingsNumber(draft.sub.macdFast, (value) => {
       draft.sub.macdFast = clampStockSettingNumber(value, 2, 100, draft.sub.macdFast);
     }, { min: 2, max: 100 })),
-    stockSettingsField("Slow", stockSettingsNumber(draft.sub.macdSlow, (value) => {
+    stockSettingsField("장기", stockSettingsNumber(draft.sub.macdSlow, (value) => {
       draft.sub.macdSlow = clampStockSettingNumber(value, 3, 200, draft.sub.macdSlow);
     }, { min: 3, max: 200 })),
-    stockSettingsField("Signal", stockSettingsNumber(draft.sub.macdSignal, (value) => {
+    stockSettingsField("신호", stockSettingsNumber(draft.sub.macdSignal, (value) => {
       draft.sub.macdSignal = clampStockSettingNumber(value, 2, 100, draft.sub.macdSignal);
     }, { min: 2, max: 100 })),
     stockSettingsField("MACD", stockSettingsColor(draft.sub.macdColor, (value) => {
       draft.sub.macdColor = value;
     })),
-    stockSettingsField("Signal", stockSettingsColor(draft.sub.macdSignalColor, (value) => {
+    stockSettingsField("신호선", stockSettingsColor(draft.sub.macdSignalColor, (value) => {
       draft.sub.macdSignalColor = value;
     })),
   );
@@ -2216,16 +2216,16 @@ function renderStockChartSubSettings(body, draft, rerender) {
 }
 
 function renderStockTradingSettings(body, draft, rerender) {
-  const panel = stockSettingsPanel("Trading Data", "Control readouts and chart interactions.");
+  const panel = stockSettingsPanel("거래 데이터", "차트 표시 정보와 인터랙션을 조정합니다.");
   [
-    ["Tooltip", "tooltip"],
-    ["OHLC top line", "ohlc"],
-    ["Performance row", "performance"],
-    ["Watermark", "watermark"],
-    ["Price line", "priceLine"],
-    ["Last values", "lastValue"],
-    ["Crosshair", "crosshair"],
-    ["Scroll zoom", "scrollZoom"],
+    ["툴팁", "tooltip"],
+    ["상단 OHLC", "ohlc"],
+    ["성과 요약", "performance"],
+    ["워터마크", "watermark"],
+    ["현재가 선", "priceLine"],
+    ["마지막 값", "lastValue"],
+    ["십자선", "crosshair"],
+    ["휠 확대", "scrollZoom"],
   ].forEach(([label, key]) => {
     panel.append(
       stockSettingsCheckbox(label, draft.trading[key], (checked) => {
@@ -2238,54 +2238,54 @@ function renderStockTradingSettings(body, draft, rerender) {
 }
 
 function renderStockCustomSettings(body, draft, rerender) {
-  const panel = stockSettingsPanel("Customized", "Tune chart theme, colors, scale, and spacing.");
+  const panel = stockSettingsPanel("사용자 설정", "차트 테마, 색상, 축, 간격을 조정합니다.");
   const themeOptions = Object.entries(STOCK_CHART_THEME_PRESETS).map(([value, preset]) => ({ value, label: preset.label }));
   const modeOptions = [
-    { value: "candle", label: "Candles" },
-    { value: "line", label: "Line" },
-    { value: "area", label: "Area" },
+    { value: "candle", label: "캔들" },
+    { value: "line", label: "라인" },
+    { value: "area", label: "영역" },
   ];
   const scaleOptions = [
-    { value: "price", label: "Last price" },
-    { value: "percent", label: "Percent" },
+    { value: "price", label: "현재가" },
+    { value: "percent", label: "등락률" },
   ];
   const row = stockSettingsElement("div", "stock-chart-setting-row");
   row.append(
-    stockSettingsField("Theme", stockSettingsSelect(draft.custom.theme, themeOptions, (value) => {
+    stockSettingsField("테마", stockSettingsSelect(draft.custom.theme, themeOptions, (value) => {
       const preset = STOCK_CHART_THEME_PRESETS[value] || STOCK_CHART_THEME_PRESETS.exchange;
       draft.custom.theme = value;
       draft.custom.background = preset.background;
       draft.custom.textColor = preset.textColor;
       rerender();
     })),
-    stockSettingsField("Chart type", stockSettingsSelect(draft.mode, modeOptions, (value) => {
+    stockSettingsField("차트 유형", stockSettingsSelect(draft.mode, modeOptions, (value) => {
       draft.mode = value;
     })),
-    stockSettingsField("Scale", stockSettingsSelect(draft.scale, scaleOptions, (value) => {
+    stockSettingsField("축 기준", stockSettingsSelect(draft.scale, scaleOptions, (value) => {
       draft.scale = value;
     })),
-    stockSettingsField("Background", stockSettingsColor(draft.custom.background, (value) => {
+    stockSettingsField("배경", stockSettingsColor(draft.custom.background, (value) => {
       draft.custom.background = value;
     })),
-    stockSettingsField("Text", stockSettingsColor(draft.custom.textColor, (value) => {
+    stockSettingsField("글자", stockSettingsColor(draft.custom.textColor, (value) => {
       draft.custom.textColor = value;
     })),
-    stockSettingsField("Up", stockSettingsColor(draft.custom.upColor, (value) => {
+    stockSettingsField("상승", stockSettingsColor(draft.custom.upColor, (value) => {
       draft.custom.upColor = value;
     })),
-    stockSettingsField("Down", stockSettingsColor(draft.custom.downColor, (value) => {
+    stockSettingsField("하락", stockSettingsColor(draft.custom.downColor, (value) => {
       draft.custom.downColor = value;
     })),
-    stockSettingsField("Line", stockSettingsColor(draft.custom.lineColor, (value) => {
+    stockSettingsField("라인", stockSettingsColor(draft.custom.lineColor, (value) => {
       draft.custom.lineColor = value;
     })),
-    stockSettingsField("Grid opacity", stockSettingsNumber(draft.custom.gridOpacity, (value) => {
+    stockSettingsField("격자 투명도", stockSettingsNumber(draft.custom.gridOpacity, (value) => {
       draft.custom.gridOpacity = clampStockSettingNumber(value, 0, 60, draft.custom.gridOpacity);
     }, { min: 0, max: 60 })),
-    stockSettingsField("Bar spacing", stockSettingsNumber(draft.custom.barSpacing, (value) => {
+    stockSettingsField("봉 간격", stockSettingsNumber(draft.custom.barSpacing, (value) => {
       draft.custom.barSpacing = clampStockSettingNumber(value, 3, 18, draft.custom.barSpacing);
     }, { min: 3, max: 18 })),
-    stockSettingsCheckbox("Candle borders", draft.custom.candleBorders, (checked) => {
+    stockSettingsCheckbox("캔들 테두리", draft.custom.candleBorders, (checked) => {
       draft.custom.candleBorders = checked;
     }),
   );
@@ -2294,45 +2294,45 @@ function renderStockCustomSettings(body, draft, rerender) {
 }
 
 function renderStockBacktestSettings(body, draft, context, rerender) {
-  const panel = stockSettingsPanel("Backtest", "Run a quick strategy simulation on the visible series.");
+  const panel = stockSettingsPanel("백테스트", "현재 보이는 시계열로 전략을 빠르게 시뮬레이션합니다.");
   const strategyOptions = [
-    { value: "ma-cross", label: "MA cross" },
-    { value: "ema-cross", label: "EMA cross" },
-    { value: "price-vwap", label: "Price / VWAP" },
+    { value: "ma-cross", label: "MA 교차" },
+    { value: "ema-cross", label: "EMA 교차" },
+    { value: "price-vwap", label: "현재가 / VWAP" },
   ];
   const row = stockSettingsElement("div", "stock-chart-setting-row");
   row.append(
-    stockSettingsField("Strategy", stockSettingsSelect(draft.backtest.strategy, strategyOptions, (value) => {
+    stockSettingsField("전략", stockSettingsSelect(draft.backtest.strategy, strategyOptions, (value) => {
       draft.backtest.strategy = value;
       rerender();
     })),
-    stockSettingsField("Fast", stockSettingsNumber(draft.backtest.fastPeriod, (value) => {
+    stockSettingsField("단기", stockSettingsNumber(draft.backtest.fastPeriod, (value) => {
       draft.backtest.fastPeriod = clampStockSettingNumber(value, 2, 100, draft.backtest.fastPeriod);
     }, { min: 2, max: 100 })),
-    stockSettingsField("Slow", stockSettingsNumber(draft.backtest.slowPeriod, (value) => {
+    stockSettingsField("장기", stockSettingsNumber(draft.backtest.slowPeriod, (value) => {
       draft.backtest.slowPeriod = clampStockSettingNumber(value, 3, 300, draft.backtest.slowPeriod);
     }, { min: 3, max: 300 })),
-    stockSettingsField("Capital", stockSettingsNumber(draft.backtest.capital, (value) => {
+    stockSettingsField("초기 자본", stockSettingsNumber(draft.backtest.capital, (value) => {
       draft.backtest.capital = clampStockSettingNumber(value, 1000, 1000000000, draft.backtest.capital);
     }, { min: 1000, max: 1000000000, step: 1000 })),
-    stockSettingsField("Fee bps", stockSettingsNumber(draft.backtest.feeBps, (value) => {
+    stockSettingsField("수수료 bps", stockSettingsNumber(draft.backtest.feeBps, (value) => {
       draft.backtest.feeBps = clampStockSettingNumber(value, 0, 100, draft.backtest.feeBps);
     }, { min: 0, max: 100 })),
   );
   const runButton = document.createElement("button");
   runButton.type = "button";
   runButton.className = "stock-chart-backtest-run";
-  runButton.textContent = "Run Backtest";
+  runButton.textContent = "백테스트 실행";
   runButton.addEventListener("click", rerender);
   row.append(runButton);
   const result = runStockBacktest(context.series, sanitizeStockChartSettings(draft).backtest);
   const results = stockSettingsElement("div", "stock-chart-backtest-result");
   [
-    ["Final equity", formatStockKrw(result.finalEquity)],
-    ["Return", formatStockChange(result.returnPct)],
-    ["Trades", formatStockNumber(result.trades)],
-    ["Win rate", `${result.winRate.toFixed(1)}%`],
-    ["Max drawdown", `${result.maxDrawdown.toFixed(1)}%`],
+    ["최종 평가금", formatStockKrw(result.finalEquity)],
+    ["수익률", formatStockChange(result.returnPct)],
+    ["거래 수", formatStockNumber(result.trades)],
+    ["승률", `${result.winRate.toFixed(1)}%`],
+    ["최대 낙폭", `${result.maxDrawdown.toFixed(1)}%`],
   ].forEach(([label, value]) => {
     const item = stockSettingsElement("span");
     item.append(stockSettingsElement("em", "", label), stockSettingsElement("strong", "", value));
@@ -2460,9 +2460,9 @@ function formatStockNewsSlot(parts, slot) {
 function currentStockNewsWeek(source = new Date()) {
   const now = financialKstDateTimeParts(source);
   const slots = [
-    { key: "morning", label: "Morning Brief", hour: 8 },
-    { key: "lunch", label: "Midday Brief", hour: 12 },
-    { key: "evening", label: "Evening Brief", hour: 18 },
+    { key: "morning", label: "오전 브리프", hour: 8 },
+    { key: "lunch", label: "정오 브리프", hour: 12 },
+    { key: "evening", label: "저녁 브리프", hour: 18 },
   ];
   let activeSlot = slots[2];
   let activeDate = shiftKstDateParts(now, -1);
@@ -2485,9 +2485,9 @@ function currentStockNewsWeek(source = new Date()) {
   return {
     key: `${formatFinancialDate(activeDate.year, activeDate.month, activeDate.day)}:${activeSlot.key}`,
     label: formatStockNewsSlot(activeDate, activeSlot),
-    range: `${formatStockNewsSlot(activeDate, activeSlot)} basis`,
+    range: `${formatStockNewsSlot(activeDate, activeSlot)} 기준`,
     nextUpdate: `${formatFinancialDate(nextDate.year, nextDate.month, nextDate.day)} ${String(nextSlot.hour).padStart(2, "0")}:00`,
-    cadence: "Daily 08:00 / 12:00 / 18:00 KST",
+    cadence: "매일 08:00 / 12:00 / 18:00 KST",
   };
 }
 
@@ -2509,11 +2509,11 @@ function pickStockNewsValue(values, seed, offset = 0) {
 function stockNewsTopic(stock) {
   const code = stockCode(stock);
   return {
-    DMD: "mining efficiency",
-    FARM: "harvest yield",
-    LOG: "builder demand",
-    RED: "automation circuits",
-  }[code] || "market flow";
+    DMD: "채굴 효율",
+    FARM: "수확량",
+    LOG: "건축 수요",
+    RED: "자동화 회로",
+  }[code] || "시장 흐름";
 }
 
 function stockNewsImagesFor(code) {
@@ -2851,23 +2851,23 @@ function attachStockNewsImage(image, imageData, fallbackAlt) {
 
 function buildStockNewsDetails(article, context) {
   const { code, name, week, topic, change, bidRatio, volatility, quality } = context;
-  const priceDirection = change >= 0 ? "upside" : "downside";
+  const priceDirection = change >= 0 ? "상승" : "하락";
   const orderBookTone =
     bidRatio >= 55
-      ? "bid-side depth is leading and short-term execution stability has improved"
-      : "bid-side depth is thin, so staged entries and stop discipline matter";
+      ? "매수 호가 깊이가 우세해 단기 체결 안정성이 개선됐습니다"
+      : "매수 호가 방어가 얇아 분할 진입과 손절 관리가 중요합니다";
   const financialTone =
     quality.qualityScore >= 76
-      ? "the financial quality profile is strong enough for an aggressive overweight review"
+      ? "재무 퀄리티가 높아 공격적인 비중 확대 검토가 가능합니다"
       : quality.qualityScore >= 62
-        ? "financial quality is above neutral, but volatility control is still required"
-        : "financial quality still calls for a defensive review";
+        ? "재무 퀄리티는 중립 이상이지만 변동성 통제는 필요합니다"
+        : "재무 퀄리티는 아직 방어적인 검토가 필요합니다";
 
   return [
-    `${name} (${code}) is centered on ${topic} for ${week.label}. This article reflects a ${article.tag} stance, ${priceDirection} price move of ${formatStockPercent(change, 1, true)}, volatility of ${formatStockPercent(volatility)}, and order-book buy pressure of ${Math.round(bidRatio)}%.`,
-    `From the order book, ${orderBookTone}. Prefer limit and staged orders over raw market orders, and confirm trade strength with live volume during breakout zones.`,
-    `The AI statement model marks ${quality.quarterMeta.label} revenue at ${formatStockKrwCompact(quality.latest.revenue)}, operating margin at ${formatStockPercent(quality.latest.operatingMargin)}, FCF Yield at ${formatStockPercent(quality.latest.fcfYield)}, and debt ratio at ${formatStockPercent(quality.latest.debtRatio)}. ${financialTone}.`,
-    `The next automated news cycle is ${week.nextUpdate} KST. Until then, track ${topic}, ${article.impact}, volume shifts, and leveraged position concentration.`,
+    `${name}(${code})의 이번 ${week.label} 핵심 주제는 ${topic}입니다. 이번 기사는 ${article.tag} 관점이며, 가격은 ${formatStockPercent(change, 1, true)} ${priceDirection}, 변동성은 ${formatStockPercent(volatility)}, 호가창 매수 압력은 ${Math.round(bidRatio)}%입니다.`,
+    `호가창 기준으로 ${orderBookTone}. 시장가 단독 진입보다 지정가와 분할 주문을 우선하고, 돌파 구간에서는 실시간 거래량으로 체결 강도를 확인해야 합니다.`,
+    `AI 재무 모델은 ${quality.quarterMeta.label} 매출 ${formatStockKrwCompact(quality.latest.revenue)}, 영업이익률 ${formatStockPercent(quality.latest.operatingMargin)}, FCF 수익률 ${formatStockPercent(quality.latest.fcfYield)}, 부채비율 ${formatStockPercent(quality.latest.debtRatio)}로 산출했습니다. ${financialTone}.`,
+    `다음 자동 뉴스 생성 시각은 ${week.nextUpdate} KST입니다. 그 전까지 ${topic}, ${article.impact}, 거래량 변화, 레버리지 포지션 집중도를 함께 확인하세요.`,
   ];
 }
 
@@ -2882,47 +2882,47 @@ function buildStockWeeklyNews(stock, metrics = {}, depth = {}) {
   const volatility = Number(metrics?.volatility || 0);
   const quality = buildStockFinancials(stock, metrics);
   const isBullish = change >= 0 || bidRatio >= 54 || quality.qualityScore >= 76;
-  const demandWord = pickStockNewsValue(["volume", "book depth", "trade strength", "session inflow"], seed, 1);
-  const riskWord = pickStockNewsValue(["inventory pressure", "short-term overheating", "leverage crowding", "margin slowdown"], seed, 2);
+  const demandWord = pickStockNewsValue(["거래량", "호가 깊이", "체결 강도", "세션 유입"], seed, 1);
+  const riskWord = pickStockNewsValue(["재고 부담", "단기 과열", "레버리지 쏠림", "증거금 둔화"], seed, 2);
   const goodImpact = Math.max(1.2, Math.abs(change) * 0.42 + quality.latest.fcfYield * 0.12 + 1.4);
   const badImpact = -(Math.max(0.8, volatility * 0.26 + Math.abs(50 - bidRatio) * 0.05));
   const articles = [
     {
       tone: isBullish ? "good" : "bad",
-      tag: isBullish ? "Bullish" : "Bearish",
+      tag: isBullish ? "호재" : "악재",
       title: isBullish
-        ? `${name}: ${topic} improvement lifts buy-side attention this week`
-        : `${name}: ${riskWord} raises short-term volatility risk`,
+        ? `${name}, ${topic} 개선으로 매수 관심 확대`
+        : `${name}, ${riskWord}으로 단기 변동성 위험 확대`,
       summary: isBullish
-        ? `${demandWord} and a Quality Score of ${quality.qualityScore} improved together, strengthening near-term sentiment for ${code}.`
-        : `${formatStockPercent(volatility)} volatility overlaps with ${riskWord}, increasing the need for tighter ${code} position control.`,
-      impact: isBullish ? `Expected impact +${goodImpact.toFixed(1)}%` : `Expected impact ${badImpact.toFixed(1)}%`,
+        ? `${demandWord}과 퀄리티 점수 ${quality.qualityScore}점이 동시에 개선되며 ${code} 단기 심리가 강해졌습니다.`
+        : `${formatStockPercent(volatility)} 변동성과 ${riskWord}이 겹치며 ${code} 포지션 관리가 더 중요해졌습니다.`,
+      impact: isBullish ? `예상 영향 +${goodImpact.toFixed(1)}%` : `예상 영향 ${badImpact.toFixed(1)}%`,
     },
     {
       tone: bidRatio >= 55 ? "good" : "bad",
-      tag: bidRatio >= 55 ? "Bullish" : "Bearish",
+      tag: bidRatio >= 55 ? "호재" : "악재",
       title:
         bidRatio >= 55
-          ? `Order-book buy pressure ${Math.round(bidRatio)}%, ${code} liquidity improves`
-          : `Buy pressure ${Math.round(bidRatio)}%, ${code} depth gap warning`,
+          ? `호가창 매수 압력 ${Math.round(bidRatio)}%, ${code} 유동성 개선`
+          : `매수 압력 ${Math.round(bidRatio)}%, ${code} 호가 공백 주의`,
       summary: bidRatio >= 55
-        ? `Bid-side depth is leading, improving limit-order execution stability. Volume confirmation is key during short-term breakouts.`
-        : `Lower-book defense may weaken, making staged orders and stop management preferable to market entries.`,
-      impact: bidRatio >= 55 ? `Flow score +${Math.round(bidRatio - 50)}` : `Flow score -${Math.max(1, Math.round(Math.abs(50 - bidRatio)))}`,
+        ? `매수 잔량이 우세해 지정가 체결 안정성이 좋아졌습니다. 단기 돌파에서는 거래량 확인이 핵심입니다.`
+        : `하단 호가 방어가 약해질 수 있어 시장가 진입보다 분할 주문과 손절 관리가 유리합니다.`,
+      impact: bidRatio >= 55 ? `수급 점수 +${Math.round(bidRatio - 50)}` : `수급 점수 -${Math.max(1, Math.round(Math.abs(50 - bidRatio)))}`,
     },
     {
       tone: quality.latest.fcfYield >= 5 ? "good" : "neutral",
-      tag: quality.latest.fcfYield >= 5 ? "Bullish" : "Neutral",
-      title: `${name} AI financial update, FCF Yield ${formatStockPercent(quality.latest.fcfYield)}`,
-      summary: `${quality.quarterMeta.label} operating margin is ${formatStockPercent(quality.latest.operatingMargin)} with a debt ratio of ${formatStockPercent(quality.latest.debtRatio)}. The next quarterly update is ${quality.quarterMeta.nextUpdate}.`,
+      tag: quality.latest.fcfYield >= 5 ? "호재" : "중립",
+      title: `${name} AI 재무 업데이트, FCF 수익률 ${formatStockPercent(quality.latest.fcfYield)}`,
+      summary: `${quality.quarterMeta.label} 영업이익률은 ${formatStockPercent(quality.latest.operatingMargin)}, 부채비율은 ${formatStockPercent(quality.latest.debtRatio)}입니다. 다음 분기 업데이트는 ${quality.quarterMeta.nextUpdate}입니다.`,
       impact: quality.valuationLabel,
     },
     {
       tone: volatility >= 7 ? "bad" : "neutral",
-      tag: volatility >= 7 ? "Bearish" : "Neutral",
-      title: `${week.label} checkpoint: ${topic}, ${riskWord}, volume`,
-      summary: `The AI newsroom generates new issues at morning, noon, and evening KST. For ${code} this ${week.label}, watch ${formatStockPercent(change, 1, true)} price movement together with ${formatStockPercent(volatility)} volatility.`,
-      impact: `Next generation ${week.nextUpdate}`,
+      tag: volatility >= 7 ? "악재" : "중립",
+      title: `${week.label} 체크포인트: ${topic}, ${riskWord}, 거래량`,
+      summary: `AI 뉴스룸은 KST 오전, 정오, 저녁에 새 이슈를 생성합니다. 이번 ${week.label}의 ${code}는 ${formatStockPercent(change, 1, true)} 가격 변화와 ${formatStockPercent(volatility)} 변동성을 함께 봐야 합니다.`,
+      impact: `다음 생성 ${week.nextUpdate}`,
     },
   ];
 
@@ -2930,15 +2930,15 @@ function buildStockWeeklyNews(stock, metrics = {}, depth = {}) {
     week,
     code,
     name,
-    title: `${name} AI Newsroom`,
-    summary: `Generated from ${week.range} server trade data, order-book pressure, and financial quality signals.`,
+    title: `${name} AI 뉴스룸`,
+    summary: `${week.range} 서버 거래 데이터, 호가 압력, 재무 퀄리티 신호로 자동 생성됐습니다.`,
     articles: articles.map((article, index) => {
       const context = { code, name, week, topic, seed, change, bidRatio, volatility, quality };
       return {
         ...article,
         image: buildGeneratedStockNewsImage(article, context, index),
         details: buildStockNewsDetails(article, context),
-        source: "AI MARKET DESK",
+        source: "AI 시장 데스크",
       };
     }),
   };
@@ -3064,8 +3064,8 @@ function buildStockFinancials(stock, metrics = {}) {
   const cashScore = clampStockValue(50 + latest.fcfMargin * 2.5 + latest.fcfYield * 2.2, 20, 96);
   const valuationScore = clampStockValue(82 - (latest.per || 24) * 1.15 - (latest.pbr || 3) * 3.8 + latest.fcfYield * 2 + latest.roe * 0.36, 20, 96);
   const qualityScore = Math.round(growthScore * 0.22 + profitScore * 0.26 + stabilityScore * 0.2 + cashScore * 0.2 + valuationScore * 0.12);
-  const qualityLabel = qualityScore >= 82 ? "Institutional Quality" : qualityScore >= 70 ? "Stable Growth" : qualityScore >= 58 ? "Neutral Watch" : "Risk Review";
-  const valuationLabel = latest.per && latest.per < 12 && latest.fcfYield > 4 ? "Undervalued Appeal" : latest.per && latest.per > 24 ? "Premium Zone" : "Fair Value";
+  const qualityLabel = qualityScore >= 82 ? "기관급 우량" : qualityScore >= 70 ? "안정 성장" : qualityScore >= 58 ? "중립 관찰" : "위험 검토";
+  const valuationLabel = latest.per && latest.per < 12 && latest.fcfYield > 4 ? "저평가 매력" : latest.per && latest.per > 24 ? "프리미엄 구간" : "적정 가치";
 
   return {
     code,
@@ -3082,7 +3082,7 @@ function buildStockFinancials(stock, metrics = {}) {
       stability: stabilityScore,
       cash: cashScore,
     },
-    summary: `${stock?.name || code} ${quarterMeta.label} AI quarterly results show ${formatStockPercent(latest.revenueGrowth, 1, true)} revenue growth and ${formatStockPercent(latest.operatingMargin)} operating margin. Status: ${qualityLabel} / ${valuationLabel}. Next automatic update: ${quarterMeta.nextUpdate}.`,
+    summary: `${stock?.name || code} ${quarterMeta.label} AI 분기 실적은 매출 성장률 ${formatStockPercent(latest.revenueGrowth, 1, true)}, 영업이익률 ${formatStockPercent(latest.operatingMargin)}로 산출됐습니다. 진단: ${qualityLabel} / ${valuationLabel}. 다음 자동 업데이트: ${quarterMeta.nextUpdate}.`,
   };
 }
 
@@ -3091,36 +3091,36 @@ function financialStatementRows(financials, view) {
   const row = (label, key, format = "krw") => ({ label, format, values: periods.map((period) => period[key]) });
   if (view === "balance") {
     return [
-      row("Cash & Equivalents", "cash"),
-      row("Accounts Receivable", "receivables"),
-      row("Inventory", "inventory"),
-      row("Current Assets", "currentAssets"),
-      row("Non-current Assets", "fixedAssets"),
-      row("Total Assets", "totalAssets"),
-      row("Debt", "debt"),
-      row("Total Liabilities", "totalLiabilities"),
-      row("Total Equity", "equity"),
+      row("현금성 자산", "cash"),
+      row("매출채권", "receivables"),
+      row("재고자산", "inventory"),
+      row("유동자산", "currentAssets"),
+      row("비유동자산", "fixedAssets"),
+      row("총자산", "totalAssets"),
+      row("차입금", "debt"),
+      row("총부채", "totalLiabilities"),
+      row("자본총계", "equity"),
       row("BPS", "bps", "krw-full"),
-      row("Debt Ratio", "debtRatio", "percent"),
-      row("Current Ratio", "currentRatio", "percent"),
+      row("부채비율", "debtRatio", "percent"),
+      row("유동비율", "currentRatio", "percent"),
     ];
   }
   if (view === "cashflow") {
     return [
-      row("Operating Cash Flow", "operatingCashFlow"),
-      row("CAPEX", "capex"),
-      row("Free Cash Flow", "freeCashFlow"),
-      row("Financing Cash Flow", "financingCashFlow"),
-      row("Depreciation", "depreciation"),
-      row("FCF Margin", "fcfMargin", "percent"),
-      row("Cash Conversion", "cashConversion", "percent"),
-      row("FCF Yield", "fcfYield", "percent"),
+      row("영업현금흐름", "operatingCashFlow"),
+      row("설비투자", "capex"),
+      row("잉여현금흐름", "freeCashFlow"),
+      row("재무현금흐름", "financingCashFlow"),
+      row("감가상각비", "depreciation"),
+      row("FCF 마진", "fcfMargin", "percent"),
+      row("현금전환율", "cashConversion", "percent"),
+      row("FCF 수익률", "fcfYield", "percent"),
     ];
   }
   if (view === "valuation") {
     return [
-      row("Market Cap", "marketCap"),
-      row("Enterprise Value", "enterpriseValue"),
+      row("시가총액", "marketCap"),
+      row("기업가치", "enterpriseValue"),
       row("PER", "per", "multiple"),
       row("PBR", "pbr", "multiple"),
       row("PSR", "psr", "multiple"),
@@ -3128,19 +3128,19 @@ function financialStatementRows(financials, view) {
       row("ROE", "roe", "percent"),
       row("ROA", "roa", "percent"),
       row("ROIC", "roic", "percent"),
-      row("FCF Yield", "fcfYield", "percent"),
+      row("FCF 수익률", "fcfYield", "percent"),
     ];
   }
   return [
-    row("Revenue", "revenue"),
-    row("QoQ Revenue Growth", "revenueGrowth", "percent-signed"),
-    row("Gross Profit", "grossProfit"),
-    row("Gross Margin", "grossMargin", "percent"),
-    row("Operating Income", "operatingIncome"),
-    row("Operating Margin", "operatingMargin", "percent"),
+    row("매출", "revenue"),
+    row("전분기 대비 매출 성장", "revenueGrowth", "percent-signed"),
+    row("매출총이익", "grossProfit"),
+    row("매출총이익률", "grossMargin", "percent"),
+    row("영업이익", "operatingIncome"),
+    row("영업이익률", "operatingMargin", "percent"),
     row("EBITDA", "ebitda"),
-    row("Net Income", "netIncome"),
-    row("Net Margin", "netMargin", "percent"),
+    row("순이익", "netIncome"),
+    row("순이익률", "netMargin", "percent"),
     row("EPS", "eps", "krw-full"),
   ];
 }
@@ -3167,18 +3167,18 @@ function renderStockFinancials(elements, stock, metrics, view = "income") {
   if (elements.clock) {
     elements.clock.replaceChildren();
     const mode = document.createElement("span");
-    mode.textContent = "AI quarterly auto-report";
+    mode.textContent = "AI 분기 자동 리포트";
     const period = document.createElement("strong");
     period.textContent = financials.quarterMeta.label;
     const next = document.createElement("em");
-    next.textContent = `Generated ${financials.quarterMeta.generatedAt} KST / Next update ${financials.quarterMeta.nextUpdate}`;
+    next.textContent = `${financials.quarterMeta.generatedAt} KST 생성 / 다음 업데이트 ${financials.quarterMeta.nextUpdate}`;
     elements.clock.append(mode, period, next);
   }
   if (elements.score) {
     elements.score.style.setProperty("--score", `${financials.qualityScore}%`);
     elements.score.replaceChildren();
     const label = document.createElement("span");
-    label.textContent = "Quality Score";
+    label.textContent = "퀄리티 점수";
     const value = document.createElement("strong");
     value.textContent = String(financials.qualityScore);
     const tone = document.createElement("em");
@@ -3187,9 +3187,9 @@ function renderStockFinancials(elements, stock, metrics, view = "income") {
   }
   if (elements.kpis) {
     const kpis = [
-      ["Revenue", formatStockKrwCompact(latest.revenue), `QoQ ${formatStockPercent(latest.revenueGrowth, 1, true)}`, latest.revenueGrowth],
-      ["Operating Margin", formatStockPercent(latest.operatingMargin), `Net margin ${formatStockPercent(latest.netMargin)}`, latest.operatingMargin - 12],
-      ["FCF", formatStockKrwCompact(latest.freeCashFlow), `FCF margin ${formatStockPercent(latest.fcfMargin)}`, latest.freeCashFlow],
+      ["매출", formatStockKrwCompact(latest.revenue), `전분기 대비 ${formatStockPercent(latest.revenueGrowth, 1, true)}`, latest.revenueGrowth],
+      ["영업이익률", formatStockPercent(latest.operatingMargin), `순이익률 ${formatStockPercent(latest.netMargin)}`, latest.operatingMargin - 12],
+      ["잉여현금흐름", formatStockKrwCompact(latest.freeCashFlow), `FCF 마진 ${formatStockPercent(latest.fcfMargin)}`, latest.freeCashFlow],
       ["PER / PBR", `${formatStockMultiple(latest.per)} / ${formatStockMultiple(latest.pbr)}`, financials.valuationLabel, latest.fcfYield],
       ["ROE", formatStockPercent(latest.roe), `ROIC ${formatStockPercent(latest.roic)}`, latest.roe - 10],
     ];
@@ -3211,7 +3211,7 @@ function renderStockFinancials(elements, stock, metrics, view = "income") {
   if (elements.head) {
     const metricHead = document.createElement("th");
     metricHead.scope = "col";
-    metricHead.textContent = "Metric";
+    metricHead.textContent = "항목";
     const periodHeads = financials.periods.map((period) => {
       const th = document.createElement("th");
       th.scope = "col";
@@ -3240,13 +3240,13 @@ function renderStockFinancials(elements, stock, metrics, view = "income") {
     }),
   );
   if (elements.diagnosis) {
-    elements.diagnosis.textContent = `Analyst memo: ${financials.qualityLabel}. Growth ${Math.round(financials.health.growth)}, profitability ${Math.round(financials.health.profitability)}, and stability ${Math.round(financials.health.stability)}. Confirm order-book pressure and FCF changes before trading.`;
+    elements.diagnosis.textContent = `애널리스트 메모: ${financials.qualityLabel}. 성장성 ${Math.round(financials.health.growth)}, 수익성 ${Math.round(financials.health.profitability)}, 안정성 ${Math.round(financials.health.stability)}. 거래 전 호가 압력과 FCF 변화를 함께 확인하세요.`;
   }
   if (elements.ratios) {
     const ratioRows = [
-      ["Debt Ratio", formatStockPercent(latest.debtRatio)],
-      ["Current Ratio", formatStockPercent(latest.currentRatio)],
-      ["FCF Yield", formatStockPercent(latest.fcfYield)],
+      ["부채비율", formatStockPercent(latest.debtRatio)],
+      ["유동비율", formatStockPercent(latest.currentRatio)],
+      ["FCF 수익률", formatStockPercent(latest.fcfYield)],
       ["EV/EBITDA", formatStockMultiple(latest.evEbitda)],
     ];
     elements.ratios.replaceChildren(
@@ -3259,10 +3259,10 @@ function renderStockFinancials(elements, stock, metrics, view = "income") {
   }
   if (elements.health) {
     const healthRows = [
-      ["Growth", financials.health.growth],
-      ["Profitability", financials.health.profitability],
-      ["Stability", financials.health.stability],
-      ["Cash Flow", financials.health.cash],
+      ["성장성", financials.health.growth],
+      ["수익성", financials.health.profitability],
+      ["안정성", financials.health.stability],
+      ["현금흐름", financials.health.cash],
     ];
     elements.health.replaceChildren(
       ...healthRows.map(([label, value]) => {
@@ -3271,7 +3271,7 @@ function renderStockFinancials(elements, stock, metrics, view = "income") {
         const name = document.createElement("em");
         name.textContent = label;
         const score = document.createElement("strong");
-        score.textContent = `${Math.round(value)} pts`;
+        score.textContent = `${Math.round(value)}점`;
         item.append(name, score);
         return item;
       }),
@@ -3313,18 +3313,18 @@ function openStockNewsDetail(elements, news, article) {
 function renderStockNews(elements, stock, metrics, depth) {
   if (!elements?.list || !stock) return;
   const news = buildStockWeeklyNews(stock, metrics, depth);
-  if (elements.week) elements.week.textContent = `${news.week.label} / 3 AI cycles daily`;
-  if (elements.code) elements.code.textContent = `${news.code} NEWSROOM`;
+  if (elements.week) elements.week.textContent = `${news.week.label} / 하루 3회 AI 생성`;
+  if (elements.code) elements.code.textContent = `${news.code} 뉴스룸`;
   if (elements.title) elements.title.textContent = news.title;
   if (elements.summary) elements.summary.textContent = news.summary;
   if (elements.clock) {
     elements.clock.replaceChildren();
     const mode = document.createElement("span");
-    mode.textContent = "AI daily auto-generation";
+    mode.textContent = "AI 자동 기사 생성";
     const cycle = document.createElement("strong");
     cycle.textContent = news.week.cadence;
     const next = document.createElement("em");
-    next.textContent = `Next generation ${news.week.nextUpdate} KST`;
+    next.textContent = `다음 생성 ${news.week.nextUpdate} KST`;
     elements.clock.append(mode, cycle, next);
   }
 
@@ -3335,7 +3335,7 @@ function renderStockNews(elements, stock, metrics, depth) {
       if (index === 0) card.classList.add("is-lead");
       card.tabIndex = 0;
       card.setAttribute("role", "button");
-      card.setAttribute("aria-label", `Open full article: ${article.title}`);
+      card.setAttribute("aria-label", `기사 전체 보기: ${article.title}`);
       const openArticle = () => openStockNewsDetail(elements, news, article);
       card.addEventListener("click", openArticle);
       card.addEventListener("keydown", (event) => {
@@ -3431,6 +3431,7 @@ function createStockChartState(container) {
       textColor: "#848e9c",
       fontSize: 12,
       fontFamily: "Inter, Pretendard, system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
+      attributionLogo: false,
     },
     grid: {
       vertLines: { color: "rgba(94, 102, 115, 0.18)" },
@@ -3653,11 +3654,11 @@ function renderStockChartTooltip(state, param) {
   }
 
   const rows = [
-    ["Open", formatStockKrw(point.open)],
-    ["High", formatStockKrw(point.high)],
-    ["Low", formatStockKrw(point.low)],
-    ["Close", formatStockKrw(point.close)],
-    ["Volume", `${formatStockNumber(point.volume)} shares`],
+    ["시가", formatStockKrw(point.open)],
+    ["고가", formatStockKrw(point.high)],
+    ["저가", formatStockKrw(point.low)],
+    ["종가", formatStockKrw(point.close)],
+    ["거래량", `${formatStockNumber(point.volume)}주`],
   ];
   const title = document.createElement("strong");
   title.textContent = formatStockDateTime(point.time);
@@ -3742,6 +3743,7 @@ function renderStockChart(container, stock, tick, selectedRange = "1D", options 
       textColor: settings.custom.textColor,
       fontSize: 12,
       fontFamily: "Inter, Pretendard, system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
+      attributionLogo: false,
     },
     grid: {
       vertLines: { color: gridColor },
@@ -3903,7 +3905,7 @@ function renderStockChart(container, stock, tick, selectedRange = "1D", options 
   }
   clearUnusedStockSeries(state, usedDynamicSeries);
   setStockSeriesVisible(state, chartMode);
-  container.querySelector(".stock-chart-watermark")?.toggleAttribute("hidden", !settings.trading.watermark);
+  container.querySelector(".stock-chart-watermark")?.setAttribute("hidden", "");
   container.style.background = settings.custom.background;
 
   const nextViewKey = `${stockCode(stock)}:${selectedRange}:${chartMode}:${scale}`;
@@ -3931,11 +3933,11 @@ function renderStockChart(container, stock, tick, selectedRange = "1D", options 
 function renderStockChartReadout(container, stock, result) {
   if (!container || !stock || !result) return;
   const rows = [
-    ["Last", formatStockKrw(result.price)],
-    ["Open", formatStockKrw(result.open)],
-    ["High", formatStockKrw(result.high)],
-    ["Low", formatStockKrw(result.low)],
-    ["Volume", `${formatStockNumber(result.volume)} shares`],
+    ["현재가", formatStockKrw(result.price)],
+    ["시가", formatStockKrw(result.open)],
+    ["고가", formatStockKrw(result.high)],
+    ["저가", formatStockKrw(result.low)],
+    ["거래량", `${formatStockNumber(result.volume)}주`],
   ];
   container.replaceChildren(
     ...rows.map(([label, value]) => {
@@ -4006,7 +4008,7 @@ function renderStockTape(tape, trades) {
     const item = document.createElement("li");
     item.className = "is-empty";
     const label = document.createElement("span");
-    label.textContent = PLAYER_API_BASES.length ? "Waiting for live trades" : "API offline";
+    label.textContent = PLAYER_API_BASES.length ? "실시간 체결 대기 중" : "API 연결 없음";
     const amount = document.createElement("strong");
     amount.textContent = "--";
     item.replaceChildren(label, amount);
@@ -4020,9 +4022,9 @@ function renderStockTape(tape, trades) {
       const buy = row.side !== "sell";
       item.className = buy ? "is-buy" : "is-sell";
       const label = document.createElement("span");
-      label.textContent = `${row.playerName || "Player"} ${row.symbol || row.code} ${buy ? "Buy" : "Sell"}`;
+      label.textContent = `${row.playerName || "플레이어"} ${row.symbol || row.code} ${buy ? "매수" : "매도"}`;
       const amount = document.createElement("strong");
-      amount.textContent = `${formatStockNumber(row.quantity)} shares @ ${formatStockKrw(row.price)}`;
+      amount.textContent = `${formatStockNumber(row.quantity)}주 @ ${formatStockKrw(row.price)}`;
       const total = document.createElement("small");
       total.textContent = formatStockKrwCompact(row.total);
       item.append(label, amount, total);
@@ -4092,7 +4094,7 @@ function renderStockRows(list, stocks, activeCode, onSelect, tick = 0) {
         { text: formatStockKrw(low), className: "stock-num" },
         { text: formatStockSignedKrw(changeAmount), className: changeAmount < 0 ? "is-down" : "is-up" },
         { text: formatStockChange(changePercent), className: changePercent < 0 ? "is-down" : "is-up" },
-        { text: `${formatStockNumber(displayVolume)} shares`, className: "stock-num" },
+        { text: `${formatStockNumber(displayVolume)}주`, className: "stock-num" },
         { text: formatStockTime(latestStockTime(stock)), className: "stock-time" },
       ];
       row.append(nameCell);
@@ -4164,8 +4166,8 @@ function renderStockStrength(elements, stock, trades) {
     elements.meter.style.width = `${clamped}%`;
     elements.meter.classList.toggle("is-down", isCold);
   }
-  if (elements.buy) elements.buy.textContent = `${formatStockNumber(totals.buy)} shares`;
-  if (elements.sell) elements.sell.textContent = `${formatStockNumber(totals.sell)} shares`;
+  if (elements.buy) elements.buy.textContent = `${formatStockNumber(totals.buy)}주`;
+  if (elements.sell) elements.sell.textContent = `${formatStockNumber(totals.sell)}주`;
 }
 
 function renderStockDetail(elements, stock, result) {
@@ -4192,13 +4194,13 @@ function stockInfoMeta(stock) {
   return STOCK_INFO_META[code] || {
     icon: "●",
     asset: `${code || "NFO"}/KRW`,
-    category: "Server asset",
+    category: "서버 자산",
     rank: 4,
     links: [
-      ["Official Website", "/stock.html"],
-      ["Whitepaper", "/rules.html"],
-      ["Explorer", "/status.html"],
-      ["Research", "/plugins.html"],
+      ["공식 화면", "/stock.html"],
+      ["규칙 문서", "/rules.html"],
+      ["서버 상태", "/status.html"],
+      ["경제 분석", "/plugins.html"],
     ],
   };
 }
@@ -4277,35 +4279,34 @@ function renderStockCoinInfo(container, stock, result, metrics, stocks) {
   const stats = document.createElement("div");
   stats.className = "stock-info-stats";
   stats.replaceChildren(
-    stockInfoMetricRow("Rank", `No. ${meta.rank}`),
-    stockInfoMetricRow("Market Capitalization", formatStockKrw(marketCap)),
-    stockInfoMetricRow("Fully Diluted Market Cap", formatStockKrw(marketCap * (maxSupply / Math.max(1, shares)))),
-    stockInfoMetricRow("Market Dominance", formatStockPercent(dominance, 2)),
-    stockInfoMetricRow("Volume", `${formatStockNumber(volume)} shares`),
-    stockInfoMetricRow("Volume/Market Cap", formatStockPercent((volume * price * 100) / Math.max(1, marketCap), 2)),
-    stockInfoMetricRow("Circulating Supply", `${formatStockNumber(shares)} ${code}`),
-    stockInfoMetricRow("Maximum Supply", `${formatStockNumber(maxSupply)} ${code}`),
-    stockInfoMetricRow("Total Supply", `${formatStockNumber(totalSupply)} ${code}`),
-    stockInfoMetricRow("Platform Concentration", formatStockPercent(concentration, 2)),
+    stockInfoMetricRow("순위", `${meta.rank}위`),
+    stockInfoMetricRow("시가총액", formatStockKrw(marketCap)),
+    stockInfoMetricRow("완전희석 시가총액", formatStockKrw(marketCap * (maxSupply / Math.max(1, shares)))),
+    stockInfoMetricRow("시장 점유율", formatStockPercent(dominance, 2)),
+    stockInfoMetricRow("거래량", `${formatStockNumber(volume)}주`),
+    stockInfoMetricRow("거래량/시가총액", formatStockPercent((volume * price * 100) / Math.max(1, marketCap), 2)),
+    stockInfoMetricRow("유통 주식", `${formatStockNumber(shares)} ${code}`),
+    stockInfoMetricRow("최대 주식", `${formatStockNumber(maxSupply)} ${code}`),
+    stockInfoMetricRow("총 주식", `${formatStockNumber(totalSupply)} ${code}`),
+    stockInfoMetricRow("플랫폼 집중도", formatStockPercent(concentration, 2)),
   );
 
   const links = document.createElement("aside");
   links.className = "stock-info-links";
   const issue = document.createElement("p");
   issue.className = "stock-info-feedback";
-  issue.textContent = "Found an issue? ";
+  issue.textContent = "문제가 있나요? ";
   const feedback = document.createElement("a");
   feedback.href = "/status.html";
-  feedback.textContent = "Submit FeedBack";
+  feedback.textContent = "피드백 보내기";
   issue.append(feedback);
   const linksTitle = document.createElement("h3");
-  linksTitle.textContent = "Links";
+  linksTitle.textContent = "바로가기";
   const linkGrid = document.createElement("div");
   linkGrid.replaceChildren(...meta.links.map(([label, href]) => stockInfoPill(label, href)));
   const note = document.createElement("p");
   note.className = "stock-info-note";
-  note.textContent =
-    "Underlying data is sourced from AuroraLink market candles and Minecraft server trading records. This information is for in-game reference only.";
+  note.textContent = "기초 데이터는 AuroraLink 시장 캔들과 마인크래프트 서버 거래 기록을 기준으로 합니다. 이 정보는 게임 내 참고용입니다.";
   links.replaceChildren(issue, linksTitle, linkGrid, note);
 
   const layout = document.createElement("div");
@@ -4321,32 +4322,32 @@ function renderStockTradingInfo(container, stock, result, metrics, depth) {
   const spread = Number(depth?.spread || 0);
   const volatility = Number(metrics?.volatility || 0);
   const rows = [
-    ["Pair", `${code}/KRW spot-style`],
-    ["Tick Size", "₩1"],
-    ["Order Types", "Market / Limit / Stop / OCO"],
-    ["Maker / Taker Fee", "0.30% / 0.30%"],
-    ["Current Spread", formatStockKrw(spread)],
-    ["24H Volatility", formatStockPercent(volatility, 2)],
-    ["Max Order Size", "500 shares"],
-    ["Settlement", "Server money"],
+    ["종목", `${code}/KRW 현물형`],
+    ["호가 단위", "₩1"],
+    ["주문 유형", "시장가 / 지정가 / 조건부 / OCO"],
+    ["메이커 / 테이커 수수료", "0.30% / 0.30%"],
+    ["현재 스프레드", formatStockKrw(spread)],
+    ["24시간 변동성", formatStockPercent(volatility, 2)],
+    ["최대 주문 수량", "500주"],
+    ["결제", "서버 머니"],
   ];
-  renderStockInfoTable(container, "Trading Parameters", rows);
+  renderStockInfoTable(container, "거래 조건", rows);
 }
 
 function renderStockMarginInfo(container, stock, metrics) {
   const volatility = Number(metrics?.volatility || 0);
   const maintenance = clampStockValue(4 + volatility * 0.42, 4, 18);
   const rows = [
-    ["Margin Mode", "Cross / Isolated"],
-    ["Maximum Leverage", "5x"],
-    ["Initial Margin", "20.00% at 5x"],
-    ["Maintenance Margin", formatStockPercent(maintenance, 2)],
-    ["Liquidation Buffer", formatStockPercent(maintenance + 6, 2)],
-    ["Auto Deleverage", volatility >= 8 ? "High priority" : "Normal"],
-    ["Reduce Only", "Supported"],
-    ["Post Only", "Supported"],
+    ["증거금 모드", "교차 / 격리"],
+    ["최대 레버리지", "5x"],
+    ["초기 증거금", "5x 기준 20.00%"],
+    ["유지 증거금", formatStockPercent(maintenance, 2)],
+    ["청산 완충폭", formatStockPercent(maintenance + 6, 2)],
+    ["자동 디레버리지", volatility >= 8 ? "우선순위 높음" : "보통"],
+    ["축소 전용", "지원"],
+    ["메이커 전용", "지원"],
   ];
-  renderStockInfoTable(container, "Leverage & Margin", rows);
+  renderStockInfoTable(container, "레버리지와 증거금", rows);
 }
 
 function renderStockFundingInfo(container, stock, metrics) {
@@ -4357,10 +4358,10 @@ function renderStockFundingInfo(container, stock, metrics) {
     return [
       formatStockDateTime(new Date(now - index * 3 * 60 * 60 * 1000)),
       formatStockPercent(stepRate, 4, true),
-      stepRate >= 0 ? "Long pays short" : "Short pays long",
+      stepRate >= 0 ? "롱이 숏에 지급" : "숏이 롱에 지급",
     ];
   });
-  renderStockInfoTable(container, "Funding History", rows, ["Time", "Rate", "Direction"]);
+  renderStockInfoTable(container, "자금 이력", rows, ["시간", "비율", "방향"]);
 }
 
 function renderStockIndexInfo(container, stock, result, marketMeta, stocks) {
@@ -4371,19 +4372,19 @@ function renderStockIndexInfo(container, stock, result, marketMeta, stocks) {
     (Array.isArray(stocks) ? stocks : []).reduce((sum, item) => sum + stockInfoMarketCap(item, { price: item?.price }), 0),
   );
   const rows = [
-    ["Index Symbol", "NFO Composite"],
-    ["Index Value", formatStockNumber(marketIndex)],
-    ["Mark Price", formatStockKrw(result?.price || stock?.price)],
-    ["Index Weight", formatStockPercent((marketCap / totalCap) * 100, 2)],
-    ["Oracle Source", "AuroraLink API"],
-    ["Update Cycle", "60 seconds"],
-    ["Candle Interval", "15 minutes"],
-    ["Session", marketMeta?.session || "24H LIVE"],
+    ["지수 심볼", "NFO 종합"],
+    ["지수 값", formatStockNumber(marketIndex)],
+    ["표시가", formatStockKrw(result?.price || stock?.price)],
+    ["지수 비중", formatStockPercent((marketCap / totalCap) * 100, 2)],
+    ["오라클 소스", "AuroraLink API"],
+    ["갱신 주기", "60초"],
+    ["캔들 간격", "15분"],
+    ["세션", marketMeta?.session || "24시간 실시간"],
   ];
-  renderStockInfoTable(container, "Index Info", rows);
+  renderStockInfoTable(container, "지수 정보", rows);
 }
 
-function renderStockInfoTable(container, title, rows, headers = ["Parameter", "Value"]) {
+function renderStockInfoTable(container, title, rows, headers = ["항목", "값"]) {
   const section = document.createElement("section");
   section.className = "stock-info-table-panel";
   const heading = document.createElement("h3");
@@ -4429,12 +4430,12 @@ function renderStockRawDataTerminal(summary, table, stock, result, tick, range) 
     const latest = rows.at(-1) || {};
     const first = rows[0] || {};
     const summaryItems = [
-      ["Symbol", stockInfoMeta(stock).asset],
-      ["Last Price", formatStockKrw(result?.price || latest.close)],
-      ["Open", formatStockKrw(first.open || result?.open)],
-      ["High", formatStockKrw(result?.high)],
-      ["Low", formatStockKrw(result?.low)],
-      ["Volume", `${formatStockNumber(result?.volume)} shares`],
+      ["종목", stockInfoMeta(stock).asset],
+      ["현재가", formatStockKrw(result?.price || latest.close)],
+      ["시가", formatStockKrw(first.open || result?.open)],
+      ["고가", formatStockKrw(result?.high)],
+      ["저가", formatStockKrw(result?.low)],
+      ["거래량", `${formatStockNumber(result?.volume)}주`],
     ];
     summary.replaceChildren(
       ...summaryItems.map(([label, value]) => {
@@ -4457,7 +4458,7 @@ function renderStockRawDataTerminal(summary, table, stock, result, tick, range) 
         formatStockKrw(point.high),
         formatStockKrw(point.low),
         formatStockKrw(point.close),
-        `${formatStockNumber(point.volume)} shares`,
+        `${formatStockNumber(point.volume)}주`,
       ].forEach((value) => {
         const cell = document.createElement("td");
         cell.textContent = value;
@@ -4692,7 +4693,7 @@ function renderStockDataLinePanel(definition, points) {
 }
 
 function renderStockOpenInterestPanel(points) {
-  const section = stockDataPanelShell("Open Interest", ["5m", "Single"]);
+  const section = stockDataPanelShell("미결제 약정", ["5분", "단일"]);
   const interestValues = points.map((point) => point.openInterest);
   const notionalValues = points.map((point) => point.notional);
   const interestRange = stockDataRange(interestValues);
@@ -4706,7 +4707,7 @@ function renderStockOpenInterestPanel(points) {
     viewBox: "0 0 640 224",
     preserveAspectRatio: "none",
     role: "img",
-    "aria-label": "Open Interest",
+    "aria-label": "미결제 약정",
   });
   appendStockDataGrid(svg);
 
@@ -4753,7 +4754,7 @@ function renderStockOpenInterestPanel(points) {
 
   const legend = document.createElement("div");
   legend.className = "stock-data-legend";
-  legend.replaceChildren(stockDataLegendItem("Open Interest", "bar"), stockDataLegendItem("Notional Value", "muted-line"));
+  legend.replaceChildren(stockDataLegendItem("미결제 약정", "bar"), stockDataLegendItem("명목 가치", "muted-line"));
 
   section.append(frame, legend);
   return section;
@@ -4771,30 +4772,30 @@ function renderStockDataAnalytics(container, stock, rows, result, tick) {
     renderStockOpenInterestPanel(points),
     renderStockDataLinePanel(
       {
-        title: "Top Trader Long/Short Ratio (Accounts)",
-        controls: ["5m"],
+        title: "상위 트레이더 롱/숏 비율(계정)",
+        controls: ["5분"],
         key: "accountsRatio",
-        legend: "Long/Short Ratio (Accounts)",
+        legend: "상위 트레이더 롱/숏 비율(계정)",
         formatter: ratioFormatter,
       },
       points,
     ),
     renderStockDataLinePanel(
       {
-        title: "Top Trader Long/Short Ratio (Positions)",
-        controls: ["5m"],
+        title: "상위 트레이더 롱/숏 비율(포지션)",
+        controls: ["5분"],
         key: "positionsRatio",
-        legend: "Long/Short Ratio (Positions)",
+        legend: "상위 트레이더 롱/숏 비율(포지션)",
         formatter: ratioFormatter,
       },
       points,
     ),
     renderStockDataLinePanel(
       {
-        title: "Long/Short Ratio",
-        controls: ["5m"],
+        title: "롱/숏 비율",
+        controls: ["5분"],
         key: "longShortRatio",
-        legend: "Long/Short Ratio",
+        legend: "롱/숏 비율",
         formatter: ratioFormatter,
       },
       points,
@@ -4812,12 +4813,12 @@ function renderStockDataTerminal(analytics, summary, table, stock, result, tick,
     const latest = rows.at(-1) || {};
     const first = rows[0] || {};
     const summaryItems = [
-      ["Symbol", stockInfoMeta(stock).asset],
-      ["Last Price", formatStockKrw(result?.price || latest.close)],
-      ["Open", formatStockKrw(first.open || result?.open)],
-      ["High", formatStockKrw(result?.high)],
-      ["Low", formatStockKrw(result?.low)],
-      ["Volume", `${formatStockNumber(result?.volume)} shares`],
+      ["종목", stockInfoMeta(stock).asset],
+      ["현재가", formatStockKrw(result?.price || latest.close)],
+      ["시가", formatStockKrw(first.open || result?.open)],
+      ["고가", formatStockKrw(result?.high)],
+      ["저가", formatStockKrw(result?.low)],
+      ["거래량", `${formatStockNumber(result?.volume)}주`],
     ];
     summary.replaceChildren(
       ...summaryItems.map(([label, value]) => {
@@ -4841,7 +4842,7 @@ function renderStockDataTerminal(analytics, summary, table, stock, result, tick,
         formatStockKrw(point.high),
         formatStockKrw(point.low),
         formatStockKrw(point.close),
-        `${formatStockNumber(point.volume)} shares`,
+        `${formatStockNumber(point.volume)}주`,
       ].forEach((value) => {
         const cell = document.createElement("td");
         cell.textContent = value;
@@ -4903,9 +4904,9 @@ function renderDepthLevels(list, levels, maxTotal, reverse = false) {
     price.className = "stock-depth-price";
     price.textContent = formatStockKrw(level.price);
     const quantity = document.createElement("span");
-    quantity.textContent = `${formatStockNumber(level.quantity)} shares`;
+    quantity.textContent = `${formatStockNumber(level.quantity)}주`;
     const total = document.createElement("em");
-    total.textContent = `${formatStockNumber(level.total)} shares`;
+    total.textContent = `${formatStockNumber(level.total)}주`;
     row.append(price, quantity, total);
     return row;
   });
@@ -4923,17 +4924,17 @@ function renderStockOrderBook(book, stock, options = {}) {
     const price = document.createElement("strong");
     price.textContent = formatStockKrw(depth.mid);
     const spread = document.createElement("span");
-    spread.textContent = `Spread ${formatStockKrw(depth.spread)} / ${depth.spreadPercent.toFixed(2)}%`;
+    spread.textContent = `스프레드 ${formatStockKrw(depth.spread)} / ${depth.spreadPercent.toFixed(2)}%`;
     options.midPrice.append(price, spread);
   }
   if (options.ratioLabel) {
-    options.ratioLabel.textContent = `Buy ${depth.bidRatio}%`;
+    options.ratioLabel.textContent = `매수 ${depth.bidRatio}%`;
   }
   if (options.depthMeter) {
     const fill = options.depthMeter.querySelector("span");
     const label = options.depthMeter.querySelector("em");
     if (fill) fill.style.width = `${depth.bidRatio}%`;
-    if (label) label.textContent = `Buy pressure ${depth.bidRatio}% / Sell ${100 - depth.bidRatio}%`;
+    if (label) label.textContent = `매수 압력 ${depth.bidRatio}% / 매도 ${100 - depth.bidRatio}%`;
   }
   return depth;
 }
@@ -4969,7 +4970,7 @@ function renderInteractiveDepthLevels(list, levels, maxTotal, options = {}) {
       row.setAttribute("role", "button");
       row.setAttribute(
         "aria-label",
-        `${level.side === "ask" ? "Ask" : "Bid"} ${formatStockKrw(level.price)} size ${formatStockNumber(level.quantity)}`,
+        `${level.side === "ask" ? "매도호가" : "매수호가"} ${formatStockKrw(level.price)} 수량 ${formatStockNumber(level.quantity)}주`,
       );
       row.addEventListener("click", select);
       row.addEventListener("keydown", (event) => {
@@ -5032,18 +5033,18 @@ function renderStockOrderBookPanel(book, stock, options = {}) {
     const price = document.createElement("strong");
     price.textContent = formatStockKrw(depth.mid);
     const spread = document.createElement("span");
-    spread.textContent = `Spread ${formatStockKrw(depth.spread)} / ${depth.spreadPercent.toFixed(2)}%`;
+    spread.textContent = `스프레드 ${formatStockKrw(depth.spread)} / ${depth.spreadPercent.toFixed(2)}%`;
     options.midPrice.append(price, spread);
   }
   if (options.ratioLabel) {
-    options.ratioLabel.textContent = `Buy ${depth.bidRatio}%`;
+    options.ratioLabel.textContent = `매수 ${depth.bidRatio}%`;
   }
   if (options.depthMeter) {
     options.depthMeter.hidden = !settings.showMeter;
     const fill = options.depthMeter.querySelector("span");
     const label = options.depthMeter.querySelector("em");
     if (fill) fill.style.width = `${depth.bidRatio}%`;
-    if (label) label.textContent = `Buy pressure ${depth.bidRatio}% / Sell ${100 - depth.bidRatio}%`;
+    if (label) label.textContent = `매수 압력 ${depth.bidRatio}% / 매도 ${100 - depth.bidRatio}%`;
   }
   return depth;
 }
@@ -5051,7 +5052,7 @@ function renderStockOrderBookPanel(book, stock, options = {}) {
 function renderStockPortfolio(list, balanceLabel, portfolio, market) {
   if (balanceLabel) {
     balanceLabel.textContent =
-      portfolio?.balance === undefined ? "Verify to show KRW balance" : `KRW Balance ${formatStockKrw(portfolio.balance)}`;
+      portfolio?.balance === undefined ? "인증 후 KRW 잔고 표시" : `KRW 잔고 ${formatStockKrw(portfolio.balance)}`;
   }
   if (!list) return;
   const positions = Array.isArray(portfolio?.positions) ? portfolio.positions : [];
@@ -5064,7 +5065,7 @@ function renderStockPortfolio(list, balanceLabel, portfolio, market) {
   if (!rows.length) {
     const item = document.createElement("li");
     item.className = "is-empty";
-    item.innerHTML = "<span>No holdings</span><strong>--</strong>";
+    item.innerHTML = "<span>보유 종목 없음</span><strong>--</strong>";
     list.replaceChildren(item);
     return;
   }
@@ -5076,9 +5077,9 @@ function renderStockPortfolio(list, balanceLabel, portfolio, market) {
       const item = document.createElement("li");
       if (!shares) item.className = "is-empty";
       const label = document.createElement("span");
-      label.textContent = `${code} · ${stock?.name || position?.name || "Position"}`;
+      label.textContent = `${code} · ${stock?.name || position?.name || "포지션"}`;
       const amount = document.createElement("strong");
-      amount.textContent = `${formatStockNumber(shares)} shares`;
+      amount.textContent = `${formatStockNumber(shares)}주`;
       const detail = document.createElement("em");
       detail.textContent = formatStockKrw(value);
       item.append(label, amount, detail);
@@ -5113,10 +5114,10 @@ function renderStockAccount(elements, portfolio, market) {
   if (elements.maintenance) elements.maintenance.textContent = formatStockKrw(maintenance);
   if (elements.balance) elements.balance.textContent = formatStockKrw(marginBalance);
   if (elements.positionValue) elements.positionValue.textContent = formatStockKrw(positionValue);
-  if (elements.mode) elements.mode.textContent = "Single-Asset Mode";
+  if (elements.mode) elements.mode.textContent = "단일 자산 모드";
 }
 
-function stockActivityEmpty(label = "Open Trading Account to trade") {
+function stockActivityEmpty(label = "거래하려면 계정을 인증하세요.") {
   const empty = document.createElement("div");
   empty.className = "stock-activity-empty";
   empty.textContent = label;
@@ -5158,14 +5159,14 @@ function renderStockActivityPanel(body, buttons, view, portfolio, market, active
   );
   const stocks = Array.isArray(market?.stocks) ? market.stocks : [];
   const labels = {
-    positions: `Positions(${positions.length})`,
-    "open-orders": "Open Orders(0)",
-    "order-history": "Order History",
-    "trade-history": `Trade History${trades.length ? `(${trades.length})` : ""}`,
-    "transaction-history": "Transaction History",
-    "position-history": "Position History",
-    bots: "Bots",
-    assets: "Assets",
+    positions: `포지션(${positions.length})`,
+    "open-orders": "미체결(0)",
+    "order-history": "주문 내역",
+    "trade-history": `체결 내역${trades.length ? `(${trades.length})` : ""}`,
+    "transaction-history": "입출금 내역",
+    "position-history": "포지션 내역",
+    bots: "자동매매",
+    assets: "자산",
   };
 
   buttons.forEach((button) => {
@@ -5178,14 +5179,14 @@ function renderStockActivityPanel(body, buttons, view, portfolio, market, active
   if (view === "positions" && positions.length) {
     body.replaceChildren(
       stockActivityTable(
-        ["Symbol", "Size", "Entry", "Mark", "Value"],
+        ["종목", "수량", "진입가", "표시가", "평가액"],
         positions.map((position) => {
           const code = position.symbol || position.code;
           const stock = stocks.find((item) => stockCode(item) === code);
           const shares = Number(position.shares ?? position.quantity ?? 0);
           const entry = Number(position.entryPrice || position.price || stock?.price || 0);
           const mark = Number(stock?.price || entry);
-          return [code, `${formatStockNumber(shares)} shares`, formatStockKrw(entry), formatStockKrw(mark), formatStockKrw(shares * mark)];
+          return [code, `${formatStockNumber(shares)}주`, formatStockKrw(entry), formatStockKrw(mark), formatStockKrw(shares * mark)];
         }),
       ),
     );
@@ -5195,12 +5196,12 @@ function renderStockActivityPanel(body, buttons, view, portfolio, market, active
   if (view === "trade-history" && trades.length) {
     body.replaceChildren(
       stockActivityTable(
-        ["Time", "Symbol", "Side", "Size", "Price"],
+        ["시간", "종목", "방향", "수량", "가격"],
         trades.slice(0, 12).map((trade) => [
           formatStockTime(trade.time || trade.createdAt || trade.at),
           trade.symbol || trade.code || activeCode,
-          trade.side === "sell" ? "Sell" : "Buy",
-          `${formatStockNumber(trade.quantity || trade.shares || 0)} shares`,
+          trade.side === "sell" ? "매도" : "매수",
+          `${formatStockNumber(trade.quantity || trade.shares || 0)}주`,
           formatStockKrw(trade.price),
         ]),
       ),
@@ -5211,7 +5212,7 @@ function renderStockActivityPanel(body, buttons, view, portfolio, market, active
   if (view === "assets" && stocks.length) {
     body.replaceChildren(
       stockActivityTable(
-        ["Asset", "Name", "Last", "24H"],
+        ["자산", "이름", "현재가", "24시간"],
         stocks.map((stock) => [stockCode(stock), stock.name || stockCode(stock), formatStockKrw(stock.price), formatStockChange(stock.change24h)]),
       ),
     );
@@ -5219,14 +5220,14 @@ function renderStockActivityPanel(body, buttons, view, portfolio, market, active
   }
 
   const emptyLabels = {
-    bots: "No bots are running",
-    assets: "No assets loaded",
-    "open-orders": "No open orders",
-    "order-history": "No order history",
-    "transaction-history": "No transaction history",
-    "position-history": "No closed positions",
+    bots: "실행 중인 자동매매가 없습니다.",
+    assets: "불러온 자산이 없습니다.",
+    "open-orders": "미체결 주문이 없습니다.",
+    "order-history": "주문 내역이 없습니다.",
+    "transaction-history": "입출금 내역이 없습니다.",
+    "position-history": "종료된 포지션이 없습니다.",
   };
-  body.replaceChildren(stockActivityEmpty(emptyLabels[view] || "Open Trading Account to trade"));
+  body.replaceChildren(stockActivityEmpty(emptyLabels[view] || "거래하려면 계정을 인증하세요."));
 }
 
 function formatMetricPercent(value) {
@@ -5245,11 +5246,11 @@ function expertSignal(metrics, depth) {
   if (metrics.vwapGap < 0) score -= 1;
   if ((depth?.bidRatio || 50) >= 58) score += 1;
   if ((depth?.bidRatio || 50) <= 42) score -= 1;
-  if (score >= 3) return { label: "Strong Buy", tone: "buy" };
-  if (score >= 1) return { label: "Buy Bias", tone: "buy" };
-  if (score <= -3) return { label: "Strong Sell", tone: "sell" };
-  if (score <= -1) return { label: "Sell Bias", tone: "sell" };
-  return { label: "Neutral", tone: "neutral" };
+  if (score >= 3) return { label: "강한 매수", tone: "buy" };
+  if (score >= 1) return { label: "매수 우위", tone: "buy" };
+  if (score <= -3) return { label: "강한 매도", tone: "sell" };
+  if (score <= -1) return { label: "매도 우위", tone: "sell" };
+  return { label: "중립", tone: "neutral" };
 }
 
 function liquidationPrice(price, leverage, side) {
@@ -5266,10 +5267,10 @@ function orderRiskLabel(leverage, volatility, depth) {
   const vol = Number(volatility) || 0;
   const imbalance = Math.abs((Number(depth?.bidRatio) || 50) - 50);
   const score = lev * 0.9 + vol * 0.55 + imbalance * 0.06;
-  if (score >= 10) return "Very High";
-  if (score >= 6) return "High";
-  if (score >= 3.5) return "Medium";
-  return "Low";
+  if (score >= 10) return "매우 높음";
+  if (score >= 6) return "높음";
+  if (score >= 3.5) return "보통";
+  return "낮음";
 }
 
 function renderExpertPanel(elements, metrics, depth, stock, orderElements, activeSide) {
@@ -5286,8 +5287,8 @@ function renderExpertPanel(elements, metrics, depth, stock, orderElements, activ
     const items = [
       ["RSI", metrics.rsi.toFixed(1)],
       ["MACD", formatStockSignedKrw(macdGap)],
-      ["Volatility", `${metrics.volatility.toFixed(2)}%`],
-      ["VWAP Gap", formatMetricPercent(metrics.vwapGap)],
+      ["변동성", `${metrics.volatility.toFixed(2)}%`],
+      ["VWAP 괴리", formatMetricPercent(metrics.vwapGap)],
     ];
     elements.metrics.replaceChildren(
       ...items.map(([label, value]) => {
@@ -5303,11 +5304,11 @@ function renderExpertPanel(elements, metrics, depth, stock, orderElements, activ
     const leverage = Math.max(1, Math.min(STOCK_MAX_LEVERAGE, Number(orderElements?.leverage?.value || 1)));
     const liq = liquidationPrice(price, leverage, activeSide);
     const risk = orderRiskLabel(leverage, metrics.volatility, depth);
-    const pressure = `Buy ${depth?.bidRatio ?? 50}%`;
+    const pressure = `매수 ${depth?.bidRatio ?? 50}%`;
     const rows = [
-      ["Est. Liquidation", liq ? formatStockKrw(liq) : "No spot position"],
-      ["Risk", risk],
-      ["Book Pressure", pressure],
+      ["예상 청산가", liq ? formatStockKrw(liq) : "현물 포지션 없음"],
+      ["위험도", risk],
+      ["호가 압력", pressure],
     ];
     elements.risk.replaceChildren(
       ...rows.map(([label, value]) => {
@@ -5383,15 +5384,15 @@ function renderOrderTicket(elements, stock, side, playerProfile, portfolio, live
   const maxQuantity = stockOrderMaxQuantity(stock, portfolio, side, leverage, executionPrice, reduceOnly);
 
   if (elements.symbol) elements.symbol.textContent = stockCode(stock);
-  if (elements.side) elements.side.textContent = side === "sell" ? "Sell" : "Buy";
+  if (elements.side) elements.side.textContent = side === "sell" ? "매도" : "매수";
   if (elements.available) {
     elements.available.textContent = formatStockKrw(balance.value);
-    elements.available.title = balance.preview ? "Preview balance" : "";
+    elements.available.title = balance.preview ? "미리보기 잔고" : "";
   }
-  if (elements.max) elements.max.textContent = `${formatStockNumber(maxQuantity)} shares`;
+  if (elements.max) elements.max.textContent = `${formatStockNumber(maxQuantity)}주`;
   if (elements.limit) {
     elements.limit.disabled = orderType === "market";
-    elements.limit.placeholder = orderType === "market" ? "Market Price" : "Current price";
+    elements.limit.placeholder = orderType === "market" ? "시장가" : "현재가";
   }
   if (elements.quantity) elements.quantity.max = String(Math.max(1, maxQuantity));
   if (elements.takeProfit) elements.takeProfit.disabled = !tpSlEnabled;
@@ -5401,19 +5402,19 @@ function renderOrderTicket(elements, stock, side, playerProfile, portfolio, live
   if (elements.estimate) {
     elements.estimate.replaceChildren();
     [
-      ["Est. Fill Price", formatStockKrw(executionPrice)],
-      ["Order Size", `${formatStockNumber(quantity)} shares`],
-      ["Leverage", `${leverage}x`],
-      ["Order Value", formatStockKrw(notional)],
-      ["Required Margin", formatStockKrw(margin)],
-      ["Fee", formatStockKrw(fee)],
-      [side === "sell" ? "Est. Receive" : "Est. Cost", formatStockKrw(total)],
-      ["Liquidation", liq ? formatStockKrw(liq) : "No spot position"],
-      ["Risk", risk],
-      ["TP / SL", tpSlEnabled ? `${takeProfit ? formatStockKrw(takeProfit) : "--"} / ${stopLoss ? formatStockKrw(stopLoss) : "--"}` : "Off"],
-      ["TIF / Post", `${timeInForce} / ${elements.postOnly?.value === "on" ? "Post" : "Off"}`],
-      ["Max", `${formatStockNumber(maxQuantity)} shares`],
-      ["Position", position ? `${formatStockNumber(position.shares ?? position.quantity ?? 0)} shares` : "0 shares"],
+      ["예상 체결가", formatStockKrw(executionPrice)],
+      ["주문 수량", `${formatStockNumber(quantity)}주`],
+      ["레버리지", `${leverage}x`],
+      ["주문 가치", formatStockKrw(notional)],
+      ["필요 증거금", formatStockKrw(margin)],
+      ["수수료", formatStockKrw(fee)],
+      [side === "sell" ? "예상 수령" : "예상 비용", formatStockKrw(total)],
+      ["청산가", liq ? formatStockKrw(liq) : "현물 포지션 없음"],
+      ["위험도", risk],
+      ["익절 / 손절", tpSlEnabled ? `${takeProfit ? formatStockKrw(takeProfit) : "--"} / ${stopLoss ? formatStockKrw(stopLoss) : "--"}` : "끄기"],
+      ["TIF / 메이커", `${timeInForce} / ${elements.postOnly?.value === "on" ? "메이커" : "끄기"}`],
+      ["최대", `${formatStockNumber(maxQuantity)}주`],
+      ["보유", position ? `${formatStockNumber(position.shares ?? position.quantity ?? 0)}주` : "0주"],
     ].forEach(([label, value]) => {
       const item = document.createElement("span");
       item.innerHTML = `<em>${label}</em><strong>${value}</strong>`;
@@ -5425,12 +5426,12 @@ function renderOrderTicket(elements, stock, side, playerProfile, portfolio, live
     setTradeMessage(
       elements.message,
       loading
-        ? "Submitting order..."
+        ? "주문 전송 중..."
         : !PLAYER_API_BASES.length
-        ? "Preview only until the stock API is connected."
+        ? "주식 API 연결 전까지는 미리보기만 가능합니다."
         : !liveMarket
-          ? "Loading live stock API. Try again in a moment."
-          : "Log in and verify your character to enable live orders.",
+          ? "실시간 주식 API를 불러오는 중입니다. 잠시 후 다시 시도하세요."
+          : "실시간 주문은 로그인과 캐릭터 인증 후 사용할 수 있습니다.",
       PLAYER_API_BASES.length ? "info" : "error",
     );
   }
@@ -5563,6 +5564,7 @@ function initStockExchange() {
   const activityButtons = document.querySelectorAll("[data-stock-activity-view]");
   const activityBody = document.querySelector("[data-stock-activity-body]");
   const orderForm = document.querySelector("[data-stock-order-form]");
+  const compactOrderTicket = document.querySelector(".stock-order-ticket.is-compact");
   const orderElements = {
     root: orderForm,
     quantity: document.querySelector("[data-stock-order-quantity]"),
@@ -5769,9 +5771,9 @@ function initStockExchange() {
         render();
       }, 1200);
     }
-    const sideLabel = level.side === "ask" ? "ask" : "bid";
+    const sideLabel = level.side === "ask" ? "매도호가" : "매수호가";
     render();
-    setTradeMessage(orderElements.message, `Order book ${sideLabel} ${formatStockKrw(priceValue)} selected`, "info");
+    setTradeMessage(orderElements.message, `${sideLabel} ${formatStockKrw(priceValue)} 선택됨`, "info");
   }
 
   function applyDepthMidToOrder() {
@@ -5822,14 +5824,14 @@ function initStockExchange() {
     orderElements.limit.value = String(Math.max(1, Math.round(Number(level.price) || 1)));
     if (orderElements.type) orderElements.type.value = "limit";
     render();
-    setTradeMessage(orderElements.message, `BBO ${formatStockKrw(level.price)} applied`, "info");
+    setTradeMessage(orderElements.message, `최우선 호가 ${formatStockKrw(level.price)} 적용`, "info");
   }
 
   function toggleMarginMode() {
     if (!orderElements.marginMode) return;
     const next = orderElements.marginMode.dataset.stockMarginMode === "isolated" ? "cross" : "isolated";
     orderElements.marginMode.dataset.stockMarginMode = next;
-    orderElements.marginMode.textContent = next === "isolated" ? "Isolated" : "Cross";
+    orderElements.marginMode.textContent = next === "isolated" ? "격리" : "교차";
     orderElements.marginMode.setAttribute("aria-pressed", String(next === "isolated"));
     render();
   }
@@ -5918,17 +5920,17 @@ function initStockExchange() {
     setStockNodeText(open, formatStockKrw(stock.open24h || result.open));
     setStockNodeText(high, formatStockKrw(stock.high24h || result.price));
     setStockNodeText(low, formatStockKrw(stock.low24h || result.price));
-    setStockNodeText(quoteVolume, `${formatStockNumber(displayedStockVolume)} shares`);
+    setStockNodeText(quoteVolume, `${formatStockNumber(displayedStockVolume)}주`);
     setStockNodeText(indexValue, formatStockNumber(marketMeta.index));
     const indexDelta = Number(marketMeta.indexChange24h || 0);
     setStockNodeText(indexChange, formatStockChange(indexDelta));
     toggleStockNodeClass(indexChange, "is-down", indexDelta < 0);
     toggleStockNodeClass(indexChange, "is-up", indexDelta >= 0);
-    setStockNodeText(volume, `${formatStockNumber(displayedMarketVolume)} shares`);
+    setStockNodeText(volume, `${formatStockNumber(displayedMarketVolume)}주`);
     setStockNodeText(cap, formatStockKrwCompact(marketMeta.marketCap));
-    setStockNodeText(session, liveMarket ? marketMeta.session || "24H LIVE" : marketMeta.session || "API WAIT");
+    setStockNodeText(session, liveMarket ? marketMeta.session || "24시간 실시간" : marketMeta.session || "API 대기");
     updated.forEach((label) => {
-      label.textContent = liveMarket ? `Updated ${formatStockTime(marketMeta.updatedAt)}` : "Preview";
+      label.textContent = liveMarket ? `${formatStockTime(marketMeta.updatedAt)} 갱신` : "미리보기";
     });
     rangeButtons.forEach((button) => {
       button.classList.toggle("is-active", button.dataset.stockRange === activeRange);
@@ -6139,6 +6141,7 @@ function initStockExchange() {
     button.addEventListener("click", () => {
       activeSide = button.dataset.stockOrderSide || "buy";
       render();
+      if (compactOrderTicket && !orderLoading) orderForm?.requestSubmit();
     });
   });
   orderElements.marginMode?.addEventListener("click", toggleMarginMode);
@@ -6185,7 +6188,7 @@ function initStockExchange() {
     const takeProfit = Math.max(0, Number(orderElements.takeProfit?.value || 0));
     const stopLoss = Math.max(0, Number(orderElements.stopLoss?.value || 0));
     const tpSlEnabled = orderElements.tpSlToggle ? Boolean(orderElements.tpSlToggle.checked) : true;
-    const sideLabel = activeSide === "buy" ? "Buy" : "Sell";
+    const sideLabel = activeSide === "buy" ? "매수" : "매도";
     playerProfile = currentPlayerProfile();
     const canTrade = Boolean(playerProfile?.verified && playerProfile?.webToken && PLAYER_API_BASES.length && liveMarket && stock);
     if (!canTrade) {
@@ -6193,10 +6196,10 @@ function initStockExchange() {
       setTradeMessage(
         orderElements.message,
         !PLAYER_API_BASES.length
-          ? "API connection is required for live orders."
+          ? "실시간 주문에는 API 연결이 필요합니다."
           : !liveMarket
-            ? "Live market is loading. Try again in a moment."
-            : "Login and character verification are required for live orders.",
+            ? "실시간 시장 데이터를 불러오는 중입니다. 잠시 후 다시 시도하세요."
+            : "실시간 주문은 로그인과 캐릭터 인증 후 사용할 수 있습니다.",
         PLAYER_API_BASES.length ? "info" : "error",
       );
       return;
@@ -6224,11 +6227,11 @@ function initStockExchange() {
       portfolio = await fetchStockPortfolio(playerProfile).catch(() => portfolio);
       orderLoading = false;
       render();
-      setTradeMessage(orderElements.message, `${activeCode} ${sideLabel} ${formatStockNumber(quantity)} shares filled`, "success");
+      setTradeMessage(orderElements.message, `${activeCode} ${sideLabel} ${formatStockNumber(quantity)}주 체결 완료`, "success");
     } catch (error) {
       orderLoading = false;
       render();
-      setTradeMessage(orderElements.message, error?.message || "Order could not be processed.", "error");
+      setTradeMessage(orderElements.message, error?.message || "주문을 처리하지 못했습니다.", "error");
     }
   });
   window.addEventListener("storage", (event) => {
@@ -6322,6 +6325,132 @@ function deferSceneLoad() {
   else window.addEventListener("load", schedule, { once: true });
 }
 
+function readUserBoardPosts(board) {
+  try {
+    const raw = localStorage.getItem(`nfoifsb.userPosts.${board}`);
+    const parsed = JSON.parse(raw || "[]");
+    return Array.isArray(parsed) ? parsed.filter((post) => post && post.title && post.body) : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeUserBoardPosts(board, posts) {
+  try {
+    localStorage.setItem(`nfoifsb.userPosts.${board}`, JSON.stringify(posts.slice(0, 40)));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function userPostUrl(value) {
+  const text = String(value || "").trim();
+  if (!text) return "";
+  if (text.startsWith("/") || /^https?:\/\//i.test(text)) return text;
+  return "";
+}
+
+function renderUserBoardPosts(root, posts) {
+  const list = root.querySelector("[data-user-post-list]");
+  if (!list) return;
+  if (!posts.length) {
+    const empty = document.createElement("article");
+    empty.className = "user-post-card";
+    const label = document.createElement("span");
+    label.textContent = root.dataset.userPostLabel || "게시판";
+    const title = document.createElement("strong");
+    title.textContent = "아직 작성된 글이 없습니다.";
+    const body = document.createElement("p");
+    body.textContent = "첫 글을 작성하면 이곳에 바로 표시됩니다.";
+    empty.replaceChildren(label, title, body);
+    list.replaceChildren(empty);
+    return;
+  }
+
+  list.replaceChildren(
+    ...posts.map((post) => {
+      const card = document.createElement("article");
+      card.className = "user-post-card";
+      const head = document.createElement("header");
+      const category = document.createElement("span");
+      category.textContent = post.category || root.dataset.userPostLabel || "게시글";
+      const remove = document.createElement("button");
+      remove.type = "button";
+      remove.textContent = "삭제";
+      remove.addEventListener("click", () => {
+        const board = root.dataset.userPosts;
+        const nextPosts = readUserBoardPosts(board).filter((item) => item.id !== post.id);
+        writeUserBoardPosts(board, nextPosts);
+        renderUserBoardPosts(root, nextPosts);
+      });
+      head.replaceChildren(category, remove);
+
+      const title = document.createElement("strong");
+      title.textContent = post.title;
+      const meta = document.createElement("small");
+      meta.textContent = `${post.author || "익명"} · ${post.createdAt || "방금"}`;
+      const body = document.createElement("p");
+      body.textContent = post.body;
+      card.append(head, title, meta, body);
+
+      const href = userPostUrl(post.url);
+      if (href) {
+        const link = document.createElement("a");
+        link.href = href;
+        link.textContent = "자료 열기";
+        card.append(link);
+      }
+      return card;
+    }),
+  );
+}
+
+function initUserPosts() {
+  document.querySelectorAll("[data-user-posts]").forEach((root) => {
+    const board = root.dataset.userPosts;
+    const form = root.querySelector("[data-user-post-form]");
+    if (!board || !form) return;
+    const status = root.querySelector("[data-user-post-status]");
+    let posts = readUserBoardPosts(board);
+    renderUserBoardPosts(root, posts);
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const title = form.querySelector("[data-user-post-title]")?.value?.trim() || "";
+      const body = form.querySelector("[data-user-post-body]")?.value?.trim() || "";
+      const author = form.querySelector("[data-user-post-author]")?.value?.trim() || "익명";
+      const category = form.querySelector("[data-user-post-category]")?.value?.trim() || root.dataset.userPostLabel || "게시글";
+      const url = userPostUrl(form.querySelector("[data-user-post-url]")?.value);
+      if (!title || !body) {
+        if (status) status.textContent = "제목과 내용을 입력하세요.";
+        return;
+      }
+      const post = {
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        author,
+        body,
+        category,
+        createdAt: new Intl.DateTimeFormat("ko-KR", {
+          dateStyle: "medium",
+          timeStyle: "short",
+          timeZone: "Asia/Seoul",
+        }).format(new Date()),
+        title,
+        url,
+      };
+      posts = [post, ...readUserBoardPosts(board)].slice(0, 40);
+      if (!writeUserBoardPosts(board, posts)) {
+        if (status) status.textContent = "브라우저 저장 공간이 부족해 글을 저장하지 못했습니다.";
+        return;
+      }
+      form.reset();
+      if (status) status.textContent = "게시글이 등록되었습니다.";
+      renderUserBoardPosts(root, posts);
+    });
+  });
+}
+
 document.querySelectorAll("[data-copy-address]").forEach((button) => {
   button.addEventListener("click", copyAddress);
 });
@@ -6331,6 +6460,7 @@ initNav();
 initPageNavigation();
 initStockExchange();
 initAnimationStagger();
+initUserPosts();
 initScrollReveal();
 initLogin();
 deferSceneLoad();

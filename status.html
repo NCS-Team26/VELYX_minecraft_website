@@ -5,12 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="nfoifsb.kr Minecraft server live status, cached fallback, player count, response time, and MOTD."
+      content="nfoifsb.kr Minecraft 서버 실시간 상태, 캐시, 접속자, 응답 속도, MOTD."
     />
     <meta name="theme-color" content="#0d1411" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0d1411" media="(prefers-color-scheme: dark)" />
     <link rel="icon" type="image/png" href="/assets/server-icon.png" />
-    <title>Status - nfoifsb.kr</title>
+    <title>상태 - nfoifsb.kr</title>
     <script>
       (function () {
         try {
@@ -28,9 +28,9 @@
   </head>
   <body>
     <div id="app">
-      <a class="skip-link" href="#content">Skip to content</a>
-      <header class="site-nav" aria-label="Primary navigation">
-        <a class="brand" href="/" aria-label="nfoifsb home">
+      <a class="skip-link" href="#content">본문으로 이동</a>
+      <header class="site-nav" aria-label="주요 메뉴">
+        <a class="brand" href="/" aria-label="nfoifsb 홈">
           <img src="/assets/server-icon.png" alt="" />
           <span>nfoifsb</span>
         </a>
@@ -39,29 +39,29 @@
           type="button"
           aria-expanded="false"
           aria-controls="primary-nav"
-          aria-label="Open menu"
+          aria-label="메뉴 열기"
           data-nav-toggle
         >
           <span aria-hidden="true">☰</span>
         </button>
-        <nav class="nav-links" id="primary-nav" aria-label="Site pages">
-          <a href="/status.html" data-section-link="status">Status</a>
-          <a href="/plugins.html" data-section-link="plugins">Economy</a>
-          <a href="/stock.html" data-section-link="stock">STOCK</a>
-          <a href="/notice.html" data-section-link="notice">Notice</a>
-          <a href="/community.html" data-section-link="community">Community</a>
-          <a href="/resources.html" data-section-link="resources">Resources</a>
-          <a href="/rules.html" data-section-link="rules">Rules</a>
-          <a href="/join.html" data-section-link="join">Join</a>
-          <a href="/admin.html" data-section-link="admin" data-admin-link hidden>Admin</a>
-          <a class="nav-login" href="/login.html" data-open-login>Login</a>
+        <nav class="nav-links" id="primary-nav" aria-label="사이트 페이지">
+          <a href="/status.html" data-section-link="status">상태</a>
+          <a href="/plugins.html" data-section-link="plugins">경제</a>
+          <a href="/stock.html" data-section-link="stock">주식</a>
+          <a href="/notice.html" data-section-link="notice">공지</a>
+          <a href="/community.html" data-section-link="community">커뮤니티</a>
+          <a href="/resources.html" data-section-link="resources">자료실</a>
+          <a href="/rules.html" data-section-link="rules">규칙</a>
+          <a href="/join.html" data-section-link="join">접속</a>
+          <a href="/admin.html" data-section-link="admin" data-admin-link hidden>관리자</a>
+          <a class="nav-login" href="/login.html" data-open-login>로그인</a>
         </nav>
       </header>
 
       <main id="content" class="screen-main">
         <section class="status-band page-screen" aria-labelledby="status-title">
           <div class="section-heading" data-reveal>
-            <p class="eyebrow">Live status</p>
+            <p class="eyebrow">실시간 상태</p>
             <h1 id="status-title"><span>서버 상태를</span> <span>바로 확인.</span></h1>
           </div>
 
@@ -79,13 +79,13 @@
               <div class="player-heads" data-player-heads hidden aria-label="접속 중인 플레이어"></div>
             </article>
 
-            <div class="detail-grid" aria-label="Server details">
+            <div class="detail-grid" aria-label="서버 상세 정보">
               <article>
                 <svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
                   <circle cx="12" cy="12" r="9" />
                   <path d="M3 12h18M12 3c2.5 2.5 2.5 16 0 18M12 3c-2.5 2.5-2.5 16 0 18" />
                 </svg>
-                <span>Address</span>
+                <span>주소</span>
                 <strong>nfoifsb.kr</strong>
               </article>
               <article>
@@ -93,14 +93,14 @@
                   <path d="M12 2l9 5v10l-9 5-9-5V7z" />
                   <path d="M12 2v20M3 7l9 5 9-5" />
                 </svg>
-                <span>Version</span>
+                <span>버전</span>
                 <strong data-version>Paper 26.1.2</strong>
               </article>
               <article>
                 <svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" />
                 </svg>
-                <span>World Border</span>
+                <span>월드 경계</span>
                 <strong>59,999,968</strong>
               </article>
               <article class="ram-live-card">
@@ -109,7 +109,7 @@
                   <rect x="9" y="9" width="6" height="6" rx="1" />
                   <path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3" />
                 </svg>
-                <span>Memory</span>
+                <span>메모리</span>
                 <strong data-ram-summary>실시간 확인 중</strong>
                 <em data-ram-percent>--</em>
                 <div class="meter ram-card-meter" aria-hidden="true">
@@ -136,7 +136,7 @@
                   <path d="M10 5v11" />
                   <path d="M10 20a2 2 0 0 0 2-2" />
                 </svg>
-                <span>Temperature</span>
+                <span>온도</span>
                 <strong data-temp-summary>실시간 확인 중</strong>
                 <div class="meter metric-card-meter temperature-meter" aria-hidden="true">
                   <span data-temp-meter></span>
@@ -148,51 +148,51 @@
 
           <div class="section-dashboard status-dashboard" data-reveal>
             <article class="dashboard-card">
-              <span>Status cache</span>
+              <span>상태 캐시</span>
               <strong data-cache-state>실시간 확인 준비 중</strong>
               <p data-last-checked>상태 값을 아직 받아오지 않았습니다.</p>
             </article>
             <article class="dashboard-card">
-              <span>Response</span>
+              <span>응답 속도</span>
               <strong data-latency>-- ms</strong>
               <p data-status-health>API 응답을 기다리고 있습니다.</p>
             </article>
             <article class="dashboard-card">
-              <span>Server RAM</span>
+              <span>서버 RAM</span>
               <strong data-ram-percent>--</strong>
               <div class="meter dashboard-meter" aria-hidden="true">
                 <span data-ram-meter></span>
               </div>
-              <p data-ram-detail>Waiting for AuroraLink bridge.</p>
+              <p data-ram-detail>AuroraLink 브리지를 기다리는 중입니다.</p>
             </article>
             <article class="dashboard-card">
-              <span>CPU usage</span>
+              <span>CPU 사용량</span>
               <strong data-cpu-summary>--</strong>
               <div class="meter dashboard-meter" aria-hidden="true">
                 <span data-cpu-meter></span>
               </div>
-              <p data-cpu-detail>Waiting for AuroraLink bridge.</p>
+              <p data-cpu-detail>AuroraLink 브리지를 기다리는 중입니다.</p>
             </article>
             <article class="dashboard-card">
-              <span>Temperature</span>
+              <span>온도</span>
               <strong data-temp-summary>--</strong>
               <div class="meter dashboard-meter temperature-meter" aria-hidden="true">
                 <span data-temp-meter></span>
               </div>
-              <p data-temp-detail>Waiting for AuroraLink bridge.</p>
+              <p data-temp-detail>AuroraLink 브리지를 기다리는 중입니다.</p>
             </article>
             <article class="dashboard-card">
-              <span>Players</span>
+              <span>접속자</span>
               <strong data-player-summary>--</strong>
               <p>접속자 수와 슬롯 사용률을 같이 표시합니다.</p>
             </article>
             <article class="dashboard-card dashboard-wide">
-              <span>Message of the day</span>
-              <strong>Server MOTD</strong>
+              <span>오늘의 서버 메시지</span>
+              <strong>서버 MOTD</strong>
               <p data-motd>서버 메시지를 불러오고 있습니다.</p>
             </article>
             <article class="dashboard-card dashboard-wide">
-              <span>Player history</span>
+              <span>접속자 기록</span>
               <canvas class="player-chart" data-player-chart width="480" height="72" aria-hidden="true"></canvas>
               <p>최근 접속자 추이를 자동으로 기록해서 보여줍니다.</p>
             </article>
@@ -207,7 +207,7 @@
             nfoifsb.kr
           </span>
           <span>Paper 26.1.2 · 경제 야생 서버</span>
-          <a href="#content">Back to top</a>
+          <a href="#content">맨 위로</a>
         </div>
         <div class="footer-theme-row">
           <button class="footer-theme-toggle" type="button" data-theme-toggle>
