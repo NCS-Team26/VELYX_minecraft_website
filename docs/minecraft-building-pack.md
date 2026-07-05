@@ -86,6 +86,29 @@ Live Raspberry Pi layout after the Fabric conversion:
 
 The old Paper world import was not used for the live Fabric boot because Fabric could not read the Paper world generation settings. The original Paper world is still preserved in `/home/ad1969/minecraft/world`; the failed import copy is backed up under `/home/ad1969/minecraft-fabric/backups/`.
 
+Live Paper world data has now been bridged into the Fabric server without replacing Fabric's `world_gen_settings.dat`. The Fabric server loads these dimensions:
+
+- `minecraft:overworld`
+- `minecraft:the_nether`
+- `minecraft:the_end`
+- `minecraft:lobby`
+- `minecraft:shop`
+- `minecraft:wild`
+- `minecraft:spawn`
+- `minecraft:spawn_lobby`
+
+The live Fabric world also loads these world datapacks:
+
+- `file/bukkit`
+- `file/icn_1to1_datapack_26.zip`
+- `file/nfoifsb_worlds`
+
+To repeat that bridge on the Raspberry Pi:
+
+```bash
+PAPER_SERVER_DIR=/home/ad1969/minecraft FABRIC_SERVER_DIR=/home/ad1969/minecraft-fabric ./scripts/minecraft/sync-paper-worlds-to-fabric.sh
+```
+
 Optional server entries in the manifest:
 
 - WorldEditSelectionVisualizer
