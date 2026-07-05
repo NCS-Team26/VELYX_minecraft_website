@@ -1,0 +1,22 @@
+[Unit]
+Description=NFOIFSB Minecraft Fabric API bridge
+After=network-online.target minecraft-fabric.service
+Wants=network-online.target
+
+[Service]
+WorkingDirectory=/home/ad1969/mincraft_server_website
+Environment=MINECRAFT_API_HOST=127.0.0.1
+Environment=MINECRAFT_API_PORT=8787
+Environment=MINECRAFT_API_BASE_PATH=/minecraft
+Environment=MINECRAFT_SERVER_DIR=/home/ad1969/minecraft-fabric
+Environment=MINECRAFT_SERVICE_NAME=minecraft-fabric.service
+Environment=MINECRAFT_STOCK_DATA_FILE=/home/ad1969/minecraft/plugins/AuroraLink/stocks.json
+Environment=MINECRAFT_JAVA_PROCESS_PATTERN=fabric-server-launch.jar
+ExecStart=/usr/bin/node server/minecraft-api-bridge.mjs
+Restart=always
+RestartSec=5
+User=ad1969
+Group=ad1969
+
+[Install]
+WantedBy=multi-user.target

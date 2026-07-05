@@ -83,6 +83,8 @@ Live Raspberry Pi layout after the Fabric conversion:
 - Paper systemd service: `minecraft.service` is disabled
 - Fabric listens on Minecraft port `25565`
 - BlueMap listens on web port `8100`
+- Fabric compatibility API service: `nfoifsb-minecraft-api-bridge.service`
+- Website and Discord stock integrations read `/minecraft/stocks/market` through the API bridge on `127.0.0.1:8787`.
 
 The old Paper world import was not used for the live Fabric boot because Fabric could not read the Paper world generation settings. The original Paper world is still preserved in `/home/ad1969/minecraft/world`; the failed import copy is backed up under `/home/ad1969/minecraft-fabric/backups/`.
 
@@ -108,6 +110,16 @@ To repeat that bridge on the Raspberry Pi:
 ```bash
 PAPER_SERVER_DIR=/home/ad1969/minecraft FABRIC_SERVER_DIR=/home/ad1969/minecraft-fabric ./scripts/minecraft/sync-paper-worlds-to-fabric.sh
 ```
+
+The Fabric API bridge restores the public read-only web API that the site and Discord notifier use after the Paper AuroraLink plugin is no longer loaded:
+
+```bash
+./scripts/minecraft/install-api-bridge.sh
+curl http://127.0.0.1:8787/minecraft/stocks/market
+curl http://127.0.0.1:8787/minecraft/server/overview
+```
+
+It exposes stock market candles, stock volume history, and server overview data. Player verification, inventory, broadcasts, and buy/sell orders still require a Fabric gameplay bridge because those operations need trusted in-game economy and player-token access.
 
 Optional server entries in the manifest:
 

@@ -94,7 +94,15 @@ DISCORD_STOCK_WEBHOOK_DRY_RUN=false
 DISCORD_STOCK_LOCAL_DATA_FILE=/home/ad1969/minecraft/plugins/AuroraLink/stocks.json
 ```
 
-`DISCORD_STOCK_LOCAL_DATA_FILE` lets the notifier keep posting the last saved AuroraLink stock data while the live `/minecraft/stocks/market` API is unavailable. Live buy/sell slash commands still require the AuroraLink API to be running.
+`DISCORD_STOCK_LOCAL_DATA_FILE` lets the notifier keep posting the last saved AuroraLink stock data while the live `/minecraft/stocks/market` API is unavailable.
+
+On the Fabric server, install `nfoifsb-minecraft-api-bridge.service` so the website and Discord notifier can read `/minecraft/stocks/market` and `/minecraft/server/overview` from `127.0.0.1:8787` again:
+
+```bash
+./scripts/minecraft/install-api-bridge.sh
+```
+
+The bridge is read-only for player-sensitive actions. Live buy/sell slash commands still require a Fabric gameplay bridge with token validation and economy access.
 
 Linux service example:
 

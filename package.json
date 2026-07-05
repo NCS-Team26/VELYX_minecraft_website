@@ -14,6 +14,7 @@
     "discord:start": "node discord-bot/index.mjs",
     "discord:stock-webhook": "node discord-bot/stock-webhook.mjs",
     "discord:stock-webhook:once": "node discord-bot/stock-webhook.mjs --once",
+    "minecraft:api-bridge": "node server/minecraft-api-bridge.mjs",
     "auth:setup:aws": "node scripts/aws-auth-setup.mjs",
     "deploy:aws": "npm run build && node scripts/aws-deploy.mjs",
     "preview": "vite preview --host 127.0.0.1",
