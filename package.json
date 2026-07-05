@@ -19,7 +19,9 @@
     "modpack:server:dry": "python scripts/minecraft/install-modrinth-pack.py --side server --target .modpack/server-plugins --minecraft-version 26.1.2 --dry-run",
     "modpack:client:dry": "python scripts/minecraft/install-modrinth-pack.py --side client --target .modpack/client-mods --minecraft-version 26.1.2 --dry-run",
     "modpack:client": "python scripts/minecraft/install-modrinth-pack.py --side client --target .modpack/client-mods --minecraft-version 26.1.2 --prune-managed",
-    "modpack:client:mrpack": "npm run modpack:client && python scripts/minecraft/export-modrinth-pack.py"
+    "modpack:client:mrpack": "npm run modpack:client && python scripts/minecraft/export-modrinth-pack.py",
+    "modpack:fabric-server": "python scripts/minecraft/install-modrinth-pack.py --side fabric-server --target .modpack/fabric-server-mods --minecraft-version 26.1.2 --prune-managed",
+    "modpack:fabric-server:dry": "python scripts/minecraft/install-modrinth-pack.py --side fabric-server --target .modpack/fabric-server-mods --minecraft-version 26.1.2 --dry-run"
   },
   "devDependencies": {
     "@aws-sdk/client-apigatewayv2": "^3.1077.0",

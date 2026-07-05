@@ -43,6 +43,49 @@ python3 scripts/minecraft/install-modrinth-pack.py --side server --target /path/
 - InventoryRollbackPlus: player inventory recovery.
 - LuckPerms: builder/admin permission groups.
 
+## Fabric modpack server
+
+This is the full modded-server path. It creates a Fabric server instead of a Paper plugin server.
+
+Included Fabric server mods:
+
+- Fabric API
+- WorldEdit
+- BlueMap
+- Chunky
+- LuckPerms
+- spark
+- Lithium
+- FerriteCore
+- Krypton
+- ServerCore
+- Servux
+- Syncmatica
+- Carpet
+
+Build/download the server mods locally:
+
+```powershell
+npm run modpack:fabric-server
+```
+
+Prepare a Fabric server folder on Linux:
+
+```bash
+FABRIC_SERVER_DIR=/home/ad1969/minecraft-fabric MINECRAFT_VERSION=26.1.2 ./scripts/minecraft/setup-fabric-server.sh
+```
+
+Live Raspberry Pi layout after the Fabric conversion:
+
+- Fabric server directory: `/home/ad1969/minecraft-fabric`
+- Fabric systemd service: `minecraft-fabric.service`
+- Paper backup directory: `/home/ad1969/minecraft`
+- Paper systemd service: `minecraft.service` is disabled
+- Fabric listens on Minecraft port `25565`
+- BlueMap listens on web port `8100`
+
+The old Paper world import was not used for the live Fabric boot because Fabric could not read the Paper world generation settings. The original Paper world is still preserved in `/home/ad1969/minecraft/world`; the failed import copy is backed up under `/home/ad1969/minecraft-fabric/backups/`.
+
 Optional server entries in the manifest:
 
 - WorldEditSelectionVisualizer

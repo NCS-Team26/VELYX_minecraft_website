@@ -203,7 +203,12 @@ def install_project(project: dict, side_config: dict, minecraft_version: str, ta
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Install the nfoifsb Modrinth building pack.")
     parser.add_argument("--manifest", default=str(DEFAULT_MANIFEST), help="Path to building-pack.json.")
-    parser.add_argument("--side", choices=["server", "client"], default="server", help="Install server plugins or client mods.")
+    parser.add_argument(
+        "--side",
+        choices=["server", "fabric-server", "client"],
+        default="server",
+        help="Install Paper plugins, Fabric server mods, or Fabric client mods.",
+    )
     parser.add_argument("--target", required=True, help="Target plugins/ or mods/ directory.")
     parser.add_argument("--minecraft-version", default=None, help="Minecraft version, default from manifest or MINECRAFT_VERSION.")
     parser.add_argument("--include-optional", action="store_true", help="Also install projects marked required=false.")

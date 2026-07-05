@@ -154,6 +154,104 @@
       }
     ]
   },
+  "fabric-server": {
+    "loader": "fabric",
+    "acceptedLoaders": ["fabric"],
+    "targetDirectory": "mods",
+    "projects": [
+      {
+        "slug": "fabric-api",
+        "name": "Fabric API",
+        "source": "https://modrinth.com/mod/fabric-api",
+        "purpose": "Required API layer for Fabric server mods.",
+        "required": true
+      },
+      {
+        "slug": "worldedit",
+        "name": "WorldEdit",
+        "source": "https://modrinth.com/plugin/worldedit",
+        "purpose": "Fabric WorldEdit commands for large builds, brushes, copy/paste, and terrain edits.",
+        "required": true
+      },
+      {
+        "slug": "bluemap",
+        "name": "BlueMap",
+        "source": "https://modrinth.com/plugin/bluemap",
+        "purpose": "High-quality 3D web map for build inspection.",
+        "required": true
+      },
+      {
+        "slug": "chunky",
+        "name": "Chunky",
+        "source": "https://modrinth.com/plugin/chunky",
+        "purpose": "Chunk pregeneration for smooth exploration and build areas.",
+        "required": true
+      },
+      {
+        "slug": "luckperms",
+        "name": "LuckPerms",
+        "source": "https://modrinth.com/plugin/luckperms",
+        "purpose": "Permission groups for builders and admins.",
+        "required": true
+      },
+      {
+        "slug": "spark",
+        "name": "spark",
+        "source": "https://modrinth.com/mod/spark",
+        "purpose": "Profiler and diagnostics for server performance.",
+        "required": true
+      },
+      {
+        "slug": "lithium",
+        "name": "Lithium",
+        "source": "https://modrinth.com/mod/lithium",
+        "purpose": "Server-side tick and game logic optimization.",
+        "required": true
+      },
+      {
+        "slug": "ferrite-core",
+        "name": "FerriteCore",
+        "source": "https://modrinth.com/mod/ferrite-core",
+        "purpose": "Memory usage reduction for modded servers.",
+        "required": true
+      },
+      {
+        "slug": "krypton",
+        "name": "Krypton",
+        "source": "https://modrinth.com/mod/krypton",
+        "purpose": "Network stack optimization.",
+        "required": true
+      },
+      {
+        "slug": "servercore",
+        "name": "ServerCore",
+        "source": "https://modrinth.com/mod/servercore",
+        "purpose": "Server performance tuning and view-distance helpers.",
+        "required": true
+      },
+      {
+        "slug": "servux",
+        "name": "Servux",
+        "source": "https://modrinth.com/mod/servux",
+        "purpose": "Server support for Litematica/Sakura-Ryoko client workflows.",
+        "required": true
+      },
+      {
+        "slug": "syncmatica",
+        "name": "Syncmatica",
+        "source": "https://modrinth.com/mod/syncmatica",
+        "purpose": "Shared schematic placement sync for teams.",
+        "required": true
+      },
+      {
+        "slug": "carpet",
+        "name": "Carpet",
+        "source": "https://modrinth.com/mod/carpet",
+        "purpose": "Technical/building server controls and diagnostics.",
+        "required": true
+      }
+    ]
+  },
   "client": {
     "loader": "fabric",
     "acceptedLoaders": ["fabric"],
