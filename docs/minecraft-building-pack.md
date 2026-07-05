@@ -52,6 +52,20 @@ Optional server entries in the manifest:
 
 ## Client pack for builders
 
+Download from the website:
+
+```text
+/downloads/nfoifsb-building-client-26.1.2.mrpack
+```
+
+Import the `.mrpack` into Modrinth App or Prism Launcher. It uses Minecraft `26.1.2` and Fabric Loader `0.19.3`.
+
+Build the downloadable `.mrpack` locally:
+
+```powershell
+npm run modpack:client:mrpack
+```
+
 Windows client install:
 
 ```powershell

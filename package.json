@@ -17,7 +17,9 @@
     "preview": "vite preview --host 127.0.0.1",
     "modpack:server": "python scripts/minecraft/install-modrinth-pack.py --side server --target .modpack/server-plugins --minecraft-version 26.1.2 --prune-managed",
     "modpack:server:dry": "python scripts/minecraft/install-modrinth-pack.py --side server --target .modpack/server-plugins --minecraft-version 26.1.2 --dry-run",
-    "modpack:client:dry": "python scripts/minecraft/install-modrinth-pack.py --side client --target .modpack/client-mods --minecraft-version 26.1.2 --dry-run"
+    "modpack:client:dry": "python scripts/minecraft/install-modrinth-pack.py --side client --target .modpack/client-mods --minecraft-version 26.1.2 --dry-run",
+    "modpack:client": "python scripts/minecraft/install-modrinth-pack.py --side client --target .modpack/client-mods --minecraft-version 26.1.2 --prune-managed",
+    "modpack:client:mrpack": "npm run modpack:client && python scripts/minecraft/export-modrinth-pack.py"
   },
   "devDependencies": {
     "@aws-sdk/client-apigatewayv2": "^3.1077.0",

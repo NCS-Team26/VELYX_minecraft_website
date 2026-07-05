@@ -188,6 +188,8 @@ def install_project(project: dict, side_config: dict, minecraft_version: str, ta
             "gameVersions": version.get("game_versions", []),
             "path": filename,
             "sha512": expected_sha512,
+            "downloadUrl": file_info.get("url"),
+            "fileSize": file_info.get("size"),
             "source": project.get("source"),
             "downloadedAt": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         }
