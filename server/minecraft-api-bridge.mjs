@@ -541,7 +541,7 @@ const server = http.createServer(async (request, response) => {
   } catch (error) {
     const status = error.status || 500;
     const payload = error.payload || { ok: false, message: status === 500 ? "Internal server error." : error.message };
-    if (status >= 500) console.error(error);
+    if (!error.payload && status >= 500) console.error(error);
     jsonResponse(response, status, payload);
   }
 });
