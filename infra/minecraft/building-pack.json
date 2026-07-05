@@ -8,12 +8,12 @@
     "targetDirectory": "plugins",
     "projects": [
       {
-        "slug": "fastasyncworldedit",
-        "name": "FastAsyncWorldEdit",
-        "source": "https://modrinth.com/plugin/fastasyncworldedit",
-        "purpose": "High-speed WorldEdit replacement for large selections, brushes, copy/paste, and terrain edits.",
+        "slug": "worldedit",
+        "name": "WorldEdit",
+        "source": "https://modrinth.com/plugin/worldedit",
+        "purpose": "Stable WorldEdit editing, brushes, copy/paste, and terrain tools for 26.1.2.",
         "required": true,
-        "notes": "Do not install the regular WorldEdit jar beside FAWE unless you intentionally switch back."
+        "notes": "Used instead of FAWE because FAWE 2.15.2 logs mapping errors on Paper 26.1.2."
       },
       {
         "slug": "worldguard",
@@ -21,7 +21,7 @@
         "source": "https://modrinth.com/plugin/worldguard",
         "purpose": "Region protection, build rules, PvP flags, and admin-safe construction zones.",
         "required": true,
-        "dependsOn": ["fastasyncworldedit"]
+        "dependsOn": ["worldedit"]
       },
       {
         "slug": "axiom-paper-plugin",
@@ -63,6 +63,13 @@
         "name": "WorldEditDisplay",
         "source": "https://modrinth.com/plugin/worldeditdisplay",
         "purpose": "Visualizes WorldEdit selections and edit boundaries for safer building.",
+        "required": true
+      },
+      {
+        "slug": "packetevents",
+        "name": "PacketEvents",
+        "source": "https://modrinth.com/plugin/packetevents",
+        "purpose": "Required packet library for WorldEditDisplay and advanced build interaction helpers.",
         "required": true
       },
       {
@@ -113,13 +120,6 @@
         "name": "EasyArmorStands",
         "source": "https://modrinth.com/plugin/easyarmorstands",
         "purpose": "Armor stand and display entity editor for detailed scene dressing.",
-        "required": true
-      },
-      {
-        "slug": "stellarprotect",
-        "name": "StellarProtect",
-        "source": "https://modrinth.com/plugin/stellarprotect",
-        "purpose": "CoreProtect-style logging and rollback for build accidents and griefing.",
         "required": true
       },
       {
@@ -244,12 +244,17 @@
     {
       "name": "CoreProtect",
       "source": "https://modrinth.com/plugin/coreprotect",
-      "reason": "Latest Modrinth metadata did not advertise 26.1.2 support, so StellarProtect is used instead."
+      "reason": "Latest Modrinth metadata did not advertise 26.1.2 support. The live server already uses prism for block logging and rollback."
     },
     {
-      "name": "regular WorldEdit jar",
-      "source": "https://modrinth.com/plugin/worldedit",
-      "reason": "FAWE is installed as the WorldEdit-compatible high-performance replacement to avoid duplicate WorldEdit jars."
+      "name": "FastAsyncWorldEdit",
+      "source": "https://modrinth.com/plugin/fastasyncworldedit",
+      "reason": "FAWE 2.15.2 advertises 26.1.2 support but logs Paper 26.1.2 mapping exceptions on the Raspberry Pi server, so stable WorldEdit is used."
+    },
+    {
+      "name": "StellarProtect",
+      "source": "https://modrinth.com/plugin/stellarprotect",
+      "reason": "StellarProtect 1.9.3 disables itself on Paper 26.1.2.build.72 and logs startup errors. Use prism instead."
     }
   ]
 }

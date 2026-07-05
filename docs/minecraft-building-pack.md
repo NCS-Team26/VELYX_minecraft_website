@@ -26,7 +26,7 @@ python3 scripts/minecraft/install-modrinth-pack.py --side server --target /path/
 
 ## Server plugins
 
-- FastAsyncWorldEdit: high-speed WorldEdit-compatible editing, brushes, copy/paste, and large selections.
+- WorldEdit: stable editing, brushes, copy/paste, and large selections.
 - WorldGuard: region protection and build rules.
 - Axiom Paper Plugin: server-side support for Axiom builders.
 - LitematicaFolia: server-side `.litematic` paste/import support.
@@ -34,12 +34,12 @@ python3 scripts/minecraft/install-modrinth-pack.py --side server --target /path/
 - BuildersUtilities: builder convenience commands and tools.
 - BuildersWand: faster repeated block placement.
 - WorldEditDisplay: visual WorldEdit selection display.
+- PacketEvents: packet library required by WorldEditDisplay.
 - Take It Out: shulker picking and easy-place style logistics.
 - BlueMap: high-quality 3D browser map.
 - Chunky: chunk pregeneration for smoother build areas.
 - ImageFrame: images and GIFs on maps/item frames.
 - EasyArmorStands: armor stand and display entity editing.
-- StellarProtect: CoreProtect-style logging and rollback for 26.1.2.
 - InventoryRollbackPlus: player inventory recovery.
 - LuckPerms: builder/admin permission groups.
 
@@ -81,6 +81,7 @@ Client mods included:
 ## Notes
 
 - The server pack is for Paper/Purpur/Folia-style plugin folders, not a Forge or NeoForge server.
-- FastAsyncWorldEdit is used instead of the regular WorldEdit jar to avoid duplicate WorldEdit implementations.
-- CoreProtect is intentionally not installed because the latest Modrinth metadata checked for this pack did not advertise `26.1.2`; StellarProtect fills the rollback/logging role for now.
+- WorldEdit is used instead of FastAsyncWorldEdit on Paper 26.1.2 because FAWE 2.15.2 logs mapping exceptions on the live Raspberry Pi server.
+- CoreProtect is intentionally not installed because the latest Modrinth metadata checked for this pack did not advertise `26.1.2`.
+- StellarProtect is intentionally not installed because version 1.9.3 disables itself on the live Paper `26.1.2.build.72` server. The server already has `prism` for block logging and rollback.
 - Minecraft 26.1.x servers usually require the matching modern Java runtime. Check the Paper startup log before installing plugins on the Raspberry Pi.
