@@ -20,3 +20,4 @@ minecraft-plugin/**/build/
 minecraft-plugin/**/work/
 .modpack/
 __pycache__/
+discord-bot/data/

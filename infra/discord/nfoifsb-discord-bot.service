@@ -1,0 +1,17 @@
+[Unit]
+Description=NFOIFSB Discord bridge bot
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/ad1969/mincraft_server_website
+EnvironmentFile=/home/ad1969/discord-bot.env
+ExecStart=/usr/bin/npm run discord:start
+Restart=always
+RestartSec=8
+User=ad1969
+Group=ad1969
+
+[Install]
+WantedBy=multi-user.target

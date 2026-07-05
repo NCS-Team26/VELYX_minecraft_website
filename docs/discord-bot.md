@@ -2,6 +2,13 @@
 
 This bot connects Discord slash commands to the existing AuroraLink website and Minecraft API.
 
+Target Discord invite checked on 2026-07-05:
+
+- Invite: `https://discord.gg/8pJTVEraa`
+- Guild: `NCS GROUP`
+- Guild ID: `1519722855791726748`
+- Invite channel: `webhooks`
+
 ## Commands
 
 - `/주식 시장` - public market summary
@@ -23,7 +30,7 @@ This bot connects Discord slash commands to the existing AuroraLink website and 
 ```bash
 DISCORD_TOKEN=...
 DISCORD_CLIENT_ID=...
-DISCORD_GUILD_ID=...
+DISCORD_GUILD_ID=1519722855791726748
 DISCORD_PLAYER_API_BASE=https://api.nfoifsb.kr/minecraft
 DISCORD_SITE_URL=https://www.nfoifsb.kr
 DISCORD_MINECRAFT_ADDRESS=nfoifsb.kr
@@ -64,3 +71,64 @@ WantedBy=multi-user.target
 ```
 
 Run `npm run discord:register` once after changing commands, then restart the service.
+
+## Stock Webhook Notifier
+
+If a webhook URL is created in the Discord `webhooks` channel, the stock notifier can post market summaries, large fills, sharp movers, and API outage alerts without a Discord bot token.
+
+```bash
+DISCORD_STOCK_WEBHOOK_URL=https://discord.com/api/webhooks/... npm run discord:stock-webhook:once
+DISCORD_STOCK_WEBHOOK_URL=https://discord.com/api/webhooks/... npm run discord:stock-webhook
+```
+
+Environment:
+
+```bash
+DISCORD_STOCK_WEBHOOK_URL=...
+DISCORD_STOCK_WEBHOOK_INTERVAL_SECONDS=60
+DISCORD_STOCK_WEBHOOK_SUMMARY_INTERVAL_SECONDS=900
+DISCORD_STOCK_WEBHOOK_MIN_CHANGE_PERCENT=2.5
+DISCORD_STOCK_WEBHOOK_MIN_TRADE_TOTAL=25000
+DISCORD_STOCK_WEBHOOK_API_ALERT_COOLDOWN_SECONDS=1800
+DISCORD_STOCK_WEBHOOK_DRY_RUN=false
+DISCORD_STOCK_LOCAL_DATA_FILE=/home/ad1969/minecraft/plugins/AuroraLink/stocks.json
+```
+
+`DISCORD_STOCK_LOCAL_DATA_FILE` lets the notifier keep posting the last saved AuroraLink stock data while the live `/minecraft/stocks/market` API is unavailable. Live buy/sell slash commands still require the AuroraLink API to be running.
+
+Linux service example:
+
+```ini
+[Unit]
+Description=NFOIFSB Discord stock webhook
+After=network-online.target
+
+[Service]
+WorkingDirectory=/home/ad1969/mincraft_server_website
+EnvironmentFile=/home/ad1969/discord-bot.env
+ExecStart=/usr/bin/npm run discord:stock-webhook
+Restart=always
+RestartSec=8
+User=ad1969
+
+[Install]
+WantedBy=multi-user.target
+```
+
+The repo also includes ready-to-copy service files:
+
+- `infra/discord/nfoifsb-discord-bot.service`
+- `infra/discord/nfoifsb-discord-stock-webhook.service`
+- `infra/discord/discord-bot.env.example`
+
+Install them on the Raspberry Pi:
+
+```bash
+./scripts/discord/install-discord-services.sh
+```
+
+After filling `/home/ad1969/discord-bot.env`, enable the webhook notifier:
+
+```bash
+sudo systemctl enable --now nfoifsb-discord-stock-webhook.service
+```
