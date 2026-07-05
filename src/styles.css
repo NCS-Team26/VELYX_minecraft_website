@@ -1109,6 +1109,84 @@ a {
   overflow-wrap: anywhere;
 }
 
+.quick-install-panel {
+  display: grid;
+  gap: 18px;
+  width: min(1120px, 100%);
+  margin: 22px auto 0;
+  padding: 28px;
+  border: 1px solid var(--theme-accent-border);
+  border-radius: 8px;
+  background:
+    linear-gradient(135deg, var(--theme-accent-soft), transparent 72%),
+    var(--card);
+  box-shadow: 0 24px 70px var(--theme-accent-glow);
+}
+
+.quick-install-panel h2 {
+  margin: 0;
+  color: var(--text);
+  font-size: clamp(26px, 3vw, 42px);
+  line-height: 1.08;
+  letter-spacing: 0;
+}
+
+.quick-install-panel p {
+  max-width: 780px;
+  margin: 0;
+  color: var(--text-soft);
+  line-height: 1.7;
+}
+
+.quick-install-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.quick-install-actions a {
+  min-height: 46px;
+}
+
+.install-checklist {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.install-checklist article {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--inset);
+}
+
+.install-checklist span {
+  width: fit-content;
+  padding: 5px 9px;
+  border: 1px solid var(--theme-accent-border);
+  border-radius: 999px;
+  color: var(--theme-accent);
+  background: var(--theme-accent-soft);
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.install-checklist strong {
+  color: var(--text);
+  font-size: 18px;
+  line-height: 1.25;
+}
+
+.install-checklist code {
+  font-family: var(--font-mono);
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
 .category-main,
 .admin-main {
   min-height: calc(100vh - 48px);
@@ -1519,6 +1597,7 @@ a {
   .category-grid,
   .category-board,
   .resource-list,
+  .install-checklist,
   .user-post-form,
   .market-board,
   .market-list,
@@ -1674,6 +1753,20 @@ a {
 
   .join-card {
     padding: 28px 18px;
+  }
+
+  .quick-install-panel {
+    padding: 20px 16px;
+  }
+
+  .quick-install-actions {
+    display: grid;
+  }
+
+  .quick-install-actions a {
+    justify-content: center;
+    width: 100%;
+    text-align: center;
   }
 
   .join-card .address-row {

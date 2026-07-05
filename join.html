@@ -63,36 +63,72 @@
           <div class="join-layout" data-reveal>
             <div class="join-card">
               <img src="/assets/server-icon.png" alt="" />
-              <p class="eyebrow">접속</p>
-              <h1 id="join-title">경제 야생 시작하기</h1>
+              <p class="eyebrow">Quick Join</p>
+              <h1 id="join-title">친구 초대용 접속 안내</h1>
+              <p class="join-note">
+                이 페이지 링크만 보내면 모드팩 설치부터 서버 접속까지 한 번에 안내됩니다.
+              </p>
               <div class="address-row">
                 <code>nfoifsb.kr</code>
                 <button type="button" data-copy-address>복사</button>
               </div>
               <p class="join-note" data-copy-feedback>
-                Minecraft Java 멀티플레이 서버 주소에 그대로 넣으면 됩니다.
+                서버 주소는 Minecraft Java 멀티플레이에 그대로 넣으면 됩니다.
               </p>
             </div>
             <div class="join-steps">
               <article>
                 <span>1</span>
-                <strong>서버 추가</strong>
-                <p>Minecraft Java 멀티플레이에서 <code>nfoifsb.kr</code>을 서버 주소로 저장합니다.</p>
+                <strong>Modrinth App 설치</strong>
+                <p>처음 접속하는 친구는 Modrinth App 또는 Prism Launcher가 가장 빠릅니다.</p>
               </article>
               <article>
                 <span>2</span>
-                <strong>스폰 확인</strong>
-                <p>스폰에서 규칙, 상점가 위치, 거래 안내를 먼저 확인합니다.</p>
+                <strong>모드팩 가져오기</strong>
+                <p><code>.mrpack</code> 파일을 가져오면 Fabric Loader와 필수 모드가 자동으로 맞춰집니다.</p>
               </article>
               <article>
                 <span>3</span>
-                <strong>초반 자금 만들기</strong>
-                <p>광질, 농사, 사냥으로 판매할 재료를 모으고 시장 가격을 살펴봅니다.</p>
+                <strong>프로필 실행</strong>
+                <p><code>nfoifsb Fabric 26.1.2</code> 또는 가져온 Modrinth 프로필로 실행합니다.</p>
               </article>
               <article>
                 <span>4</span>
-                <strong>거점 보호</strong>
-                <p>창고와 상점을 만들기 전 보호 구역을 잡고, 거래 기록을 남기는 습관을 들입니다.</p>
+                <strong>서버 접속</strong>
+                <p>Minecraft Java 멀티플레이에서 <code>nfoifsb.kr</code>을 서버 주소로 저장합니다.</p>
+              </article>
+            </div>
+          </div>
+
+          <div class="quick-install-panel" data-reveal>
+            <div>
+              <p class="eyebrow">3분 설치</p>
+              <h2>친구는 여기 버튼만 누르면 됩니다</h2>
+              <p>
+                추천은 Modrinth App으로 모드팩을 가져오는 방식입니다. 기본 Minecraft Launcher만 쓰는 친구는
+                Windows 자동 설치 스크립트를 받아 실행하면 됩니다.
+              </p>
+            </div>
+            <div class="quick-install-actions" aria-label="친구용 설치 다운로드">
+              <a class="primary-action" href="/downloads/nfoifsb-building-client-26.1.2.mrpack" download>모드팩 받기</a>
+              <a class="secondary-action" href="/downloads/nfoifsb-client-install.ps1" download>Windows 자동 설치</a>
+              <a class="secondary-action" href="https://modrinth.com/app">Modrinth App</a>
+            </div>
+            <div class="install-checklist">
+              <article>
+                <span>추천</span>
+                <strong>Modrinth App</strong>
+                <p>앱 설치 후 받은 <code>.mrpack</code> 파일을 Import 하면 끝납니다.</p>
+              </article>
+              <article>
+                <span>기본 런처</span>
+                <strong>Windows 자동 설치</strong>
+                <p>PowerShell 스크립트가 Fabric 프로필과 모드 16개를 <code>.minecraft</code>에 설치합니다.</p>
+              </article>
+              <article>
+                <span>접속 주소</span>
+                <strong>nfoifsb.kr</strong>
+                <p>서버 주소는 짧게 유지했습니다. 복사 버튼으로 바로 클립보드에 넣을 수 있습니다.</p>
               </article>
             </div>
           </div>
