@@ -239,6 +239,129 @@
         "dependsOn": ["fabric-api", "adventure-platform-mod"]
       },
       {
+        "slug": "imageframe-fabric-port",
+        "name": "ImageFrame Fabric Port",
+        "source": "https://modrinth.com/mod/imageframe-fabric-port",
+        "purpose": "Fabric replacement for ImageFrame image and GIF maps without requiring client-side mods.",
+        "required": false,
+        "allowPrerelease": true,
+        "notes": "Disabled by default because the current alpha build triggers an ImageIO/TwelveMonkeys startup conflict with BlueMap on the live Fabric server."
+      },
+      {
+        "slug": "armorstandeditor",
+        "name": "Armor Stand Editor",
+        "source": "https://modrinth.com/mod/armorstandeditor",
+        "purpose": "Fabric replacement for EasyArmorStands armor stand editing and scene dressing tools.",
+        "required": true,
+        "dependsOn": ["fabric-api"]
+      },
+      {
+        "slug": "inv-restore",
+        "name": "InvRestore",
+        "source": "https://modrinth.com/mod/inv-restore",
+        "purpose": "Fabric replacement for InventoryRollbackPlus inventory recovery commands.",
+        "required": true,
+        "dependsOn": ["fabric-api"]
+      },
+      {
+        "slug": "fabric-language-kotlin",
+        "name": "Fabric Language Kotlin",
+        "source": "https://modrinth.com/mod/fabric-language-kotlin",
+        "purpose": "Required runtime library for Ledger.",
+        "required": true
+      },
+      {
+        "slug": "ledger",
+        "name": "Ledger",
+        "source": "https://modrinth.com/mod/ledger",
+        "purpose": "Fabric replacement for prism/CoreProtect-style block, container, and inventory logging with rollback support.",
+        "required": true,
+        "dependsOn": ["fabric-api", "fabric-language-kotlin"]
+      },
+      {
+        "slug": "forge-config-api-port",
+        "name": "Forge Config API Port",
+        "source": "https://modrinth.com/mod/forge-config-api-port",
+        "purpose": "Required Fabric dependency for Open Parties and Claims.",
+        "required": true,
+        "dependsOn": ["fabric-api"]
+      },
+      {
+        "slug": "open-parties-and-claims",
+        "name": "Open Parties and Claims",
+        "source": "https://modrinth.com/mod/open-parties-and-claims",
+        "purpose": "Fabric replacement for WorldGuard-style chunk claiming, player parties, force-load controls, and build protection.",
+        "required": true,
+        "allowPrerelease": true,
+        "dependsOn": ["fabric-api", "forge-config-api-port"]
+      },
+      {
+        "slug": "flan",
+        "name": "Flan",
+        "source": "https://modrinth.com/mod/flan",
+        "purpose": "Alternative Fabric land-claim and build-protection mod.",
+        "required": false,
+        "dependsOn": ["fabric-api"],
+        "notes": "Disabled by default because 26.1.2-1.12.7 logs non-fatal missing-integration ERROR lines for optional mods that are not installed."
+      },
+      {
+        "slug": "construction-wand-fabric",
+        "name": "Construction Wand",
+        "source": "https://modrinth.com/mod/construction-wand-fabric",
+        "purpose": "Fabric replacement for BuildersWand repeated block placement.",
+        "required": true,
+        "dependsOn": ["fabric-api"]
+      },
+      {
+        "slug": "axiom",
+        "name": "Axiom",
+        "source": "https://modrinth.com/mod/axiom",
+        "purpose": "Fabric replacement for the Axiom Paper Plugin server-side builder support.",
+        "required": true,
+        "dependsOn": ["fabric-api"]
+      },
+      {
+        "slug": "viaversion",
+        "name": "ViaVersion",
+        "source": "https://modrinth.com/mod/viaversion",
+        "purpose": "Fabric replacement for ViaVersion protocol compatibility.",
+        "required": true
+      },
+      {
+        "slug": "viafabric",
+        "name": "ViaFabric",
+        "source": "https://modrinth.com/mod/viafabric",
+        "purpose": "Fabric bridge required by ViaVersion, ViaBackwards, and ViaRewind.",
+        "required": true,
+        "allowPrerelease": true,
+        "dependsOn": ["fabric-api", "viaversion"]
+      },
+      {
+        "slug": "viabackwards",
+        "name": "ViaBackwards",
+        "source": "https://modrinth.com/mod/viabackwards",
+        "purpose": "Fabric replacement for ViaBackwards older-client protocol support.",
+        "required": true,
+        "dependsOn": ["viafabric"]
+      },
+      {
+        "slug": "viarewind",
+        "name": "ViaRewind",
+        "source": "https://modrinth.com/mod/viarewind",
+        "purpose": "Adds extra legacy client compatibility on top of ViaBackwards.",
+        "required": true,
+        "dependsOn": ["viafabric", "viabackwards"]
+      },
+      {
+        "slug": "discord-mc-chat",
+        "name": "Discord-MC-Chat",
+        "source": "https://modrinth.com/mod/discord-mc-chat",
+        "purpose": "Fabric replacement for DiscordPulse/PulseTune-style Minecraft chat bridge support.",
+        "required": false,
+        "dependsOn": ["fabric-api"],
+        "notes": "Disabled by default because the mod stops startup until a bot token and Discord channel IDs are configured. The live stock notifier/webhook remains handled by the API bridge."
+      },
+      {
         "slug": "spark",
         "name": "spark",
         "source": "https://modrinth.com/mod/spark",

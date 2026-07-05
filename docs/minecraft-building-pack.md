@@ -59,6 +59,18 @@ Included Fabric server mods:
 - Command Aliases
 - adventure-platform-fabric
 - Mods Command
+- Armor Stand Editor
+- InvRestore
+- Fabric Language Kotlin
+- Ledger
+- Forge Config API Port
+- Open Parties and Claims
+- Construction Wand
+- Axiom
+- ViaVersion
+- ViaFabric
+- ViaBackwards
+- ViaRewind
 - spark
 - Lithium
 - FerriteCore
@@ -99,6 +111,19 @@ Fabric command compatibility:
 - `/world ...` and `/mv ...` redirect to Multiworld `/mw ...`.
 - The live alias files are stored in `/home/ad1969/minecraft-fabric/config/commandaliases/nfoifsb`.
 - Repo copies live under `infra/minecraft/commandaliases/nfoifsb`; copy them into the server config folder and run `/commandaliases reload` after rebuilding the server.
+
+Fabric plugin migration status:
+
+- ImageFrame: disabled by default. The current ImageFrame Fabric alpha starts an ImageIO/TwelveMonkeys conflict with BlueMap on the live server.
+- EasyArmorStands: replaced by Armor Stand Editor.
+- InventoryRollbackPlus: replaced by InvRestore.
+- prism/CoreProtect-style logging: replaced by Ledger.
+- WorldGuard-style protection: replaced by Open Parties and Claims. Flan is kept optional because the current 26.1.2 build logs non-fatal missing-integration ERROR lines for mods that are not installed.
+- BuildersWand: replaced by Construction Wand.
+- Axiom Paper Plugin: replaced by the Fabric Axiom mod.
+- ViaVersion and ViaBackwards: replaced by ViaVersion, ViaFabric, ViaBackwards, and ViaRewind on Fabric.
+- DiscordPulse/PulseTune chat bridge: Discord-MC-Chat is optional because it refuses startup until a Discord bot token and channel IDs are configured. The stock/news Discord webhook remains handled by the API bridge and website notifier.
+- AuroraLink, StellaCore, WebAuthWhitelist, VaultUnlocked, TakeItOut, BuildersUtilities, PacketEvents, item-nbt-api, WorldEditDisplay, and LitematicaFolia are Paper/custom-plugin specific. Their server-safe Fabric coverage is handled by the API bridge, WorldEdit, Axiom, Servux, Syncmatica, Essential Commands, Multiworld, and the replacement mods above; true gameplay/economy/auth parity requires a dedicated Fabric custom mod.
 
 The old Paper world import was not used for the live Fabric boot because Fabric could not read the Paper world generation settings. The original Paper world is still preserved in `/home/ad1969/minecraft/world`; the failed import copy is backed up under `/home/ad1969/minecraft-fabric/backups/`.
 
