@@ -526,7 +526,7 @@
         "source": "https://modrinth.com/mod/sodium",
         "purpose": "Client performance boost for large build areas.",
         "required": true,
-        "allowPrerelease": true
+        "notes": "Pinned to the latest 0.8.x release line because Iris 1.10.9 for 26.1.x rejects Sodium 0.9.x beta builds."
       },
       {
         "slug": "iris",
