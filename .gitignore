@@ -18,3 +18,5 @@ auth-output.json
 minecraft-plugin/**/.gradle/
 minecraft-plugin/**/build/
 minecraft-plugin/**/work/
+.modpack/
+__pycache__/

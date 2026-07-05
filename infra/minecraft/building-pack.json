@@ -1,0 +1,255 @@
+{
+  "name": "nfoifsb 26.1.2 Building Pack",
+  "minecraftVersion": "26.1.2",
+  "description": "Paper server plugin pack plus optional Fabric client mods for serious Minecraft building.",
+  "server": {
+    "loader": "paper",
+    "acceptedLoaders": ["paper", "folia", "purpur", "spigot", "bukkit"],
+    "targetDirectory": "plugins",
+    "projects": [
+      {
+        "slug": "fastasyncworldedit",
+        "name": "FastAsyncWorldEdit",
+        "source": "https://modrinth.com/plugin/fastasyncworldedit",
+        "purpose": "High-speed WorldEdit replacement for large selections, brushes, copy/paste, and terrain edits.",
+        "required": true,
+        "notes": "Do not install the regular WorldEdit jar beside FAWE unless you intentionally switch back."
+      },
+      {
+        "slug": "worldguard",
+        "name": "WorldGuard",
+        "source": "https://modrinth.com/plugin/worldguard",
+        "purpose": "Region protection, build rules, PvP flags, and admin-safe construction zones.",
+        "required": true,
+        "dependsOn": ["fastasyncworldedit"]
+      },
+      {
+        "slug": "axiom-paper-plugin",
+        "name": "Axiom Paper Plugin",
+        "source": "https://modrinth.com/plugin/axiom-paper-plugin",
+        "purpose": "Server-side support for the Axiom builder tool.",
+        "required": true
+      },
+      {
+        "slug": "litematicafolia",
+        "name": "LitematicaFolia",
+        "source": "https://modrinth.com/plugin/litematicafolia",
+        "purpose": "Server-side .litematic import and direct paste support for builders.",
+        "required": true
+      },
+      {
+        "slug": "syncmatica-paper",
+        "name": "Syncmatica Paper",
+        "source": "https://modrinth.com/plugin/syncmatica-paper",
+        "purpose": "Shared schematic placement/sync workflow for team builds.",
+        "required": true
+      },
+      {
+        "slug": "buildersutilities",
+        "name": "BuildersUtilities",
+        "source": "https://modrinth.com/plugin/buildersutilities",
+        "purpose": "Small builder conveniences bundled into one Paper plugin.",
+        "required": true
+      },
+      {
+        "slug": "builderswand",
+        "name": "BuildersWand",
+        "source": "https://modrinth.com/plugin/builderswand",
+        "purpose": "Fast repeated block placement for walls, floors, and survival-friendly construction.",
+        "required": true
+      },
+      {
+        "slug": "worldeditdisplay",
+        "name": "WorldEditDisplay",
+        "source": "https://modrinth.com/plugin/worldeditdisplay",
+        "purpose": "Visualizes WorldEdit selections and edit boundaries for safer building.",
+        "required": true
+      },
+      {
+        "slug": "wesv",
+        "name": "WorldEditSelectionVisualizer",
+        "source": "https://modrinth.com/plugin/wesv",
+        "purpose": "Classic WorldEdit selection visualization support.",
+        "required": false,
+        "notes": "Optional because WorldEditDisplay covers the same area on newer servers."
+      },
+      {
+        "slug": "schemimporter",
+        "name": "SchemImporter",
+        "source": "https://modrinth.com/plugin/schemimporter",
+        "purpose": "Extra schematic import utility for server-side build workflows.",
+        "required": false
+      },
+      {
+        "slug": "takeitout",
+        "name": "Take It Out",
+        "source": "https://modrinth.com/plugin/takeitout",
+        "purpose": "Shulker picking and easy-place style quality-of-life for build logistics.",
+        "required": true
+      },
+      {
+        "slug": "bluemap",
+        "name": "BlueMap",
+        "source": "https://modrinth.com/plugin/bluemap",
+        "purpose": "High-quality 3D web map for checking builds from the browser.",
+        "required": true
+      },
+      {
+        "slug": "chunky",
+        "name": "Chunky",
+        "source": "https://modrinth.com/plugin/chunky",
+        "purpose": "Pregenerates chunks so build areas load smoothly on the Raspberry Pi.",
+        "required": true
+      },
+      {
+        "slug": "imageframe",
+        "name": "ImageFrame",
+        "source": "https://modrinth.com/plugin/imageframe",
+        "purpose": "Image and GIF maps for signs, posters, logos, and build decoration.",
+        "required": true
+      },
+      {
+        "slug": "easyarmorstands",
+        "name": "EasyArmorStands",
+        "source": "https://modrinth.com/plugin/easyarmorstands",
+        "purpose": "Armor stand and display entity editor for detailed scene dressing.",
+        "required": true
+      },
+      {
+        "slug": "stellarprotect",
+        "name": "StellarProtect",
+        "source": "https://modrinth.com/plugin/stellarprotect",
+        "purpose": "CoreProtect-style logging and rollback for build accidents and griefing.",
+        "required": true
+      },
+      {
+        "slug": "inventoryrollbackplus",
+        "name": "InventoryRollbackPlus",
+        "source": "https://modrinth.com/plugin/inventoryrollbackplus",
+        "purpose": "Player inventory rollback support for safer admin recovery.",
+        "required": true
+      },
+      {
+        "slug": "luckperms",
+        "name": "LuckPerms",
+        "source": "https://modrinth.com/plugin/luckperms",
+        "purpose": "Permission groups for builder/admin access control.",
+        "required": true
+      },
+      {
+        "slug": "safe-zone-claims",
+        "name": "Safe Zone Claims",
+        "source": "https://modrinth.com/plugin/safe-zone-claims",
+        "purpose": "Simple protected zones for showcase/build areas.",
+        "required": false
+      },
+      {
+        "slug": "pl3xmap",
+        "name": "Pl3xMap",
+        "source": "https://modrinth.com/plugin/pl3xmap",
+        "purpose": "Lightweight 2D web map alternative to BlueMap.",
+        "required": false,
+        "allowPrerelease": true,
+        "notes": "Optional because running BlueMap and Pl3xMap together costs extra disk and CPU."
+      }
+    ]
+  },
+  "client": {
+    "loader": "fabric",
+    "acceptedLoaders": ["fabric"],
+    "targetDirectory": "mods",
+    "projects": [
+      {
+        "slug": "fabric-api",
+        "name": "Fabric API",
+        "source": "https://modrinth.com/mod/fabric-api",
+        "purpose": "Required API layer for most Fabric client mods.",
+        "required": true
+      },
+      {
+        "slug": "axiom",
+        "name": "Axiom",
+        "source": "https://modrinth.com/mod/axiom",
+        "purpose": "Professional all-in-one creative building and terrain editing client.",
+        "required": true
+      },
+      {
+        "slug": "worldedit-cui",
+        "name": "WorldEdit CUI",
+        "source": "https://modrinth.com/mod/worldedit-cui",
+        "purpose": "Client-side WorldEdit selection outlines.",
+        "required": true
+      },
+      {
+        "slug": "malilib",
+        "name": "MaLiLib",
+        "source": "https://modrinth.com/mod/malilib",
+        "purpose": "Required library for Litematica, MiniHUD, and Tweakeroo.",
+        "required": true
+      },
+      {
+        "slug": "litematica",
+        "name": "Litematica",
+        "source": "https://modrinth.com/mod/litematica",
+        "purpose": "Client-side schematic preview, placement, and build planning.",
+        "required": true
+      },
+      {
+        "slug": "minihud",
+        "name": "MiniHUD",
+        "source": "https://modrinth.com/mod/minihud",
+        "purpose": "Light-level, structure, and technical build overlays.",
+        "required": true
+      },
+      {
+        "slug": "tweakeroo",
+        "name": "Tweakeroo",
+        "source": "https://modrinth.com/mod/tweakeroo",
+        "purpose": "Builder quality-of-life toggles and placement helpers.",
+        "required": true
+      },
+      {
+        "slug": "freecam",
+        "name": "Freecam",
+        "source": "https://modrinth.com/mod/freecam",
+        "purpose": "Inspect builds and interiors without moving the player.",
+        "required": true
+      },
+      {
+        "slug": "sodium",
+        "name": "Sodium",
+        "source": "https://modrinth.com/mod/sodium",
+        "purpose": "Client performance boost for large build areas.",
+        "required": true,
+        "allowPrerelease": true
+      },
+      {
+        "slug": "iris",
+        "name": "Iris Shaders",
+        "source": "https://modrinth.com/mod/iris",
+        "purpose": "Shader support for build screenshots and inspection.",
+        "required": true
+      },
+      {
+        "slug": "continuity",
+        "name": "Continuity",
+        "source": "https://modrinth.com/mod/continuity",
+        "purpose": "Connected textures for cleaner build presentation.",
+        "required": true,
+        "allowPrerelease": true
+      }
+    ]
+  },
+  "excluded": [
+    {
+      "name": "CoreProtect",
+      "source": "https://modrinth.com/plugin/coreprotect",
+      "reason": "Latest Modrinth metadata did not advertise 26.1.2 support, so StellarProtect is used instead."
+    },
+    {
+      "name": "regular WorldEdit jar",
+      "source": "https://modrinth.com/plugin/worldedit",
+      "reason": "FAWE is installed as the WorldEdit-compatible high-performance replacement to avoid duplicate WorldEdit jars."
+    }
+  ]
+}
