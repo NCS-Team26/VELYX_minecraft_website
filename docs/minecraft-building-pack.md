@@ -54,6 +54,11 @@ Included Fabric server mods:
 - BlueMap
 - Chunky
 - LuckPerms
+- Essential Commands
+- Multiworld
+- Command Aliases
+- adventure-platform-fabric
+- Mods Command
 - spark
 - Lithium
 - FerriteCore
@@ -85,6 +90,15 @@ Live Raspberry Pi layout after the Fabric conversion:
 - BlueMap listens on web port `8100`
 - Fabric compatibility API service: `nfoifsb-minecraft-api-bridge.service`
 - Website and Discord stock integrations read `/minecraft/stocks/market` through the API bridge on `127.0.0.1:8787`.
+
+Fabric command compatibility:
+
+- `/plugins` redirects to `/mods`.
+- `/sethome`, `/delhome`, and `/homes` redirect to Essential Commands home subcommands.
+- `/setwarp`, `/delwarp`, and `/warps` redirect to Essential Commands warp subcommands.
+- `/world ...` and `/mv ...` redirect to Multiworld `/mw ...`.
+- The live alias files are stored in `/home/ad1969/minecraft-fabric/config/commandaliases/nfoifsb`.
+- Repo copies live under `infra/minecraft/commandaliases/nfoifsb`; copy them into the server config folder and run `/commandaliases reload` after rebuilding the server.
 
 The old Paper world import was not used for the live Fabric boot because Fabric could not read the Paper world generation settings. The original Paper world is still preserved in `/home/ad1969/minecraft/world`; the failed import copy is backed up under `/home/ad1969/minecraft-fabric/backups/`.
 

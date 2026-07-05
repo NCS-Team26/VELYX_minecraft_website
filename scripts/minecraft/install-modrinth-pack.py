@@ -54,10 +54,12 @@ def version_matches(target: str, advertised: str) -> bool:
         return True
     if advertised.endswith(".x"):
         return target.startswith(advertised[:-1])
-    if re.fullmatch(r"\d+\.\d+", advertised):
-        return target == advertised or target.startswith(f"{advertised}.")
-    if "-" in advertised or "–" in advertised:
-        parts = re.split(r"\s*[-–]\s*", advertised, maxsplit=1)
+    if re.fullmatch(r"\d+(?:\.\d+)+", advertised):
+        advertised_tuple = normalize_version(advertised)
+        target_tuple = normalize_version(target)
+        return target_tuple[: len(advertised_tuple)] == advertised_tuple
+    if "-" in advertised or "–" in advertised or "—" in advertised:
+        parts = re.split(r"\s*[-–—]\s*", advertised, maxsplit=1)
         if len(parts) == 2:
             target_tuple = normalize_version(target)
             return normalize_version(parts[0]) <= target_tuple <= normalize_version(parts[1])
@@ -69,12 +71,16 @@ def loader_matches(version: dict, accepted_loaders: list[str]) -> bool:
     return bool(version_loaders.intersection(accepted_loaders))
 
 
-def compatible_versions(versions: list[dict], minecraft_version: str, accepted_loaders: list[str], allow_prerelease: bool) -> list[dict]:
+def compatible_versions(versions: list[dict], minecraft_versions: list[str], accepted_loaders: list[str], allow_prerelease: bool) -> list[dict]:
     compatible = [
         version
         for version in versions
         if loader_matches(version, accepted_loaders)
-        and any(version_matches(minecraft_version, game_version) for game_version in version.get("game_versions", []))
+        and any(
+            version_matches(minecraft_version, game_version)
+            for minecraft_version in minecraft_versions
+            for game_version in version.get("game_versions", [])
+        )
     ]
     if allow_prerelease:
         return compatible
@@ -153,7 +159,8 @@ def install_project(project: dict, side_config: dict, minecraft_version: str, ta
     allow_prerelease = bool(project.get("allowPrerelease"))
     try:
         versions = project_versions(slug)
-        matches = compatible_versions(versions, minecraft_version, accepted_loaders, allow_prerelease)
+        minecraft_versions = [minecraft_version, *project.get("compatibleMinecraftVersions", [])]
+        matches = compatible_versions(versions, minecraft_versions, accepted_loaders, allow_prerelease)
         if not matches:
             required = "required" if project.get("required", True) else "optional"
             log(f"skip {slug}: no compatible {minecraft_version} {accepted_loaders} release found ({required})")

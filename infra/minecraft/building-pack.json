@@ -195,6 +195,50 @@
         "required": true
       },
       {
+        "slug": "essential-commands",
+        "name": "Essential Commands",
+        "source": "https://modrinth.com/mod/essential-commands",
+        "purpose": "Fabric replacement for Essentials-style /home, /spawn, /tpa, /warp, /back, and /rtp commands.",
+        "required": true,
+        "compatibleMinecraftVersions": ["26.1.1"],
+        "notes": "0.39.0-mc26.1.1 does not declare a strict minecraft dependency in fabric.mod.json and works as the current 26.1.x command replacement.",
+        "dependsOn": ["luckperms"]
+      },
+      {
+        "slug": "multiworld",
+        "name": "Multiworld",
+        "source": "https://modrinth.com/mod/multiworld",
+        "purpose": "Fabric replacement for Multiverse/world-manager commands: /mw list, /mw tp, /mw create, /mw delete, and flat-world creation.",
+        "required": true,
+        "allowPrerelease": true,
+        "notes": "The 26.1 build is currently published as alpha but declares minecraft >=26.1 and provides the required /mw world commands.",
+        "dependsOn": ["fabric-api", "luckperms"]
+      },
+      {
+        "slug": "commandaliases",
+        "name": "Command Aliases",
+        "source": "https://modrinth.com/mod/commandaliases",
+        "purpose": "Restores familiar Paper/Essentials-style short commands by aliasing them to Fabric command implementations.",
+        "required": true,
+        "dependsOn": ["fabric-api"]
+      },
+      {
+        "slug": "adventure-platform-mod",
+        "name": "adventure-platform-fabric",
+        "source": "https://modrinth.com/mod/adventure-platform-mod",
+        "purpose": "Required text/command platform dependency for Mods Command on Fabric.",
+        "required": true,
+        "dependsOn": ["fabric-api"]
+      },
+      {
+        "slug": "mods-command",
+        "name": "Mods Command",
+        "source": "https://modrinth.com/mod/mods-command",
+        "purpose": "Adds server-side /mods and diagnostics commands so Fabric mod lists can be checked in game.",
+        "required": true,
+        "dependsOn": ["fabric-api", "adventure-platform-mod"]
+      },
+      {
         "slug": "spark",
         "name": "spark",
         "source": "https://modrinth.com/mod/spark",
