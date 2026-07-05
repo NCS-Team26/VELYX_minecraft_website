@@ -198,13 +198,18 @@ Custom target:
 Client mods included:
 
 - Fabric API
+- Forge Config API Port
+- Open Parties and Claims
 - Axiom
+- Construction Wand
+- Armor Stand Editor
 - WorldEdit CUI
 - MaLiLib
 - Litematica
 - MiniHUD
 - Tweakeroo
 - Freecam
+- Syncmatica
 - Sodium
 - Iris Shaders
 - Continuity

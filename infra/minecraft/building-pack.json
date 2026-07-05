@@ -432,11 +432,44 @@
         "required": true
       },
       {
+        "slug": "forge-config-api-port",
+        "name": "Forge Config API Port",
+        "source": "https://modrinth.com/mod/forge-config-api-port",
+        "purpose": "Client dependency for Open Parties and Claims configuration screens.",
+        "required": true,
+        "dependsOn": ["fabric-api"]
+      },
+      {
+        "slug": "open-parties-and-claims",
+        "name": "Open Parties and Claims",
+        "source": "https://modrinth.com/mod/open-parties-and-claims",
+        "purpose": "Matches the server claim/protection mod and gives players the claim UI.",
+        "required": true,
+        "allowPrerelease": true,
+        "dependsOn": ["fabric-api", "forge-config-api-port"]
+      },
+      {
         "slug": "axiom",
         "name": "Axiom",
         "source": "https://modrinth.com/mod/axiom",
         "purpose": "Professional all-in-one creative building and terrain editing client.",
         "required": true
+      },
+      {
+        "slug": "construction-wand-fabric",
+        "name": "Construction Wand",
+        "source": "https://modrinth.com/mod/construction-wand-fabric",
+        "purpose": "Required by the live server because the server registers constructionwand items.",
+        "required": true,
+        "dependsOn": ["fabric-api"]
+      },
+      {
+        "slug": "armorstandeditor",
+        "name": "Armor Stand Editor",
+        "source": "https://modrinth.com/mod/armorstandeditor",
+        "purpose": "Client-side screens and controls for the server armor stand editing mod.",
+        "required": true,
+        "dependsOn": ["fabric-api"]
       },
       {
         "slug": "worldedit-cui",
@@ -478,6 +511,13 @@
         "name": "Freecam",
         "source": "https://modrinth.com/mod/freecam",
         "purpose": "Inspect builds and interiors without moving the player.",
+        "required": true
+      },
+      {
+        "slug": "syncmatica",
+        "name": "Syncmatica",
+        "source": "https://modrinth.com/mod/syncmatica",
+        "purpose": "Client-side schematic sharing with the live Syncmatica server mod.",
         "required": true
       },
       {
