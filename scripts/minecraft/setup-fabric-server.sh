@@ -23,7 +23,7 @@ EULA
 if [ ! -f server.properties ]; then
   cat > server.properties <<EOF
 server-port=${SERVER_PORT}
-motd=nfoifsb Fabric Building Server
+motd=\u00A75\u00A7lVELYX \u00A7f\uACBD\uC81C \uC57C\uC0DD \u00A78| \u00A7bvelyx.kr\n\u00A77\uAC70\uB798 \u00B7 \uD1A0\uC9C0\uBCF4\uD638 \u00B7 \uD568\uAED8 \uD0A4\uC6B0\uB294 \uC6D4\uB4DC
 online-mode=true
 white-list=true
 enable-command-block=true
