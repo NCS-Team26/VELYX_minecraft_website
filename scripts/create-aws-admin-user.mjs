@@ -6,7 +6,7 @@ import { requireAwsCostOptIn } from "./require-aws-cost-opt-in.mjs";
 requireAwsCostOptIn("AWS admin account update");
 
 const region = process.env.AWS_REGION || process.env.AWS_DEFAULT_REGION || "ap-northeast-1";
-const stackName = process.env.AUTH_STACK_NAME || "nfoifsb-auth";
+const stackName = process.env.AUTH_STACK_NAME || "velyx-auth";
 const tableName = process.env.AUTH_USERS_TABLE || process.env.USERS_TABLE || `${stackName}-users`;
 const functionName = process.env.AUTH_FUNCTION_NAME || `${stackName}-api`;
 const outputFile = process.env.ADMIN_OUTPUT_FILE || "admin-output.json";
@@ -32,7 +32,7 @@ function resolveApiBase() {
   throw new Error("AUTH_API_BASE, VITE_AUTH_API_BASE, or auth-output.json apiEndpoint is required.");
 }
 
-const email = normalizeEmail(process.env.ADMIN_EMAIL || "admin@nfoifsb.kr");
+const email = normalizeEmail(process.env.ADMIN_EMAIL || "admin@velyx.kr");
 const nickname = String(process.env.ADMIN_NICKNAME || "Admin").trim() || "Admin";
 const password = process.env.ADMIN_PASSWORD || randomBytes(18).toString("base64url");
 const apiBase = resolveApiBase();

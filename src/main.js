@@ -9,13 +9,13 @@ import {
   createChart,
 } from "lightweight-charts";
 
-const SERVER_ADDRESS = "nfoifsb.kr";
+const SERVER_ADDRESS = "velyx.kr";
 const STATUS_API = `https://api.mcstatus.io/v2/status/java/${SERVER_ADDRESS}`;
 const STATUS_TIMEOUT_MS = 8000;
 const PUBLIC_PLAYER_API_BASE = "/minecraft";
 const FUNNEL_PLAYER_API_BASE = "https://minecraftserver1.tail16d543.ts.net/minecraft";
-const LEGACY_PLAYER_API_BASE = "https://api.nfoifsb.kr/minecraft";
-const isHostedSite = ["www.nfoifsb.kr", "nfoifsb.kr"].includes(window.location.hostname);
+const LEGACY_PLAYER_API_BASE = "https://api.velyx.kr/minecraft";
+const isHostedSite = ["www.velyx.kr", "velyx.kr"].includes(window.location.hostname);
 const PRODUCTION_PLAYER_API_BASE = isHostedSite ? PUBLIC_PLAYER_API_BASE : FUNNEL_PLAYER_API_BASE;
 const PRODUCTION_PLAYER_API_FALLBACK_BASE = `${FUNNEL_PLAYER_API_BASE},${LEGACY_PLAYER_API_BASE}`;
 

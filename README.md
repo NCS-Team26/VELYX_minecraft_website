@@ -1,4 +1,4 @@
-# Velyx.kr Minecraft Site
+# VELYX Minecraft Site
 
 ## AWS 비용 방지 메모
 
@@ -6,9 +6,9 @@
 
 자세한 내용은 [`docs/aws-zero-cost.md`](docs/aws-zero-cost.md)를 참고하세요.
 
-`nfoifsb.kr` 마인크래프트 서버용 정적 웹사이트입니다.
+`velyx.kr` 마인크래프트 서버용 정적 웹사이트입니다.
 
-루트 도메인 `nfoifsb.kr`은 마크 서버 접속 주소로 계속 쓰고, 웹사이트는 우선 CloudFront 기본 주소로 공개하거나 나중에 `www.nfoifsb.kr`에 붙이는 구성을 권장합니다.
+루트 도메인 `velyx.kr`은 마크 서버 접속 주소로 계속 쓰고, 웹사이트는 우선 CloudFront 기본 주소로 공개하거나 나중에 `www.velyx.kr`에 붙이는 구성을 권장합니다.
 
 ## 사이트 기능
 
@@ -50,7 +50,7 @@ Google 로그인 버튼을 활성화하려면 Google Cloud Console에서 OAuth 2
 ```text
 http://127.0.0.1:5173
 https://<cloudfront_domain_name>
-https://www.nfoifsb.kr
+https://www.velyx.kr
 ```
 
 4. `.env.example`을 참고해 `.env`를 만들고 클라이언트 ID를 넣습니다.
@@ -178,26 +178,26 @@ arn:aws:iam::358982198253:role/GitHubActionsMincraftServerWebsiteDeployRole
 AWS_REGION              # 기본값: ap-northeast-1
 VITE_GOOGLE_CLIENT_ID   # Google 로그인 버튼 활성화 및 서버 측 ID 토큰 검증 audience
 VITE_AUTH_API_BASE      # 회원가입/로그인 API 주소
-VITE_PLAYER_API_BASE    # AuroraLink 플레이어 API 주소, 예: https://api.nfoifsb.kr/minecraft
-AUTH_EMAIL_FROM         # 인증/비밀번호 재설정 메일 발신자, 기본값 no-reply@nfoifsb.kr
+VITE_PLAYER_API_BASE    # AuroraLink 플레이어 API 주소, 예: https://api.velyx.kr/minecraft
+AUTH_EMAIL_FROM         # 인증/비밀번호 재설정 메일 발신자, 기본값 no-reply@velyx.kr
 AUTH_APP_BASE_URL       # 메일 인증 링크에 들어갈 사이트 URL
-SITE_BUCKET             # 기본값: menhera-minecraft-server-website
-SITE_DOMAIN             # 기본값: www.nfoifsb.kr
-CERTIFICATE_ARN         # 기본값: www.nfoifsb.kr용 us-east-1 ACM 인증서 ARN
+SITE_BUCKET             # 기본값: velyx-minecraft-site-358982198253
+SITE_DOMAIN             # 기본값: www.velyx.kr
+CERTIFICATE_ARN         # 기본값: www.velyx.kr용 us-east-1 ACM 인증서 ARN
 ```
 
 `SITE_BUCKET`을 기본값이 아닌 이름으로 바꾸려면 AWS IAM Role 정책의 S3 bucket ARN도 같이 바꿔야 합니다.
 
 수동으로 다시 배포하고 싶으면 GitHub `Actions` 탭에서 `Deploy website to AWS` 워크플로를 `Run workflow`로 실행할 수 있습니다.
 
-## www.nfoifsb.kr 연결
+## www.velyx.kr 연결
 
-`www.nfoifsb.kr`까지 붙이려면 CloudFront용 ACM 인증서가 필요합니다. 인증서는 반드시 `us-east-1` 리전에 만들어야 합니다.
+`www.velyx.kr`까지 붙이려면 CloudFront용 ACM 인증서가 필요합니다. 인증서는 반드시 `us-east-1` 리전에 만들어야 합니다.
 
 인증서가 준비되면 첫 배포 전에 이렇게 실행할 수 있습니다:
 
 ```powershell
-$env:SITE_DOMAIN="www.nfoifsb.kr"
+$env:SITE_DOMAIN="www.velyx.kr"
 $env:CERTIFICATE_ARN="arn:aws:acm:us-east-1:ACCOUNT_ID:certificate/CERT_ID"
 npm run deploy:aws
 ```
@@ -210,7 +210,7 @@ npm run deploy:aws
 값: <cloudfront_domain_name>
 ```
 
-주의: `nfoifsb.kr` 루트 A 레코드는 마크 서버용이므로 웹사이트용으로 바꾸지 마세요.
+주의: `velyx.kr` 루트 A 레코드는 마크 서버용이므로 웹사이트용으로 바꾸지 마세요.
 
 ## Terraform 구성
 

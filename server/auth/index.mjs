@@ -564,7 +564,7 @@ function buildResetUrl(email, token) {
 async function sendVerificationEmail(email, challenge) {
   const link = buildVerificationUrl(email, challenge.token);
   const text = [
-    "nfoifsb.kr 이메일 인증",
+    "velyx.kr 이메일 인증",
     "",
     `인증 코드: ${challenge.code}`,
     `인증 링크: ${link}`,
@@ -573,20 +573,20 @@ async function sendVerificationEmail(email, challenge) {
   ].join("\n");
   const html = `
     <div style="font-family:Arial,sans-serif;line-height:1.6;color:#10201c">
-      <h1>nfoifsb.kr 이메일 인증</h1>
+      <h1>velyx.kr 이메일 인증</h1>
       <p>아래 코드를 로그인 화면에 입력하거나 버튼을 눌러 인증을 완료하세요.</p>
       <p style="font-size:28px;font-weight:700;letter-spacing:4px">${htmlEscape(challenge.code)}</p>
       <p><a href="${htmlEscape(link)}">이메일 인증하기</a></p>
       <p>이 링크와 코드는 30분 뒤 만료됩니다.</p>
     </div>`;
-  const delivery = await sendAuthEmail({ to: email, subject: "nfoifsb.kr 이메일 인증", text, html });
+  const delivery = await sendAuthEmail({ to: email, subject: "velyx.kr 이메일 인증", text, html });
   return { ...delivery, preview: authStore === "file" ? { code: challenge.code, link } : undefined };
 }
 
 async function sendPasswordResetEmail(email, challenge) {
   const link = buildResetUrl(email, challenge.token);
   const text = [
-    "nfoifsb.kr 비밀번호 재설정",
+    "velyx.kr 비밀번호 재설정",
     "",
     `재설정 코드: ${challenge.code}`,
     `재설정 링크: ${link}`,
@@ -595,13 +595,13 @@ async function sendPasswordResetEmail(email, challenge) {
   ].join("\n");
   const html = `
     <div style="font-family:Arial,sans-serif;line-height:1.6;color:#10201c">
-      <h1>nfoifsb.kr 비밀번호 재설정</h1>
+      <h1>velyx.kr 비밀번호 재설정</h1>
       <p>아래 코드를 입력하거나 버튼을 눌러 새 비밀번호를 설정하세요.</p>
       <p style="font-size:28px;font-weight:700;letter-spacing:4px">${htmlEscape(challenge.code)}</p>
       <p><a href="${htmlEscape(link)}">비밀번호 재설정하기</a></p>
       <p>이 링크와 코드는 30분 뒤 만료됩니다.</p>
     </div>`;
-  const delivery = await sendAuthEmail({ to: email, subject: "nfoifsb.kr 비밀번호 재설정", text, html });
+  const delivery = await sendAuthEmail({ to: email, subject: "velyx.kr 비밀번호 재설정", text, html });
   return { ...delivery, preview: authStore === "file" ? { code: challenge.code, link } : undefined };
 }
 

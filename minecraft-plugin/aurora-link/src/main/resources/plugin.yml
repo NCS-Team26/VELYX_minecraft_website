@@ -4,8 +4,8 @@ main: kr.nfoifsb.auroralink.AuroraLinkPlugin
 api-version: "1.21"
 authors:
   - Furu002
-description: Web-to-Minecraft bridge for nfoifsb economy survival.
-website: https://www.nfoifsb.kr/
+description: Web-to-Minecraft bridge for VELYX economy survival.
+website: https://www.velyx.kr/
 softdepend:
   - Vault
   - Essentials

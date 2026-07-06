@@ -1,7 +1,7 @@
 import "dotenv/config";
 import path from "node:path";
 
-const DEFAULT_PLAYER_API_BASE = "https://www.nfoifsb.kr/minecraft";
+const DEFAULT_PLAYER_API_BASE = "https://www.velyx.kr/minecraft";
 
 function stripTrailingSlash(value) {
   return String(value || "").trim().replace(/\/+$/, "");
@@ -27,8 +27,8 @@ export const config = {
   playerApiBase: stripTrailingSlash(
     process.env.DISCORD_PLAYER_API_BASE || process.env.VITE_PLAYER_API_BASE || DEFAULT_PLAYER_API_BASE,
   ),
-  siteUrl: stripTrailingSlash(process.env.DISCORD_SITE_URL || process.env.AUTH_APP_BASE_URL || "https://www.nfoifsb.kr"),
-  minecraftAddress: process.env.DISCORD_MINECRAFT_ADDRESS || "nfoifsb.kr",
+  siteUrl: stripTrailingSlash(process.env.DISCORD_SITE_URL || process.env.AUTH_APP_BASE_URL || "https://www.velyx.kr"),
+  minecraftAddress: process.env.DISCORD_MINECRAFT_ADDRESS || "velyx.kr",
   adminToken: process.env.DISCORD_MINECRAFT_ADMIN_TOKEN || process.env.MINECRAFT_ADMIN_TOKEN || "",
   dataDir: path.resolve(process.env.DISCORD_BOT_DATA_DIR || defaultDataDir),
   requestTimeoutMs: numberFromEnv("DISCORD_API_TIMEOUT_MS", 8500),

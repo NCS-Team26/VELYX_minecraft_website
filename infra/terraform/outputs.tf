@@ -14,5 +14,5 @@ output "cloudfront_domain_name" {
 }
 
 output "custom_domain_note" {
-  value = var.certificate_arn == "" ? "No certificate ARN supplied. Use the CloudFront domain or add an ACM us-east-1 certificate for www.nfoifsb.kr." : "Create a CNAME at Gabia: www -> ${aws_cloudfront_distribution.site.domain_name}"
+  value = var.certificate_arn == "" ? "No certificate ARN supplied. Use the CloudFront domain or add an ACM us-east-1 certificate for www.velyx.kr." : "Create a CNAME at Gabia: www -> ${aws_cloudfront_distribution.site.domain_name}"
 }

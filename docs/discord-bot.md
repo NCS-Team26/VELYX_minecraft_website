@@ -31,9 +31,9 @@ Target Discord invite checked on 2026-07-05:
 DISCORD_TOKEN=...
 DISCORD_CLIENT_ID=...
 DISCORD_GUILD_ID=1519722855791726748
-DISCORD_PLAYER_API_BASE=https://api.nfoifsb.kr/minecraft
-DISCORD_SITE_URL=https://www.nfoifsb.kr
-DISCORD_MINECRAFT_ADDRESS=nfoifsb.kr
+DISCORD_PLAYER_API_BASE=https://api.velyx.kr/minecraft
+DISCORD_SITE_URL=https://www.velyx.kr
+DISCORD_MINECRAFT_ADDRESS=velyx.kr
 DISCORD_MINECRAFT_ADMIN_TOKEN=optional-auroralink-admin-token
 DISCORD_BOT_DATA_DIR=discord-bot/data
 DISCORD_PUBLIC_ACTION_REPLIES=true

@@ -42,7 +42,8 @@ requireAwsCostOptIn("AWS website deploy");
 
 const region = process.env.AWS_REGION || process.env.AWS_DEFAULT_REGION || "ap-northeast-1";
 const distDir = join(process.cwd(), "dist");
-const distributionComment = "nfoifsb Minecraft server website";
+const legacyDistributionComment = "nfoifsb Minecraft server website";
+const distributionComment = "VELYX Minecraft server website";
 const originId = "site-s3";
 const playerApiOriginId = "minecraft-player-api";
 const playerApiOriginDomainName = process.env.PLAYER_API_ORIGIN_DOMAIN || "minecraftserver1.tail16d543.ts.net";
@@ -50,7 +51,8 @@ const playerApiPathPattern = "/minecraft/*";
 const cachePolicyOptimized = "658327ea-f89d-4fab-a63d-7e88639e58f6";
 const cachePolicyDisabled = "4135ea2d-6df8-44a3-9df3-4b5a84be39ad";
 const originRequestPolicyAllViewerExceptHostHeader = "b689b0a8-53d0-40ab-baf2-68738e2966ac";
-const securityHeadersPolicyName = "nfoifsb-site-security-headers";
+const legacySecurityHeadersPolicyName = "nfoifsb-site-security-headers";
+const securityHeadersPolicyName = "velyx-site-security-headers";
 const siteDomain = process.env.SITE_DOMAIN || "";
 const certificateArn = process.env.CERTIFICATE_ARN || "";
 const emptyOriginCustomHeaders = { Quantity: 0 };
@@ -95,7 +97,7 @@ async function getAccountId() {
 }
 
 function bucketNameFor(accountId) {
-  return (process.env.SITE_BUCKET || `nfoifsb-minecraft-site-${accountId}`).toLowerCase();
+  return (process.env.SITE_BUCKET || `velyx-minecraft-site-${accountId}`).toLowerCase();
 }
 
 async function ensureBucket(bucket) {
@@ -157,7 +159,7 @@ async function ensureOriginAccessControl(bucket) {
     new CreateOriginAccessControlCommand({
       OriginAccessControlConfig: {
         Name: name,
-        Description: "Origin access control for nfoifsb Minecraft website",
+        Description: "Origin access control for VELYX Minecraft website",
         OriginAccessControlOriginType: "s3",
         SigningBehavior: "always",
         SigningProtocol: "sigv4",
@@ -178,17 +180,25 @@ function siteContentSecurityPolicy() {
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: https://mc-heads.net https://*.googleusercontent.com",
     "font-src 'self' data:",
-    "connect-src 'self' https://api.mcstatus.io https://accounts.google.com https://*.execute-api.ap-northeast-1.amazonaws.com https://api.nfoifsb.kr https://minecraftserver1.tail16d543.ts.net",
+    "connect-src 'self' https://api.mcstatus.io https://accounts.google.com https://*.execute-api.ap-northeast-1.amazonaws.com https://api.velyx.kr https://minecraftserver1.tail16d543.ts.net",
     "frame-src https://accounts.google.com",
     "form-action 'self'",
     "upgrade-insecure-requests",
   ].join("; ");
 }
 
+function gabiaHostFor(domain) {
+  const normalized = String(domain || "").trim().replace(/\.$/, "");
+  if (!normalized) return "";
+  if (normalized === "velyx.kr") return "@";
+  const suffix = ".velyx.kr";
+  return normalized.endsWith(suffix) ? normalized.slice(0, -suffix.length) : normalized;
+}
+
 function securityHeadersPolicyConfig() {
   return {
     Name: securityHeadersPolicyName,
-    Comment: "Security headers for nfoifsb Minecraft website",
+    Comment: "Security headers for VELYX Minecraft website",
     SecurityHeadersConfig: {
       ContentSecurityPolicy: {
         Override: true,
@@ -240,20 +250,31 @@ function securityHeadersPolicyConfig() {
   };
 }
 
-async function findResponseHeadersPolicy(name) {
+async function findResponseHeadersPolicy(...names) {
+  const wantedNames = names.filter(Boolean);
+  const matches = new Map();
   let marker;
   do {
     const page = await cloudfront.send(new ListResponseHeadersPoliciesCommand({ Marker: marker, Type: "custom" }));
     const items = page.ResponseHeadersPolicyList?.Items || [];
-    const found = items.find((item) => item.ResponseHeadersPolicy?.ResponseHeadersPolicyConfig?.Name === name);
-    if (found?.ResponseHeadersPolicy?.Id) return found.ResponseHeadersPolicy.Id;
+    for (const item of items) {
+      const policy = item.ResponseHeadersPolicy;
+      const name = policy?.ResponseHeadersPolicyConfig?.Name;
+      if (name && policy?.Id && wantedNames.includes(name)) {
+        matches.set(name, policy.Id);
+      }
+    }
     marker = page.ResponseHeadersPolicyList?.NextMarker;
   } while (marker);
+
+  for (const name of wantedNames) {
+    if (matches.has(name)) return matches.get(name);
+  }
   return undefined;
 }
 
 async function ensureSecurityHeadersPolicy() {
-  const existingId = await findResponseHeadersPolicy(securityHeadersPolicyName);
+  const existingId = await findResponseHeadersPolicy(securityHeadersPolicyName, legacySecurityHeadersPolicyName);
   if (existingId) {
     const current = await cloudfront.send(new GetResponseHeadersPolicyConfigCommand({ Id: existingId }));
     await cloudfront.send(
@@ -277,24 +298,57 @@ async function ensureSecurityHeadersPolicy() {
 }
 
 async function findDistribution() {
+  let legacyMatch;
   let marker;
   do {
     const page = await cloudfront.send(new ListDistributionsCommand({ Marker: marker }));
     const items = page.DistributionList?.Items || [];
-    const found = items.find((item) => {
+    for (const item of items) {
       const aliases = item.Aliases?.Items || [];
-      return (siteDomain && aliases.includes(siteDomain)) || item.Comment === distributionComment;
-    });
-    if (found) return found;
+      if ((siteDomain && aliases.includes(siteDomain)) || item.Comment === distributionComment) {
+        return item;
+      }
+      if (!legacyMatch && item.Comment === legacyDistributionComment) {
+        legacyMatch = item;
+      }
+    }
     marker = page.DistributionList?.NextMarker;
   } while (marker);
-  return undefined;
+  return legacyMatch;
+}
+
+function viewerCertificateConfig() {
+  return certificateArn
+    ? {
+        ACMCertificateArn: certificateArn,
+        SSLSupportMethod: "sni-only",
+        MinimumProtocolVersion: "TLSv1.2_2021",
+      }
+    : {
+        CloudFrontDefaultCertificate: true,
+      };
+}
+
+function comparableViewerCertificate(config = {}) {
+  if (config.ACMCertificateArn) {
+    return {
+      ACMCertificateArn: config.ACMCertificateArn,
+      SSLSupportMethod: config.SSLSupportMethod,
+      MinimumProtocolVersion: config.MinimumProtocolVersion,
+    };
+  }
+  if (config.CloudFrontDefaultCertificate) {
+    return { CloudFrontDefaultCertificate: true };
+  }
+  return config;
 }
 
 async function syncDistributionDefaults(distributionId, bucket, oacId, responseHeadersPolicyId) {
   const current = await cloudfront.send(new GetDistributionConfigCommand({ Id: distributionId }));
   const config = current.DistributionConfig;
   const desiredDomainName = `${bucket}.s3.${region}.amazonaws.com`;
+  const desiredAliases = siteDomain ? { Quantity: 1, Items: [siteDomain] } : { Quantity: 0 };
+  const desiredViewerCertificate = viewerCertificateConfig();
   const originItems = config.Origins?.Items || [];
   const existingOrigin = originItems.find((item) => item.Id === originId) || originItems[0] || {};
   const existingPlayerApiOrigin = originItems.find((item) => item.Id === playerApiOriginId) || {};
@@ -342,12 +396,19 @@ async function syncDistributionDefaults(distributionId, bucket, oacId, responseH
     config.DefaultCacheBehavior?.TargetOriginId !== defaultCacheBehavior.TargetOriginId
     || config.DefaultCacheBehavior?.ResponseHeadersPolicyId !== defaultCacheBehavior.ResponseHeadersPolicyId
     || stableStringify(existingPlayerApiBehavior) !== stableStringify(desiredPlayerApiBehavior);
+  const domainChanged =
+    config.Comment !== distributionComment
+    || stableStringify(config.Aliases || { Quantity: 0 }) !== stableStringify(desiredAliases)
+    || stableStringify(comparableViewerCertificate(config.ViewerCertificate)) !== stableStringify(desiredViewerCertificate);
 
-  if (!originChanged && !behaviorChanged) {
-    log("CloudFront distribution origins, API proxy, and security headers are already current");
+  if (!originChanged && !behaviorChanged && !domainChanged) {
+    log("CloudFront distribution domain, origins, API proxy, and security headers are already current");
     return;
   }
 
+  config.Comment = distributionComment;
+  config.Aliases = desiredAliases;
+  config.ViewerCertificate = desiredViewerCertificate;
   config.Origins = {
     Quantity: nextOrigins.length,
     Items: nextOrigins,
@@ -365,7 +426,7 @@ async function syncDistributionDefaults(distributionId, bucket, oacId, responseH
       DistributionConfig: config,
     }),
   );
-  log("Updated CloudFront distribution origin/API proxy/security headers");
+  log("Updated CloudFront distribution domain/origin/API proxy/security headers");
 }
 
 function playerApiOrigin(existingOrigin = {}) {
@@ -490,17 +551,7 @@ async function ensureDistribution(bucket, oacId, responseHeadersPolicyId) {
             Quantity: 0,
           },
         },
-        ViewerCertificate: {
-          ...(certificateArn
-            ? {
-                ACMCertificateArn: certificateArn,
-                SSLSupportMethod: "sni-only",
-                MinimumProtocolVersion: "TLSv1.2_2021",
-              }
-            : {
-                CloudFrontDefaultCertificate: true,
-              }),
-        },
+        ViewerCertificate: viewerCertificateConfig(),
       },
     }),
   );
@@ -660,12 +711,12 @@ async function main() {
           domain: siteDomain,
           dnsForGabia: {
             type: "CNAME",
-            host: siteDomain.replace(".nfoifsb.kr", ""),
+            host: gabiaHostFor(siteDomain),
             value: distribution.DomainName,
           },
         }
       : null,
-    note: "Keep nfoifsb.kr as the Minecraft server address. Use the CloudFront URL first, or set SITE_DOMAIN/CERTIFICATE_ARN for www.nfoifsb.kr.",
+    note: "Keep velyx.kr as the Minecraft server address. Use the CloudFront URL first, or set SITE_DOMAIN/CERTIFICATE_ARN for www.velyx.kr.",
   };
 
   writeFileSync("deploy-output.json", `${JSON.stringify(output, null, 2)}\n`);

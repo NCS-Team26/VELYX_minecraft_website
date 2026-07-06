@@ -1,47 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://nfoifsb.kr/</loc>
+    <loc>https://www.velyx.kr/</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://nfoifsb.kr/status.html</loc>
+    <loc>https://www.velyx.kr/status.html</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://nfoifsb.kr/plugins.html</loc>
+    <loc>https://www.velyx.kr/plugins.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://nfoifsb.kr/stock.html</loc>
+    <loc>https://www.velyx.kr/stock.html</loc>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://nfoifsb.kr/notice.html</loc>
+    <loc>https://www.velyx.kr/notice.html</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://nfoifsb.kr/community.html</loc>
+    <loc>https://www.velyx.kr/community.html</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://nfoifsb.kr/resources.html</loc>
+    <loc>https://www.velyx.kr/resources.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://nfoifsb.kr/rules.html</loc>
+    <loc>https://www.velyx.kr/rules.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://nfoifsb.kr/join.html</loc>
+    <loc>https://www.velyx.kr/join.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>

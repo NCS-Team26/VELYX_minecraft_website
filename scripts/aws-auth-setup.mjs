@@ -47,8 +47,9 @@ import { join } from "node:path";
 requireAwsCostOptIn("AWS auth backend setup");
 
 const region = process.env.AWS_REGION || process.env.AWS_DEFAULT_REGION || "ap-northeast-1";
-const stackName = process.env.AUTH_STACK_NAME || "nfoifsb-auth";
-const siteDomain = process.env.SITE_DOMAIN || "www.nfoifsb.kr";
+const stackName = process.env.AUTH_STACK_NAME || "velyx-auth";
+const projectTag = "velyx";
+const siteDomain = process.env.SITE_DOMAIN || "www.velyx.kr";
 const localOrigins = ["http://127.0.0.1:5173", "http://localhost:5173"];
 const defaultAllowedOrigins = [`https://${siteDomain}`, ...localOrigins].join(",");
 const allowedOrigins = process.env.AUTH_ALLOWED_ORIGINS || defaultAllowedOrigins;
@@ -214,7 +215,7 @@ async function ensureTable() {
       Tags: [
         {
           Key: "Project",
-          Value: "nfoifsb",
+          Value: projectTag,
         },
       ],
     }),
@@ -259,7 +260,7 @@ async function ensureRole(tableArn) {
         Tags: [
           {
             Key: "Project",
-            Value: "nfoifsb",
+            Value: projectTag,
           },
         ],
       }),
@@ -474,7 +475,7 @@ async function ensureFunction(roleArn) {
           Variables: environment,
         },
         Tags: {
-          Project: "nfoifsb",
+          Project: projectTag,
         },
       }),
     );
@@ -526,7 +527,7 @@ async function ensureApi() {
       ProtocolType: "HTTP",
       CorsConfiguration: cors,
       Tags: {
-        Project: "nfoifsb",
+        Project: projectTag,
       },
     }),
   );

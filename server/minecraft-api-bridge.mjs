@@ -20,7 +20,7 @@ const statusPort = numberEnv("MINECRAFT_STATUS_PORT", 25565);
 const statusTimeoutMs = numberEnv("MINECRAFT_STATUS_TIMEOUT_MS", 2500);
 const allowedOrigins = splitCsv(
   process.env.MINECRAFT_API_ALLOWED_ORIGINS ||
-    "https://www.nfoifsb.kr,https://api.nfoifsb.kr,http://localhost:5173,http://127.0.0.1:5173",
+    "https://www.velyx.kr,https://api.velyx.kr,http://localhost:5173,http://127.0.0.1:5173",
 );
 
 const outstandingShares = {
@@ -506,7 +506,7 @@ async function handleRoute(request) {
   if (method === "GET" && (pathname === "/" || pathname === "/health")) {
     return {
       ok: true,
-      service: "nfoifsb-minecraft-api-bridge",
+      service: "velyx-minecraft-api-bridge",
       mode: "fabric-read-only",
       basePath: basePath || "/",
       stockDataFile,
@@ -547,5 +547,5 @@ const server = http.createServer(async (request, response) => {
 });
 
 server.listen(port, host, () => {
-  console.log(`nfoifsb Minecraft API bridge listening on http://${host}:${port}${basePath}`);
+  console.log(`VELYX Minecraft API bridge listening on http://${host}:${port}${basePath}`);
 });

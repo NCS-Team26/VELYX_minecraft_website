@@ -314,7 +314,7 @@ async function postWebhook(embeds) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       username: "NFOIFSB Stock Desk",
-      avatar_url: "https://www.nfoifsb.kr/assets/favicon.png",
+      avatar_url: "https://www.velyx.kr/assets/favicon.png",
       embeds,
     }),
   });

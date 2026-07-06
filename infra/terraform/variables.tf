@@ -11,9 +11,9 @@ variable "allow_billable_resources" {
 }
 
 variable "site_domain" {
-  description = "Optional custom domain for the website. Keep nfoifsb.kr for Minecraft and use www.nfoifsb.kr for the website."
+  description = "Optional custom domain for the website. Keep velyx.kr for Minecraft and use www.velyx.kr for the website."
   type        = string
-  default     = "www.nfoifsb.kr"
+  default     = "www.velyx.kr"
 }
 
 variable "certificate_arn" {

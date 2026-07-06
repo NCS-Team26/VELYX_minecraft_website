@@ -53,8 +53,8 @@ def build_index(lock: dict, loader_version: str) -> dict:
         "formatVersion": 1,
         "game": "minecraft",
         "versionId": f"{minecraft_version}-1",
-        "name": "nfoifsb Building Client Pack",
-        "summary": "Fabric client modpack for nfoifsb.kr builders: Axiom, Litematica, WorldEdit CUI, MiniHUD, shaders, and performance mods.",
+        "name": "VELYX Building Client Pack",
+        "summary": "Fabric client modpack for velyx.kr builders: Axiom, Litematica, WorldEdit CUI, MiniHUD, shaders, and performance mods.",
         "files": files,
         "dependencies": {
             "minecraft": minecraft_version,

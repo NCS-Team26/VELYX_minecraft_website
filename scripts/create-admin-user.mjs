@@ -59,7 +59,7 @@ function hashPassword(password, salt, pepper) {
   return pbkdf2Sync(`${password}:${pepper}`, salt, passwordIterations, 32, "sha256").toString("base64");
 }
 
-const email = normalizeEmail(process.env.ADMIN_EMAIL || "admin@nfoifsb.local");
+const email = normalizeEmail(process.env.ADMIN_EMAIL || "admin@velyx.local");
 const nickname = String(process.env.ADMIN_NICKNAME || "관리자").trim() || "관리자";
 const password = process.env.ADMIN_PASSWORD || randomBytes(18).toString("base64url");
 const now = new Date().toISOString();

@@ -10,7 +10,7 @@ on:
       admin_email:
         description: "Production admin email"
         required: true
-        default: "admin@nfoifsb.kr"
+        default: "admin@velyx.kr"
       admin_nickname:
         description: "Production admin nickname"
         required: true
@@ -31,7 +31,7 @@ jobs:
     env:
       AWS_REGION: ${{ secrets.AWS_REGION || 'ap-northeast-1' }}
       AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION || 'ap-northeast-1' }}
-      AUTH_STACK_NAME: ${{ secrets.AUTH_STACK_NAME || 'nfoifsb-auth' }}
+      AUTH_STACK_NAME: ${{ secrets.AUTH_STACK_NAME || 'velyx-auth' }}
       AUTH_PEPPER: ${{ secrets.AUTH_PEPPER }}
       ADMIN_EMAIL: ${{ inputs.admin_email }}
       ADMIN_NICKNAME: ${{ inputs.admin_nickname }}

@@ -1,5 +1,5 @@
 param(
-  [string]$PackUrl = "https://www.nfoifsb.kr/downloads/nfoifsb-building-client-26.1.2.mrpack",
+  [string]$PackUrl = "https://www.velyx.kr/downloads/nfoifsb-building-client-26.1.2.mrpack",
   [string]$MinecraftDir = "$env:APPDATA\.minecraft",
   [string]$MinecraftVersion = "26.1.2",
   [string]$FabricLoaderVersion = "0.19.3"
@@ -8,14 +8,14 @@ param(
 $ErrorActionPreference = "Stop"
 
 function Write-Step($Message) {
-  Write-Host "[nfoifsb] $Message"
+  Write-Host "[VELYX] $Message"
 }
 
 function Get-Sha512($Path) {
   return (Get-FileHash -Algorithm SHA512 -LiteralPath $Path).Hash.ToLowerInvariant()
 }
 
-$ServerAddress = "nfoifsb.kr"
+$ServerAddress = "velyx.kr"
 $VersionId = "fabric-loader-$FabricLoaderVersion-$MinecraftVersion"
 $TempDir = Join-Path ([System.IO.Path]::GetTempPath()) ("nfoifsb-client-" + [System.Guid]::NewGuid().ToString("N"))
 $PackFile = Join-Path $TempDir "nfoifsb-client.mrpack"
@@ -40,7 +40,7 @@ try {
   $IndexPath = Join-Path $ExtractDir "modrinth.index.json"
   $Index = Get-Content -LiteralPath $IndexPath -Raw -Encoding UTF8 | ConvertFrom-Json
 
-  Write-Step "Backing up older nfoifsb client mods..."
+  Write-Step "Backing up older VELYX client mods..."
   $BackupDir = Join-Path $ModsDir ("nfoifsb-backup-" + (Get-Date -Format "yyyyMMdd-HHmmss"))
   $KnownPatterns = @(
     "fabric-api-*.jar",
@@ -117,7 +117,7 @@ try {
     javaArgs = "-Xmx4G"
     lastUsed = $Now
     lastVersionId = $VersionId
-    name = "nfoifsb Fabric 26.1.2"
+    name = "VELYX Fabric 26.1.2"
     type = "custom"
   }
 
@@ -139,7 +139,7 @@ try {
   Write-Host ""
   Write-Host "1. Close Minecraft Launcher completely."
   Write-Host "2. Open it again."
-  Write-Host "3. Select profile: nfoifsb Fabric 26.1.2"
+  Write-Host "3. Select profile: VELYX Fabric 26.1.2"
   Write-Host "4. Multiplayer server address: $ServerAddress"
   Write-Host ""
   Write-Host "Installed mods: $($Index.files.Count)"

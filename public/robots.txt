@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://nfoifsb.kr/sitemap.xml
+Sitemap: https://www.velyx.kr/sitemap.xml

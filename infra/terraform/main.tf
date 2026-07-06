@@ -14,7 +14,7 @@ resource "random_id" "suffix" {
 }
 
 locals {
-  bucket_name = var.bucket_name != "" ? var.bucket_name : "nfoifsb-minecraft-site-${random_id.suffix.hex}"
+  bucket_name = var.bucket_name != "" ? var.bucket_name : "velyx-minecraft-site-${random_id.suffix.hex}"
   use_domain  = var.certificate_arn != ""
 }
 
@@ -23,8 +23,8 @@ data "aws_cloudfront_cache_policy" "caching_optimized" {
 }
 
 resource "aws_cloudfront_response_headers_policy" "security" {
-  name    = "nfoifsb-site-security-headers"
-  comment = "Security headers for nfoifsb Minecraft website"
+  name    = "velyx-site-security-headers"
+  comment = "Security headers for VELYX Minecraft website"
 
   security_headers_config {
     content_security_policy {
@@ -38,7 +38,7 @@ resource "aws_cloudfront_response_headers_policy" "security" {
         "style-src 'self' 'unsafe-inline'",
         "img-src 'self' data: https://mc-heads.net https://*.googleusercontent.com",
         "font-src 'self' data:",
-        "connect-src 'self' https://api.mcstatus.io https://accounts.google.com https://*.execute-api.ap-northeast-1.amazonaws.com https://api.nfoifsb.kr https://minecraftserver1.tail16d543.ts.net",
+        "connect-src 'self' https://api.mcstatus.io https://accounts.google.com https://*.execute-api.ap-northeast-1.amazonaws.com https://api.velyx.kr https://minecraftserver1.tail16d543.ts.net",
         "frame-src https://accounts.google.com",
         "form-action 'self'",
         "upgrade-insecure-requests",
@@ -116,7 +116,7 @@ resource "aws_s3_bucket_public_access_block" "site" {
 
 resource "aws_cloudfront_origin_access_control" "site" {
   name                              = "${local.bucket_name}-oac"
-  description                       = "OAC for nfoifsb Minecraft website"
+  description                       = "OAC for VELYX Minecraft website"
   origin_access_control_origin_type = "s3"
   signing_behavior                  = "always"
   signing_protocol                  = "sigv4"
@@ -125,7 +125,7 @@ resource "aws_cloudfront_origin_access_control" "site" {
 resource "aws_cloudfront_distribution" "site" {
   enabled             = true
   is_ipv6_enabled     = true
-  comment             = "nfoifsb Minecraft server website"
+  comment             = "VELYX Minecraft server website"
   default_root_object = "index.html"
   aliases             = local.use_domain ? [var.site_domain] : []
 

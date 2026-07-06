@@ -1,6 +1,6 @@
 # AuroraLink Paper Plugin
 
-AuroraLink는 `nfoifsb.kr` 웹사이트와 Paper 서버를 연결하는 커스텀 브릿지 플러그인입니다.
+AuroraLink는 `velyx.kr` 웹사이트와 Paper 서버를 연결하는 커스텀 브릿지 플러그인입니다.
 
 ## 기능
 
@@ -44,7 +44,7 @@ api:
   port: 8787
   base-path: "/minecraft"
   allowed-origins:
-    - "https://www.nfoifsb.kr"
+    - "https://www.velyx.kr"
   admin-token: "긴_랜덤_비밀값"
 
 stock-market:

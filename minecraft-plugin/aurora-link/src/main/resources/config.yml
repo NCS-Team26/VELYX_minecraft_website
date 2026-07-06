@@ -4,7 +4,7 @@ api:
   port: 8787
   base-path: "/minecraft"
   allowed-origins:
-    - "https://www.nfoifsb.kr"
+    - "https://www.velyx.kr"
     - "http://127.0.0.1:5173"
     - "http://127.0.0.1:5174"
     - "http://127.0.0.1:4173"

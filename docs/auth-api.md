@@ -30,12 +30,12 @@ site. The deploy workflow writes the generated API endpoint to
 so the deployed site is built against the real signup/login API.
 
 The auth backend also sends email verification and password reset messages with
-Amazon SES. By default it uses `no-reply@nfoifsb.kr`; set `AUTH_EMAIL_FROM` to
+Amazon SES. By default it uses `no-reply@velyx.kr`; set `AUTH_EMAIL_FROM` to
 override it. The sender identity must be verified in SES before real users can
 receive mail.
 
 External recipients also require the SES account to have production access. If
-SES is still in sandbox, mail to verified identities such as `nfoifsb.kr` can
+SES is still in sandbox, mail to verified identities such as `velyx.kr` can
 work while Gmail/Naver/etc. recipients are rejected. The AWS setup output now
 includes `email.ses.productionAccessEnabled`, `email.ses.verifiedForSending`,
 and any DKIM tokens that must be added to DNS.

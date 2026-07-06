@@ -1,12 +1,12 @@
 set -euo pipefail
 
-BUCKET="menhera-minecraft-server-website"
+BUCKET="velyx-minecraft-site-358982198253"
 REGION="ap-northeast-1"
 ORIGIN_DOMAIN="$BUCKET.s3.$REGION.amazonaws.com"
 OAC_NAME="$BUCKET-oac"
-COMMENT="nfoifsb.kr Minecraft server website"
+COMMENT="velyx.kr Minecraft server website"
 ORIGIN_ID="s3-$BUCKET"
-SID="AllowCloudFrontOACReadOnlyForMenheraWebsite"
+SID="AllowCloudFrontOACReadOnlyForVelyxWebsite"
 
 echo "[1/5] Checking AWS account..."
 ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
