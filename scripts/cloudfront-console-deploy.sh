@@ -1,6 +1,6 @@
 set -euo pipefail
 
-BUCKET="velyx-minecraft-site-358982198253"
+BUCKET="menhera-minecraft-server-website"
 REGION="ap-northeast-1"
 ORIGIN_DOMAIN="$BUCKET.s3.$REGION.amazonaws.com"
 OAC_NAME="$BUCKET-oac"

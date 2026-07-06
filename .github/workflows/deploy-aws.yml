@@ -26,10 +26,10 @@ jobs:
     env:
       AWS_REGION: ${{ secrets.AWS_REGION || 'ap-northeast-1' }}
       AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION || 'ap-northeast-1' }}
-      CERTIFICATE_ARN: ${{ secrets.CERTIFICATE_ARN || 'arn:aws:acm:us-east-1:358982198253:certificate/4ee2b26e-b3fb-4856-84c4-62030cb5ce62' }}
-      SITE_BUCKET: ${{ secrets.SITE_BUCKET || 'velyx-minecraft-site-358982198253' }}
-      SITE_DOMAIN: ${{ secrets.SITE_DOMAIN || 'www.velyx.kr' }}
-      AUTH_STACK_NAME: ${{ secrets.AUTH_STACK_NAME || 'velyx-auth' }}
+      CERTIFICATE_ARN: arn:aws:acm:us-east-1:358982198253:certificate/c91ba09b-531a-4c7c-ba7c-a6a5e95f5620
+      SITE_BUCKET: menhera-minecraft-server-website
+      SITE_DOMAIN: www.velyx.kr
+      AUTH_STACK_NAME: nfoifsb-auth
       AUTH_ALLOWED_ORIGINS: ${{ secrets.AUTH_ALLOWED_ORIGINS }}
       AUTH_PEPPER: ${{ secrets.AUTH_PEPPER }}
       AUTH_EMAIL_FROM: ${{ secrets.AUTH_EMAIL_FROM }}
