@@ -1,4 +1,4 @@
-# nfoifsb.kr Minecraft Site
+# Velyx.kr Minecraft Site
 
 ## AWS 비용 방지 메모
 
