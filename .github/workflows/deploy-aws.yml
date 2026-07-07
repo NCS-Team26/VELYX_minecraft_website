@@ -29,7 +29,8 @@ jobs:
       CERTIFICATE_ARN: arn:aws:acm:us-east-1:358982198253:certificate/c91ba09b-531a-4c7c-ba7c-a6a5e95f5620
       SITE_BUCKET: menhera-minecraft-server-website
       SITE_DOMAIN: www.velyx.kr
-      AUTH_STACK_NAME: nfoifsb-auth
+      AUTH_STACK_NAME: velyx-auth
+      AUTH_MIGRATE_FROM_STACK: nfoifsb-auth
       AUTH_ALLOWED_ORIGINS: https://www.velyx.kr,https://velyx.kr,http://127.0.0.1:5173,http://localhost:5173
       AUTH_PEPPER: ${{ secrets.AUTH_PEPPER }}
       AUTH_EMAIL_FROM: ${{ secrets.AUTH_EMAIL_FROM }}

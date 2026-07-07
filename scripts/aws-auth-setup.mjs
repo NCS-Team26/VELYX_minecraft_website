@@ -12,9 +12,11 @@ import {
   UpdateApiCommand,
 } from "@aws-sdk/client-apigatewayv2";
 import {
+  BatchWriteItemCommand,
   CreateTableCommand,
   DescribeTableCommand,
   DynamoDBClient,
+  ScanCommand,
   UpdateTimeToLiveCommand,
 } from "@aws-sdk/client-dynamodb";
 import {
@@ -62,6 +64,11 @@ const tableName = process.env.AUTH_USERS_TABLE || `${stackName}-users`;
 const roleName = process.env.AUTH_LAMBDA_ROLE || `${stackName}-lambda-role`;
 const functionName = process.env.AUTH_LAMBDA_FUNCTION || `${stackName}-api`;
 const apiName = process.env.AUTH_API_NAME || `${stackName}-http-api`;
+const migrationSourceStackName = process.env.AUTH_MIGRATE_FROM_STACK || "";
+const migrationSourceTable =
+  process.env.AUTH_MIGRATE_USERS_FROM_TABLE || (migrationSourceStackName ? `${migrationSourceStackName}-users` : "");
+const migrationSourceFunction =
+  process.env.AUTH_MIGRATE_FROM_FUNCTION || (migrationSourceStackName ? `${migrationSourceStackName}-api` : "");
 const lambdaSource = join(process.cwd(), "server", "auth", "index.mjs");
 const lambdaRuntime = process.env.AUTH_LAMBDA_RUNTIME || "nodejs22.x";
 
@@ -236,6 +243,84 @@ async function ensureTable() {
   return created.TableDescription.TableArn;
 }
 
+async function tableExists(name) {
+  try {
+    await dynamodb.send(new DescribeTableCommand({ TableName: name }));
+    return true;
+  } catch (error) {
+    if (error.name === "ResourceNotFoundException") return false;
+    throw error;
+  }
+}
+
+async function tableHasAnyItems(name) {
+  const page = await dynamodb.send(
+    new ScanCommand({
+      TableName: name,
+      Select: "COUNT",
+      Limit: 1,
+    }),
+  );
+  return (page.Count || 0) > 0;
+}
+
+async function batchWriteAll(requestItems) {
+  let pending = requestItems;
+  for (let attempt = 0; attempt < 10; attempt += 1) {
+    const result = await dynamodb.send(new BatchWriteItemCommand({ RequestItems: pending }));
+    pending = result.UnprocessedItems || {};
+    const remaining = Object.values(pending).reduce((total, items) => total + items.length, 0);
+    if (remaining === 0) return;
+    await sleep(500 * (attempt + 1));
+  }
+
+  throw new Error("DynamoDB migration still has unprocessed items after retries.");
+}
+
+async function migrateLegacyUsersIfNeeded() {
+  if (!migrationSourceTable || migrationSourceTable === tableName) {
+    return { sourceTable: "", copiedItems: 0, skipped: "no source table configured" };
+  }
+
+  if (!(await tableExists(migrationSourceTable))) {
+    log(`Migration source table not found, skipping: ${migrationSourceTable}`);
+    return { sourceTable: migrationSourceTable, copiedItems: 0, skipped: "source table not found" };
+  }
+
+  if (await tableHasAnyItems(tableName)) {
+    log(`DynamoDB table ${tableName} already has items; skipping migration from ${migrationSourceTable}`);
+    return { sourceTable: migrationSourceTable, copiedItems: 0, skipped: "target table already has items" };
+  }
+
+  let copiedItems = 0;
+  let lastEvaluatedKey;
+  do {
+    const page = await dynamodb.send(
+      new ScanCommand({
+        TableName: migrationSourceTable,
+        ExclusiveStartKey: lastEvaluatedKey,
+      }),
+    );
+    const items = page.Items || [];
+    for (let index = 0; index < items.length; index += 25) {
+      const batch = items.slice(index, index + 25);
+      if (batch.length === 0) continue;
+      await batchWriteAll({
+        [tableName]: batch.map((item) => ({
+          PutRequest: {
+            Item: item,
+          },
+        })),
+      });
+      copiedItems += batch.length;
+    }
+    lastEvaluatedKey = page.LastEvaluatedKey;
+  } while (lastEvaluatedKey);
+
+  log(`Migrated ${copiedItems} DynamoDB item(s) from ${migrationSourceTable} to ${tableName}`);
+  return { sourceTable: migrationSourceTable, copiedItems, skipped: "" };
+}
+
 async function ensureRole(tableArn) {
   let role;
   try {
@@ -382,9 +467,9 @@ function zipSingleFile(name, content) {
   return Buffer.concat([localHeader, nameBuffer, data, centralHeader, nameBuffer, end]);
 }
 
-async function getExistingEnvironment() {
+async function getFunctionEnvironment(targetFunctionName) {
   try {
-    const config = await lambda.send(new GetFunctionConfigurationCommand({ FunctionName: functionName }));
+    const config = await lambda.send(new GetFunctionConfigurationCommand({ FunctionName: targetFunctionName }));
     return config.Environment?.Variables || {};
   } catch {
     return {};
@@ -420,11 +505,18 @@ async function sendLambdaWhenReady(commandFactory) {
 async function ensureFunction(roleArn) {
   const source = readFileSync(lambdaSource);
   const zipFile = zipSingleFile("index.mjs", source);
-  const existingEnvironment = await getExistingEnvironment();
-  const existingPepper = existingEnvironment.AUTH_PEPPER || "";
+  const existingEnvironment = await getFunctionEnvironment(functionName);
+  const legacyEnvironment =
+    migrationSourceFunction && migrationSourceFunction !== functionName
+      ? await getFunctionEnvironment(migrationSourceFunction)
+      : {};
+  const existingPepper = existingEnvironment.AUTH_PEPPER || legacyEnvironment.AUTH_PEPPER || "";
   const authPepper = process.env.AUTH_PEPPER || existingPepper || randomBytes(32).toString("base64url");
   const adminBootstrapToken =
-    process.env.AUTH_ADMIN_BOOTSTRAP_TOKEN || existingEnvironment.AUTH_ADMIN_BOOTSTRAP_TOKEN || "";
+    process.env.AUTH_ADMIN_BOOTSTRAP_TOKEN ||
+    existingEnvironment.AUTH_ADMIN_BOOTSTRAP_TOKEN ||
+    legacyEnvironment.AUTH_ADMIN_BOOTSTRAP_TOKEN ||
+    "";
   const environment = {
     USERS_TABLE: tableName,
     AUTH_PEPPER: authPepper,
@@ -622,6 +714,7 @@ async function main() {
   log(`AWS region: ${region}`);
 
   const tableArn = await ensureTable();
+  const migration = await migrateLegacyUsersIfNeeded();
   const roleArn = await ensureRole(tableArn);
   const functionArn = await ensureFunction(roleArn);
   const sesStatus = await ensureSesStatus();
@@ -637,6 +730,7 @@ async function main() {
     functionName,
     apiId: api.ApiId,
     apiEndpoint: api.ApiEndpoint,
+    migration,
     viteEnv: {
       VITE_AUTH_API_BASE: api.ApiEndpoint,
     },
