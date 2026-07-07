@@ -1,0 +1,657 @@
+/* ==========================================================================
+   VELYX / MONOLOG-inspired editorial layer
+   --------------------------------------------------------------------------
+   This is intentionally loaded last. It keeps the Minecraft/stock logic intact
+   while pushing the surface toward bymonolog.com: black canvas, small centered
+   thesis, oversized wordmarks, hairline section systems, and very restrained UI.
+   ========================================================================== */
+
+:root {
+  --mono-black: #050505;
+  --mono-ink: #0a0a09;
+  --mono-panel: #10100f;
+  --mono-panel-2: #151513;
+  --mono-paper: #e7e5db;
+  --mono-paper-soft: rgba(231, 229, 219, 0.72);
+  --mono-paper-faint: rgba(231, 229, 219, 0.44);
+  --mono-line: rgba(231, 229, 219, 0.14);
+  --mono-line-strong: rgba(231, 229, 219, 0.34);
+  --mono-green: #78a987;
+  --mono-serif: "Cormorant Garamond", "Gowun Batang", Georgia, serif;
+  --mono-sans: "Pretendard Variable", Pretendard, "Noto Sans KR", Inter, system-ui, sans-serif;
+}
+
+html {
+  background: var(--mono-black) !important;
+}
+
+body {
+  color: var(--mono-paper) !important;
+  background:
+    repeating-radial-gradient(circle at 15% 10%, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 4px),
+    radial-gradient(circle at 50% 0, rgba(231, 229, 219, 0.055), transparent 34rem),
+    var(--mono-black) !important;
+}
+
+body::selection {
+  color: var(--mono-black);
+  background: var(--mono-paper);
+}
+
+.site-nav {
+  width: min(86rem, calc(100% - 2rem)) !important;
+  height: 4rem !important;
+  margin: 0.75rem auto 0 !important;
+  padding: 0 1.1rem !important;
+  border: 1px solid var(--mono-line) !important;
+  border-radius: 0.55rem !important;
+  color: var(--mono-paper) !important;
+  background: rgba(5, 5, 5, 0.78) !important;
+  box-shadow: none !important;
+  backdrop-filter: blur(18px) saturate(120%) !important;
+  transform: none !important;
+}
+
+.brand span {
+  color: var(--mono-paper) !important;
+  font-family: var(--mono-sans) !important;
+  font-size: 0.82rem !important;
+  font-weight: 760 !important;
+  letter-spacing: 0 !important;
+}
+
+.brand img {
+  width: 2rem !important;
+  height: 2rem !important;
+  border-radius: 50% !important;
+  border-color: var(--mono-line) !important;
+}
+
+.nav-links {
+  gap: 1.45rem !important;
+}
+
+.nav-links a {
+  color: var(--mono-paper-soft) !important;
+  font-family: var(--mono-sans) !important;
+  font-size: 0.72rem !important;
+  font-weight: 720 !important;
+  letter-spacing: 0 !important;
+  text-transform: uppercase;
+}
+
+.nav-links a:is(:hover, :focus-visible, .is-active):not(.nav-login) {
+  color: var(--mono-paper) !important;
+}
+
+.nav-links a:not(.nav-login)::after {
+  bottom: -0.72rem !important;
+  height: 1px !important;
+  background: var(--mono-paper) !important;
+}
+
+.nav-login,
+.primary-action,
+.secondary-action,
+.stock-trade-link,
+.auth-primary,
+.auth-ghost {
+  min-height: 2.85rem !important;
+  border-radius: 999px !important;
+  font-family: var(--mono-sans) !important;
+  font-size: 0.78rem !important;
+  font-weight: 760 !important;
+  letter-spacing: 0 !important;
+  text-transform: uppercase;
+}
+
+.nav-login,
+.secondary-action,
+.auth-ghost {
+  color: var(--mono-paper) !important;
+  border: 1px solid var(--mono-line-strong) !important;
+  background: transparent !important;
+}
+
+.primary-action,
+.stock-trade-link,
+.auth-primary {
+  color: var(--mono-black) !important;
+  border: 1px solid var(--mono-paper) !important;
+  background: var(--mono-paper) !important;
+}
+
+.home-page-body .hero {
+  isolation: isolate;
+  min-height: 100svh !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  border-radius: 0 !important;
+  background:
+    repeating-radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.03) 0 1px, transparent 1px 4px),
+    radial-gradient(circle at 50% 34%, rgba(231, 229, 219, 0.065), transparent 22rem),
+    var(--mono-black) !important;
+}
+
+.home-page-body .hero::before {
+  inset: auto 0 -2.7rem 0 !important;
+  z-index: 1 !important;
+  height: 16rem !important;
+  background: linear-gradient(180deg, transparent, rgba(5, 5, 5, 0.92) 62%, var(--mono-black)) !important;
+  opacity: 1 !important;
+}
+
+.home-page-body .hero::after {
+  position: absolute;
+  left: -0.7rem;
+  right: -0.7rem;
+  bottom: -2.1rem;
+  z-index: 0;
+  color: rgba(231, 229, 219, 0.7);
+  content: "VELYX";
+  font-family: var(--mono-serif);
+  font-size: 16rem;
+  font-weight: 700;
+  line-height: 0.72;
+  letter-spacing: 0;
+  text-align: center;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.home-page-body .hero-scene,
+.home-page-body .hero-shade {
+  opacity: 0.14 !important;
+  filter: grayscale(1) contrast(1.15) brightness(0.42) !important;
+  mix-blend-mode: screen;
+}
+
+.home-page-body .hero-shade {
+  background: radial-gradient(circle at 50% 36%, transparent, rgba(5, 5, 5, 0.88) 72%) !important;
+}
+
+.home-page-body .hero-content {
+  position: relative;
+  z-index: 2;
+  display: grid !important;
+  justify-items: center !important;
+  align-content: center !important;
+  width: min(42rem, calc(100% - 2rem)) !important;
+  min-height: 100svh !important;
+  margin-inline: auto !important;
+  padding: 7rem 0 16rem !important;
+  text-align: center !important;
+}
+
+.home-page-body .hero-content::before {
+  display: block !important;
+  width: 3.6rem !important;
+  height: 1.2rem !important;
+  margin: 0 auto 2.1rem !important;
+  border: 1px solid var(--mono-line-strong) !important;
+  border-radius: 999px !important;
+  background:
+    linear-gradient(90deg, transparent 48%, var(--mono-line-strong) 48% 52%, transparent 52%),
+    radial-gradient(circle at 50% 50%, transparent 0 0.38rem, var(--mono-line-strong) 0.4rem 0.44rem, transparent 0.46rem) !important;
+  content: "" !important;
+  opacity: 0.82 !important;
+}
+
+.home-page-body .hero .eyebrow {
+  margin-bottom: 1.1rem !important;
+  color: var(--mono-paper-faint) !important;
+  font-size: 0.68rem !important;
+  letter-spacing: 0 !important;
+}
+
+.home-page-body .hero h1,
+.home-page-body #hero-title {
+  max-width: none !important;
+  margin: 0 !important;
+  color: var(--mono-paper) !important;
+  -webkit-text-fill-color: var(--mono-paper) !important;
+  font-family: var(--mono-sans) !important;
+  font-size: 3.4rem !important;
+  font-weight: 780 !important;
+  line-height: 1.06 !important;
+  letter-spacing: 0 !important;
+  white-space: nowrap !important;
+}
+
+.home-page-body .hero-copy {
+  max-width: 34rem !important;
+  margin: 1rem auto 0 !important;
+  color: var(--mono-paper-soft) !important;
+  font-size: 1.04rem !important;
+  font-weight: 650 !important;
+  line-height: 1.62 !important;
+  text-align: center !important;
+}
+
+.home-page-body .hero-meta {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  width: min(39rem, 100%) !important;
+  margin: 2.3rem auto 0 !important;
+  overflow: hidden !important;
+  border: 1px solid var(--mono-line) !important;
+  border-radius: 0 !important;
+  background: rgba(231, 229, 219, 0.04) !important;
+  backdrop-filter: blur(16px) !important;
+}
+
+.home-page-body .hero-meta li {
+  display: flex !important;
+  min-height: 3rem !important;
+  justify-content: center !important;
+  border: 0 !important;
+  border-right: 1px solid var(--mono-line) !important;
+  border-radius: 0 !important;
+  color: var(--mono-paper-soft) !important;
+  background: transparent !important;
+  font-size: 0.72rem !important;
+  font-weight: 720 !important;
+  letter-spacing: 0 !important;
+}
+
+.home-page-body .hero-meta li:last-child {
+  border-right: 0 !important;
+}
+
+.home-page-body .hero-actions {
+  margin-top: 1.65rem !important;
+}
+
+.public-page-body :is(.status-band, .economy-section, .feature-section, .world-section, .gallery-band, .plugin-section, .category-section, .rules-section, .join-section),
+.status-page-body .status-band {
+  position: relative;
+  width: min(84rem, calc(100% - 2rem)) !important;
+  padding-block: 6.5rem !important;
+  border-top: 1px solid var(--mono-line) !important;
+  background: transparent !important;
+}
+
+.public-page-body :is(.status-band, .economy-section, .feature-section, .world-section, .gallery-band, .plugin-section, .category-section, .rules-section, .join-section)::before,
+.status-page-body .status-band::before {
+  display: block;
+  margin-bottom: 2.3rem;
+  color: var(--mono-paper-faint);
+  font-family: var(--mono-sans);
+  font-size: 0.72rem;
+  font-weight: 760;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.home-page-body .status-band::before { content: "01 / LIVE REALM"; }
+.home-page-body .economy-section::before { content: "02 / ECONOMY SYSTEM"; }
+.home-page-body .feature-section::before { content: "03 / SERVER PRINCIPLES"; }
+.home-page-body .world-section::before { content: "04 / WORLD PRESENCE"; }
+.home-page-body .gallery-band::before { content: "05 / MOMENTS"; }
+.plugins-page-body .plugin-section::before,
+.economy-page-body .plugin-section::before { content: "01 / ECONOMY"; }
+.rules-page-body .rules-section::before { content: "01 / RULES"; }
+.join-page-body .join-section::before { content: "01 / JOIN"; }
+.status-page-body .status-band::before { content: "01 / STATUS"; }
+
+.section-heading {
+  max-width: none !important;
+  margin: 0 0 3.5rem !important;
+  justify-items: start !important;
+  text-align: left !important;
+}
+
+.section-heading .eyebrow {
+  color: var(--mono-paper-faint) !important;
+  letter-spacing: 0 !important;
+}
+
+.section-heading h1,
+.section-heading h2,
+.rules-section h1,
+.rules-section h2,
+.world-copy h2,
+.join-card h1,
+.join-card h2 {
+  max-width: 12ch !important;
+  color: var(--mono-paper) !important;
+  -webkit-text-fill-color: var(--mono-paper) !important;
+  font-family: var(--mono-serif) !important;
+  font-size: 5.8rem !important;
+  font-weight: 700 !important;
+  line-height: 0.92 !important;
+  letter-spacing: 0 !important;
+}
+
+.screen-copy,
+.section-heading p:not(.eyebrow),
+.world-copy p,
+.join-card p,
+.dashboard-card p,
+.rules-list li,
+.category-board p,
+.resource-list p,
+.economy-market-heading p {
+  max-width: 38rem;
+  color: var(--mono-paper-soft) !important;
+  font-size: 1.02rem !important;
+  line-height: 1.76 !important;
+}
+
+.public-page-body :is(.plugin-grid, .feature-grid, .economy-grid, .category-grid, .category-board, .resource-list, .section-dashboard, .rules-tools, .join-steps, .economy-market-snapshot),
+.status-page-body :is(.detail-grid, .section-dashboard),
+.stock-terminal-body :is(.stock-terminal-grid, .stock-bottom-grid) {
+  gap: 0 !important;
+  border-top: 1px solid var(--mono-line) !important;
+}
+
+.public-page-body :is(.plugin-grid article, .feature-grid article, .economy-grid article, .dashboard-card, .rules-tools article, .join-steps article, .category-feature, .category-grid article, .category-board article, .resource-list a, .market-list article, .economy-market-snapshot article),
+.status-page-body :is(.status-panel, .detail-grid article, .dashboard-card),
+.stock-terminal-body :is(.stock-panel, .stock-chart-shell, .stock-control-deck, .stock-market-stat) {
+  min-height: 10.5rem !important;
+  border: 0 !important;
+  border-right: 1px solid var(--mono-line) !important;
+  border-bottom: 1px solid var(--mono-line) !important;
+  border-radius: 0 !important;
+  color: var(--mono-paper) !important;
+  background: rgba(231, 229, 219, 0.025) !important;
+  box-shadow: none !important;
+}
+
+.public-page-body :is(.plugin-grid article, .feature-grid article, .economy-grid article, .dashboard-card, .rules-tools article, .join-steps article, .category-feature, .category-grid article, .category-board article, .resource-list a, .market-list article, .economy-market-snapshot article):hover,
+.status-page-body :is(.detail-grid article, .dashboard-card):hover {
+  background: rgba(231, 229, 219, 0.055) !important;
+  transform: none !important;
+}
+
+.public-page-body :is(.plugin-grid span, .feature-grid span, .economy-grid span, .dashboard-card span, .rules-tools span, .join-steps span, .category-grid span, .resource-list span, .market-list span),
+.status-page-body :is(.detail-grid span, .dashboard-card span) {
+  color: var(--mono-paper-faint) !important;
+  letter-spacing: 0 !important;
+}
+
+.public-page-body :is(.plugin-grid strong, .economy-grid strong, .market-list strong, .dashboard-card strong, .rules-tools strong, .join-steps strong, .category-feature strong, .category-grid strong, .resource-list strong),
+.feature-grid h3,
+.status-page-body :is(.detail-grid strong, .dashboard-card strong) {
+  color: var(--mono-paper) !important;
+  -webkit-text-fill-color: var(--mono-paper) !important;
+  font-family: var(--mono-sans) !important;
+  font-size: 1.7rem !important;
+  font-weight: 760 !important;
+  line-height: 1.12 !important;
+  letter-spacing: 0 !important;
+}
+
+.stats-inner {
+  border: 1px solid var(--mono-line) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+}
+
+.stats-inner article {
+  min-height: 12rem !important;
+  border-right: 1px solid var(--mono-line) !important;
+  background: transparent !important;
+}
+
+.stats-inner strong,
+.status-panel strong {
+  color: var(--mono-paper) !important;
+  -webkit-text-fill-color: var(--mono-paper) !important;
+  font-family: var(--mono-serif) !important;
+  font-size: 5.2rem !important;
+  font-weight: 700 !important;
+  line-height: 0.9 !important;
+  letter-spacing: 0 !important;
+}
+
+.status-layout,
+.world-section,
+.join-card,
+.market-board,
+.stock-marketplace-section,
+.user-post-workspace,
+.auth-panel {
+  border: 1px solid var(--mono-line) !important;
+  border-radius: 0 !important;
+  color: var(--mono-paper) !important;
+  background: rgba(231, 229, 219, 0.025) !important;
+  box-shadow: none !important;
+}
+
+.status-layout {
+  overflow: hidden;
+}
+
+.meter {
+  height: 2px !important;
+  background: rgba(231, 229, 219, 0.12) !important;
+}
+
+.meter span {
+  background: var(--mono-paper) !important;
+}
+
+.stock-terminal-body .site-nav {
+  width: 100% !important;
+  margin-top: 0 !important;
+  border-inline: 0 !important;
+  border-top: 0 !important;
+  border-radius: 0 !important;
+}
+
+.stock-terminal-body .stock-workspace {
+  max-width: 90rem !important;
+}
+
+.stock-terminal-body .stock-ticker {
+  border: 1px solid var(--mono-line) !important;
+  border-radius: 0 !important;
+  background: rgba(231, 229, 219, 0.035) !important;
+}
+
+.stock-terminal-body .stock-ticker button {
+  border-right: 1px solid var(--mono-line) !important;
+  border-radius: 0 !important;
+}
+
+.auth-page-body {
+  background:
+    repeating-radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.03) 0 1px, transparent 1px 4px),
+    radial-gradient(circle at 50% 20%, rgba(231, 229, 219, 0.05), transparent 24rem),
+    var(--mono-black) !important;
+}
+
+.auth-page {
+  padding-inline: 1rem !important;
+}
+
+.auth-shell,
+.auth-shell:not(:has(.character-panel:not([hidden]))) {
+  width: min(21rem, calc(100vw - 2rem)) !important;
+  max-width: calc(100vw - 2rem) !important;
+}
+
+.auth-panel {
+  width: 100% !important;
+  max-width: calc(100vw - 2rem) !important;
+  padding: 2rem !important;
+}
+
+.auth-heading h1,
+.character-heading h2 {
+  color: var(--mono-paper) !important;
+  -webkit-text-fill-color: var(--mono-paper) !important;
+  font-family: var(--mono-serif) !important;
+  font-size: 4.1rem !important;
+  line-height: 0.9 !important;
+  letter-spacing: 0 !important;
+}
+
+.site-footer {
+  width: min(84rem, calc(100% - 2rem)) !important;
+  margin: 4rem auto 1.5rem !important;
+  border: 1px solid var(--mono-line) !important;
+  border-radius: 0 !important;
+  background: rgba(231, 229, 219, 0.025) !important;
+}
+
+@media (max-width: 980px) {
+  .site-nav {
+    width: calc(100% - 1rem) !important;
+    height: 3.6rem !important;
+    margin-top: 0.5rem !important;
+  }
+
+  .nav-toggle {
+    display: grid !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: fixed !important;
+    top: 0.95rem !important;
+    right: 1rem !important;
+    z-index: 10000 !important;
+    width: 2.75rem !important;
+    height: 2.75rem !important;
+    border-radius: 999px !important;
+    border-color: var(--mono-paper) !important;
+    color: var(--mono-black) !important;
+    background: var(--mono-paper) !important;
+    backdrop-filter: blur(14px) !important;
+  }
+
+  .nav-toggle::before,
+  .nav-toggle::after {
+    background: currentColor !important;
+  }
+
+  .nav-links {
+    left: 0.5rem !important;
+    right: 0.5rem !important;
+    top: 4.35rem !important;
+    width: auto !important;
+    padding: 1rem !important;
+    border: 1px solid var(--mono-line) !important;
+    border-radius: 0 !important;
+    background: rgba(5, 5, 5, 0.96) !important;
+  }
+
+  .home-page-body .hero::after {
+    bottom: -1.1rem;
+    font-size: 9rem;
+  }
+
+  .home-page-body .hero-content {
+    padding-bottom: 10rem !important;
+  }
+
+  .home-page-body .hero-meta {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .home-page-body .hero-meta li:nth-child(2n) {
+    border-right: 0 !important;
+  }
+
+  .section-heading h1,
+  .section-heading h2,
+  .rules-section h1,
+  .rules-section h2,
+  .world-copy h2,
+  .join-card h1,
+  .join-card h2 {
+    font-size: 4rem !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .home-page-body .hero {
+    min-height: 94svh !important;
+  }
+
+  .home-page-body .hero-content {
+    width: calc(100% - 1.4rem) !important;
+    padding: 6.5rem 0 8.5rem !important;
+  }
+
+  .home-page-body .hero h1,
+  .home-page-body #hero-title {
+    font-size: 2.6rem !important;
+  }
+
+  .home-page-body .hero-copy {
+    font-size: 0.96rem !important;
+  }
+
+  .home-page-body .hero::after {
+    bottom: -0.55rem;
+    font-size: 5.2rem;
+  }
+
+  .home-page-body .hero-meta {
+    grid-template-columns: 1fr !important;
+  }
+
+  .home-page-body .hero-meta li {
+    border-right: 0 !important;
+  }
+
+  .hero-actions {
+    display: grid !important;
+    width: min(20rem, 100%) !important;
+  }
+
+  .hero-actions > * {
+    width: 100% !important;
+  }
+
+  .public-page-body :is(.status-band, .economy-section, .feature-section, .world-section, .gallery-band, .plugin-section, .category-section, .rules-section, .join-section),
+  .status-page-body .status-band {
+    width: calc(100% - 1rem) !important;
+    padding-block: 4.4rem !important;
+  }
+
+  .section-heading h1,
+  .section-heading h2,
+  .rules-section h1,
+  .rules-section h2,
+  .world-copy h2,
+  .join-card h1,
+  .join-card h2 {
+    max-width: 100% !important;
+    font-size: 3rem !important;
+  }
+
+  .stats-inner strong,
+  .status-panel strong {
+    font-size: 3.5rem !important;
+  }
+
+  .auth-page {
+    padding-inline: 0.75rem !important;
+  }
+
+  .auth-shell,
+  .auth-shell:not(:has(.character-panel:not([hidden]))) {
+    width: min(18.75rem, calc(100vw - 1.5rem)) !important;
+    max-width: calc(100vw - 1.5rem) !important;
+    margin-inline: auto !important;
+  }
+
+  .auth-panel,
+  .character-panel {
+    width: 100% !important;
+    max-width: calc(100vw - 1.5rem) !important;
+    padding-inline: 1.65rem !important;
+  }
+
+  .auth-heading h1,
+  .character-heading h2 {
+    font-size: 3.4rem !important;
+  }
+
+  .public-page-body :is(.plugin-grid article, .feature-grid article, .economy-grid article, .dashboard-card, .rules-tools article, .join-steps article, .category-feature, .category-grid article, .category-board article, .resource-list a, .market-list article, .economy-market-snapshot article),
+  .status-page-body :is(.status-panel, .detail-grid article, .dashboard-card) {
+    border-right: 0 !important;
+  }
+}
