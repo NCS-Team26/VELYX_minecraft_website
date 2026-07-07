@@ -1,0 +1,281 @@
+/* ==========================================================================
+   VELYX Auth Redesign
+   --------------------------------------------------------------------------
+   Login has a dedicated bundle, so this file mirrors the public brand tokens
+   without pulling the full site stylesheet into the auth entry.
+   ========================================================================== */
+
+:root {
+  --auth-ink: #050508;
+  --auth-panel: rgba(13, 14, 22, 0.82);
+  --auth-panel-strong: rgba(20, 21, 32, 0.94);
+  --auth-line: rgba(232, 229, 255, 0.16);
+  --auth-line-strong: rgba(232, 229, 255, 0.28);
+  --auth-text: #f5f3ff;
+  --auth-muted: rgba(245, 243, 255, 0.72);
+  --auth-faint: rgba(245, 243, 255, 0.5);
+  --auth-silver: #e7e6ef;
+  --auth-violet: #9c63ff;
+  --auth-cyan: #61e5ff;
+  --auth-mint: #75f0bd;
+  --auth-red: #ff6575;
+  --auth-radius: 8px;
+  --panel: var(--auth-panel);
+  --panel-solid: var(--auth-panel-strong);
+  --field: rgba(255, 255, 255, 0.065);
+  --field-strong: rgba(255, 255, 255, 0.1);
+  --border: var(--auth-line);
+  --border-strong: var(--auth-line-strong);
+  --text: var(--auth-text);
+  --text-soft: var(--auth-muted);
+  --text-faint: var(--auth-faint);
+  --accent: var(--auth-cyan);
+  --accent-2: var(--auth-violet);
+  --accent-ink: #07070d;
+  --danger: var(--auth-red);
+}
+
+body {
+  background:
+    linear-gradient(115deg, rgba(156, 99, 255, 0.12), transparent 32%),
+    linear-gradient(245deg, rgba(97, 229, 255, 0.1), transparent 34%),
+    repeating-linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.026) 0,
+      rgba(255, 255, 255, 0.026) 1px,
+      transparent 1px,
+      transparent 92px
+    ),
+    image-set(url("/assets/hero-world-960.jpg") 1x, url("/assets/hero-world-1920.jpg") 2x) center / cover no-repeat,
+    #050508;
+}
+
+body::before {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(5, 5, 8, 0.92), rgba(5, 5, 8, 0.54) 45%, rgba(5, 5, 8, 0.9)),
+    repeating-linear-gradient(
+      0deg,
+      transparent 0,
+      transparent 13px,
+      rgba(255, 255, 255, 0.018) 14px,
+      transparent 15px
+    );
+  content: "";
+}
+
+.auth-page::before {
+  display: none;
+}
+
+.auth-shell {
+  width: min(590px, 100%);
+}
+
+.auth-shell:has(.character-panel:not([hidden])) {
+  width: min(1220px, 100%);
+  grid-template-columns: minmax(330px, 440px) minmax(520px, 1fr);
+}
+
+.auth-panel,
+.character-panel,
+.verify-card,
+.web-actions,
+.stock-trader,
+.inventory-toolbar,
+.inventory-section,
+.equipment-card,
+.portfolio-panel,
+.stock-trader-quote,
+.web-action-button,
+.character-stats div,
+.stock-trader-quote,
+.inventory-grid,
+.portfolio-chart-card,
+.portfolio-holding {
+  border: 1px solid var(--auth-line);
+  border-radius: var(--auth-radius);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.026)),
+    var(--auth-panel);
+  box-shadow:
+    0 24px 80px rgba(0, 0, 0, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.09);
+  backdrop-filter: blur(18px) saturate(150%);
+}
+
+.auth-brand {
+  gap: 12px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+}
+
+.auth-brand img {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--auth-radius);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: #000;
+  box-shadow:
+    0 0 0 5px rgba(156, 99, 255, 0.13),
+    0 16px 38px rgba(0, 0, 0, 0.42),
+    0 0 36px rgba(156, 99, 255, 0.22);
+}
+
+.auth-eyebrow {
+  color: var(--auth-cyan);
+  letter-spacing: 0.08em;
+}
+
+.auth-heading h1,
+.character-heading h2 {
+  color: var(--auth-silver);
+  font-weight: 900;
+  text-shadow: 0 0 34px rgba(156, 99, 255, 0.24);
+}
+
+.auth-heading p,
+.web-action-message,
+.stock-trader-message,
+.inventory-empty,
+.portfolio-empty {
+  color: var(--auth-muted);
+}
+
+.auth-profile,
+.auth-form label,
+.auto-login-row,
+.auth-secondary-actions,
+.auth-message,
+.stock-trader-cta,
+.web-actions-heading,
+.inventory-toolbar {
+  border-radius: var(--auth-radius);
+}
+
+.auth-form input,
+.character-form input,
+.stock-trader input,
+.stock-trader select {
+  border: 1px solid var(--auth-line);
+  border-radius: var(--auth-radius);
+  color: var(--auth-text);
+  background: rgba(255, 255, 255, 0.065);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+}
+
+.auth-form input:focus,
+.character-form input:focus,
+.stock-trader input:focus,
+.stock-trader select:focus {
+  border-color: rgba(97, 229, 255, 0.68);
+  box-shadow:
+    0 0 0 3px rgba(97, 229, 255, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.auth-primary,
+.stock-trader button[data-stock-trader-side="buy"].is-active,
+.stock-trader button[data-stock-trader-side="buy"]:hover {
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: var(--auth-radius);
+  color: #08070d;
+  background: linear-gradient(180deg, #ffffff, #d9d6e8 48%, #a996ff);
+  box-shadow:
+    0 18px 42px rgba(156, 99, 255, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  font-weight: 900;
+}
+
+.auth-ghost,
+.auth-secondary-actions button,
+.web-action-button,
+.stock-trader-link,
+.verify-actions button,
+.inventory-view-toggle button,
+.stock-trader button {
+  border: 1px solid var(--auth-line);
+  border-radius: var(--auth-radius);
+  color: var(--auth-text);
+  background: rgba(255, 255, 255, 0.07);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.09);
+}
+
+.auth-primary:is(:hover, :focus-visible),
+.auth-ghost:is(:hover, :focus-visible),
+.auth-secondary-actions button:is(:hover, :focus-visible),
+.web-action-button:is(:hover, :focus-visible),
+.stock-trader-link:is(:hover, :focus-visible) {
+  transform: translateY(-2px);
+  filter: brightness(1.06);
+}
+
+.character-status,
+.auto-login-button[aria-pressed="true"] {
+  color: #07110d;
+  background: linear-gradient(180deg, #d7ffec, var(--auth-mint));
+}
+
+.character-status.is-error,
+.auth-message.is-error {
+  color: #2a080d;
+  background: linear-gradient(180deg, #ffd2d8, var(--auth-red));
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  background: var(--auth-line);
+}
+
+.verify-card strong,
+.verify-card code,
+.stock-trader-balance,
+.portfolio-total,
+.character-stats strong {
+  color: var(--auth-silver);
+}
+
+.inventory-slot,
+.equipment-slot {
+  border-color: rgba(232, 229, 255, 0.12);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.inventory-slot:hover,
+.equipment-slot:hover {
+  border-color: rgba(97, 229, 255, 0.44);
+}
+
+@media (max-width: 980px) {
+  .auth-shell:has(.character-panel:not([hidden])) {
+    width: min(620px, 100%);
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .auth-page {
+    padding: 14px;
+  }
+
+  .auth-panel,
+  .character-panel {
+    padding: 20px;
+  }
+
+  .auth-brand img {
+    width: 40px;
+    height: 40px;
+  }
+
+  .auth-heading h1 {
+    font-size: clamp(36px, 12vw, 48px);
+  }
+
+  .auth-secondary-actions {
+    grid-template-columns: 1fr;
+  }
+}

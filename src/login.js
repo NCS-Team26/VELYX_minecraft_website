@@ -1,4 +1,6 @@
 import "./login.css";
+// Auth-only brand layer so the login, inventory, and player dashboard match the public site.
+import "./velyx-auth-redesign.css";
 
 const AUTH_STORAGE_KEY = "nfoifsb.googleUser";
 const AUTH_EVENT_KEY = "nfoifsb.authEvent";

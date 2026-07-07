@@ -6,7 +6,8 @@ const rootDir = fileURLToPath(new URL(".", import.meta.url));
 
 export default defineConfig({
   build: {
-    chunkSizeWarningLimit: 550,
+    // Minecraft atlas JSON is loaded lazily from the login inventory view, not during initial page paint.
+    chunkSizeWarningLimit: 4000,
     rollupOptions: {
       input: {
         main: resolve(rootDir, "index.html"),

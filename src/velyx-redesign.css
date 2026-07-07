@@ -1,0 +1,1047 @@
+/* ==========================================================================
+   VELYX Brand Redesign
+   --------------------------------------------------------------------------
+   This file is intentionally an override layer. The original CSS still owns
+   component wiring; this layer owns the 2026 VELYX visual system, responsive
+   polish, and page-level composition.
+   ========================================================================== */
+
+/* Design tokens ------------------------------------------------------------ */
+:root {
+  --velyx-ink: #050508;
+  --velyx-ink-2: #090911;
+  --velyx-panel: rgba(15, 16, 24, 0.76);
+  --velyx-panel-strong: rgba(21, 22, 33, 0.92);
+  --velyx-panel-soft: rgba(255, 255, 255, 0.055);
+  --velyx-line: rgba(232, 229, 255, 0.14);
+  --velyx-line-strong: rgba(232, 229, 255, 0.26);
+  --velyx-text: #f5f3ff;
+  --velyx-muted: rgba(245, 243, 255, 0.72);
+  --velyx-faint: rgba(245, 243, 255, 0.5);
+  --velyx-silver: #e7e6ef;
+  --velyx-violet: #9c63ff;
+  --velyx-violet-2: #6d35ff;
+  --velyx-cyan: #61e5ff;
+  --velyx-mint: #75f0bd;
+  --velyx-gold: #ffd36a;
+  --velyx-red: #ff6575;
+  --velyx-shadow: 0 24px 80px rgba(0, 0, 0, 0.4);
+  --velyx-shadow-soft: 0 14px 46px rgba(0, 0, 0, 0.28);
+  --velyx-radius: 8px;
+  --velyx-max: 1180px;
+  --text: var(--velyx-text);
+  --text-soft: var(--velyx-muted);
+  --text-faint: var(--velyx-faint);
+  --bg-solid: var(--velyx-ink);
+  --card: var(--velyx-panel);
+  --card-solid: var(--velyx-panel-strong);
+  --border: var(--velyx-line);
+  --nav-bg: rgba(5, 5, 8, 0.82);
+  --nav-border: var(--velyx-line);
+  --chip: rgba(255, 255, 255, 0.08);
+  --inset: rgba(255, 255, 255, 0.08);
+  --theme-accent: var(--velyx-violet);
+  --theme-accent-soft: rgba(156, 99, 255, 0.16);
+  --theme-accent-border: rgba(156, 99, 255, 0.36);
+  --theme-accent-glow: rgba(156, 99, 255, 0.24);
+}
+
+:root[data-theme="light"] {
+  --velyx-ink: #f4f3fa;
+  --velyx-ink-2: #ffffff;
+  --velyx-panel: rgba(255, 255, 255, 0.74);
+  --velyx-panel-strong: rgba(255, 255, 255, 0.94);
+  --velyx-panel-soft: rgba(9, 9, 17, 0.045);
+  --velyx-line: rgba(24, 21, 38, 0.13);
+  --velyx-line-strong: rgba(24, 21, 38, 0.22);
+  --velyx-text: #15131f;
+  --velyx-muted: rgba(21, 19, 31, 0.68);
+  --velyx-faint: rgba(21, 19, 31, 0.46);
+  --nav-bg: rgba(244, 243, 250, 0.82);
+  --chip: rgba(18, 16, 30, 0.08);
+  --inset: rgba(18, 16, 30, 0.08);
+}
+
+@supports (color: color-mix(in srgb, white, black)) {
+  :root {
+    --velyx-glass: color-mix(in srgb, var(--velyx-panel) 88%, transparent);
+  }
+}
+
+/* Global canvas ------------------------------------------------------------ */
+html {
+  background: var(--velyx-ink);
+}
+
+body {
+  color: var(--velyx-text);
+  background:
+    linear-gradient(115deg, rgba(156, 99, 255, 0.1), transparent 30%),
+    linear-gradient(245deg, rgba(97, 229, 255, 0.09), transparent 34%),
+    repeating-linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.026) 0,
+      rgba(255, 255, 255, 0.026) 1px,
+      transparent 1px,
+      transparent 92px
+    ),
+    linear-gradient(180deg, var(--velyx-ink-2), var(--velyx-ink) 42%, #08070d 100%);
+  background-attachment: fixed;
+}
+
+body::before {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.045), transparent 12%, transparent 84%, rgba(156, 99, 255, 0.08)),
+    repeating-linear-gradient(
+      0deg,
+      transparent 0,
+      transparent 13px,
+      rgba(255, 255, 255, 0.018) 14px,
+      transparent 15px
+    );
+  content: "";
+}
+
+::selection {
+  color: #08070d;
+  background: var(--velyx-cyan);
+}
+
+:focus-visible {
+  outline: 2px solid var(--velyx-cyan);
+  outline-offset: 4px;
+}
+
+.ic {
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Navigation --------------------------------------------------------------- */
+.site-nav {
+  grid-template-columns: minmax(132px, 0.7fr) auto minmax(132px, 0.7fr);
+  height: 62px;
+  padding: 0 clamp(14px, 3vw, 34px);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.085), rgba(255, 255, 255, 0.025)),
+    var(--nav-bg);
+  border-bottom: 1px solid var(--velyx-line);
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(22px) saturate(160%);
+}
+
+.brand {
+  gap: 11px;
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+
+.brand img,
+.footer-brand img {
+  width: 34px;
+  height: 34px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: var(--velyx-radius);
+  background: #000;
+  box-shadow:
+    0 0 0 4px rgba(156, 99, 255, 0.12),
+    0 12px 28px rgba(0, 0, 0, 0.36);
+}
+
+.nav-links {
+  gap: clamp(8px, 1vw, 16px);
+  padding: 6px;
+  border: 1px solid var(--velyx-line);
+  border-radius: var(--velyx-radius);
+  background: rgba(255, 255, 255, 0.045);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.09);
+}
+
+.nav-links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 10px;
+  border-radius: 7px;
+  color: var(--velyx-muted);
+  font-size: 12px;
+  font-weight: 850;
+  letter-spacing: 0.01em;
+}
+
+.nav-links a:not(.nav-login)::after {
+  display: none;
+}
+
+.nav-links a:is(:hover, :focus-visible, .is-active):not(.nav-login) {
+  color: var(--velyx-text);
+  background: rgba(255, 255, 255, 0.085);
+  transform: translateY(-1px);
+}
+
+.nav-login,
+.nav-links a.nav-login {
+  min-height: 34px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 7px;
+  color: #08070d !important;
+  background: linear-gradient(180deg, #ffffff, #c9c6d7);
+  box-shadow:
+    0 10px 28px rgba(0, 0, 0, 0.26),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85);
+}
+
+.nav-links a.nav-login.is-authenticated {
+  color: #08070d !important;
+  background: linear-gradient(180deg, var(--velyx-mint), #59d6ff);
+}
+
+.nav-toggle {
+  width: 42px;
+  height: 38px;
+  border: 1px solid var(--velyx-line);
+  border-radius: var(--velyx-radius);
+  background: rgba(255, 255, 255, 0.07);
+}
+
+/* Hero --------------------------------------------------------------------- */
+.hero {
+  min-height: min(780px, 84svh);
+  place-items: center;
+  background:
+    linear-gradient(180deg, rgba(6, 5, 10, 0.05), rgba(6, 5, 10, 0.34)),
+    #0c0b12;
+}
+
+.hero::before {
+  background:
+    linear-gradient(90deg, rgba(5, 5, 8, 0.84), rgba(5, 5, 8, 0.38) 34%, rgba(5, 5, 8, 0.46) 68%, rgba(5, 5, 8, 0.88)),
+    linear-gradient(180deg, rgba(5, 5, 8, 0.28), transparent 38%, rgba(5, 5, 8, 0.7)),
+    repeating-linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.032) 0,
+      rgba(255, 255, 255, 0.032) 1px,
+      transparent 1px,
+      transparent 76px
+    );
+}
+
+.hero-shade {
+  background:
+    linear-gradient(180deg, rgba(156, 99, 255, 0.08), transparent 26%, rgba(0, 0, 0, 0.36)),
+    linear-gradient(90deg, rgba(97, 229, 255, 0.08), transparent 38%, rgba(156, 99, 255, 0.08));
+}
+
+.hero-content {
+  width: min(960px, calc(100% - 32px));
+  padding: clamp(64px, 9vh, 110px) 0 clamp(54px, 8vh, 90px);
+}
+
+.hero-content::before {
+  display: block;
+  width: clamp(96px, 12vw, 142px);
+  aspect-ratio: 1;
+  margin: 0 auto 22px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: var(--velyx-radius);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent),
+    url("/assets/server-icon.png") center / cover no-repeat,
+    #000;
+  box-shadow:
+    0 0 0 6px rgba(156, 99, 255, 0.14),
+    0 22px 70px rgba(0, 0, 0, 0.42),
+    0 0 44px rgba(156, 99, 255, 0.32);
+  content: "";
+}
+
+.eyebrow,
+.auth-eyebrow {
+  color: var(--velyx-cyan);
+  letter-spacing: 0.08em;
+  text-shadow: 0 0 22px rgba(97, 229, 255, 0.28);
+}
+
+.eyebrow::before {
+  background: linear-gradient(90deg, var(--velyx-cyan), var(--velyx-violet));
+}
+
+.hero h1 {
+  color: var(--velyx-silver);
+  font-size: clamp(56px, 10vw, 132px);
+  font-weight: 900;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  text-shadow:
+    0 1px 0 #fff,
+    0 20px 70px rgba(0, 0, 0, 0.56),
+    0 0 52px rgba(156, 99, 255, 0.28);
+}
+
+.hero-copy {
+  max-width: 740px;
+  color: rgba(245, 243, 255, 0.9);
+  font-size: clamp(18px, 2.1vw, 26px);
+  line-height: 1.45;
+}
+
+.hero-meta {
+  max-width: 760px;
+  margin-inline: auto;
+}
+
+.hero-meta li {
+  min-height: 36px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: var(--velyx-radius);
+  color: var(--velyx-text);
+  background: rgba(255, 255, 255, 0.065);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.hero-meta-dot {
+  background: var(--velyx-mint);
+  box-shadow: 0 0 0 6px rgba(117, 240, 189, 0.14);
+}
+
+/* Actions and forms -------------------------------------------------------- */
+.primary-action,
+.secondary-action,
+.address-row button,
+.stock-trade-link,
+.user-post-form button,
+.admin-form button,
+.stock-chart-settings-button,
+.stock-order-submit,
+.stock-order-actions button,
+.stock-depth-tools button,
+.stock-tabs button,
+.stock-range-tabs button,
+.economy-page-tabs a,
+.footer-theme-toggle {
+  border-radius: var(--velyx-radius);
+}
+
+.primary-action,
+.address-row button,
+.user-post-form button,
+.admin-form button,
+.stock-order-submit,
+.stock-order-actions button[data-stock-order-side="buy"] {
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  color: #08070d;
+  background: linear-gradient(180deg, #ffffff, #d9d6e8 48%, #a996ff);
+  box-shadow:
+    0 16px 38px rgba(156, 99, 255, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  font-weight: 900;
+}
+
+.secondary-action,
+.stock-trade-link,
+.economy-page-tabs a,
+.footer-theme-toggle,
+.stock-tabs button,
+.stock-range-tabs button,
+.stock-depth-tools button {
+  border: 1px solid var(--velyx-line);
+  color: var(--velyx-text);
+  background: rgba(255, 255, 255, 0.07);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.primary-action:is(:hover, :focus-visible),
+.secondary-action:is(:hover, :focus-visible),
+.address-row button:is(:hover, :focus-visible),
+.stock-trade-link:is(:hover, :focus-visible),
+.economy-page-tabs a:is(:hover, :focus-visible),
+.user-post-form button:is(:hover, :focus-visible) {
+  transform: translateY(-2px);
+  filter: brightness(1.06);
+}
+
+input,
+select,
+textarea,
+.stock-order-ticket input,
+.stock-order-ticket select,
+.admin-form input,
+.admin-form select,
+.admin-form textarea,
+.user-post-form input,
+.user-post-form select,
+.user-post-form textarea {
+  border: 1px solid var(--velyx-line);
+  border-radius: var(--velyx-radius);
+  color: var(--velyx-text);
+  background: rgba(255, 255, 255, 0.065);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: rgba(97, 229, 255, 0.64);
+  box-shadow:
+    0 0 0 3px rgba(97, 229, 255, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+/* Page shells -------------------------------------------------------------- */
+.status-band,
+.plugin-section,
+.rules-section,
+.join-section,
+.economy-section,
+.feature-section,
+.world-section,
+.gallery-band,
+.stats-band,
+.category-section,
+.admin-section {
+  width: min(var(--velyx-max), calc(100% - 32px));
+}
+
+.status-band,
+.plugin-section,
+.rules-section,
+.join-section,
+.economy-section,
+.feature-section,
+.world-section,
+.gallery-band,
+.stats-band,
+.category-section,
+.admin-section {
+  margin-inline: auto;
+}
+
+.page-screen {
+  padding-top: clamp(66px, 9vw, 118px);
+}
+
+.section-heading {
+  margin-bottom: clamp(28px, 5vw, 46px);
+}
+
+.section-heading h1,
+.section-heading h2,
+.rules-section h1,
+.rules-section h2,
+.join-card h1,
+.join-card h2,
+.world-copy h2 {
+  color: var(--velyx-text);
+  font-size: clamp(34px, 5vw, 68px);
+  line-height: 0.98;
+  font-weight: 900;
+}
+
+.screen-copy,
+.world-copy p:not(.eyebrow),
+.market-copy p,
+.economy-market-heading p,
+.join-note,
+.category-board p,
+.resource-list p,
+.user-post-head p,
+.dashboard-card p {
+  color: var(--velyx-muted);
+}
+
+.feature-band,
+.plugin-band {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.02)),
+    linear-gradient(90deg, rgba(156, 99, 255, 0.08), rgba(97, 229, 255, 0.055));
+  border-block: 1px solid var(--velyx-line);
+}
+
+/* Cards and data surfaces -------------------------------------------------- */
+.status-panel,
+.detail-grid article,
+.plugin-grid article,
+.feature-grid article,
+.economy-grid article,
+.market-board,
+.market-list article,
+.section-dashboard,
+.dashboard-card,
+.rules-list li,
+.rules-tools article,
+.join-card,
+.join-steps article,
+.showcase,
+.gallery-strip figure,
+.stats-inner,
+.category-board article,
+.resource-list a,
+.user-post-workspace,
+.admin-card,
+.admin-denied,
+.stock-panel,
+.stock-ticker,
+.stock-market-strip,
+.stock-info-stats > div,
+.stock-data-card,
+.stock-news-card,
+.stock-financial-table-wrap,
+.stock-table-wrap,
+.stock-chart-shell {
+  border: 1px solid var(--velyx-line);
+  border-radius: var(--velyx-radius);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.026)),
+    var(--velyx-panel);
+  box-shadow:
+    var(--velyx-shadow-soft),
+    inset 0 1px 0 rgba(255, 255, 255, 0.09);
+  backdrop-filter: blur(18px) saturate(150%);
+}
+
+.status-panel::before,
+.detail-grid article::before,
+.plugin-grid article::before,
+.feature-grid article::before,
+.economy-grid article::before,
+.dashboard-card::before,
+.rules-tools article::before,
+.join-steps article::before {
+  border-radius: var(--velyx-radius);
+  background: linear-gradient(90deg, var(--velyx-cyan), var(--velyx-violet), var(--velyx-silver));
+  opacity: 0.75;
+}
+
+.status-panel:hover,
+.detail-grid article:hover,
+.plugin-grid article:hover,
+.feature-grid article:hover,
+.economy-grid article:hover,
+.market-list article:hover,
+.rules-tools article:hover,
+.join-steps article:hover,
+.category-board article:hover,
+.resource-list a:hover {
+  border-color: var(--velyx-line-strong);
+  box-shadow:
+    0 22px 72px rgba(0, 0, 0, 0.36),
+    0 0 0 1px rgba(156, 99, 255, 0.1) inset;
+}
+
+.detail-grid article .ic,
+.plugin-grid .ic,
+.feature-grid .ic {
+  color: var(--velyx-cyan);
+  filter: drop-shadow(0 0 14px rgba(97, 229, 255, 0.2));
+}
+
+.detail-grid article span,
+.plugin-grid span,
+.feature-grid h3,
+.economy-grid span,
+.market-list span,
+.dashboard-card span,
+.rules-tools span,
+.join-steps span,
+.category-board span,
+.resource-list span,
+.user-post-head span,
+.admin-card > span,
+.stock-heading span,
+.stock-board-heading,
+.stock-chart-top span {
+  color: var(--velyx-cyan);
+}
+
+.detail-grid article strong,
+.plugin-grid strong,
+.feature-grid h3,
+.economy-grid strong,
+.market-list strong,
+.dashboard-card strong,
+.rules-tools strong,
+.join-steps strong,
+.category-board strong,
+.resource-list strong {
+  color: var(--velyx-text);
+}
+
+.status-panel strong {
+  color: var(--velyx-silver);
+  text-shadow: 0 0 36px rgba(156, 99, 255, 0.2);
+}
+
+.status-dot.is-online {
+  background: var(--velyx-mint);
+  box-shadow: 0 0 0 6px rgba(117, 240, 189, 0.14), 0 0 28px rgba(117, 240, 189, 0.32);
+}
+
+.status-dot.is-cached {
+  background: var(--velyx-gold);
+}
+
+.meter {
+  height: 9px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.meter span {
+  background: linear-gradient(90deg, var(--velyx-cyan), var(--velyx-violet));
+  box-shadow: 0 0 18px rgba(156, 99, 255, 0.28);
+}
+
+.stats-inner {
+  background:
+    linear-gradient(90deg, rgba(97, 229, 255, 0.08), rgba(156, 99, 255, 0.1)),
+    rgba(255, 255, 255, 0.045);
+}
+
+.stats-inner article {
+  min-width: 0;
+}
+
+.stats-inner strong {
+  color: var(--velyx-silver);
+}
+
+.stats-inner span {
+  color: var(--velyx-muted);
+}
+
+/* Economy and world imagery ------------------------------------------------ */
+.economy-grid,
+.plugin-grid,
+.feature-grid,
+.detail-grid,
+.rules-tools,
+.join-steps,
+.category-board,
+.resource-list,
+.economy-market-snapshot,
+.section-dashboard {
+  gap: 16px;
+}
+
+.market-board {
+  overflow: hidden;
+  background:
+    linear-gradient(90deg, rgba(156, 99, 255, 0.12), transparent 42%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.026)),
+    var(--velyx-panel);
+}
+
+.market-list article em {
+  color: var(--velyx-gold);
+}
+
+.world-section {
+  align-items: center;
+  gap: clamp(22px, 4vw, 48px);
+}
+
+.showcase,
+.gallery-strip figure {
+  overflow: hidden;
+}
+
+.showcase img,
+.gallery-strip img {
+  filter: saturate(1.04) contrast(1.08);
+  transform: scale(1.01);
+}
+
+.gallery-strip figcaption {
+  border: 1px solid var(--velyx-line);
+  border-radius: var(--velyx-radius);
+  color: var(--velyx-text);
+  background: rgba(5, 5, 8, 0.72);
+  backdrop-filter: blur(12px);
+}
+
+/* Community, resources, and admin ----------------------------------------- */
+.category-main,
+.admin-main {
+  background:
+    linear-gradient(180deg, rgba(156, 99, 255, 0.08), transparent 240px),
+    transparent;
+}
+
+.category-board,
+.resource-list,
+.user-post-form,
+.admin-workspace {
+  gap: 16px;
+}
+
+.user-post-workspace {
+  padding: clamp(18px, 3vw, 28px);
+}
+
+.user-post-form button,
+.admin-form button {
+  min-height: 46px;
+}
+
+.user-post-list article,
+.admin-drafts li,
+.admin-permissions li {
+  border-color: var(--velyx-line);
+  border-radius: var(--velyx-radius);
+  background: rgba(255, 255, 255, 0.055);
+}
+
+.admin-status[data-tone="success"] {
+  color: #07110d;
+  background: linear-gradient(180deg, #d7ffec, var(--velyx-mint));
+}
+
+.admin-status[data-tone="error"] {
+  color: #2a080d;
+  background: linear-gradient(180deg, #ffd2d8, var(--velyx-red));
+}
+
+/* Footer ------------------------------------------------------------------- */
+.site-footer {
+  border-top: 1px solid var(--velyx-line);
+  color: var(--velyx-muted);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent),
+    rgba(5, 5, 8, 0.86);
+}
+
+.footer-info-row,
+.footer-theme-row {
+  width: min(var(--velyx-max), calc(100% - 32px));
+}
+
+.footer-brand {
+  color: var(--velyx-text);
+  font-weight: 900;
+}
+
+.footer-theme-customizer,
+.theme-palette {
+  border-color: var(--velyx-line);
+}
+
+.theme-preset-button {
+  border: 1px solid var(--velyx-line);
+  border-radius: var(--velyx-radius);
+}
+
+/* Stock terminal ----------------------------------------------------------- */
+.stock-terminal-body {
+  background:
+    linear-gradient(90deg, rgba(97, 229, 255, 0.07), transparent 28%, rgba(156, 99, 255, 0.07)),
+    repeating-linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.02) 0,
+      rgba(255, 255, 255, 0.02) 1px,
+      transparent 1px,
+      transparent 84px
+    ),
+    #07080d;
+}
+
+.stock-screen {
+  width: min(100%, 1680px);
+  margin-inline: auto;
+}
+
+.stock-workspace {
+  padding: clamp(14px, 2vw, 24px);
+}
+
+.stock-pro-terminal {
+  border-color: rgba(232, 229, 255, 0.16);
+  background: transparent;
+}
+
+.stock-market-strip,
+.stock-ticker,
+.stock-panel {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.022)),
+    rgba(11, 12, 18, 0.86);
+}
+
+.stock-ticker button,
+.stock-market-stat,
+.stock-order-book li,
+.stock-portfolio-list li,
+.trade-tape li,
+.stock-account-gauge > div,
+.stock-account-list div {
+  border-radius: var(--velyx-radius);
+  border-color: var(--velyx-line);
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.stock-ticker button:is(:hover, .is-active),
+.stock-tabs button.is-active,
+.stock-range-tabs button.is-active,
+.stock-depth-tools button.is-active,
+.stock-chart-tabs button.is-active,
+.stock-info-subtabs button.is-active {
+  color: #08070d;
+  background: linear-gradient(180deg, #ffffff, #c9c6d7);
+  box-shadow: 0 12px 34px rgba(156, 99, 255, 0.18);
+}
+
+.stock-market-price strong,
+.stock-heading strong,
+.stock-chart-top strong,
+.stock-quote-grid strong,
+.stock-detail-body > strong,
+.stock-financial-kpis strong {
+  color: var(--velyx-silver);
+}
+
+.stock-ticker em,
+.stock-heading em,
+.stock-chart-top em,
+.stock-market-table .is-up,
+.stock-detail-body em.is-up,
+.stock-depth-price,
+.trade-tape li.is-buy strong {
+  color: var(--velyx-mint);
+}
+
+.stock-ticker em.is-down,
+.stock-heading em.is-down,
+.stock-chart-top em.is-down,
+.stock-market-table .is-down,
+.stock-detail-body em.is-down,
+.trade-tape li.is-sell strong,
+.stock-order-message.is-error {
+  color: var(--velyx-red);
+}
+
+.stock-chart-stage {
+  min-height: clamp(360px, 48vw, 610px);
+  border-radius: var(--velyx-radius);
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent 0,
+      transparent 47px,
+      rgba(255, 255, 255, 0.035) 48px
+    ),
+    linear-gradient(180deg, rgba(97, 229, 255, 0.035), rgba(156, 99, 255, 0.035)),
+    #080910;
+}
+
+.stock-chart-tooltip,
+.stock-depth-settings-dialog,
+.stock-chart-settings-dialog,
+.stock-news-dialog {
+  border: 1px solid var(--velyx-line-strong);
+  border-radius: var(--velyx-radius);
+  background: rgba(9, 10, 16, 0.96);
+  box-shadow: var(--velyx-shadow);
+}
+
+.stock-news-image img,
+.stock-news-dialog-media img {
+  filter: saturate(1.06) contrast(1.08);
+}
+
+/* Responsive quality gates ------------------------------------------------- */
+@media (max-width: 1100px) {
+  .site-nav {
+    grid-template-columns: minmax(132px, 1fr) auto;
+  }
+
+  .nav-toggle {
+    display: grid;
+  }
+
+  .nav-links {
+    position: fixed;
+    left: 16px;
+    right: 16px;
+    top: 72px;
+    grid-column: auto;
+    display: none;
+    flex-direction: column;
+    align-items: stretch;
+    max-height: calc(100svh - 92px);
+    overflow: auto;
+    padding: 10px;
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.03)),
+      rgba(7, 7, 12, 0.96);
+    box-shadow: var(--velyx-shadow);
+  }
+
+  .site-nav.nav-open .nav-links {
+    display: flex;
+  }
+
+  .nav-links a {
+    justify-content: space-between;
+    min-height: 44px;
+  }
+}
+
+@media (max-width: 820px) {
+  .status-layout,
+  .world-section,
+  .join-layout,
+  .admin-workspace,
+  .stock-pro-layout,
+  .stock-futures-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .section-dashboard,
+  .plugin-grid,
+  .feature-grid,
+  .economy-grid,
+  .rules-tools,
+  .category-board,
+  .resource-list,
+  .economy-market-snapshot {
+    grid-template-columns: 1fr;
+  }
+
+  .hero {
+    min-height: 760px;
+  }
+
+  .hero-content {
+    width: min(100% - 24px, 620px);
+  }
+
+  .hero-actions {
+    align-items: stretch;
+  }
+
+  .hero-actions > * {
+    flex: 0 1 auto;
+  }
+
+  .stock-market-strip,
+  .stock-workspace-head,
+  .stock-terminal-top {
+    grid-template-columns: 1fr;
+  }
+
+  .stock-chart-stage {
+    min-height: 420px;
+  }
+}
+
+@media (max-width: 560px) {
+  .site-nav {
+    height: 58px;
+    padding-inline: 12px;
+  }
+
+  .brand span {
+    max-width: 110px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .brand img {
+    width: 30px;
+    height: 30px;
+  }
+
+  .hero {
+    min-height: 720px;
+  }
+
+  .hero-content::before {
+    width: 90px;
+  }
+
+  .hero h1 {
+    font-size: clamp(48px, 18vw, 78px);
+  }
+
+  .hero-copy,
+  .screen-copy,
+  .world-copy p:not(.eyebrow) {
+    font-size: 16px;
+  }
+
+  .hero-meta {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .primary-action,
+  .secondary-action,
+  .address-row button,
+  .stock-trade-link {
+    width: 100%;
+    min-height: 48px;
+  }
+
+  .status-band,
+  .plugin-section,
+  .rules-section,
+  .join-section,
+  .economy-section,
+  .feature-section,
+  .world-section,
+  .gallery-band,
+  .stats-band,
+  .category-section,
+  .admin-section {
+    width: min(100% - 24px, var(--velyx-max));
+  }
+
+  .status-panel,
+  .detail-grid article,
+  .plugin-grid article,
+  .feature-grid article,
+  .economy-grid article,
+  .dashboard-card,
+  .join-card,
+  .join-steps article,
+  .user-post-workspace,
+  .admin-card {
+    padding: 18px;
+  }
+
+  .section-heading h1,
+  .section-heading h2,
+  .join-card h1,
+  .join-card h2,
+  .world-copy h2 {
+    font-size: clamp(31px, 11vw, 46px);
+  }
+
+  .stock-workspace {
+    padding: 10px;
+  }
+
+  .stock-chart-stage {
+    min-height: 360px;
+  }
+
+  .stock-ticker,
+  .stock-control-deck .stock-tabs,
+  .stock-control-deck .stock-range-tabs,
+  .stock-chart-tabs,
+  .economy-page-tabs {
+    overflow-x: auto;
+    scrollbar-width: thin;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+  }
+}

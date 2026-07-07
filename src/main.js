@@ -1,4 +1,6 @@
 import "./styles.css";
+// Final brand layer: keeps legacy selectors working while giving every page the VELYX visual system.
+import "./velyx-redesign.css";
 import {
   AreaSeries,
   CandlestickSeries,
