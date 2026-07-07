@@ -563,7 +563,7 @@ function renderPlayerRoster(data) {
     .map((player) => String(player?.name_clean || player?.name || "").trim())
     .filter(Boolean)
     .slice(0, 32);
-  const minCells = 24;
+  const minCells = 36;
   const cells = [
     ...names.map((name) => ({ label: name, empty: false })),
     ...Array.from({ length: Math.max(minCells - names.length, 0) }, () => ({
@@ -1238,7 +1238,7 @@ function initPageNavigation() {
 
 function initAnimationStagger() {
   const animatedGroups = document.querySelectorAll(
-    ".detail-grid, .plugin-grid, .feature-grid, .economy-grid, .market-list, .stock-heading, .stock-ticker, [data-stock-list], .section-dashboard, .rules-list, .rules-tools, .join-steps, .stats-inner, .gallery-strip",
+    ".detail-grid, .plugin-grid, .feature-grid, .economy-grid, .market-list, .stock-heading, .stock-ticker, [data-stock-list], .section-dashboard, .rules-list, .rules-tools, .join-steps, .stats-inner, .gallery-strip, .live-facts, .benefit-ledger, .benefit-links, .roster-grid",
   );
 
   animatedGroups.forEach((group) => {

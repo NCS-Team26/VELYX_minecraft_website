@@ -91,482 +91,174 @@
       </header>
 
       <main id="top">
-        <section class="hero" aria-labelledby="hero-title">
-          <div class="hero-scene" aria-hidden="true">
-            <canvas id="minecraft-scene"></canvas>
+        <section class="hero poster-hero" aria-labelledby="hero-title">
+          <div class="poster-media" aria-hidden="true"></div>
+          <div class="poster-vignette" aria-hidden="true"></div>
+          <div class="poster-copy poster-copy-left" aria-hidden="true">
+            <span>Unlocking</span>
+            <span>player</span>
+            <span>economy</span>
           </div>
-          <div class="hero-shade"></div>
-          <div class="hero-content">
-            <div class="hero-side-copy hero-side-left" aria-hidden="true">
-              <span>Economy</span>
-              <span>Private</span>
-              <span>Realm</span>
-            </div>
-            <div class="hero-side-copy hero-side-right" aria-hidden="true">
-              <span>Guided</span>
-              <span>by</span>
-              <span>Players</span>
-            </div>
-            <p class="eyebrow">VELYX Private Realm</p>
-            <h1 id="hero-title">VELYX</h1>
+          <div class="poster-copy poster-copy-right" aria-hidden="true">
+            <span>Guided</span>
+            <span>by</span>
+            <span>the realm</span>
+          </div>
+          <div class="poster-title">
+            <p class="eyebrow">PRIVATE ECONOMY REALM</p>
+            <h1 id="hero-title">velyx</h1>
             <p class="hero-copy">Connection, beyond access.</p>
-            <ul class="hero-meta" aria-label="서버 요약">
-              <li><span class="hero-meta-dot" aria-hidden="true"></span>Paper 26.1.2</li>
-              <li>유저 상점</li>
-              <li>토지 보호</li>
-              <li>거래 중심 생존</li>
-            </ul>
-            <div class="hero-actions">
-              <button class="primary-action" type="button" data-copy-address>
-                <span aria-hidden="true">⧉</span>
-                주소 복사
-              </button>
-              <a class="primary-action" href="/login.html" data-login-gate hidden>
-                <span aria-hidden="true">→</span>
-                로그인하고 주소 확인
-              </a>
-            </div>
           </div>
-          <div class="hero-footerline" aria-hidden="true">
+          <div class="poster-footerline" aria-hidden="true">
             <span>(ST)</span>
             <span>(EC)</span>
             <span>(OS)</span>
           </div>
+          <div class="poster-clock" aria-hidden="true">VELYX.KR</div>
+          <div class="hero-actions">
+            <button class="primary-action" type="button" data-copy-address>
+              ENTER
+              <span aria-hidden="true">>>>>>>></span>
+            </button>
+            <a class="primary-action" href="/login.html" data-login-gate hidden>
+              LOGIN
+              <span aria-hidden="true">>>>>>>></span>
+            </a>
+          </div>
         </section>
 
-        <section class="realm-word-section" aria-labelledby="realm-word-title">
-          <div class="realm-word-top" data-reveal>
+        <section class="editorial-section philosophy-poster" aria-labelledby="philosophy-title">
+          <div class="poster-triad" data-reveal aria-hidden="true">
             <span>PRIVATE</span>
             <span>ECONOMY</span>
             <span>REALM</span>
           </div>
-          <div class="realm-word-layout">
-            <div class="realm-word-copy" data-reveal>
-              <p class="eyebrow">Philosophy</p>
-              <h2 id="realm-word-title">The heart of VELYX.</h2>
-              <p>
-                접속은 입장일 뿐입니다. VELYX는 사람, 거래, 규칙, 기록이 이어지는
-                작은 공동체로 설계됩니다.
-              </p>
-            </div>
-            <div class="realm-wordmark" aria-hidden="true" data-reveal>
-              <span>VEL</span>
-              <i></i>
-              <span>YX</span>
-            </div>
+          <div class="split-wordmark" data-reveal aria-hidden="true">
+            <span>VEL</span>
+            <i></i>
+            <span>YX</span>
+          </div>
+          <div class="poster-textblock poster-textblock-right" data-reveal>
+            <p class="eyebrow">Philosophy</p>
+            <h2 id="philosophy-title">Access opens the door. The connection builds value.</h2>
+            <p>
+              VELYX는 단순 접속 안내가 아니라, 사람과 거래와 규칙이 오래 남는 작은 경제권입니다.
+              홈은 기능 설명서가 아니라 이 세계에 들어가는 첫 인상이어야 합니다.
+            </p>
           </div>
         </section>
 
-        <section class="status-band" id="status" aria-labelledby="status-title">
-          <div class="section-heading" data-reveal>
-            <p class="eyebrow">실시간 상태</p>
-            <h2 id="status-title"><span>Live, at a glance.</span></h2>
+        <section class="editorial-section live-poster" id="status" aria-labelledby="status-title">
+          <div class="poster-triad" data-reveal aria-hidden="true">
+            <span>ONLINE</span>
+            <span>MARKET</span>
+            <span>ACCESS</span>
           </div>
-
-          <div class="status-layout" data-reveal>
-            <article class="status-panel">
+          <div class="live-layout" data-reveal>
+            <article class="status-panel live-status-card">
               <div class="status-topline">
                 <span class="status-dot" data-status-dot></span>
                 <span data-status-label>상태 확인 중</span>
               </div>
+              <h2 id="status-title">Live realm index.</h2>
               <strong data-player-count>-- / 10</strong>
-              <span class="status-note">현재 접속자 / 최대 인원</span>
+              <span class="status-note">현재 접속자 / 최대 슬롯</span>
               <div class="meter" aria-hidden="true">
                 <span data-player-meter></span>
               </div>
               <div class="player-heads" data-player-heads hidden aria-label="접속 중인 플레이어"></div>
             </article>
 
-            <div class="detail-grid" aria-label="Server details">
+            <div class="live-facts" aria-label="실시간 서버 정보">
               <article>
-                <svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
-                  <circle cx="12" cy="12" r="9" />
-                  <path d="M3 12h18M12 3c2.5 2.5 2.5 16 0 18M12 3c-2.5 2.5-2.5 16 0 18" />
-                </svg>
-                <span>주소</span>
+                <span>Address</span>
                 <strong>velyx.kr</strong>
               </article>
               <article>
-                <svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M12 2l9 5v10l-9 5-9-5V7z" />
-                  <path d="M12 2v20M3 7l9 5 9-5" />
-                </svg>
-                <span>버전</span>
+                <span>Version</span>
                 <strong data-version>Paper 26.1.2</strong>
               </article>
               <article>
-                <svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" />
-                </svg>
-                <span>월드 경계</span>
-                <strong>59,999,968</strong>
+                <span>Latency</span>
+                <strong data-latency>-- ms</strong>
               </article>
-              <article class="ram-live-card">
-                <svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
-                  <rect x="6" y="6" width="12" height="12" rx="1" />
-                  <rect x="9" y="9" width="6" height="6" rx="1" />
-                  <path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3" />
-                </svg>
-                <span>메모리</span>
-                <strong data-ram-summary>실시간 확인 중</strong>
-                <em data-ram-percent>--</em>
-                <div class="meter ram-card-meter" aria-hidden="true">
-                  <span data-ram-meter></span>
-                </div>
-                <p data-ram-detail>서버 RAM 사용량을 불러오는 중입니다.</p>
+              <article>
+                <span>Cache</span>
+                <strong data-cache-state>실시간 확인 준비 중</strong>
               </article>
-              <article class="metric-live-card">
-                <svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
-                  <rect x="7" y="7" width="10" height="10" rx="2" />
-                  <path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3" />
-                  <path d="M10 12h4" />
-                </svg>
-                <span>CPU</span>
-                <strong data-cpu-summary>실시간 확인 중</strong>
-                <div class="meter metric-card-meter" aria-hidden="true">
-                  <span data-cpu-meter></span>
-                </div>
-                <p data-cpu-detail>CPU 사용량을 불러오는 중입니다.</p>
+              <article class="live-fact-wide">
+                <span>Health</span>
+                <strong data-player-summary>--</strong>
+                <p data-status-health>API 응답을 기다리고 있습니다.</p>
               </article>
-              <article class="metric-live-card">
-                <svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M14 14.76V5a4 4 0 0 0-8 0v9.76A6 6 0 1 0 14 14.76z" />
-                  <path d="M10 5v11" />
-                  <path d="M10 20a2 2 0 0 0 2-2" />
-                </svg>
-                <span>온도</span>
-                <strong data-temp-summary>실시간 확인 중</strong>
-                <div class="meter metric-card-meter temperature-meter" aria-hidden="true">
-                  <span data-temp-meter></span>
-                </div>
-                <p data-temp-detail>온도 센서를 불러오는 중입니다.</p>
+              <article class="live-fact-wide">
+                <span>Message</span>
+                <strong>Server MOTD</strong>
+                <p data-motd>서버 메시지를 불러오고 있습니다.</p>
+              </article>
+              <article class="live-fact-wide">
+                <span>Checked</span>
+                <strong data-last-checked>상태 값을 아직 받아오지 않았습니다.</strong>
               </article>
             </div>
           </div>
-
-          <div class="section-dashboard status-dashboard" data-reveal>
-            <article class="dashboard-card">
-              <span>상태 캐시</span>
-              <strong data-cache-state>실시간 확인 준비 중</strong>
-              <p data-last-checked>상태 값을 아직 받아오지 않았습니다.</p>
-            </article>
-            <article class="dashboard-card">
-              <span>응답 속도</span>
-              <strong data-latency>-- ms</strong>
-              <p data-status-health>API 응답을 기다리고 있습니다.</p>
-            </article>
-            <article class="dashboard-card">
-              <span>접속자</span>
-              <strong data-player-summary>--</strong>
-              <p>접속자 수와 슬롯 사용률을 같이 표시합니다.</p>
-            </article>
-            <article class="dashboard-card dashboard-wide">
-              <span>오늘의 서버 메시지</span>
-              <strong>서버 MOTD</strong>
-              <p data-motd>서버 메시지를 불러오고 있습니다.</p>
-            </article>
-            <article class="dashboard-card dashboard-wide">
-              <span>접속자 기록</span>
-              <canvas class="player-chart" data-player-chart width="480" height="72" aria-hidden="true"></canvas>
-              <p>최근 접속자 추이를 자동으로 기록해서 보여줍니다.</p>
-            </article>
-          </div>
         </section>
 
-        <section class="stats-band" aria-label="서버 한눈에">
-          <div class="stats-inner" data-reveal>
-            <article>
-              <strong>상점</strong>
-              <span>유저 상점</span>
-            </article>
-            <article>
-              <strong>거래</strong>
-              <span>직거래와 경매</span>
-            </article>
-            <article>
-              <strong>보호</strong>
-              <span>토지 보호</span>
-            </article>
-            <article>
-              <strong>성장</strong>
-              <span>경제 성장</span>
-            </article>
+        <section class="editorial-section benefits-poster" id="plugins" aria-labelledby="benefits-title">
+          <div class="poster-triad" data-reveal aria-hidden="true">
+            <span>TRADE</span>
+            <span>PROTECT</span>
+            <span>BUILD</span>
           </div>
-        </section>
-
-        <section class="economy-section" aria-labelledby="economy-title">
-          <div class="section-heading" data-reveal>
-            <p class="eyebrow">경제 순환</p>
-            <h2 id="economy-title"><span>Value moves here.</span></h2>
-            <p class="screen-copy">
-              광질, 농사, 사냥, 건축 재료 수집이 전부 시장으로 연결되고, 시장에서 번 돈은 다시
-              토지, 상점, 장비, 공동 프로젝트로 돌아갑니다.
-            </p>
+          <div class="section-kicker" data-reveal>
+            <p class="eyebrow">Benefits</p>
+            <h2 id="benefits-title">Rights, not feature lists.</h2>
           </div>
-
-          <div class="economy-grid" data-reveal>
+          <div class="benefit-ledger" data-reveal>
             <article>
               <span>01</span>
-              <strong>벌기</strong>
-              <p>광물, 작물, 몹 드롭, 희귀 재료를 모아 상점이나 유저 거래로 현금화합니다.</p>
+              <strong>Trade access</strong>
+              <p>유저 상점, 경매, 직접 거래로 서버 안의 가치를 직접 움직입니다.</p>
             </article>
             <article>
               <span>02</span>
-              <strong>팔기</strong>
-              <p>개인 상점과 경매장에서 가격을 정하고, 수요가 높은 아이템으로 시장을 만듭니다.</p>
+              <strong>Protected property</strong>
+              <p>상점과 거점은 보호 기준 안에서 운영되고, 분쟁은 기록을 남겨 처리합니다.</p>
             </article>
             <article>
               <span>03</span>
-              <strong>지키기</strong>
-              <p>번 돈으로 거점과 창고를 보호하고, 거래 구역을 안정적으로 운영합니다.</p>
+              <strong>Market presence</strong>
+              <p>Stock, Economy, Status 페이지는 홈의 분위기 뒤에 실제 도구로 남깁니다.</p>
             </article>
             <article>
               <span>04</span>
-              <strong>확장하기</strong>
-              <p>마을, 도로, 공용 농장, 이벤트 보상처럼 여러 명이 함께 쓰는 경제를 키웁니다.</p>
+              <strong>Collective growth</strong>
+              <p>혼자 모은 재료가 공동 프로젝트, 상권, 이벤트 보상으로 다시 순환합니다.</p>
             </article>
           </div>
+          <div class="benefit-links" data-reveal aria-label="상세 페이지 링크">
+            <a href="/stock.html">Stock exchange</a>
+            <a href="/plugins.html">Economy system</a>
+            <a href="/rules.html">Rules</a>
+          </div>
+        </section>
 
-          <div class="market-board" data-reveal>
-            <div class="market-copy">
-              <p class="eyebrow">시장 게시판</p>
-              <h3>서버 경제의 첫 포트폴리오</h3>
+        <section class="editorial-section collective-section collective-poster" id="collective" aria-labelledby="collective-title">
+          <div class="poster-triad" data-reveal aria-hidden="true">
+            <span>ACTIVE</span>
+            <span>PLAYER</span>
+            <span>INDEX</span>
+          </div>
+          <div class="collective-layout">
+            <div class="collective-copy" data-reveal>
+              <p class="eyebrow">Collective</p>
+              <h2 id="collective-title">The VELYX Collective.</h2>
               <p>
-                실제 가격은 서버 상황에 맞춰 조정되지만, 웹사이트에서는 신규 유저가 어떤 품목을
-                사고팔 수 있는지 바로 감을 잡을 수 있게 보여줍니다.
+                실시간 플레이어와 비어 있는 슬롯을 같은 격자로 보여줍니다.
+                숫자보다 먼저 “누가 이 세계에 있는가”가 보여야 합니다.
               </p>
             </div>
-            <div class="market-list" aria-label="시장 품목 예시">
-              <article>
-                <span>광물</span>
-                <strong>다이아몬드</strong>
-                <em>희귀 자원</em>
-              </article>
-              <article>
-                <span>농산물</span>
-                <strong>밀 · 당근 · 감자</strong>
-                <em>안정 수익</em>
-              </article>
-              <article>
-                <span>건축</span>
-                <strong>목재 · 석재 · 유리</strong>
-                <em>상시 수요</em>
-              </article>
-              <article>
-                <span>서비스</span>
-                <strong>건축 의뢰 · 운송</strong>
-                <em>유저 거래</em>
-              </article>
-            </div>
-          </div>
-
-          <div class="economy-stock-teaser" data-reveal>
-            <div>
-              <p class="eyebrow">Economy 마켓플레이스</p>
-              <h3>실시간 마켓은 VELYX 경제의 중심에 있습니다.</h3>
-              <p>
-                홈에서는 서버 경제 흐름만 가볍게 안내하고, 종목 시세 · 차트 · 최근 체결 · 웹 거래
-                진입은 경제 페이지에 모았습니다.
-              </p>
-            </div>
-            <a class="stock-trade-link" href="/stock.html">Stock 거래소 보기</a>
-          </div>
-        </section>
-
-        <div class="feature-band">
-        <section class="feature-section" aria-labelledby="feature-title">
-          <div class="section-heading" data-reveal>
-            <p class="eyebrow">서버 특징</p>
-            <h2 id="feature-title">Built for momentum.</h2>
-          </div>
-          <div class="feature-grid" data-reveal>
-            <article>
-              <svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M4 20s8-2 12-8 4-8 4-8-2 8-8 12c-3 3-8 4-8 4z" />
-                <path d="M4 20l8-8" />
-              </svg>
-              <h3>노가다가 보상으로 연결</h3>
-              <p>광질과 농사가 단순 반복으로 끝나지 않고, 판매와 투자로 이어지는 구조입니다.</p>
-            </article>
-            <article>
-              <svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2-6-2z" />
-                <path d="M9 4v14M15 6v14" />
-              </svg>
-              <h3>유저가 만드는 시세</h3>
-              <p>상점, 직거래, 경매가 함께 돌아가서 아이템 가치가 플레이어 활동에 따라 움직입니다.</p>
-            </article>
-            <article>
-              <svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M21 12.8A8 8 0 1 1 11.2 3a6 6 0 0 0 9.8 9.8z" />
-              </svg>
-              <h3>보호되는 재산</h3>
-              <p>상점, 창고, 거점은 보호 기준을 명확히 두고 운영해 거래 리스크를 줄입니다.</p>
-            </article>
-          </div>
-        </section>
-        </div>
-
-        <section class="world-section" aria-labelledby="world-title">
-          <div class="world-copy" data-reveal>
-            <p class="eyebrow">야생 우선</p>
-            <h2 id="world-title">A realm with gravity.</h2>
-            <p>
-              월드는 넓게 열어두되 경제의 중심은 스폰과 유저 상점가에 모입니다. 멀리 나가 희귀
-              자원을 캐고, 거점에서 생산하고, 시장에서 팔아 다음 목표를 세우는 구조입니다.
-            </p>
-          </div>
-          <figure class="showcase" data-reveal>
-            <img
-              src="/assets/hero-world-1920.jpg"
-              srcset="/assets/hero-world-960.jpg 960w, /assets/hero-world-1920.jpg 1920w"
-              sizes="(min-width: 900px) 48vw, 92vw"
-              width="1920"
-              height="840"
-              alt="Cherry blossom voxel world landscape"
-              loading="lazy"
-              decoding="async"
-            />
-          </figure>
-        </section>
-
-        <section class="gallery-band" aria-label="월드 미리보기">
-          <div class="gallery-strip" data-reveal>
-            <figure class="gallery-pos-1">
-              <img
-                src="/assets/hero-world-960.jpg"
-                srcset="/assets/hero-world-960.jpg 960w, /assets/hero-world-1920.jpg 1920w"
-                sizes="(min-width: 900px) 28vw, 80vw"
-                width="960"
-                height="420"
-                alt="상업 지구 전경"
-                loading="lazy"
-                decoding="async"
-              />
-              <figcaption>상업 지구</figcaption>
-            </figure>
-            <figure class="gallery-pos-2">
-              <img
-                src="/assets/hero-world-960.jpg"
-                srcset="/assets/hero-world-960.jpg 960w, /assets/hero-world-1920.jpg 1920w"
-                sizes="(min-width: 900px) 28vw, 80vw"
-                width="960"
-                height="420"
-                alt="생산 거점과 다리"
-                loading="lazy"
-                decoding="async"
-              />
-              <figcaption>생산 거점</figcaption>
-            </figure>
-            <figure class="gallery-pos-3">
-              <img
-                src="/assets/hero-world-960.jpg"
-                srcset="/assets/hero-world-960.jpg 960w, /assets/hero-world-1920.jpg 1920w"
-                sizes="(min-width: 900px) 28vw, 80vw"
-                width="960"
-                height="420"
-                alt="자원 탐험 지역"
-                loading="lazy"
-                decoding="async"
-              />
-              <figcaption>자원 탐험</figcaption>
-            </figure>
-          </div>
-        </section>
-
-        <div class="plugin-band">
-        <section class="plugin-section" id="plugins" aria-labelledby="plugin-title">
-          <div class="section-heading" data-reveal>
-            <p class="eyebrow">경제 구성</p>
-            <h2 id="plugin-title">Systems, not noise.</h2>
-          </div>
-          <div class="plugin-grid" data-reveal>
-            <article>
-              <svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M4 20h4l10-10-4-4L4 16z" />
-                <path d="M14 6l4 4" />
-              </svg>
-              <span>Vault</span>
-              <strong>지갑 기반</strong>
-              <p>돈, 권한, 상점 플러그인을 연결하는 경제 기반을 만듭니다.</p>
-            </article>
-            <article>
-              <svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
-                <rect x="3" y="4" width="18" height="16" rx="2" />
-                <path d="M7 9l3 3-3 3M13 15h4" />
-              </svg>
-              <span>EssentialsX</span>
-              <strong>돈과 워프</strong>
-              <p>기본 명령어, 스폰, 워프, 잔액 확인 같은 생활 편의를 제공합니다.</p>
-            </article>
-            <article>
-              <svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M12 3l8 3v6c0 5-3.5 7.5-8 9-4.5-1.5-8-4-8-9V6z" />
-              </svg>
-              <span>QuickShop</span>
-              <strong>유저 상점</strong>
-              <p>상자 기반 상점으로 플레이어가 직접 물건을 사고팔 수 있습니다.</p>
-            </article>
-            <article>
-              <svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M7 4L4 7l3 3M4 7h12M17 14l3 3-3 3M20 17H8" />
-              </svg>
-              <span>AuctionHouse</span>
-              <strong>경매장</strong>
-              <p>희귀 아이템과 대량 재료를 공개 시장에서 거래할 수 있게 합니다.</p>
-            </article>
-            <article>
-              <svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
-                <rect x="3" y="3" width="7" height="7" rx="1" />
-                <rect x="14" y="3" width="7" height="7" rx="1" />
-                <rect x="3" y="14" width="7" height="7" rx="1" />
-                <rect x="14" y="14" width="7" height="7" rx="1" />
-              </svg>
-              <span>GriefPrevention</span>
-              <strong>토지 보호</strong>
-              <p>상점, 창고, 거점을 보호해 경제 재산을 지킬 수 있게 합니다.</p>
-            </article>
-            <article>
-              <svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M21 12a8 8 0 0 1-11.5 7.2L3 21l1.8-6.5A8 8 0 1 1 21 12z" />
-              </svg>
-              <span>Jobs</span>
-              <strong>직업 보상</strong>
-              <p>채굴, 농사, 사냥, 벌목 같은 야생 활동에 자연스러운 보상을 붙입니다.</p>
-            </article>
-          </div>
-          <div class="section-dashboard plugin-dashboard" data-reveal>
-            <article class="dashboard-card">
-              <span>지갑</span>
-              <strong>돈은 서버 안에서 순환</strong>
-              <p>판매, 보상, 거래, 보호 비용이 하나의 경제 흐름으로 연결됩니다.</p>
-            </article>
-            <article class="dashboard-card">
-              <span>상거래</span>
-              <strong>상점가와 경매장</strong>
-              <p>고정 가격 상점과 공개 경매를 함께 둬 초보와 고인물 모두 거래할 수 있습니다.</p>
-            </article>
-            <article class="dashboard-card">
-              <span>보호</span>
-              <strong>재산 보호 우선</strong>
-              <p>상점, 창고, 거점 보호를 경제 서버의 기본 규칙으로 둡니다.</p>
-            </article>
-            <article class="dashboard-card dashboard-wide">
-              <span>운영 메모</span>
-              <strong>경제 밸런스 운영 기준</strong>
-              <p>돈이 너무 쉽게 풀리지 않도록 보상과 판매 가격은 천천히 조정하고, 유저 거래를 우선합니다.</p>
-            </article>
-          </div>
-        </section>
-        </div>
-
-        <section class="collective-section" id="collective" aria-labelledby="collective-title">
-          <div class="section-heading" data-reveal>
-            <p class="eyebrow">Collective</p>
-            <h2 id="collective-title">The VELYX Collective.</h2>
-            <p class="screen-copy">
-              접속 중인 플레이어와 비어 있는 access slot이 하나의 멤버십 roster로 표시됩니다.
-            </p>
+            <div class="collective-divider" aria-hidden="true" data-reveal></div>
           </div>
           <div
             class="roster-grid"
@@ -590,44 +282,19 @@
           </div>
         </section>
 
-        <section class="rules-section" id="rules" aria-labelledby="rules-title">
-          <div data-reveal>
-            <p class="eyebrow">규칙</p>
-            <h2 id="rules-title">Fairness first.</h2>
+        <section class="editorial-section join-section join-poster" id="join" aria-labelledby="join-title">
+          <div class="poster-triad" data-reveal aria-hidden="true">
+            <span>JAVA</span>
+            <span>REALM</span>
+            <span>VELYX.KR</span>
           </div>
-          <ol class="rules-list" data-reveal>
-            <li>상점, 창고, 보호된 토지는 허락 없이 건드리지 않기.</li>
-            <li>버그 복사, 시세 악용, 자동화 남용처럼 경제를 무너뜨리는 행동 금지.</li>
-            <li>거래 분쟁은 스크린샷과 시간, 좌표를 남기고 운영자에게 전달하기.</li>
-          </ol>
-          <div class="rules-tools" data-reveal>
-            <article>
-              <span>01</span>
-              <strong>상점 보호</strong>
-              <p>상점, 표지판, 거래 상자는 경제 재산으로 보고 훼손과 약탈을 강하게 제한합니다.</p>
-            </article>
-            <article>
-              <span>02</span>
-              <strong>공정 거래</strong>
-              <p>약속한 물품과 금액을 바꾸거나, 취소한 거래를 강제로 진행하지 않습니다.</p>
-            </article>
-            <article>
-              <span>03</span>
-              <strong>밸런스 조정</strong>
-              <p>가격과 보상은 서버 상황에 따라 조정될 수 있으며, 변경 전후 안내를 남깁니다.</p>
-            </article>
-          </div>
-        </section>
-
-        <section class="join-section" id="join" aria-labelledby="join-title">
           <div class="join-layout" data-reveal>
             <div class="join-card">
-              <img src="/assets/server-icon.png" alt="" />
-              <p class="eyebrow">접속</p>
+              <p class="eyebrow">Enter</p>
               <h2 id="join-title">Enter VELYX.</h2>
               <div class="address-row">
                 <code>velyx.kr</code>
-                <button type="button" data-copy-address>복사</button>
+                <button type="button" data-copy-address>Copy</button>
               </div>
               <a class="join-login-gate" href="/login.html" data-login-gate hidden>
                 로그인하면 서버 주소가 공개됩니다 →
@@ -638,19 +305,19 @@
             </div>
             <div class="join-steps">
               <article>
-                <span>1</span>
-                <strong>스폰에서 규칙 확인</strong>
-                <p>접속 후 스폰 안내와 경제 규칙을 먼저 확인합니다.</p>
+                <span>01</span>
+                <strong>Read the room</strong>
+                <p>스폰에서 규칙과 경제 흐름을 먼저 확인합니다.</p>
               </article>
               <article>
-                <span>2</span>
-                <strong>초반 자금 만들기</strong>
-                <p>광질, 농사, 사냥으로 팔 수 있는 재료를 모읍니다.</p>
+                <span>02</span>
+                <strong>Move value</strong>
+                <p>자원, 상점, 경매, 거래를 통해 서버 안의 돈을 움직입니다.</p>
               </article>
               <article>
-                <span>3</span>
-                <strong>상점과 거래 시작</strong>
-                <p>상점가와 경매장을 확인하고, 남는 재료는 유저에게 판매합니다.</p>
+                <span>03</span>
+                <strong>Stay visible</strong>
+                <p>활동은 roster와 시장 기록으로 남고, 공동체의 일부가 됩니다.</p>
               </article>
             </div>
           </div>
