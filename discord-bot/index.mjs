@@ -41,9 +41,9 @@ function linkButtons() {
   return [
     new ActionRowBuilder().addComponents(
       new ButtonBuilder()
-        .setLabel("VELYX Economy")
+        .setLabel("웹 Stock")
         .setStyle(ButtonStyle.Link)
-        .setURL(`${config.siteUrl}/plugins.html#stock-marketplace`),
+        .setURL(`${config.siteUrl}/stock.html`),
       new ButtonBuilder()
         .setLabel("로그인/인증")
         .setStyle(ButtonStyle.Link)
@@ -70,8 +70,8 @@ function buildStockEmbed(stock) {
   return new EmbedBuilder()
     .setColor(stockColor(stock.change24h))
     .setTitle(stockDisplayName(stock))
-    .setURL(`${config.siteUrl}/plugins.html#stock-marketplace`)
-    .setDescription("VELYX Economy 실시간 시세")
+    .setURL(`${config.siteUrl}/stock.html`)
+    .setDescription("VELYX Stock 실시간 시세")
     .addFields(
       { name: "현재가", value: formatMoney(stock.price), inline: true },
       { name: "전일비", value: formatSignedMoney(diff), inline: true },
@@ -98,8 +98,8 @@ function buildMarketEmbed(payload) {
 
   return new EmbedBuilder()
     .setColor(0x56d364)
-    .setTitle("VELYX 24H Economy")
-    .setURL(`${config.siteUrl}/plugins.html#stock-marketplace`)
+    .setTitle("VELYX 24H Stock")
+    .setURL(`${config.siteUrl}/stock.html`)
     .addFields(
       { name: "시장지수", value: formatMoney(payload.market?.index), inline: true },
       { name: "24H 변동", value: formatPercent(payload.market?.indexChange24h), inline: true },
@@ -307,7 +307,7 @@ async function handleMinecraft(interaction) {
       .addFields(
         { name: "서버 주소", value: config.minecraftAddress, inline: true },
         { name: "인증", value: `[로그인 페이지](${config.siteUrl}/login.html)`, inline: true },
-        { name: "경제장", value: `[웹 Economy](${config.siteUrl}/plugins.html#stock-marketplace)`, inline: true },
+        { name: "Stock", value: `[웹 Stock](${config.siteUrl}/stock.html)`, inline: true },
       );
     await interaction.editReply({ embeds: [embed], components: linkButtons() });
     return;

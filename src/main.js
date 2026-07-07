@@ -96,7 +96,7 @@ const STOCK_INFO_META = {
     category: "채굴 자산",
     rank: 1,
     links: [
-      ["Economy", "/plugins.html#stock-marketplace"],
+      ["Stock", "/stock.html"],
       ["규칙 문서", "/rules.html"],
       ["서버 상태", "/status.html"],
       ["경제 분석", "/plugins.html"],
@@ -108,7 +108,7 @@ const STOCK_INFO_META = {
     category: "식량 공급",
     rank: 2,
     links: [
-      ["Economy", "/plugins.html#stock-marketplace"],
+      ["Stock", "/stock.html"],
       ["규칙 문서", "/rules.html"],
       ["서버 상태", "/status.html"],
       ["경제 분석", "/plugins.html"],
@@ -120,7 +120,7 @@ const STOCK_INFO_META = {
     category: "건축 자재",
     rank: 3,
     links: [
-      ["Economy", "/plugins.html#stock-marketplace"],
+      ["Stock", "/stock.html"],
       ["접속 안내", "/join.html"],
       ["서버 상태", "/status.html"],
       ["경제 분석", "/plugins.html"],
@@ -132,7 +132,7 @@ const STOCK_INFO_META = {
     category: "레드스톤 산업",
     rank: 4,
     links: [
-      ["Economy", "/plugins.html#stock-marketplace"],
+      ["Stock", "/stock.html"],
       ["규칙 문서", "/rules.html"],
       ["서버 상태", "/status.html"],
       ["경제 분석", "/plugins.html"],
@@ -403,6 +403,7 @@ const DEFAULT_STOCK_CHART_SETTINGS = {
 const PAGE_LINKS = new Map([
   ["/status.html", "status"],
   ["/plugins.html", "plugins"],
+  ["/stock.html", "stock"],
   ["/notice.html", "notice"],
   ["/community.html", "community"],
   ["/resources.html", "resources"],
@@ -4317,7 +4318,7 @@ function stockInfoMeta(stock) {
     category: "서버 자산",
     rank: 4,
     links: [
-      ["Economy", "/plugins.html#stock-marketplace"],
+      ["Stock", "/stock.html"],
       ["규칙 문서", "/rules.html"],
       ["서버 상태", "/status.html"],
       ["경제 분석", "/plugins.html"],
