@@ -97,9 +97,19 @@
           </div>
           <div class="hero-shade"></div>
           <div class="hero-content">
-            <p class="eyebrow">VELYX Economy Realm</p>
+            <div class="hero-side-copy hero-side-left" aria-hidden="true">
+              <span>Economy</span>
+              <span>Private</span>
+              <span>Realm</span>
+            </div>
+            <div class="hero-side-copy hero-side-right" aria-hidden="true">
+              <span>Guided</span>
+              <span>by</span>
+              <span>Players</span>
+            </div>
+            <p class="eyebrow">VELYX Private Realm</p>
             <h1 id="hero-title">VELYX</h1>
-            <p class="hero-copy">소유하고, 거래하고, 성장하는 프리미엄 경제 야생 서버.</p>
+            <p class="hero-copy">Connection, beyond access.</p>
             <ul class="hero-meta" aria-label="서버 요약">
               <li><span class="hero-meta-dot" aria-hidden="true"></span>Paper 26.1.2</li>
               <li>유저 상점</li>
@@ -115,10 +125,34 @@
                 <span aria-hidden="true">→</span>
                 로그인하고 주소 확인
               </a>
-              <a class="secondary-action" href="/status.html">
-                <span aria-hidden="true">↗</span>
-                상태 보기
-              </a>
+            </div>
+          </div>
+          <div class="hero-footerline" aria-hidden="true">
+            <span>(ST)</span>
+            <span>(EC)</span>
+            <span>(OS)</span>
+          </div>
+        </section>
+
+        <section class="realm-word-section" aria-labelledby="realm-word-title">
+          <div class="realm-word-top" data-reveal>
+            <span>PRIVATE</span>
+            <span>ECONOMY</span>
+            <span>REALM</span>
+          </div>
+          <div class="realm-word-layout">
+            <div class="realm-word-copy" data-reveal>
+              <p class="eyebrow">Philosophy</p>
+              <h2 id="realm-word-title">The heart of VELYX.</h2>
+              <p>
+                접속은 입장일 뿐입니다. VELYX는 사람, 거래, 규칙, 기록이 이어지는
+                작은 공동체로 설계됩니다.
+              </p>
+            </div>
+            <div class="realm-wordmark" aria-hidden="true" data-reveal>
+              <span>VEL</span>
+              <i></i>
+              <span>YX</span>
             </div>
           </div>
         </section>
@@ -126,7 +160,7 @@
         <section class="status-band" id="status" aria-labelledby="status-title">
           <div class="section-heading" data-reveal>
             <p class="eyebrow">실시간 상태</p>
-            <h2 id="status-title"><span>지금 접속 가능한지</span> <span>바로 확인.</span></h2>
+            <h2 id="status-title"><span>Live, at a glance.</span></h2>
           </div>
 
           <div class="status-layout" data-reveal>
@@ -263,7 +297,7 @@
         <section class="economy-section" aria-labelledby="economy-title">
           <div class="section-heading" data-reveal>
             <p class="eyebrow">경제 순환</p>
-            <h2 id="economy-title"><span>야생에서 만든 가치가</span> <span>다음 자산이 되는 서버.</span></h2>
+            <h2 id="economy-title"><span>Value moves here.</span></h2>
             <p class="screen-copy">
               광질, 농사, 사냥, 건축 재료 수집이 전부 시장으로 연결되고, 시장에서 번 돈은 다시
               토지, 상점, 장비, 공동 프로젝트로 돌아갑니다.
@@ -343,7 +377,7 @@
         <section class="feature-section" aria-labelledby="feature-title">
           <div class="section-heading" data-reveal>
             <p class="eyebrow">서버 특징</p>
-            <h2 id="feature-title">경제는 정교하게, 야생은 깊게.</h2>
+            <h2 id="feature-title">Built for momentum.</h2>
           </div>
           <div class="feature-grid" data-reveal>
             <article>
@@ -376,7 +410,7 @@
         <section class="world-section" aria-labelledby="world-title">
           <div class="world-copy" data-reveal>
             <p class="eyebrow">야생 우선</p>
-            <h2 id="world-title">거점은 자산이 되고, 탐험은 시장을 움직입니다.</h2>
+            <h2 id="world-title">A realm with gravity.</h2>
             <p>
               월드는 넓게 열어두되 경제의 중심은 스폰과 유저 상점가에 모입니다. 멀리 나가 희귀
               자원을 캐고, 거점에서 생산하고, 시장에서 팔아 다음 목표를 세우는 구조입니다.
@@ -444,7 +478,7 @@
         <section class="plugin-section" id="plugins" aria-labelledby="plugin-title">
           <div class="section-heading" data-reveal>
             <p class="eyebrow">경제 구성</p>
-            <h2 id="plugin-title">경제 서버에 필요한 축만 선명하게.</h2>
+            <h2 id="plugin-title">Systems, not noise.</h2>
           </div>
           <div class="plugin-grid" data-reveal>
             <article>
@@ -526,10 +560,40 @@
         </section>
         </div>
 
+        <section class="collective-section" id="collective" aria-labelledby="collective-title">
+          <div class="section-heading" data-reveal>
+            <p class="eyebrow">Collective</p>
+            <h2 id="collective-title">The VELYX Collective.</h2>
+            <p class="screen-copy">
+              접속 중인 플레이어와 비어 있는 access slot이 하나의 멤버십 roster로 표시됩니다.
+            </p>
+          </div>
+          <div
+            class="roster-grid"
+            data-player-roster
+            data-reveal
+            aria-live="polite"
+            aria-label="접속 중인 플레이어 roster"
+          >
+            <span class="roster-cell is-empty">ACCESS SLOT</span>
+            <span class="roster-cell is-empty">ACCESS SLOT</span>
+            <span class="roster-cell is-empty">ACCESS SLOT</span>
+            <span class="roster-cell is-empty">ACCESS SLOT</span>
+            <span class="roster-cell is-empty">ACCESS SLOT</span>
+            <span class="roster-cell is-empty">ACCESS SLOT</span>
+            <span class="roster-cell is-empty">ACCESS SLOT</span>
+            <span class="roster-cell is-empty">ACCESS SLOT</span>
+            <span class="roster-cell is-empty">ACCESS SLOT</span>
+            <span class="roster-cell is-empty">ACCESS SLOT</span>
+            <span class="roster-cell is-empty">ACCESS SLOT</span>
+            <span class="roster-cell is-empty">ACCESS SLOT</span>
+          </div>
+        </section>
+
         <section class="rules-section" id="rules" aria-labelledby="rules-title">
           <div data-reveal>
             <p class="eyebrow">규칙</p>
-            <h2 id="rules-title">경제가 망가지지 않는 쪽으로.</h2>
+            <h2 id="rules-title">Fairness first.</h2>
           </div>
           <ol class="rules-list" data-reveal>
             <li>상점, 창고, 보호된 토지는 허락 없이 건드리지 않기.</li>
@@ -560,7 +624,7 @@
             <div class="join-card">
               <img src="/assets/server-icon.png" alt="" />
               <p class="eyebrow">접속</p>
-              <h2 id="join-title">접속해서 첫 거래까지 빠르게.</h2>
+              <h2 id="join-title">Enter VELYX.</h2>
               <div class="address-row">
                 <code>velyx.kr</code>
                 <button type="button" data-copy-address>복사</button>

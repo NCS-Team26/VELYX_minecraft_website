@@ -60,6 +60,7 @@ const latencyLabel = document.querySelector("[data-latency]");
 const statusHealth = document.querySelector("[data-status-health]");
 const playerSummary = document.querySelector("[data-player-summary]");
 const motdLabel = document.querySelector("[data-motd]");
+const playerRoster = document.querySelector("[data-player-roster]");
 const ramSummaries = document.querySelectorAll("[data-ram-summary]");
 const ramPercents = document.querySelectorAll("[data-ram-percent]");
 const ramMeters = document.querySelectorAll("[data-ram-meter]");
@@ -555,6 +556,31 @@ function renderPlayerHeads(data) {
   });
 }
 
+function renderPlayerRoster(data) {
+  if (!playerRoster) return;
+  const list = Array.isArray(data?.players?.list) ? data.players.list : [];
+  const names = list
+    .map((player) => String(player?.name_clean || player?.name || "").trim())
+    .filter(Boolean)
+    .slice(0, 32);
+  const minCells = 24;
+  const cells = [
+    ...names.map((name) => ({ label: name, empty: false })),
+    ...Array.from({ length: Math.max(minCells - names.length, 0) }, () => ({
+      label: "ACCESS SLOT",
+      empty: true,
+    })),
+  ];
+
+  playerRoster.replaceChildren();
+  cells.forEach((slot) => {
+    const cell = document.createElement("span");
+    cell.className = slot.empty ? "roster-cell is-empty" : "roster-cell";
+    cell.textContent = slot.label;
+    playerRoster.appendChild(cell);
+  });
+}
+
 function readPlayerHistory() {
   try {
     const raw = localStorage.getItem(PLAYER_HISTORY_KEY);
@@ -653,6 +679,7 @@ function renderStatusData(data, options = {}) {
   if (playerSummary) playerSummary.textContent = `${playersOnline}명 접속 / ${playersMax} 슬롯`;
   if (motdLabel) motdLabel.textContent = getMotdText(data);
   renderPlayerHeads(data);
+  renderPlayerRoster(data);
   renderPlayerChart();
 }
 
