@@ -926,8 +926,22 @@ function renderStockAuthLink(user = sessionUser || readStoredUser()) {
   stockAuthLink.setAttribute("aria-label", isVerified ? "인증 완료된 캐릭터 정보 보기" : "캐릭터 인증하러 가기");
 }
 
+function applyAddressGate(authed) {
+  // Server address is only revealed to signed-in players.
+  document.querySelectorAll(".address-row code").forEach((code) => {
+    code.textContent = authed ? SERVER_ADDRESS : "로그인 후 공개";
+  });
+  document.querySelectorAll("[data-copy-address]").forEach((btn) => {
+    btn.hidden = !authed;
+  });
+  document.querySelectorAll("[data-login-gate]").forEach((el) => {
+    el.hidden = authed;
+  });
+}
+
 function renderAuthState(user = sessionUser || readStoredUser()) {
   renderStockAuthLink(user);
+  applyAddressGate(Boolean(user));
   adminLinks.forEach((link) => {
     link.hidden = !isAdminUser(user);
   });
