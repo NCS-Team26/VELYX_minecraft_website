@@ -333,6 +333,154 @@ body {
   }
 }
 
+/* Compact VELYX account maison -------------------------------------------
+   Tightens the account surface so login feels like the same premium system as
+   the public pages, without the oversized empty stage from the older layout.
+   ------------------------------------------------------------------------- */
+.auth-page-body {
+  --auth-ink: #11100f;
+  --auth-cream: #f7f3eb;
+  --auth-paper: #fffdf8;
+  --auth-plum: #281620;
+  --auth-green: #123c2d;
+  --auth-gold: #b79a63;
+  background:
+    radial-gradient(circle at 18% 16%, rgba(74, 37, 63, 0.34), transparent 30vw),
+    linear-gradient(120deg, rgba(0, 0, 0, 0.72), rgba(0, 0, 0, 0.38)),
+    image-set(url("/assets/hero-world-960.jpg") 1x, url("/assets/hero-world-1920.jpg") 2x) center / cover fixed,
+    #080706;
+}
+
+.auth-page-body .auth-page {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: clamp(18px, 4vw, 42px);
+}
+
+.auth-page-body .auth-shell,
+.auth-page-body .auth-shell:not(:has(.character-panel:not([hidden]))) {
+  width: min(980px, 100%);
+  display: grid;
+  grid-template-columns: minmax(320px, 440px);
+  justify-content: center;
+  gap: 14px;
+}
+
+.auth-page-body .auth-shell:has(.character-panel:not([hidden])) {
+  width: min(1180px, 100%);
+  grid-template-columns: minmax(320px, 420px) minmax(0, 1fr);
+}
+
+.auth-page-body .auth-panel,
+.auth-page-body .character-panel {
+  border-radius: 22px;
+  border-color: rgba(255, 253, 248, 0.18);
+  background:
+    linear-gradient(145deg, rgba(255, 253, 248, 0.94), rgba(247, 243, 235, 0.84)),
+    var(--auth-paper);
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.34);
+}
+
+.auth-page-body .auth-panel {
+  padding: clamp(24px, 3.4vw, 36px);
+}
+
+.auth-page-body .auth-brand {
+  margin-bottom: 22px;
+}
+
+.auth-page-body .auth-brand img {
+  width: 42px;
+  height: 42px;
+}
+
+.auth-page-body .auth-heading {
+  margin-bottom: 18px;
+}
+
+.auth-page-body .auth-heading h1,
+.auth-page-body .character-heading h2 {
+  font-size: clamp(38px, 5vw, 58px);
+  line-height: 0.98;
+}
+
+.auth-page-body .auth-heading p {
+  max-width: 34ch;
+  margin-top: 12px;
+  font-size: 0.94rem;
+}
+
+.auth-page-body .auth-form {
+  gap: 10px;
+}
+
+.auth-page-body .auth-form label,
+.auth-page-body .auth-profile,
+.auth-page-body .auth-secondary-actions,
+.auth-page-body .auth-message,
+.auth-page-body .stock-trader-cta,
+.auth-page-body .stock-trader-quote {
+  border-radius: 16px;
+  background: rgba(17, 16, 15, 0.035);
+}
+
+.auth-page-body .auth-form input,
+.auth-page-body .character-form input,
+.auth-page-body .stock-trader input,
+.auth-page-body .stock-trader select {
+  min-height: 46px;
+  border-radius: 12px;
+}
+
+.auth-page-body .auth-primary,
+.auth-page-body .auth-ghost,
+.auth-page-body .auth-secondary-actions button,
+.auth-page-body .google-login-fallback,
+.auth-page-body .stock-trader-link,
+.auth-page-body .stock-trader-actions button {
+  min-height: 44px;
+  border-radius: 999px;
+}
+
+.auth-page-body .auth-primary {
+  border-color: var(--auth-plum);
+  background: var(--auth-plum);
+}
+
+.auth-page-body .auth-secondary-actions {
+  gap: 8px;
+  padding: 8px;
+}
+
+.auth-page-body .character-panel {
+  max-height: calc(100svh - 48px);
+  overflow: auto;
+  padding: clamp(20px, 2.4vw, 30px);
+}
+
+@media (max-width: 920px) {
+  .auth-page-body .auth-shell:has(.character-panel:not([hidden])) {
+    grid-template-columns: 1fr;
+    width: min(620px, 100%);
+  }
+
+  .auth-page-body .character-panel {
+    max-height: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .auth-page-body .auth-page {
+    padding: 10px;
+  }
+
+  .auth-page-body .auth-panel,
+  .auth-page-body .character-panel {
+    border-radius: 18px;
+  }
+}
+
 /* Compact VELYX membership -------------------------------------------------
    The login screen now mirrors the main site without the oversized empty
    stage: centered, dense, and built around one precise account panel.
@@ -364,8 +512,8 @@ body {
 
 .auth-shell,
 .auth-shell:not(:has(.character-panel:not([hidden]))) {
-  width: min(372px, calc(100vw - 20px));
-  max-width: calc(100vw - 20px);
+  width: min(330px, calc(100vw - 32px));
+  max-width: calc(100vw - 32px);
   min-height: auto;
   display: grid;
   gap: 12px;
@@ -382,7 +530,7 @@ body {
 .auth-panel,
 .character-panel {
   width: 100%;
-  max-width: calc(100vw - 20px);
+  max-width: calc(100vw - 32px);
   box-sizing: border-box;
   border: 1px solid rgba(255, 253, 248, 0.16);
   border-radius: 8px;
