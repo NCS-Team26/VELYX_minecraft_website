@@ -63,6 +63,7 @@ const roleName = process.env.AUTH_LAMBDA_ROLE || `${stackName}-lambda-role`;
 const functionName = process.env.AUTH_LAMBDA_FUNCTION || `${stackName}-api`;
 const apiName = process.env.AUTH_API_NAME || `${stackName}-http-api`;
 const lambdaSource = join(process.cwd(), "server", "auth", "index.mjs");
+const lambdaRuntime = process.env.AUTH_LAMBDA_RUNTIME || "nodejs22.x";
 
 const sts = new STSClient({ region });
 const dynamodb = new DynamoDBClient({ region });
@@ -448,7 +449,7 @@ async function ensureFunction(roleArn) {
     await sendLambdaWhenReady(
       () => new UpdateFunctionConfigurationCommand({
         FunctionName: functionName,
-        Runtime: "nodejs20.x",
+        Runtime: lambdaRuntime,
         Handler: "index.handler",
         Timeout: 10,
         MemorySize: 128,
@@ -463,7 +464,7 @@ async function ensureFunction(roleArn) {
     await lambda.send(
       new CreateFunctionCommand({
         FunctionName: functionName,
-        Runtime: "nodejs20.x",
+        Runtime: lambdaRuntime,
         Handler: "index.handler",
         Role: roleArn,
         Code: {

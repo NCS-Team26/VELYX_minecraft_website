@@ -30,10 +30,11 @@ jobs:
       SITE_BUCKET: menhera-minecraft-server-website
       SITE_DOMAIN: www.velyx.kr
       AUTH_STACK_NAME: nfoifsb-auth
-      AUTH_ALLOWED_ORIGINS: ${{ secrets.AUTH_ALLOWED_ORIGINS }}
+      AUTH_ALLOWED_ORIGINS: https://www.velyx.kr,https://velyx.kr,http://127.0.0.1:5173,http://localhost:5173
       AUTH_PEPPER: ${{ secrets.AUTH_PEPPER }}
       AUTH_EMAIL_FROM: ${{ secrets.AUTH_EMAIL_FROM }}
-      AUTH_APP_BASE_URL: ${{ secrets.AUTH_APP_BASE_URL }}
+      AUTH_APP_BASE_URL: https://www.velyx.kr
+      AUTH_LAMBDA_RUNTIME: nodejs22.x
       GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID || secrets.VITE_GOOGLE_CLIENT_ID }}
       VITE_GOOGLE_CLIENT_ID: ${{ secrets.VITE_GOOGLE_CLIENT_ID }}
       VITE_AUTH_API_BASE: ${{ secrets.VITE_AUTH_API_BASE }}
