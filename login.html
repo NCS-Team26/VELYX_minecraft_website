@@ -32,6 +32,17 @@
             <button class="auth-ghost" type="button" data-signout>로그아웃</button>
           </div>
 
+          <div class="auth-server-card" data-server-card hidden>
+            <span class="auth-server-label">접속 서버 주소</span>
+            <div class="auth-server-row">
+              <code data-server-address>velyx.kr</code>
+              <button class="auth-ghost" type="button" data-copy-server>주소 복사</button>
+            </div>
+            <p class="auth-server-hint" data-server-hint>
+              Minecraft Java 멀티플레이 서버 주소에 그대로 입력하세요.
+            </p>
+          </div>
+
           <form class="auth-form" data-auth-view="login" data-login-form>
             <label>
               <span>이메일</span>

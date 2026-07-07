@@ -83,6 +83,55 @@
   color-scheme: dark;
 }
 
+/* --- Kill leftover ivory surfaces on interior pages ----------------------
+   The community composer, notice/resources/admin panels, and form controls
+   draw their light backgrounds + dark text from the base sheet's ivory palette
+   tokens (scoped to the page-body classes). Flip those tokens dark so every
+   component referencing them inverts to the dark skin at once — this is what
+   was leaving white cards with invisible grey text. */
+body,
+.public-page-body,
+.home-page-body,
+.status-page-body,
+.stock-terminal-body,
+[class*="page-body"] {
+  --vx-cloud: var(--vlx-panel) !important;
+  --vx-cloud-2: var(--vlx-panel) !important;
+  --vx-porcelain: var(--vlx-panel) !important;
+  --vx-ivory: var(--vlx-black) !important;
+  --vx-ivory-2: var(--vlx-panel-2) !important;
+  --vx-ink: var(--vlx-ivory) !important;
+  --vx-ink-soft: var(--vlx-ivory-soft) !important;
+  --vx-amaranth: var(--vlx-emerald) !important;
+  --vx-amaranth-soft: var(--vlx-emerald-soft) !important;
+  --vx-mocha: var(--vlx-ivory-soft) !important;
+  --vx-mocha-deep: var(--vlx-ivory-faint) !important;
+  --text-soft: var(--vlx-ivory-soft) !important;
+  --text-faint: var(--vlx-ivory-faint) !important;
+  --card: var(--vlx-panel) !important;
+  --card-solid: var(--vlx-panel) !important;
+}
+
+/* Form controls site-wide: dark field, legible light text */
+input,
+select,
+textarea {
+  background: var(--vlx-black-2) !important;
+  color: var(--vlx-ivory) !important;
+  border: 1px solid var(--vlx-hair) !important;
+  border-radius: 2px !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--vlx-ivory-faint) !important;
+}
+
+select option {
+  background: var(--vlx-black-2);
+  color: var(--vlx-ivory);
+}
+
 /* --- Base canvas: deep near-black with a soft top vignette ---------------- */
 html {
   background: var(--vlx-black) !important;
@@ -95,9 +144,52 @@ body {
   line-height: 1.72;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  background: var(--vlx-black) !important;
+}
+
+/* Kill the base sheet's vertical column-grid painted on #app (the "lines"). */
+#app {
+  position: relative;
+  z-index: 1;
+  background: transparent !important;
+}
+
+/* Living ambient backdrop: soft colored light slowly drifting behind content
+   so the page reads warm and alive, not a flat drab black. Kept low-opacity
+   and blurred — present, never garish. Sits between body bg and #app. */
+body::before {
+  content: "" !important;
+  display: block !important;
+  position: fixed;
+  inset: -25%;
+  z-index: 0;
+  pointer-events: none;
   background:
-    radial-gradient(1200px 620px at 50% -8%, rgba(221, 221, 213, 0.05), transparent 70%),
-    var(--vlx-black) !important;
+    radial-gradient(32% 36% at 18% 16%, rgba(74, 158, 115, 0.22), transparent 68%),
+    radial-gradient(30% 34% at 84% 26%, rgba(86, 132, 196, 0.16), transparent 70%),
+    radial-gradient(40% 42% at 70% 86%, rgba(201, 161, 90, 0.16), transparent 72%),
+    radial-gradient(38% 40% at 32% 78%, rgba(120, 82, 168, 0.12), transparent 72%);
+  filter: blur(30px);
+  will-change: transform;
+  animation: vlxAmbientDrift 30s ease-in-out infinite alternate;
+}
+
+@keyframes vlxAmbientDrift {
+  0% {
+    transform: translate3d(-2%, -1.5%, 0) scale(1.04);
+  }
+  50% {
+    transform: translate3d(2.5%, 1%, 0) scale(1.12);
+  }
+  100% {
+    transform: translate3d(-1%, 2.5%, 0) scale(1.08);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::before {
+    animation: none;
+  }
 }
 
 /* Kill the old pixel drop-shadow text everywhere — premium type is clean */
@@ -582,6 +674,345 @@ code {
 .auto-login-row {
   background: transparent !important;
   border-color: var(--vlx-hair) !important;
+}
+
+/* ==========================================================================
+   Interior-page components that hardcode ivory backgrounds + dark text.
+   These don't read the palette tokens, so each family is darkened explicitly
+   (surface dark, descendant text light) to kill white-card / invisible-text.
+   ========================================================================== */
+
+/* Community — post composer + post cards */
+.user-post-workspace,
+.user-post-head,
+.user-post-form,
+.user-post-list,
+.user-post-card,
+.user-post-wide,
+.user-post-card header,
+.public-page-body .user-post-workspace,
+.public-page-body .user-post-list article {
+  background: var(--vlx-panel) !important;
+  border-color: var(--vlx-hair) !important;
+}
+
+.user-post-workspace :where(p, span, strong, small, label, a, div, li, time, h1, h2, h3, h4),
+.user-post-card :where(p, span, strong, small, label, a, div, li, time) {
+  color: var(--vlx-ivory-soft) !important;
+  -webkit-text-fill-color: var(--vlx-ivory-soft) !important;
+}
+
+.user-post-card strong,
+.user-post-head strong,
+.user-post-card header strong {
+  color: var(--vlx-ivory) !important;
+  -webkit-text-fill-color: var(--vlx-ivory) !important;
+}
+
+/* Stock / economy terminal — panels, ticker, tabs, grids, chart stage */
+.stock-ticker,
+.stock-panel,
+.stock-tabs button,
+.stock-chart-stage,
+.stock-performance-grid,
+.stock-quote-grid,
+.stock-quote-grid span,
+.stock-order-field,
+.stock-order-field input,
+.stock-card,
+.stock-book,
+.stock-trades {
+  background: var(--vlx-panel) !important;
+  border-color: var(--vlx-hair) !important;
+  color: var(--vlx-ivory) !important;
+}
+
+.stock-panel :where(span, small, label, p, th, td, li, div),
+.stock-quote-grid :where(span, small, label) {
+  color: var(--vlx-ivory-soft) !important;
+  -webkit-text-fill-color: var(--vlx-ivory-soft) !important;
+}
+
+.stock-panel strong,
+.stock-panel h1, .stock-panel h2, .stock-panel h3,
+.stock-ticker strong {
+  color: var(--vlx-ivory) !important;
+  -webkit-text-fill-color: var(--vlx-ivory) !important;
+}
+
+/* Active tab keeps a light highlight — force its text dark (light-on-light guard) */
+.stock-tabs button.is-active,
+button.is-active {
+  background: var(--vlx-ivory) !important;
+  color: var(--vlx-black) !important;
+  -webkit-text-fill-color: var(--vlx-black) !important;
+  border-color: var(--vlx-ivory) !important;
+}
+
+/* Notice / Resources / section pages — .category-* + .resource-list cards */
+.category-board,
+.category-board article,
+.category-grid article,
+.category-feature,
+.resource-list a,
+.resource-list article,
+.public-page-body .category-board,
+.public-page-body .category-board article,
+.public-page-body .category-feature {
+  background: var(--vlx-panel) !important;
+  border-color: var(--vlx-hair) !important;
+}
+
+.category-section,
+.category-main {
+  background: transparent !important;
+}
+
+.category-feature :where(p, span, strong, small, li, a, time, div, h1, h2, h3, h4),
+.category-board :where(p, span, strong, small, li, a, time),
+.category-grid :where(p, span, small, li, a),
+.resource-list :where(p, span, small, li, a, div) {
+  color: var(--vlx-ivory-soft) !important;
+  -webkit-text-fill-color: var(--vlx-ivory-soft) !important;
+}
+
+.category-feature strong,
+.category-feature h2, .category-feature h3,
+.category-board strong,
+.category-grid strong,
+.resource-list strong,
+.resource-list a > strong {
+  color: var(--vlx-ivory) !important;
+  -webkit-text-fill-color: var(--vlx-ivory) !important;
+}
+
+/* Market tag chips — emerald on a soft emerald tint (was low-contrast) */
+.market-list em,
+.market-list article em {
+  background: var(--vlx-emerald-soft) !important;
+  color: var(--vlx-emerald) !important;
+  -webkit-text-fill-color: var(--vlx-emerald) !important;
+  border-radius: 2px;
+  padding: 3px 8px;
+  font-style: normal;
+}
+
+/* ==========================================================================
+   Glass & light polish — frosted translucent surfaces with a top gloss and a
+   soft drop glow. Because the cards are translucent, the animated ambient
+   colour behind #app bleeds through faintly: monochrome, but alive with light.
+   ========================================================================== */
+.status-panel,
+.dashboard-card,
+.join-card,
+.market-board,
+.market-list article,
+.stats-inner article,
+.economy-grid article,
+.feature-grid article,
+.plugin-grid article,
+.rules-tools article,
+.join-steps article,
+.detail-grid article,
+.economy-stock-teaser,
+.rules-list li,
+.user-post-workspace,
+.user-post-card,
+.stock-panel,
+.stock-ticker,
+.category-feature,
+.category-board article,
+.resource-list a,
+.auth-panel {
+  background-color: rgba(20, 21, 24, 0.58) !important;
+  background-image: linear-gradient(
+    152deg,
+    rgba(255, 255, 255, 0.06),
+    rgba(255, 255, 255, 0.012) 42%,
+    rgba(255, 255, 255, 0) 68%
+  ) !important;
+  backdrop-filter: blur(16px) saturate(135%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(135%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.09),
+    0 22px 60px rgba(0, 0, 0, 0.4) !important;
+}
+
+.status-panel:hover,
+.dashboard-card:hover,
+.economy-grid article:hover,
+.feature-grid article:hover,
+.plugin-grid article:hover,
+.market-list article:hover {
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 26px 72px rgba(0, 0, 0, 0.46),
+    0 0 24px rgba(74, 158, 115, 0.16) !important;
+}
+
+/* Primary action: soft ivory light halo */
+.primary-action,
+.hero .primary-action,
+[data-copy-address],
+.stock-trade-link,
+.auth-primary {
+  box-shadow: 0 8px 30px rgba(230, 230, 223, 0.16) !important;
+}
+
+/* Ghost/secondary buttons: faint frosted glass */
+.secondary-action,
+.hero .secondary-action,
+.nav-login {
+  background: rgba(255, 255, 255, 0.045) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+}
+
+/* Live status dot: gentle emerald glow */
+.status-dot,
+[data-status-dot],
+.hero-meta-dot {
+  box-shadow: 0 0 10px rgba(74, 158, 115, 0.7), 0 0 0 3px rgba(74, 158, 115, 0.16) !important;
+}
+
+/* Eyebrow hairlines get a faint glow so the accent reads as light, not ink */
+.eyebrow::before,
+.eyebrow::after {
+  box-shadow: 0 0 8px rgba(230, 230, 223, 0.25);
+}
+
+/* Logged-in server-address card (shown after auth) */
+.auth-server-card {
+  margin-top: 18px;
+  padding: 16px 18px;
+  background-color: rgba(20, 21, 24, 0.58) !important;
+  background-image: linear-gradient(152deg, rgba(255, 255, 255, 0.06), transparent 60%) !important;
+  border: 1px solid var(--vlx-hair) !important;
+  border-radius: 4px;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.auth-server-label {
+  display: block;
+  color: var(--vlx-ivory-faint) !important;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 11px;
+  margin-bottom: 9px;
+}
+
+.auth-server-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.auth-server-row code {
+  flex: 1;
+  font-family: var(--fnt-display);
+  font-size: 19px;
+  color: var(--vlx-ivory) !important;
+  letter-spacing: 0.04em;
+  background: transparent;
+}
+
+.auth-server-row .auth-ghost {
+  border: 1px solid var(--vlx-hair-strong) !important;
+  padding: 7px 14px;
+  white-space: nowrap;
+}
+
+.auth-server-hint {
+  color: var(--vlx-ivory-faint) !important;
+  font-size: 12px;
+  margin: 10px 0 0;
+}
+
+/* ==========================================================================
+   Logged-in player dashboard (character / stats / web-actions / trader /
+   inventory). Only renders after auth, so it was the big ivory area with
+   invisible light text. Dark the whole family; keep solid buttons dark-on-light.
+   ========================================================================== */
+.character-panel,
+.character-heading,
+.character-form,
+.character-stats,
+.character-stats > div,
+.web-actions,
+.web-actions-heading,
+.web-action-grid,
+.web-action-button,
+.web-action-message,
+.stock-trader,
+.stock-trader-heading,
+.stock-trader-quote,
+.stock-trader-cta,
+.stock-trader-message,
+.inventory-toolbar,
+.inventory-tools,
+.inventory-view-switch,
+.inventory-grid,
+.inventory-slot,
+.inventory-empty {
+  background-color: rgba(20, 21, 24, 0.55) !important;
+  background-image: none !important;
+  border-color: var(--vlx-hair) !important;
+  color: var(--vlx-ivory) !important;
+}
+
+.character-panel :where(p, span, small, label, li, a, time, em, div),
+.character-panel :where(h1, h2, h3, h4, strong) {
+  color: var(--vlx-ivory-soft) !important;
+  -webkit-text-fill-color: var(--vlx-ivory-soft) !important;
+}
+
+.character-panel :where(h1, h2, h3, strong) {
+  color: var(--vlx-ivory) !important;
+  -webkit-text-fill-color: var(--vlx-ivory) !important;
+}
+
+/* Non-primary buttons -> frosted ghost with light text */
+.character-panel button:not(.auth-primary):not(.stock-trader-link):not(.is-active),
+.character-panel .auth-ghost {
+  background-color: rgba(255, 255, 255, 0.045) !important;
+  background-image: none !important;
+  color: var(--vlx-ivory) !important;
+  -webkit-text-fill-color: var(--vlx-ivory) !important;
+  border: 1px solid var(--vlx-hair) !important;
+}
+
+/* Solid ivory CTAs: give them the light fill + dark text (they aren't in the
+   primary-button group — .stock-trader-link differs from .stock-trade-link). */
+.character-panel .auth-primary,
+.character-panel .stock-trader-link {
+  background: var(--vlx-ivory) !important;
+  background-image: none !important;
+  border: 1px solid var(--vlx-ivory) !important;
+}
+
+.character-panel .auth-primary,
+.character-panel .auth-primary *,
+.character-panel .stock-trader-link,
+.character-panel .stock-trader-link * {
+  color: var(--vlx-black) !important;
+  -webkit-text-fill-color: var(--vlx-black) !important;
+}
+
+/* Auth panel identity text (brand wordmark + profile name/email) */
+.auth-brand span,
+.auth-profile [data-auth-name],
+.auth-profile strong {
+  color: var(--vlx-ivory) !important;
+  -webkit-text-fill-color: var(--vlx-ivory) !important;
+}
+
+.auth-profile [data-auth-email],
+.auth-profile span {
+  color: var(--vlx-ivory-soft) !important;
+  -webkit-text-fill-color: var(--vlx-ivory-soft) !important;
 }
 
 /* --- Mobile nav sheet ----------------------------------------------------- */
