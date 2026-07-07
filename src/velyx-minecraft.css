@@ -1,327 +1,363 @@
 /* ==========================================================================
-   VELYX Minecraft Skin  (final visual layer)
+   VELYX — Premium Minimal Skin  (final visual layer)
    --------------------------------------------------------------------------
-   Loaded AFTER styles.css + velyx-redesign.css. It re-skins the previous
-   "luxury exchange" look into an authentic Minecraft GUI aesthetic:
-   pixel type, beveled inventory panels, hotbar-style buttons, block palette.
+   Loaded AFTER styles.css + velyx-redesign.css. Re-skins the site into a
+   restrained, editorial, high-end look inspired by awwwards/Monolog:
+   a two-tone near-black + warm off-white palette, statement typography,
+   generous whitespace, hairline borders, and clean flat surfaces.
 
-   Strategy: most reach comes from redefining the CSS vars the redesign layer
-   already consumes (fonts + surface colors). Targeted rules then add the
-   pixel bevels, hard corners and drop-shadow text that read as "Minecraft".
+   Readability is the priority: body copy is a crisp variable sans (Pretendard),
+   NOT a pixel font, at high contrast. The voxel hero and a whisper of emerald
+   keep the Minecraft-economy identity without the chunky game-UI treatment.
+
+   Strategy note: Vite emits this file's <link> BEFORE main.css (it is shared
+   by two entries), so shared design tokens + a few hardcoded colors in the base
+   sheets are overridden with !important to win regardless of stylesheet order.
    ========================================================================== */
 
-/* Galmuri: open-source Korean + Latin pixel font. Press Start 2P: Latin display. */
-@import url("https://cdn.jsdelivr.net/gh/quiple/galmuri/dist/galmuri.css");
-@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable.css");
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap");
 
 :root {
-  /* Minecraft block palette */
-  --mc-grass: #74b43c;
-  --mc-grass-2: #57902b;
-  --mc-dirt: #79553a;
-  --mc-dirt-2: #5a3f2a;
-  --mc-stone: #8f8f97;
-  --mc-stone-2: #56565c;
-  --mc-bg: #16161b;
-  --mc-bg-2: #1e1e26;
-  --mc-panel: #2b2b33;
-  --mc-panel-2: #34343d;
-  --mc-slot: #1a1a20;
-  --mc-ink: #ffffff;
-  --mc-ink-soft: #c7c7d1;
-  --mc-ink-faint: rgba(255, 255, 255, 0.5);
-  --mc-gold: #ffcf4a;
-  --mc-diamond: #4fe4dc;
-  --mc-red: #e0533d;
-  --mc-line: #05050a;
+  /* Two-tone premium palette */
+  --vlx-black: #080807;
+  --vlx-black-2: #0d0d0c;
+  --vlx-panel: #111110;
+  --vlx-panel-2: #161615;
+  --vlx-ivory: #e6e6df; /* warm off-white — the single "light" */
+  --vlx-ivory-soft: rgba(230, 230, 223, 0.82); /* body copy — high contrast */
+  --vlx-ivory-faint: rgba(230, 230, 223, 0.56); /* labels/eyebrows */
+  --vlx-ivory-ghost: rgba(230, 230, 223, 0.16);
+  --vlx-hair: rgba(221, 221, 213, 0.1); /* hairline border */
+  --vlx-hair-strong: rgba(221, 221, 213, 0.22);
+  --vlx-emerald: #4a9e73; /* whisper of Minecraft-economy identity */
+  --vlx-emerald-soft: rgba(74, 158, 115, 0.16);
 
-  /* Re-skin the fonts the redesign layer already references everywhere.
-     !important is required: Vite emits this file's <link> BEFORE main.css, so
-     without it the (later) redesign :root would win these shared tokens. */
-  --vx-font-sans:
-    "Galmuri11", "Galmuri9", "Apple SD Gothic Neo", "Malgun Gothic",
-    ui-sans-serif, system-ui, sans-serif !important;
-  --vx-font-serif:
-    "Galmuri14", "Galmuri11", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif !important;
-  --vx-font-latin: "Press Start 2P", "Galmuri14", monospace !important;
-  --vx-font-mono: "GalmuriMono11", "GalmuriMono", ui-monospace, monospace !important;
+  --fnt-sans:
+    "Pretendard Variable", Pretendard, "Apple SD Gothic Neo",
+    -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --fnt-display: "Space Grotesk", "Pretendard Variable", Pretendard, sans-serif;
 
-  /* Re-skin the surface tokens the redesign layer already references */
-  --vx-radius: 0px !important;
-  --text: var(--mc-ink) !important;
-  --text-soft: var(--mc-ink-soft) !important;
-  --text-faint: var(--mc-ink-faint) !important;
-  --bg-solid: var(--mc-bg) !important;
-  --card: var(--mc-panel) !important;
-  --card-solid: var(--mc-panel) !important;
-  --border: var(--mc-line) !important;
-  --nav-bg: #191920 !important;
-  --nav-border: var(--mc-line) !important;
-  --chip: rgba(255, 255, 255, 0.08) !important;
-  --inset: var(--mc-slot) !important;
-  --theme-accent: var(--mc-grass) !important;
-  --theme-accent-soft: rgba(116, 180, 60, 0.16) !important;
-  --theme-accent-border: var(--mc-grass-2) !important;
-  --theme-accent-glow: rgba(116, 180, 60, 0.28) !important;
+  /* Re-skin the fonts the base sheets already reference everywhere.
+     !important required (this file loads before main.css). */
+  --vx-font-sans: var(--fnt-sans) !important;
+  --vx-font-serif: var(--fnt-sans) !important;
+  --vx-font-latin: var(--fnt-display) !important;
+  --vx-font-mono: var(--fnt-display) !important;
 
-  /* Re-skin the base palette tokens too: headings resolve to --vx-ink and card
-     labels to --vx-green, both of which were dark ink for the old ivory look.
-     Flipping them here fixes every heading/label at once on the dark skin. */
-  --vx-ink: var(--mc-ink) !important;
-  --vx-ink-soft: var(--mc-ink-soft) !important;
-  --vx-green: var(--mc-grass) !important;
-  --vx-green-2: var(--mc-grass-2) !important;
+  /* Surface + palette tokens the base sheets consume */
+  --vx-radius: 2px !important;
+  --text: var(--vlx-ivory) !important;
+  --text-soft: var(--vlx-ivory-soft) !important;
+  --text-faint: var(--vlx-ivory-faint) !important;
+  --bg-solid: var(--vlx-black) !important;
+  --card: var(--vlx-panel) !important;
+  --card-solid: var(--vlx-panel) !important;
+  --border: var(--vlx-hair) !important;
+  --nav-bg: rgba(8, 8, 7, 0.72) !important;
+  --nav-border: var(--vlx-hair) !important;
+  --chip: rgba(221, 221, 213, 0.06) !important;
+  --inset: var(--vlx-black-2) !important;
+  --theme-accent: var(--vlx-emerald) !important;
+  --theme-accent-soft: var(--vlx-emerald-soft) !important;
+  --theme-accent-border: rgba(74, 158, 115, 0.4) !important;
+  --theme-accent-glow: rgba(74, 158, 115, 0.22) !important;
+
+  /* Base palette tokens: headings resolve to --vx-ink, labels to --vx-green */
+  --vx-ink: var(--vlx-ivory) !important;
+  --vx-ink-soft: var(--vlx-ivory-soft) !important;
+  --vx-green: var(--vlx-emerald) !important;
+  --vx-green-2: var(--vlx-emerald) !important;
+  --vx-gold: var(--vlx-ivory) !important;
 }
 
-/* Keep the skin identical regardless of the light/dark toggle — Minecraft is
-   one strong look. (ponytail: single skin; wire dual-theme later if wanted.) */
 :root,
 :root[data-theme="dark"],
 :root[data-theme="light"] {
-  --text: var(--mc-ink) !important;
-  --text-soft: var(--mc-ink-soft) !important;
-  --bg-solid: var(--mc-bg) !important;
-  --card: var(--mc-panel) !important;
-  --card-solid: var(--mc-panel) !important;
-  --nav-bg: #191920 !important;
+  --text: var(--vlx-ivory) !important;
+  --text-soft: var(--vlx-ivory-soft) !important;
+  --bg-solid: var(--vlx-black) !important;
+  --card: var(--vlx-panel) !important;
+  --card-solid: var(--vlx-panel) !important;
+  --nav-bg: rgba(8, 8, 7, 0.72) !important;
   color-scheme: dark;
 }
 
-/* --- Base: dark stone room with a faint pixel grid ------------------------ */
+/* --- Base canvas: deep near-black with a soft top vignette ---------------- */
 html {
-  background: var(--mc-bg) !important;
+  background: var(--vlx-black) !important;
 }
 
 body {
-  color: var(--mc-ink) !important;
-  font-family: var(--vx-font-sans);
+  color: var(--vlx-ivory) !important;
+  font-family: var(--fnt-sans);
   font-weight: 400;
-  line-height: 1.65;
+  line-height: 1.72;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
   background:
-    linear-gradient(180deg, rgba(22, 22, 27, 0.9), rgba(16, 16, 21, 0.97)),
-    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.02) 0 1px, transparent 1px 32px),
-    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.02) 0 1px, transparent 1px 32px),
-    var(--mc-bg) !important;
+    radial-gradient(1200px 620px at 50% -8%, rgba(221, 221, 213, 0.05), transparent 70%),
+    var(--vlx-black) !important;
+}
+
+/* Kill the old pixel drop-shadow text everywhere — premium type is clean */
+h1, h2, h3, h4, h5,
+.eyebrow, .brand span,
+.primary-action, .secondary-action, .nav-login {
+  text-shadow: none !important;
 }
 
 ::selection {
-  color: #0e0e12;
-  background: var(--mc-grass);
+  color: var(--vlx-black);
+  background: var(--vlx-ivory);
 }
 
 :focus-visible {
-  outline: 3px solid var(--mc-grass);
-  outline-offset: 3px;
+  outline: 1px solid var(--vlx-ivory);
+  outline-offset: 4px;
 }
 
-/* Crunch every raster surface so nothing looks anti-aliased/soft */
-img,
-canvas,
-.brand img,
-.footer-brand img,
-.player-heads img,
-[data-player-heads] img {
-  image-rendering: pixelated;
+/* --- Typography: statement headings, readable body ----------------------- */
+h1, h2, h3, h4,
+.section-heading h1, .section-heading h2, .section-heading h3,
+.rules-section h1, .rules-section h2,
+.world-copy h2, .join-card h1, .join-card h2,
+.market-copy h3, .economy-stock-teaser h3 {
+  font-family: var(--fnt-sans) !important;
+  color: var(--vlx-ivory) !important;
+  -webkit-text-fill-color: var(--vlx-ivory) !important;
+  font-weight: 600 !important;
+  line-height: 1.16;
+  letter-spacing: -0.018em !important;
 }
 
-/* Kill soft corners globally; pixel GUIs are square */
-a,
-button,
-article,
-section,
-input,
-select,
-textarea,
-code,
-figure,
-img,
-.status-panel,
-.dashboard-card,
-.join-card,
-.market-board,
-.market-list article,
-[class*="-grid"] article,
-[class*="-card"],
-.meter,
-.meter span {
-  border-radius: 0 !important;
+.section-heading h1, .section-heading h2,
+.rules-section h1, .rules-section h2, .world-copy h2 {
+  font-weight: 650 !important;
 }
 
-/* --- Pixel type + Minecraft drop-shadow ---------------------------------- */
-h1,
-h2,
-h3,
-h4,
-.eyebrow,
-.brand span,
-.nav-links a,
-.primary-action,
-.secondary-action,
-.nav-login,
-.dashboard-card strong,
-.status-panel strong {
-  font-family: var(--vx-font-serif);
-  letter-spacing: 0 !important;
-  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.55);
-}
-
-h1,
-h2,
-h3,
-h4,
-.section-heading h1,
-.section-heading h2,
-.section-heading h3,
-.rules-section h1,
-.rules-section h2,
+/* Headings that sit in a NARROW column must be smaller, or Korean keep-all
+   drops one word per line. Cap them so they wrap to clean 2-3 word lines. */
 .world-copy h2,
-.join-card h1,
-.join-card h2,
 .market-copy h3,
-.economy-stock-teaser h3 {
-  /* base sheet hardcodes a near-black -webkit-text-fill-color; override both */
-  color: var(--mc-ink) !important;
-  -webkit-text-fill-color: var(--mc-ink) !important;
-  line-height: 1.35;
-  font-weight: 400;
+.economy-stock-teaser h3,
+.join-card h1,
+.join-card h2 {
+  font-size: clamp(28px, 3.1vw, 44px) !important;
+  line-height: 1.24 !important;
 }
 
+/* Body copy — high contrast, roomy, never pixel */
+p, li, .screen-copy, .status-note,
+.world-copy p:not(.eyebrow), .market-copy p:not(.eyebrow),
+.economy-stock-teaser p:not(.eyebrow), .dashboard-card p,
+.rules-tools p, .rules-list li, .join-steps p, .join-note,
+p[data-motd] {
+  color: var(--vlx-ivory-soft) !important;
+  font-family: var(--fnt-sans) !important;
+  font-weight: 400;
+  line-height: 1.72;
+}
+
+/* Line-breaking: Korean must break only at spaces (keep-all), never mid-word.
+   text-wrap balances headings and avoids single-word orphan lines in copy. */
+h1, h2, h3, h4, h5,
+.section-heading h1, .section-heading h2, .section-heading h3,
+.hero h1, .hero-copy, .world-copy h2, .join-card h2,
+.market-copy h3, .economy-stock-teaser h3 {
+  word-break: keep-all !important;
+  overflow-wrap: break-word;
+  text-wrap: balance;
+}
+
+p, li, .screen-copy, .status-note, .dashboard-card p,
+.rules-list li, .join-steps p, .hero-copy {
+  word-break: keep-all !important;
+  overflow-wrap: break-word;
+  text-wrap: pretty;
+}
+
+/* Eyebrows / kickers — the premium tell: uppercase, wide tracking */
 .eyebrow {
-  color: var(--mc-grass);
-  font-family: var(--vx-font-sans);
-  font-size: 11px;
+  color: var(--vlx-ivory-faint) !important;
+  font-family: var(--fnt-sans) !important;
+  font-weight: 500;
+  font-size: 11px !important;
+  text-transform: uppercase;
+  letter-spacing: 0.34em !important;
 }
 
 .eyebrow::before,
 .eyebrow::after {
-  background: var(--mc-grass-2) !important;
+  background: var(--vlx-hair-strong) !important;
 }
 
-/* --- Top nav = dark hotbar with a grass underline ------------------------ */
+/* Small card labels — muted uppercase, monochrome */
+.detail-grid article span,
+.dashboard-card span,
+.plugin-grid span,
+.economy-grid span,
+.market-list article span,
+.rules-tools article > span,
+.join-steps article > span,
+.stats-inner article span {
+  color: var(--vlx-ivory-faint) !important;
+  -webkit-text-fill-color: var(--vlx-ivory-faint) !important;
+  font-family: var(--fnt-sans) !important;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.16em !important;
+}
+
+/* Numbers / metrics — Space Grotesk, tabular, ivory */
+[data-player-count], [data-latency], [data-player-summary],
+.market-list strong, .stats-inner article strong {
+  font-family: var(--fnt-display) !important;
+  color: var(--vlx-ivory) !important;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+/* --- Navigation: minimal, hairline, generous tracking -------------------- */
 .site-nav {
-  color: var(--mc-ink);
-  background: #191920;
-  border-bottom: 4px solid var(--mc-grass);
-  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.4);
-  backdrop-filter: none;
+  color: var(--vlx-ivory) !important;
+  background: rgba(8, 8, 7, 0.66) !important;
+  border-bottom: 1px solid var(--vlx-hair) !important;
+  box-shadow: none !important;
+  backdrop-filter: blur(16px) saturate(120%) !important;
 }
 
 .brand span {
-  font-family: var(--vx-font-latin);
-  font-size: 13px;
-  color: var(--mc-ink);
+  font-family: var(--fnt-display);
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: 0.28em !important;
+  color: var(--vlx-ivory) !important;
 }
 
 .brand img,
 .footer-brand img {
-  border: 2px solid var(--mc-line);
-  border-radius: 0 !important;
-  background: var(--mc-slot);
+  border: 1px solid var(--vlx-hair) !important;
+  border-radius: 3px !important;
+  background: var(--vlx-black-2);
 }
 
 .nav-links a {
-  font-size: 12px;
-  color: var(--mc-ink-soft);
+  font-family: var(--fnt-sans) !important;
+  font-size: 12px !important;
+  font-weight: 450;
+  letter-spacing: 0.12em !important;
+  text-transform: uppercase;
+  color: var(--vlx-ivory-soft) !important;
 }
 
 .nav-links a:is(:hover, :focus-visible, .is-active):not(.nav-login) {
-  color: var(--mc-grass);
+  color: var(--vlx-ivory) !important;
 }
 
 .nav-links a:not(.nav-login)::after {
-  background: var(--mc-grass) !important;
+  background: var(--vlx-ivory) !important;
 }
 
-/* --- The signature Minecraft button bevel (raised block) ----------------- */
+/* --- Buttons: refined, flat, high-contrast ------------------------------- */
 .primary-action,
 .secondary-action,
 .nav-login,
 .stock-trade-link,
 .address-row button,
-.footer-theme-toggle,
 [data-copy-address] {
-  border-radius: 0 !important;
-  border: 2px solid var(--mc-line) !important;
-  color: #ffffff !important;
-  font-family: var(--vx-font-sans);
-  font-weight: 400;
-  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.5);
-  box-shadow:
-    inset 2px 2px 0 rgba(255, 255, 255, 0.22),
-    inset -2px -3px 0 rgba(0, 0, 0, 0.45);
-  transition: filter 90ms steps(2), transform 90ms steps(2);
+  border-radius: 2px !important;
+  font-family: var(--fnt-sans) !important;
+  font-weight: 550 !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase;
+  font-size: 13px !important;
+  box-shadow: none !important;
+  transition: transform 260ms ease, background-color 260ms ease,
+    color 260ms ease, border-color 260ms ease, opacity 260ms ease !important;
 }
 
+/* Primary = solid ivory on black (the statement action) */
 .primary-action,
 .hero .primary-action,
 [data-copy-address],
 .address-row button,
 .stock-trade-link {
-  background: var(--mc-grass) !important;
+  background: var(--vlx-ivory) !important;
+  color: var(--vlx-black) !important;
+  border: 1px solid var(--vlx-ivory) !important;
 }
 
+/* Secondary = ghost outline */
 .secondary-action,
 .hero .secondary-action,
-.nav-login,
-.footer-theme-toggle {
-  background: var(--mc-stone) !important;
+.nav-login {
+  background: transparent !important;
+  color: var(--vlx-ivory) !important;
+  border: 1px solid var(--vlx-hair-strong) !important;
 }
 
 .primary-action:is(:hover, :focus-visible),
-.secondary-action:is(:hover, :focus-visible),
-.nav-login:is(:hover, :focus-visible),
-.stock-trade-link:is(:hover, :focus-visible),
-.address-row button:hover,
 [data-copy-address]:hover,
-.footer-theme-toggle:hover {
-  filter: brightness(1.14);
+.address-row button:hover,
+.stock-trade-link:hover {
+  opacity: 0.86;
+  transform: translateY(-1px);
 }
 
-.primary-action:active,
-.secondary-action:active,
-.nav-login:active,
-[data-copy-address]:active,
-.address-row button:active {
-  transform: translateY(2px);
-  box-shadow: inset 2px 2px 0 rgba(0, 0, 0, 0.35);
+.secondary-action:is(:hover, :focus-visible),
+.nav-login:is(:hover, :focus-visible) {
+  border-color: var(--vlx-ivory) !important;
+  transform: translateY(-1px);
 }
 
-/* --- Hero: big pixel wordmark over the voxel scene ----------------------- */
+/* --- Hero: statement wordmark over the voxel scene ----------------------- */
 .hero-content::before {
   display: none !important;
 }
 
 .hero h1,
 #hero-title {
-  font-family: var(--vx-font-latin);
-  font-size: clamp(42px, 8vw, 96px);
-  line-height: 1.05;
-  color: #ffffff;
-  text-shadow: 4px 4px 0 var(--mc-grass-2), 8px 8px 0 rgba(0, 0, 0, 0.55);
+  font-family: var(--fnt-display) !important;
+  font-size: clamp(64px, 12vw, 176px) !important;
+  font-weight: 700 !important;
+  line-height: 0.94 !important;
+  letter-spacing: -0.03em !important;
+  color: var(--vlx-ivory) !important;
+  -webkit-text-fill-color: var(--vlx-ivory) !important;
+  text-shadow: none !important;
 }
 
 .hero-copy {
-  color: var(--mc-ink);
-  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.6);
+  color: var(--vlx-ivory-soft) !important;
+  font-size: clamp(15px, 1.6vw, 19px);
+  text-shadow: none !important;
+}
+
+.hero-meta,
+.hero-meta li {
+  border-radius: 2px !important;
 }
 
 .hero-meta li {
-  color: var(--mc-ink-soft);
-  background: rgba(10, 10, 14, 0.55);
-  border: 2px solid var(--mc-line);
-  padding: 6px 10px;
+  color: var(--vlx-ivory-soft) !important;
+  background: rgba(8, 8, 7, 0.4) !important;
+  border: 1px solid var(--vlx-hair) !important;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  padding: 7px 12px;
 }
 
 .hero-meta-dot {
-  background: var(--mc-grass) !important;
-  border-radius: 0 !important;
+  background: var(--vlx-emerald) !important;
+  border-radius: 50% !important;
 }
 
 .hero-shade {
-  background: linear-gradient(180deg, rgba(16, 16, 21, 0.1), rgba(16, 16, 21, 0.82)) !important;
+  background: linear-gradient(180deg, rgba(8, 8, 7, 0.15), rgba(8, 8, 7, 0.86)) !important;
 }
 
-/* --- Inventory panels: every card gets the recessed-slot bevel ------------ */
+/* --- Surfaces: flat panels with hairline borders, no bevel --------------- */
 .status-panel,
 .dashboard-card,
 .join-card,
@@ -335,14 +371,13 @@ h4,
 .join-steps article,
 .detail-grid article,
 .economy-stock-teaser {
-  background: var(--mc-panel) !important;
-  border: 2px solid var(--mc-line) !important;
-  border-radius: 0 !important;
-  box-shadow:
-    inset 2px 2px 0 rgba(255, 255, 255, 0.08),
-    inset -2px -2px 0 rgba(0, 0, 0, 0.5),
-    0 4px 0 rgba(0, 0, 0, 0.4) !important;
-  color: var(--mc-ink);
+  background: var(--vlx-panel) !important;
+  border: 1px solid var(--vlx-hair) !important;
+  border-radius: 3px !important;
+  box-shadow: none !important;
+  color: var(--vlx-ivory) !important;
+  transition: border-color 300ms ease, transform 300ms ease,
+    background-color 300ms ease !important;
 }
 
 .status-panel::before,
@@ -357,154 +392,108 @@ h4,
 .dashboard-card:hover,
 .plugin-grid article:hover,
 .feature-grid article:hover,
-.economy-grid article:hover {
-  transform: translateY(-3px);
-  box-shadow:
-    inset 2px 2px 0 rgba(255, 255, 255, 0.1),
-    inset -2px -2px 0 rgba(0, 0, 0, 0.5),
-    0 7px 0 rgba(0, 0, 0, 0.4) !important;
+.economy-grid article:hover,
+.market-list article:hover {
+  border-color: var(--vlx-hair-strong) !important;
+  background: var(--vlx-panel-2) !important;
+  transform: translateY(-2px);
 }
 
-/* Card text + labels */
 .status-panel strong,
 .dashboard-card strong,
 .plugin-grid strong,
 .feature-grid h3,
 .economy-grid strong {
-  color: var(--mc-ink);
+  color: var(--vlx-ivory) !important;
+  font-weight: 600;
 }
 
-.detail-grid article span,
-.dashboard-card span,
-.plugin-grid span,
-.economy-grid span,
-.market-list article span,
-.rules-tools article > span,
-.join-steps article > span {
-  /* base sheet hardcodes a dark plum on these labels; force grass */
-  color: var(--mc-grass) !important;
-  -webkit-text-fill-color: var(--mc-grass) !important;
-  font-family: var(--vx-font-sans);
-}
-
-.dashboard-card p,
-.status-note,
-.screen-copy,
-.world-copy p:not(.eyebrow),
-.market-copy p:not(.eyebrow),
-.economy-stock-teaser p:not(.eyebrow),
-.rules-tools p,
-.rules-list li,
-.join-steps p,
-.join-note,
-p[data-motd] {
-  /* redesign hardcodes rgba(17,17,17,.58) on these and loads later — force light */
-  color: var(--mc-ink-soft) !important;
-}
-
-/* Square the hero summary pill */
-.hero-meta,
-.hero-meta li {
-  border-radius: 0 !important;
-}
-
-/* Numbers read as an ore counter */
-[data-player-count],
-[data-latency],
-[data-player-summary],
-.market-list strong {
-  font-family: var(--vx-font-mono);
-  color: var(--mc-gold);
-}
-
-/* --- Stat icons pick up the block palette -------------------------------- */
+/* --- Icons: thin, monochrome, restrained --------------------------------- */
 .ic,
 .detail-grid article .ic,
 .plugin-grid .ic,
 .feature-grid .ic {
-  stroke: var(--mc-grass) !important;
-  color: var(--mc-grass) !important;
+  stroke: var(--vlx-ivory-soft) !important;
+  color: var(--vlx-ivory-soft) !important;
   fill: none;
+  stroke-width: 1.4;
 }
 
-/* Status topline label stays legible on dark */
+/* --- Status dot + meters: thin, refined ---------------------------------- */
 [data-status-label],
 .status-topline {
-  color: var(--mc-ink);
+  color: var(--vlx-ivory) !important;
 }
 
-/* --- Status dot + meters as chunky XP/health bars ------------------------ */
 .status-dot,
 [data-status-dot] {
-  border-radius: 0 !important;
-  box-shadow: 0 0 0 2px var(--mc-line);
+  border-radius: 50% !important;
+  box-shadow: 0 0 0 3px rgba(74, 158, 115, 0.18);
 }
 
 .meter {
-  background: var(--mc-slot) !important;
-  border: 2px solid var(--mc-line) !important;
-  border-radius: 0 !important;
-  height: 14px !important;
+  background: rgba(221, 221, 213, 0.08) !important;
+  border: none !important;
+  border-radius: 999px !important;
+  height: 4px !important;
   padding: 0 !important;
+  overflow: hidden;
 }
 
 .meter span {
-  background: var(--mc-grass) !important;
-  border-radius: 0 !important;
-  image-rendering: pixelated;
+  background: var(--vlx-ivory) !important;
+  border-radius: 999px !important;
+  image-rendering: auto;
 }
 
 .temperature-meter span,
 .ram-card-meter span {
-  background: var(--mc-diamond) !important;
+  background: var(--vlx-emerald) !important;
 }
 
-/* --- Stats band: four grass placards ------------------------------------- */
-.stats-inner article strong {
-  color: var(--mc-grass);
-  font-family: var(--vx-font-serif);
-}
-
-/* --- Rules list: numbered stone tablets ---------------------------------- */
+/* --- Rules list: quiet numbered rows ------------------------------------- */
 .rules-list li {
-  background: var(--mc-panel) !important;
-  border: 2px solid var(--mc-line) !important;
-  border-left: 6px solid var(--mc-grass) !important;
-  color: var(--mc-ink-soft);
-  box-shadow: inset -2px -2px 0 rgba(0, 0, 0, 0.5);
+  background: var(--vlx-panel) !important;
+  border: 1px solid var(--vlx-hair) !important;
+  border-left: 2px solid var(--vlx-ivory-ghost) !important;
+  border-radius: 3px !important;
+  color: var(--vlx-ivory-soft) !important;
+  box-shadow: none !important;
 }
 
-/* --- Join: server-address slot ------------------------------------------- */
+/* --- Join: server-address field ------------------------------------------ */
 .address-row {
-  background: var(--mc-slot);
-  border: 2px solid var(--mc-line);
-  padding: 6px;
+  background: var(--vlx-black-2);
+  border: 1px solid var(--vlx-hair);
+  border-radius: 2px;
+  padding: 8px;
 }
 
 .address-row code,
 code {
-  font-family: var(--vx-font-mono);
-  color: var(--mc-grass);
-  background: var(--mc-slot);
+  font-family: var(--fnt-display);
+  color: var(--vlx-ivory);
+  background: transparent;
+  letter-spacing: 0.04em;
 }
 
-/* --- Footer as a bedrock bar --------------------------------------------- */
+/* --- Footer: minimal hairline bar ---------------------------------------- */
 .site-footer {
-  background: #101015;
-  border-top: 4px solid var(--mc-dirt);
-  color: var(--mc-ink-soft);
+  background: var(--vlx-black);
+  border-top: 1px solid var(--vlx-hair);
+  color: var(--vlx-ivory-soft);
 }
 
 .footer-brand,
 .footer-info-row a {
-  color: var(--mc-ink-soft);
+  color: var(--vlx-ivory-soft);
 }
 
 .footer-info-row a:hover {
-  color: var(--mc-grass);
+  color: var(--vlx-ivory);
 }
 
-/* --- Content sections carry an ivory 135deg gradient -> let dark show ----- */
+/* --- Content sections carry an ivory gradient in the base sheet ----------- */
 .economy-section,
 .feature-section,
 .world-section,
@@ -516,68 +505,68 @@ code {
 .plugin-section,
 .category-section {
   background: transparent !important;
+  border-image: none !important;
+  border-top: none !important;
 }
 
-/* --- Feature/Plugin bands: ivory gradient -> dark stone slab -------------- */
+/* Feature/Plugin bands: ivory slab -> subtly-lifted near-black, hairline edge */
 .feature-band,
 .plugin-band {
-  border-block: 4px solid var(--mc-line) !important;
-  background:
-    linear-gradient(180deg, rgba(40, 40, 48, 0.96), rgba(26, 26, 32, 0.98)),
-    var(--mc-bg-2) !important;
+  border-block: 1px solid var(--vlx-hair) !important;
+  background: var(--vlx-black-2) !important;
 }
 
-/* --- Grass/dirt block strip: reusable decorative divider ----------------- */
-.stats-band,
-.join-section {
-  border-top: 4px solid var(--mc-grass);
-  border-image: linear-gradient(
-      180deg,
-      var(--mc-grass) 0 40%,
-      var(--mc-dirt) 40% 100%
-    )
-    1;
-}
-
-/* --- Login / auth page: ivory panel -> Minecraft GUI --------------------- */
+/* --- Login / auth page: refined dark card -------------------------------- */
 .auth-panel {
-  background: var(--mc-panel) !important;
-  border: 2px solid var(--mc-line) !important;
-  border-radius: 0 !important;
-  box-shadow:
-    inset 2px 2px 0 rgba(255, 255, 255, 0.08),
-    inset -2px -2px 0 rgba(0, 0, 0, 0.5),
-    0 6px 0 rgba(0, 0, 0, 0.4) !important;
+  background: var(--vlx-panel) !important;
+  border: 1px solid var(--vlx-hair) !important;
+  border-radius: 4px !important;
+  box-shadow: 0 40px 120px rgba(0, 0, 0, 0.5) !important;
 }
 
 .auth-panel input,
 .auth-form input {
-  background: var(--mc-slot) !important;
-  border: 2px solid var(--mc-line) !important;
-  border-radius: 0 !important;
-  color: var(--mc-ink) !important;
-  font-family: var(--vx-font-sans);
+  background: var(--vlx-black-2) !important;
+  border: 1px solid var(--vlx-hair) !important;
+  border-radius: 2px !important;
+  color: var(--vlx-ivory) !important;
+  font-family: var(--fnt-sans);
+}
+
+.auth-panel input:focus {
+  border-color: var(--vlx-hair-strong) !important;
 }
 
 .auth-form label,
 .auth-eyebrow {
-  color: var(--mc-grass) !important;
+  color: var(--vlx-ivory-faint) !important;
+  text-transform: uppercase;
+  letter-spacing: 0.14em !important;
 }
 
 .auth-panel p,
 .auth-message {
-  color: var(--mc-ink-soft) !important;
+  color: var(--vlx-ivory-soft) !important;
+}
+
+.auth-heading {
+  color: var(--vlx-ivory) !important;
+  -webkit-text-fill-color: var(--vlx-ivory) !important;
 }
 
 .auth-primary {
-  background: var(--mc-grass) !important;
-  color: #ffffff !important;
-  border: 2px solid var(--mc-line) !important;
-  border-radius: 0 !important;
-  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.5);
-  box-shadow:
-    inset 2px 2px 0 rgba(255, 255, 255, 0.22),
-    inset -2px -3px 0 rgba(0, 0, 0, 0.45) !important;
+  background: var(--vlx-ivory) !important;
+  color: var(--vlx-black) !important;
+  border: 1px solid var(--vlx-ivory) !important;
+  border-radius: 2px !important;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  box-shadow: none !important;
+  transition: opacity 260ms ease !important;
+}
+
+.auth-primary:hover {
+  opacity: 0.86;
 }
 
 .auth-ghost,
@@ -585,21 +574,22 @@ code {
 .google-login-fallback,
 .auth-secondary-actions a,
 .auth-secondary-actions button {
-  color: var(--mc-ink) !important;
-  border-radius: 0 !important;
+  color: var(--vlx-ivory) !important;
+  border-radius: 2px !important;
 }
 
 .auth-secondary-actions,
 .auto-login-row {
   background: transparent !important;
-  border-color: var(--mc-line) !important;
+  border-color: var(--vlx-hair) !important;
 }
 
-/* --- Mobile nav sheet stays square + dark -------------------------------- */
+/* --- Mobile nav sheet ----------------------------------------------------- */
 @media (max-width: 860px) {
   .nav-links {
-    background: #191920 !important;
-    border: 2px solid var(--mc-line) !important;
-    border-radius: 0 !important;
+    background: rgba(8, 8, 7, 0.96) !important;
+    border: 1px solid var(--vlx-hair) !important;
+    border-radius: 3px !important;
+    backdrop-filter: blur(16px);
   }
 }
