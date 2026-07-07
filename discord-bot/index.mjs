@@ -41,7 +41,7 @@ function linkButtons() {
   return [
     new ActionRowBuilder().addComponents(
       new ButtonBuilder()
-        .setLabel("웹 주식장")
+        .setLabel("VELYX Economy")
         .setStyle(ButtonStyle.Link)
         .setURL(`${config.siteUrl}/plugins.html#stock-marketplace`),
       new ButtonBuilder()
@@ -71,7 +71,7 @@ function buildStockEmbed(stock) {
     .setColor(stockColor(stock.change24h))
     .setTitle(stockDisplayName(stock))
     .setURL(`${config.siteUrl}/plugins.html#stock-marketplace`)
-    .setDescription("서버 주식장 실시간 시세")
+    .setDescription("VELYX Economy 실시간 시세")
     .addFields(
       { name: "현재가", value: formatMoney(stock.price), inline: true },
       { name: "전일비", value: formatSignedMoney(diff), inline: true },
@@ -98,7 +98,7 @@ function buildMarketEmbed(payload) {
 
   return new EmbedBuilder()
     .setColor(0x56d364)
-    .setTitle("NFOIFSB 24H 주식장")
+    .setTitle("VELYX 24H Economy")
     .setURL(`${config.siteUrl}/plugins.html#stock-marketplace`)
     .addFields(
       { name: "시장지수", value: formatMoney(payload.market?.index), inline: true },
@@ -302,7 +302,7 @@ async function handleMinecraft(interaction) {
   if (subcommand === "웹") {
     const embed = new EmbedBuilder()
       .setColor(0x56d364)
-      .setTitle("NFOIFSB 웹 연동")
+      .setTitle("VELYX 웹 연동")
       .setDescription("웹사이트, Discord 봇, 마인크래프트 서버가 같은 AuroraLink API를 사용합니다.")
       .addFields(
         { name: "서버 주소", value: config.minecraftAddress, inline: true },

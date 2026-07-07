@@ -209,7 +209,7 @@ function marketFields(payload) {
 
 function summaryEmbed(payload) {
   return {
-    title: "NFOIFSB 주식장 브리핑",
+    title: "VELYX Economy 브리핑",
     url: `${config.siteUrl}/plugins.html#stock-marketplace`,
     color: 0x56d364,
     fields: marketFields(payload),
@@ -313,7 +313,7 @@ async function postWebhook(embeds) {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      username: "NFOIFSB Stock Desk",
+      username: "VELYX Economy Desk",
       avatar_url: "https://www.velyx.kr/assets/favicon.png",
       embeds,
     }),

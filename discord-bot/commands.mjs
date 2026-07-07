@@ -23,7 +23,7 @@ export function buildCommands() {
   return [
     new SlashCommandBuilder()
       .setName("주식")
-      .setDescription("NFOIFSB 서버 주식장")
+      .setDescription("VELYX 서버 Economy")
       .addSubcommand((subcommand) =>
         subcommand.setName("시장").setDescription("전체 주식장 요약을 봅니다."),
       )
