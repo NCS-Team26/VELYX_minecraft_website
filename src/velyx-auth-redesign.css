@@ -332,3 +332,267 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+/* Compact VELYX membership -------------------------------------------------
+   The login screen now mirrors the main site without the oversized empty
+   stage: centered, dense, and built around one precise account panel.
+   ------------------------------------------------------------------------- */
+body {
+  min-height: 100svh;
+  background:
+    radial-gradient(circle at 14% 8%, rgba(192, 165, 111, 0.2), transparent 30vw),
+    radial-gradient(circle at 86% 18%, rgba(58, 31, 52, 0.38), transparent 28vw),
+    linear-gradient(180deg, #050505 0, #090807 48%, #17120d 100%);
+}
+
+.auth-page {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: clamp(18px, 4vw, 46px);
+}
+
+.auth-page::before {
+  display: block;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(255, 253, 248, 0.055) 0 1px, transparent 1px 100%) center / 116px 100%,
+    transparent;
+  opacity: 1;
+  content: "";
+}
+
+.auth-shell,
+.auth-shell:not(:has(.character-panel:not([hidden]))) {
+  width: min(372px, calc(100vw - 20px));
+  max-width: calc(100vw - 20px);
+  min-height: auto;
+  display: grid;
+  gap: 12px;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.auth-shell:has(.character-panel:not([hidden])) {
+  width: min(1120px, calc(100% - 24px));
+  grid-template-columns: minmax(320px, 420px) minmax(0, 1fr);
+  align-items: start;
+}
+
+.auth-panel,
+.character-panel {
+  width: 100%;
+  max-width: calc(100vw - 20px);
+  box-sizing: border-box;
+  border: 1px solid rgba(255, 253, 248, 0.16);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(255, 253, 248, 0.97), rgba(247, 243, 234, 0.9)),
+    var(--auth-ivory);
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.38);
+}
+
+.auth-panel {
+  padding: clamp(24px, 4vw, 34px);
+}
+
+.auth-brand {
+  justify-content: center;
+  margin-bottom: 18px;
+  color: var(--auth-ink);
+  font-size: 12px;
+}
+
+.auth-brand img {
+  width: 42px;
+  height: 42px;
+  border-color: rgba(17, 16, 15, 0.18);
+  box-shadow: 0 0 0 1px rgba(192, 165, 111, 0.16);
+}
+
+.auth-heading {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  margin-bottom: 18px;
+  text-align: center;
+}
+
+.auth-eyebrow {
+  color: var(--auth-gold);
+  font-size: 11px;
+}
+
+.auth-heading h1,
+.character-heading h2 {
+  font-size: clamp(42px, 9vw, 58px);
+  line-height: 0.92;
+  font-weight: 500;
+}
+
+.auth-heading p {
+  max-width: 33ch;
+  margin: 0 auto;
+  font-size: 14px;
+}
+
+.auth-form {
+  gap: 10px;
+}
+
+.auth-form label {
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: rgba(17, 16, 15, 0.035);
+}
+
+.auth-form input,
+.character-form input,
+.stock-trader input,
+.stock-trader select {
+  min-height: 42px;
+  border-radius: 8px;
+  background: rgba(255, 253, 248, 0.82);
+}
+
+.auto-login-row,
+.auth-secondary-actions,
+.auth-message,
+.stock-trader-cta {
+  border-radius: 8px;
+  background: rgba(17, 16, 15, 0.035);
+}
+
+.auth-primary,
+.auth-ghost,
+.auth-secondary-actions button,
+.google-login-fallback,
+.stock-trader-link,
+.stock-trader-actions button,
+.web-action-button {
+  min-height: 42px;
+  border-radius: 999px;
+}
+
+.auth-primary {
+  background: var(--auth-ink);
+}
+
+.auth-secondary-actions {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  padding: 6px;
+}
+
+.auth-secondary-actions button {
+  min-width: 0;
+  padding-inline: 10px;
+  font-size: 12px;
+}
+
+.auth-divider {
+  margin: 14px 0;
+}
+
+.google-login-slot {
+  display: grid;
+  place-items: center;
+  min-height: 44px;
+  overflow: hidden;
+}
+
+.auth-message {
+  margin-top: 10px;
+  padding: 10px 12px;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.character-panel {
+  padding: clamp(22px, 3vw, 34px);
+}
+
+.stock-trader,
+.web-actions,
+.inventory-toolbar,
+.inventory-grid,
+.verify-card,
+.character-stats div,
+.web-action-button,
+.portfolio-panel,
+.portfolio-chart-card,
+.portfolio-holding {
+  border-radius: 8px;
+  box-shadow: 0 16px 46px rgba(17, 16, 15, 0.08);
+}
+
+@media (max-width: 920px) {
+  .auth-shell:has(.character-panel:not([hidden])) {
+    grid-template-columns: 1fr;
+    width: min(640px, calc(100% - 18px));
+  }
+}
+
+@media (max-width: 560px) {
+  html,
+  body {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  .auth-page {
+    align-items: start;
+    overflow-x: hidden;
+    padding: 10px 0;
+  }
+
+  .auth-shell,
+  .auth-shell:not(:has(.character-panel:not([hidden]))) {
+    width: calc(100vw - 20px) !important;
+    max-width: none;
+    margin-inline: auto;
+    overflow: hidden;
+  }
+
+  .auth-panel,
+  .character-panel {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    padding: 20px;
+  }
+
+  .auth-heading p,
+  .auth-heading h1,
+  .auth-brand span,
+  .auth-form label span,
+  .auth-form input,
+  .auth-primary,
+  .auth-ghost,
+  .auth-secondary-actions button,
+  .auth-message {
+    max-width: 100%;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    white-space: normal;
+  }
+
+  .auth-form label,
+  .auth-secondary-actions,
+  .auth-message,
+  .google-login-slot {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .auth-form input {
+    width: 100%;
+  }
+
+  .auth-secondary-actions {
+    grid-template-columns: 1fr;
+  }
+}

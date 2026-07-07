@@ -43,7 +43,7 @@ function linkButtons() {
       new ButtonBuilder()
         .setLabel("웹 주식장")
         .setStyle(ButtonStyle.Link)
-        .setURL(`${config.siteUrl}/stock.html`),
+        .setURL(`${config.siteUrl}/plugins.html#stock-marketplace`),
       new ButtonBuilder()
         .setLabel("로그인/인증")
         .setStyle(ButtonStyle.Link)
@@ -70,7 +70,7 @@ function buildStockEmbed(stock) {
   return new EmbedBuilder()
     .setColor(stockColor(stock.change24h))
     .setTitle(stockDisplayName(stock))
-    .setURL(`${config.siteUrl}/stock.html`)
+    .setURL(`${config.siteUrl}/plugins.html#stock-marketplace`)
     .setDescription("서버 주식장 실시간 시세")
     .addFields(
       { name: "현재가", value: formatMoney(stock.price), inline: true },
@@ -99,7 +99,7 @@ function buildMarketEmbed(payload) {
   return new EmbedBuilder()
     .setColor(0x56d364)
     .setTitle("NFOIFSB 24H 주식장")
-    .setURL(`${config.siteUrl}/stock.html`)
+    .setURL(`${config.siteUrl}/plugins.html#stock-marketplace`)
     .addFields(
       { name: "시장지수", value: formatMoney(payload.market?.index), inline: true },
       { name: "24H 변동", value: formatPercent(payload.market?.indexChange24h), inline: true },
@@ -307,7 +307,7 @@ async function handleMinecraft(interaction) {
       .addFields(
         { name: "서버 주소", value: config.minecraftAddress, inline: true },
         { name: "인증", value: `[로그인 페이지](${config.siteUrl}/login.html)`, inline: true },
-        { name: "주식장", value: `[웹 주식장](${config.siteUrl}/stock.html)`, inline: true },
+        { name: "경제장", value: `[웹 Economy](${config.siteUrl}/plugins.html#stock-marketplace)`, inline: true },
       );
     await interaction.editReply({ embeds: [embed], components: linkButtons() });
     return;

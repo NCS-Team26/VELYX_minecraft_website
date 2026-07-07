@@ -210,7 +210,7 @@ function marketFields(payload) {
 function summaryEmbed(payload) {
   return {
     title: "NFOIFSB 주식장 브리핑",
-    url: `${config.siteUrl}/stock.html`,
+    url: `${config.siteUrl}/plugins.html#stock-marketplace`,
     color: 0x56d364,
     fields: marketFields(payload),
     footer: { text: payload.market?.session || "24H LIVE" },
@@ -243,7 +243,7 @@ function movementEmbeds(payload, state) {
     const diff = Number.isFinite(price) && Number.isFinite(open) ? price - open : 0;
     embeds.push({
       title: `${bucket > 0 ? "급등" : "급락"} 알림 · ${stockDisplayName(stock)}`,
-      url: `${config.siteUrl}/stock.html`,
+      url: `${config.siteUrl}/plugins.html#stock-marketplace`,
       color: bucket > 0 ? 0xff5a66 : 0x5b9cff,
       fields: [
         { name: "현재가", value: krw(stock.price), inline: true },
@@ -272,7 +272,7 @@ function tradeEmbeds(payload, state) {
 
     embeds.push({
       title: `대형 체결 · ${trade.symbol} ${sideLabel(trade.side)}`,
-      url: `${config.siteUrl}/stock.html`,
+      url: `${config.siteUrl}/plugins.html#stock-marketplace`,
       color: trade.side === "sell" ? 0x5b9cff : 0xff5a66,
       fields: [
         { name: "플레이어", value: trade.playerName || trade.nickname || "Unknown", inline: true },

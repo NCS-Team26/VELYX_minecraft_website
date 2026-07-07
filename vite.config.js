@@ -14,7 +14,6 @@ export default defineConfig({
         login: resolve(rootDir, "login.html"),
         status: resolve(rootDir, "status.html"),
         plugins: resolve(rootDir, "plugins.html"),
-        stock: resolve(rootDir, "stock.html"),
         notice: resolve(rootDir, "notice.html"),
         community: resolve(rootDir, "community.html"),
         resources: resolve(rootDir, "resources.html"),
