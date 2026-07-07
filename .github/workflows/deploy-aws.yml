@@ -30,7 +30,6 @@ jobs:
       SITE_BUCKET: menhera-minecraft-server-website
       SITE_DOMAIN: www.velyx.kr
       AUTH_STACK_NAME: velyx-auth
-      AUTH_MIGRATE_FROM_STACK: nfoifsb-auth
       AUTH_ALLOWED_ORIGINS: https://www.velyx.kr,https://velyx.kr,http://127.0.0.1:5173,http://localhost:5173
       AUTH_PEPPER: ${{ secrets.AUTH_PEPPER }}
       AUTH_EMAIL_FROM: ${{ secrets.AUTH_EMAIL_FROM }}
