@@ -698,8 +698,8 @@ body {
 
   .auth-shell,
   .auth-shell:not(:has(.character-panel:not([hidden]))) {
-    width: calc(100vw - 20px) !important;
-    max-width: none;
+    width: min(330px, calc(100vw - 32px)) !important;
+    max-width: calc(100vw - 32px);
     margin-inline: auto;
     overflow: hidden;
   }
@@ -707,7 +707,7 @@ body {
   .auth-panel,
   .character-panel {
     width: 100%;
-    max-width: 100%;
+    max-width: calc(100vw - 32px);
     min-width: 0;
     box-sizing: border-box;
     padding: 20px;
