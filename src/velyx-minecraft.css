@@ -319,15 +319,22 @@ p, li, .screen-copy, .status-note, .dashboard-card p,
   backdrop-filter: blur(16px) saturate(120%) !important;
 }
 
-/* Fix the off-centre nav: the base 3-col grid collapses its 3rd column to 0px
-   on desktop (nav-toggle is hidden), so the links centred in the offset middle
-   column and drifted right. Balanced 1fr/auto/1fr recentres the cluster. */
+/* True 3-zone nav: brand pinned left, section links centred in the viewport,
+   login pinned right. The login is pulled out of the links flow (absolute) so
+   the section links centre on the page centre, not offset by the login width. */
 @media (min-width: 861px) {
   .site-nav {
+    position: relative;
     grid-template-columns: 1fr auto 1fr !important;
   }
   .nav-links {
     justify-content: center !important;
+  }
+  .nav-login {
+    position: absolute !important;
+    right: 42px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
   }
 }
 
@@ -761,6 +768,21 @@ button.is-active {
   border-color: var(--vlx-ivory) !important;
 }
 
+/* The active ticker item is a light pill holding a mini-quote — its nested
+   price/label spans must go dark too, or they vanish on the light bg. */
+.stock-ticker button.is-active :where(strong, span, small, em, b, div) {
+  color: var(--vlx-black) !important;
+  -webkit-text-fill-color: var(--vlx-black) !important;
+}
+
+/* Authenticated nav login: emerald pill with light text (was dark-on-dark) */
+.nav-login.is-authenticated {
+  background: var(--vlx-emerald-soft) !important;
+  border-color: rgba(74, 158, 115, 0.45) !important;
+  color: var(--vlx-ivory) !important;
+  -webkit-text-fill-color: var(--vlx-ivory) !important;
+}
+
 /* Notice / Resources / section pages — .category-* + .resource-list cards */
 .category-board,
 .category-board article,
@@ -843,8 +865,8 @@ button.is-active {
     rgba(255, 255, 255, 0.012) 42%,
     rgba(255, 255, 255, 0) 68%
   ) !important;
-  backdrop-filter: blur(16px) saturate(135%) !important;
-  -webkit-backdrop-filter: blur(16px) saturate(135%) !important;
+  backdrop-filter: blur(10px) saturate(125%) !important;
+  -webkit-backdrop-filter: blur(10px) saturate(125%) !important;
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.09),
@@ -1032,40 +1054,37 @@ button.is-active {
    "unveil" (the shade-coming-down / remote feel), on top of the always-on
    ambient background drift. All disabled under prefers-reduced-motion.
    ========================================================================== */
+/* Reveal uses ONLY opacity + transform (compositor-friendly, 60fps). No
+   filter:blur transitions — animating blur on many elements caused the jank. */
 .js-reveal [data-reveal] {
   opacity: 0 !important;
-  transform: translateY(44px) scale(0.985) !important;
-  filter: blur(10px);
+  transform: translateY(34px) !important;
   transition:
-    opacity 860ms cubic-bezier(0.22, 1, 0.36, 1),
-    transform 860ms cubic-bezier(0.22, 1, 0.36, 1),
-    filter 860ms cubic-bezier(0.22, 1, 0.36, 1) !important;
+    opacity 560ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 560ms cubic-bezier(0.22, 1, 0.36, 1) !important;
 }
 
 .js-reveal [data-reveal].is-visible {
   opacity: 1 !important;
   transform: none !important;
-  filter: none !important;
 }
 
 /* Staggered rise for grids of cards */
 .js-reveal [data-reveal].is-visible > article,
 .js-reveal [data-reveal].is-visible > li,
 .js-reveal [data-reveal].is-visible > figure {
-  animation: vlxRise 780ms cubic-bezier(0.22, 1, 0.36, 1) both !important;
-  animation-delay: calc(var(--item-index, 0) * 85ms) !important;
+  animation: vlxRise 560ms cubic-bezier(0.22, 1, 0.36, 1) both !important;
+  animation-delay: calc(var(--item-index, 0) * 70ms) !important;
 }
 
 @keyframes vlxRise {
   from {
     opacity: 0;
-    transform: translateY(32px) scale(0.98);
-    filter: blur(8px);
+    transform: translateY(26px);
   }
   to {
     opacity: 1;
     transform: none;
-    filter: none;
   }
 }
 
@@ -1098,6 +1117,60 @@ button.is-active {
     opacity: 1 !important;
     clip-path: none !important;
   }
+}
+
+/* ==========================================================================
+   Tech craft — restrained, high-precision detail (sakazuki-style): a thin
+   accent line that draws across a card on hover, monospace tabular index
+   numbers, and hairline corner ticks on the primary panels. Subtle, not busy.
+   ========================================================================== */
+.economy-grid article,
+.feature-grid article,
+.plugin-grid article,
+.dashboard-card,
+.status-panel,
+.market-list article {
+  position: relative;
+  overflow: hidden;
+}
+
+.economy-grid article::after,
+.feature-grid article::after,
+.plugin-grid article::after,
+.dashboard-card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 1px;
+  width: 0;
+  background: linear-gradient(90deg, var(--vlx-emerald), transparent);
+  transition: width 480ms cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+
+.economy-grid article:hover::after,
+.feature-grid article:hover::after,
+.plugin-grid article:hover::after,
+.dashboard-card:hover::after {
+  width: 100%;
+}
+
+/* Index numbers -> monospace, tabular, emerald tick */
+.economy-grid article > span:first-child,
+.rules-tools article > span:first-child,
+.join-steps article > span:first-child {
+  font-family: var(--fnt-display) !important;
+  font-variant-numeric: tabular-nums;
+  color: var(--vlx-emerald) !important;
+  -webkit-text-fill-color: var(--vlx-emerald) !important;
+  font-size: 12px !important;
+  letter-spacing: 0.14em !important;
+}
+
+/* Section eyebrows get a leading monospace marker for a data-panel feel */
+.section-heading .eyebrow::before {
+  margin-right: 4px;
 }
 
 /* --- Mobile nav sheet ----------------------------------------------------- */
