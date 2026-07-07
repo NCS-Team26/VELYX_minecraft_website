@@ -3,6 +3,8 @@ import "./styles.css";
 import "./velyx-redesign.css";
 // Minecraft skin: last-loaded visual layer, re-skins the site into a pixel/GUI look.
 import "./velyx-minecraft.css";
+// Final visual frame: VELYX-tailored membership stage inspired by modern luxury web direction.
+import "./velyx-sakazuki-frame.css";
 import {
   AreaSeries,
   CandlestickSeries,
@@ -1189,16 +1191,119 @@ function initNav() {
   const links = document.querySelector(".nav-links");
   if (!nav || !toggle || !links) return;
 
+  const mobileQuery = window.matchMedia("(max-width: 920px)");
+  const mobileProxy = document.createElement("button");
+  mobileProxy.type = "button";
+  mobileProxy.className = "nav-mobile-proxy";
+  mobileProxy.setAttribute("aria-controls", links.id || "primary-nav");
+  mobileProxy.setAttribute("aria-expanded", "false");
+  mobileProxy.setAttribute("aria-label", "메뉴 열기");
+  mobileProxy.textContent = "☰";
+  document.body.append(mobileProxy);
+
+  const proxyStyles = {
+    display: "inline-flex",
+    "align-items": "center",
+    "justify-content": "center",
+    position: "fixed",
+    top: "18px",
+    left: "min(calc(100vw - 62px), 330px)",
+    "z-index": "12000",
+    width: "42px",
+    height: "42px",
+    border: "1px solid rgba(251, 246, 236, 0.38)",
+    "border-radius": "999px",
+    background: "rgba(7, 6, 4, 0.84)",
+    color: "#fbf6ec",
+    "font-size": "1.1rem",
+    "line-height": "1",
+    "box-shadow": "0 12px 32px rgba(0, 0, 0, 0.32)",
+    "backdrop-filter": "blur(12px)",
+  };
+
+  const syncMobileToggle = () => {
+    if (!mobileQuery.matches) {
+      [
+        "display",
+        "align-items",
+        "justify-content",
+        "visibility",
+        "opacity",
+        "position",
+        "top",
+        "left",
+        "right",
+        "z-index",
+        "width",
+        "height",
+        "border",
+        "border-radius",
+        "background",
+        "color",
+      ].forEach((property) => toggle.style.removeProperty(property));
+      toggle.querySelector("span")?.removeAttribute("style");
+      mobileProxy.style.setProperty("display", "none", "important");
+      return;
+    }
+
+    const styles = {
+      display: "inline-flex",
+      "align-items": "center",
+      "justify-content": "center",
+      visibility: "visible",
+      opacity: "1",
+      position: "fixed",
+      top: "18px",
+      left: "min(calc(100vw - 62px), 330px)",
+      right: "auto",
+      "z-index": "10020",
+      width: "42px",
+      height: "42px",
+      border: "1px solid rgba(251, 246, 236, 0.34)",
+      "border-radius": "999px",
+      background: "rgba(251, 246, 236, 0.1)",
+      color: "#fbf6ec",
+    };
+
+    Object.entries(styles).forEach(([property, value]) => {
+      toggle.style.setProperty(property, value, "important");
+    });
+
+    const glyph = toggle.querySelector("span");
+    if (glyph) {
+      glyph.textContent = "☰";
+      glyph.style.setProperty("display", "block", "important");
+      glyph.style.setProperty("color", "#fbf6ec", "important");
+      glyph.style.setProperty("-webkit-text-fill-color", "#fbf6ec", "important");
+      glyph.style.setProperty("font-size", "1.1rem", "important");
+      glyph.style.setProperty("line-height", "1", "important");
+    }
+
+    Object.entries(proxyStyles).forEach(([property, value]) => {
+      mobileProxy.style.setProperty(property, value, "important");
+    });
+  };
+
+  const syncExpandedState = (open) => {
+    toggle.setAttribute("aria-expanded", String(open));
+    toggle.setAttribute("aria-label", open ? "메뉴 닫기" : "메뉴 열기");
+    mobileProxy.setAttribute("aria-expanded", String(open));
+    mobileProxy.setAttribute("aria-label", open ? "메뉴 닫기" : "메뉴 열기");
+    mobileProxy.textContent = open ? "×" : "☰";
+  };
+
   const close = () => {
     nav.classList.remove("nav-open");
-    toggle.setAttribute("aria-expanded", "false");
-    toggle.setAttribute("aria-label", "메뉴 열기");
+    syncExpandedState(false);
   };
 
   toggle.addEventListener("click", () => {
     const open = nav.classList.toggle("nav-open");
-    toggle.setAttribute("aria-expanded", String(open));
-    toggle.setAttribute("aria-label", open ? "메뉴 닫기" : "메뉴 열기");
+    syncExpandedState(open);
+  });
+
+  mobileProxy.addEventListener("click", () => {
+    toggle.click();
   });
 
   // Close after navigating or hitting login.
@@ -1213,6 +1318,10 @@ function initNav() {
   document.addEventListener("click", (event) => {
     if (!nav.contains(event.target)) close();
   });
+
+  syncMobileToggle();
+  mobileQuery.addEventListener("change", syncMobileToggle);
+  window.addEventListener("resize", syncMobileToggle);
 }
 
 function getCurrentPageKey() {
