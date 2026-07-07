@@ -1,51 +1,56 @@
 /* ==========================================================================
-   VELYX Auth Editorial Redesign
+   VELYX Auth Luxury System
    --------------------------------------------------------------------------
-   Quiet premium login/inventory interface aligned with the public site.
+   Private membership styling for login, character verification, inventory, and
+   account tools. It mirrors the public site: black exterior, ivory surfaces,
+   quiet gold accents, and restrained financial-game utility.
    ========================================================================== */
 
 :root {
-  --auth-black: #070707;
-  --auth-ink: #101013;
-  --auth-paper: #f4f1ea;
-  --auth-muted: rgba(244, 241, 234, 0.7);
-  --auth-faint: rgba(244, 241, 234, 0.48);
-  --auth-line: rgba(244, 241, 234, 0.14);
-  --auth-line-strong: rgba(244, 241, 234, 0.26);
-  --auth-panel: rgba(16, 16, 19, 0.82);
-  --auth-panel-solid: #141418;
-  --auth-gold: #c7a15a;
-  --auth-green: #8ea579;
-  --auth-purple: #8d78d8;
-  --auth-red: #c9797f;
+  --auth-black: #050505;
+  --auth-ink: #111111;
+  --auth-ivory: #f7f3ea;
+  --auth-porcelain: #fffdf8;
+  --auth-stone: #d8d0c0;
+  --auth-muted: rgba(17, 17, 17, 0.64);
+  --auth-faint: rgba(17, 17, 17, 0.46);
+  --auth-line: rgba(17, 17, 17, 0.13);
+  --auth-line-strong: rgba(17, 17, 17, 0.28);
+  --auth-gold: #b89a5e;
+  --auth-green: #123c2d;
+  --auth-green-2: #1f674b;
+  --auth-red: #8d3b3f;
   --auth-radius: 8px;
-  --panel: var(--auth-panel);
-  --panel-solid: var(--auth-panel-solid);
-  --field: rgba(244, 241, 234, 0.05);
-  --field-strong: rgba(244, 241, 234, 0.08);
+  --panel: rgba(255, 253, 248, 0.86);
+  --panel-solid: var(--auth-porcelain);
+  --field: rgba(17, 17, 17, 0.045);
+  --field-strong: rgba(17, 17, 17, 0.075);
   --border: var(--auth-line);
   --border-strong: var(--auth-line-strong);
-  --text: var(--auth-paper);
+  --text: var(--auth-ink);
   --text-soft: var(--auth-muted);
   --text-faint: var(--auth-faint);
-  --accent: var(--auth-gold);
-  --accent-2: var(--auth-purple);
-  --accent-ink: #080808;
+  --accent: var(--auth-green);
+  --accent-2: var(--auth-gold);
+  --accent-ink: var(--auth-porcelain);
   --danger: var(--auth-red);
 }
 
+* {
+  letter-spacing: 0 !important;
+}
+
 body {
+  color: var(--auth-ink);
   background:
-    linear-gradient(90deg, rgba(7, 7, 7, 0.94), rgba(7, 7, 7, 0.64) 50%, rgba(7, 7, 7, 0.94)),
-    repeating-linear-gradient(
-      90deg,
-      rgba(244, 241, 234, 0.024) 0,
-      rgba(244, 241, 234, 0.024) 1px,
-      transparent 1px,
-      transparent 96px
-    ),
-    image-set(url("/assets/hero-world-960.jpg") 1x, url("/assets/hero-world-1920.jpg") 2x) center / cover no-repeat,
+    linear-gradient(90deg, rgba(5, 5, 5, 0.9), rgba(5, 5, 5, 0.46) 50%, rgba(5, 5, 5, 0.9)),
+    linear-gradient(180deg, rgba(5, 5, 5, 0.14), rgba(5, 5, 5, 0.72)),
+    image-set(url("/assets/hero-world-960.jpg") 1x, url("/assets/hero-world-1920.jpg") 2x) center / cover no-repeat fixed,
     var(--auth-black);
+}
+
+.auth-page {
+  padding: 38px;
 }
 
 .auth-page::before {
@@ -53,12 +58,12 @@ body {
 }
 
 .auth-shell {
-  width: min(570px, 100%);
+  width: min(560px, 100%);
 }
 
 .auth-shell:has(.character-panel:not([hidden])) {
   grid-template-columns: minmax(330px, 440px) minmax(520px, 1fr);
-  width: min(1220px, 100%);
+  width: min(1240px, 100%);
 }
 
 .auth-panel,
@@ -78,41 +83,60 @@ body {
 .portfolio-holding {
   border: 1px solid var(--auth-line);
   border-radius: var(--auth-radius);
-  background:
-    linear-gradient(180deg, rgba(244, 241, 234, 0.06), rgba(244, 241, 234, 0.02)),
-    var(--auth-panel);
-  box-shadow: 0 22px 70px rgba(0, 0, 0, 0.34);
-  backdrop-filter: blur(16px) saturate(115%);
+  color: var(--auth-ink);
+  background: var(--panel);
+  box-shadow: 0 28px 78px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(18px) saturate(112%);
+}
+
+.auth-panel {
+  padding: 42px;
+}
+
+.character-panel {
+  background: rgba(255, 253, 248, 0.9);
 }
 
 .auth-brand {
-  gap: 12px;
-  color: var(--auth-paper);
-  font-weight: 850;
-  letter-spacing: 0.02em;
+  gap: 14px;
+  color: var(--auth-ink);
+  font-weight: 900;
+  text-transform: uppercase;
 }
 
 .auth-brand img {
-  width: 46px;
-  height: 46px;
+  width: 48px;
+  height: 48px;
   border: 1px solid var(--auth-line-strong);
-  border-radius: 6px;
+  border-radius: 50%;
   background: #000;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.34);
+  object-fit: cover;
+  box-shadow: none;
 }
 
 .auth-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
   color: var(--auth-gold);
-  font-size: 11px;
-  font-weight: 850;
-  letter-spacing: 0.16em;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.auth-eyebrow::before {
+  width: 34px;
+  height: 1px;
+  background: currentColor;
+  content: "";
 }
 
 .auth-heading h1,
 .character-heading h2 {
-  color: var(--auth-paper);
-  font-weight: 820;
-  letter-spacing: 0;
+  color: var(--auth-ink);
+  font-size: 3.5rem;
+  line-height: 0.95;
+  font-weight: 900;
   text-shadow: none;
 }
 
@@ -122,6 +146,7 @@ body {
 .inventory-empty,
 .portfolio-empty {
   color: var(--auth-muted);
+  line-height: 1.68;
 }
 
 .auth-profile,
@@ -132,7 +157,16 @@ body {
 .stock-trader-cta,
 .web-actions-heading,
 .inventory-toolbar {
+  border: 1px solid var(--auth-line);
   border-radius: var(--auth-radius);
+  background: rgba(17, 17, 17, 0.035);
+}
+
+.auth-form label span,
+.character-form label span,
+.stock-trader label span {
+  color: var(--auth-green);
+  font-weight: 900;
 }
 
 .auth-form input,
@@ -140,9 +174,9 @@ body {
 .stock-trader input,
 .stock-trader select {
   border: 1px solid var(--auth-line);
-  border-radius: 6px;
-  color: var(--auth-paper);
-  background: rgba(244, 241, 234, 0.05);
+  border-radius: 0;
+  color: var(--auth-ink);
+  background: rgba(255, 253, 248, 0.72);
   box-shadow: none;
 }
 
@@ -150,19 +184,19 @@ body {
 .character-form input:focus,
 .stock-trader input:focus,
 .stock-trader select:focus {
-  border-color: rgba(199, 161, 90, 0.56);
-  box-shadow: 0 0 0 3px rgba(199, 161, 90, 0.1);
+  border-color: var(--auth-green);
+  box-shadow: 0 0 0 3px rgba(18, 60, 45, 0.1);
 }
 
 .auth-primary,
 .stock-trader button[data-stock-trader-side="buy"].is-active,
 .stock-trader button[data-stock-trader-side="buy"]:hover {
-  border: 1px solid rgba(244, 241, 234, 0.34);
-  border-radius: 6px;
-  color: #080808;
-  background: linear-gradient(180deg, #fffaf0, #cfc8ba);
+  border: 1px solid var(--auth-ink);
+  border-radius: 0;
+  color: var(--auth-porcelain);
+  background: var(--auth-ink);
   box-shadow: none;
-  font-weight: 850;
+  font-weight: 900;
 }
 
 .auth-ghost,
@@ -172,11 +206,12 @@ body {
 .verify-actions button,
 .inventory-view-toggle button,
 .stock-trader button {
-  border: 1px solid var(--auth-line);
-  border-radius: 6px;
-  color: var(--auth-paper);
-  background: rgba(244, 241, 234, 0.045);
+  border: 1px solid var(--auth-line-strong);
+  border-radius: 0;
+  color: var(--auth-ink);
+  background: transparent;
   box-shadow: none;
+  font-weight: 850;
 }
 
 .auth-primary:is(:hover, :focus-visible),
@@ -185,19 +220,33 @@ body {
 .web-action-button:is(:hover, :focus-visible),
 .stock-trader-link:is(:hover, :focus-visible) {
   transform: translateY(-1px);
-  border-color: var(--auth-line-strong);
+}
+
+.auto-login-button {
+  border: 1px solid var(--auth-line-strong);
+  background: transparent;
 }
 
 .character-status,
 .auto-login-button[aria-pressed="true"] {
-  color: #080808;
-  background: linear-gradient(180deg, #e6ecd9, var(--auth-green));
+  color: var(--auth-porcelain);
+  background: var(--auth-green);
 }
 
 .character-status.is-error,
 .auth-message.is-error {
-  color: #1a0708;
-  background: linear-gradient(180deg, #ead2d4, var(--auth-red));
+  color: var(--auth-porcelain);
+  background: var(--auth-red);
+}
+
+.auth-message.is-success,
+.web-action-message.is-success {
+  color: var(--auth-porcelain);
+  background: var(--auth-green-2);
+}
+
+.auth-divider {
+  color: var(--auth-faint);
 }
 
 .auth-divider::before,
@@ -209,26 +258,38 @@ body {
 .verify-card code,
 .stock-trader-balance,
 .portfolio-total,
-.character-stats strong {
-  color: var(--auth-paper);
+.character-stats strong,
+.stock-trader-heading strong,
+.inventory-toolbar strong,
+.web-actions-heading strong {
+  color: var(--auth-ink);
+}
+
+.verify-card {
+  border-color: rgba(184, 154, 94, 0.32);
+  background: rgba(184, 154, 94, 0.08);
 }
 
 .inventory-slot,
 .equipment-slot {
-  border-color: rgba(244, 241, 234, 0.12);
-  border-radius: 6px;
-  background: rgba(244, 241, 234, 0.04);
+  border-color: var(--auth-line);
+  border-radius: 4px;
+  background: rgba(17, 17, 17, 0.045);
 }
 
 .inventory-slot:hover,
 .equipment-slot:hover {
-  border-color: rgba(199, 161, 90, 0.42);
+  border-color: rgba(184, 154, 94, 0.58);
+}
+
+.google-login-fallback {
+  border-radius: 0;
 }
 
 @media (max-width: 980px) {
   .auth-shell:has(.character-panel:not([hidden])) {
     grid-template-columns: 1fr;
-    width: min(620px, 100%);
+    width: min(640px, 100%);
   }
 }
 
@@ -239,16 +300,17 @@ body {
 
   .auth-panel,
   .character-panel {
-    padding: 20px;
+    padding: 22px;
   }
 
   .auth-brand img {
-    width: 40px;
-    height: 40px;
+    width: 42px;
+    height: 42px;
   }
 
-  .auth-heading h1 {
-    font-size: clamp(36px, 12vw, 48px);
+  .auth-heading h1,
+  .character-heading h2 {
+    font-size: 2.5rem;
   }
 
   .auth-secondary-actions {
