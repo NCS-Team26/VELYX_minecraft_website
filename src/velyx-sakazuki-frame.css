@@ -2656,3 +2656,122 @@ body.home-page-body .poster-hero #hero-title {
   -webkit-background-clip: text !important;
   background-clip: text !important;
 }
+
+/* ==========================================================================
+   VELYX — site-wide unification
+   --------------------------------------------------------------------------
+   Interior pages ran the membership-stage cream/serif/green theme while home
+   went dark cosmic-violet. This flips every page onto the home identity.
+
+   --stage-ink / --stage-paper are dual-role (text AND fills / light-on-dark
+   bands), so they are LEFT ALONE and the specific cream surfaces are darkened
+   explicitly. Only the pure-accent tokens are flipped globally.
+   ========================================================================== */
+:root {
+  --stage-emerald: #b49bec;   /* accent green -> brand violet */
+  --stage-gold: #b49bec;      /* accent gold  -> brand violet */
+  --stage-muted: rgba(244, 243, 239, 0.7);   /* body copy (was dark on cream) */
+  --stage-serif: "Clash Display", "Space Grotesk", "Pretendard Variable", Pretendard, sans-serif;
+}
+
+/* Interior canvas -> dark cosmic (was cream gradient) */
+body:is(.public-page-body, .status-page-body, .stock-terminal-body, .auth-page-body):not(.home-page-body) {
+  background:
+    radial-gradient(64% 46% at 50% 0%, rgba(139, 111, 214, 0.12), transparent 62%),
+    linear-gradient(180deg, #08060d 0%, #0a0912 52%, #07060d 100%) !important;
+}
+
+/* Cream card surfaces -> dark glass */
+body:is(.public-page-body, .status-page-body):not(.home-page-body) :is(
+  .status-panel, .detail-grid article, .dashboard-card, .plugin-grid article,
+  .feature-grid article, .economy-grid article, .market-list article, .market-board,
+  .category-board, .rules-list li, .rules-tools article, .join-card, .join-steps article,
+  .category-feature, .category-grid article, .category-board article, .resource-list a,
+  .user-post-workspace, .user-post-list article, .stats-inner, .showcase, .gallery-strip figure
+) {
+  background: rgba(20, 20, 28, 0.6) !important;
+  border-color: rgba(180, 155, 236, 0.14) !important;
+  box-shadow: none !important;
+}
+
+/* Card top-accent gold hairline -> violet */
+body:is(.public-page-body, .status-page-body):not(.home-page-body) :is(
+  .status-panel, .detail-grid article, .dashboard-card, .plugin-grid article,
+  .feature-grid article, .economy-grid article, .rules-tools article, .join-steps article,
+  .category-grid article, .resource-list a
+)::before {
+  background: linear-gradient(90deg, transparent, rgba(180, 155, 236, 0.72), transparent) !important;
+}
+
+/* Section headings -> Clash Display sans + ivory (was serif dark-ink) */
+body:is(.public-page-body, .status-page-body):not(.home-page-body) :is(
+  .section-heading h1, .section-heading h2, .rules-section h1, .rules-section h2,
+  .world-copy h2, .join-card h1, .join-card h2, .market-copy h3, .economy-stock-teaser h3
+) {
+  font-family: var(--fnt-display) !important;
+  color: #f4f3ef !important;
+  -webkit-text-fill-color: #f4f3ef !important;
+}
+
+/* Card / status headings + strong -> ivory (ink stays dark for fills) */
+body:is(.public-page-body, .status-page-body):not(.home-page-body) :is(
+  .detail-grid article strong, .plugin-grid strong, .feature-grid h3, .economy-grid strong,
+  .market-list strong, .dashboard-card strong, .rules-tools strong, .join-steps strong,
+  .category-feature strong, .category-grid strong, .category-board strong, .resource-list strong,
+  .status-panel strong, .status-topline, .status-topline span, .status-note, .stats-inner strong
+) {
+  color: #f4f3ef !important;
+  -webkit-text-fill-color: #f4f3ef !important;
+}
+
+/* Body copy on the now-dark cards -> ivory-soft (was dark ink) */
+body:is(.public-page-body, .status-page-body):not(.home-page-body) :is(
+  .detail-grid article, .plugin-grid article, .feature-grid article, .economy-grid article,
+  .rules-tools article, .join-steps article, .category-grid article, .category-board article,
+  .resource-list a, .rules-list li, .dashboard-card, .join-card
+) :is(p, li, span:not(.eyebrow)) {
+  color: rgba(244, 243, 239, 0.78) !important;
+  -webkit-text-fill-color: rgba(244, 243, 239, 0.78) !important;
+}
+
+/* Inputs / secondary buttons / tabs -> dark */
+body:is(.public-page-body, .status-page-body, .auth-page-body):not(.home-page-body) :is(.secondary-action, .auth-ghost) {
+  background: rgba(180, 155, 236, 0.08) !important;
+  border-color: rgba(180, 155, 236, 0.28) !important;
+  color: #f4f3ef !important;
+  -webkit-text-fill-color: #f4f3ef !important;
+}
+body:is(.public-page-body, .status-page-body, .auth-page-body):not(.home-page-body) :is(input, textarea, select),
+body:is(.public-page-body, .status-page-body):not(.home-page-body) .economy-page-tabs {
+  background: rgba(16, 16, 24, 0.68) !important;
+  border-color: rgba(180, 155, 236, 0.2) !important;
+  color: #f4f3ef !important;
+}
+
+/* Interior color bands: wine/teal tint -> brand violet-dark */
+body:is(.public-page-body, .status-page-body):not(.home-page-body) :is(.stats-band, .feature-band, .plugin-band, .economy-stock-teaser, .economy-market-snapshot, .stock-workspace) {
+  background:
+    linear-gradient(120deg, rgba(139, 111, 214, 0.16), transparent 42%),
+    linear-gradient(180deg, #0a0912 0%, #07060d 100%) !important;
+}
+
+/* Economy tab pills: dark-on-dark -> readable, violet active */
+body:is(.public-page-body):not(.home-page-body) .economy-page-tabs a {
+  color: rgba(244, 243, 239, 0.72) !important;
+  -webkit-text-fill-color: rgba(244, 243, 239, 0.72) !important;
+}
+body:is(.public-page-body):not(.home-page-body) .economy-page-tabs a:is(:hover, :focus-visible, .is-active) {
+  background: rgba(139, 111, 214, 0.9) !important;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+
+/* Marketplace teaser band: velyx-redesign's "contrast lock" paints it
+   gold+wine+green with !important. Beat it (specificity 0,3,1 > 0,3,0). */
+body:is(.public-page-body):not(.home-page-body) .stock-marketplace-section {
+  background:
+    radial-gradient(circle at 14% 12%, rgba(139, 111, 214, 0.24), transparent 32%),
+    linear-gradient(135deg, rgba(139, 111, 214, 0.14), rgba(7, 6, 13, 0.96) 58%, rgba(110, 61, 255, 0.12)),
+    #07060d !important;
+  border-color: rgba(180, 155, 236, 0.18) !important;
+}
