@@ -3,8 +3,8 @@ import "./login.css";
 import "./velyx-auth-redesign.css";
 // Minecraft skin: last-loaded visual layer, shared with the public site.
 import "./velyx-minecraft.css";
-// Monolog-inspired studio layer: final visual direction requested by the team.
-import "./velyx-monolog.css";
+// Injected after linked styles so the requested Monolog-inspired layer wins predictably.
+import "./velyx-monolog.js";
 
 const AUTH_STORAGE_KEY = "nfoifsb.googleUser";
 const AUTH_EVENT_KEY = "nfoifsb.authEvent";

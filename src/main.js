@@ -3,8 +3,8 @@ import "./styles.css";
 import "./velyx-redesign.css";
 // Minecraft skin: last-loaded visual layer, re-skins the site into a pixel/GUI look.
 import "./velyx-minecraft.css";
-// Monolog-inspired studio layer: final visual direction requested by the team.
-import "./velyx-monolog.css";
+// Injected after linked styles so the requested Monolog-inspired layer wins predictably.
+import "./velyx-monolog.js";
 import {
   AreaSeries,
   CandlestickSeries,
