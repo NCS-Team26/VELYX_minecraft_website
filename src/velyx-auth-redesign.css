@@ -1,69 +1,51 @@
 /* ==========================================================================
-   VELYX Auth Redesign
+   VELYX Auth Editorial Redesign
    --------------------------------------------------------------------------
-   Login has a dedicated bundle, so this file mirrors the public brand tokens
-   without pulling the full site stylesheet into the auth entry.
+   Quiet premium login/inventory interface aligned with the public site.
    ========================================================================== */
 
 :root {
-  --auth-ink: #050508;
-  --auth-panel: rgba(13, 14, 22, 0.82);
-  --auth-panel-strong: rgba(20, 21, 32, 0.94);
-  --auth-line: rgba(232, 229, 255, 0.16);
-  --auth-line-strong: rgba(232, 229, 255, 0.28);
-  --auth-text: #f5f3ff;
-  --auth-muted: rgba(245, 243, 255, 0.72);
-  --auth-faint: rgba(245, 243, 255, 0.5);
-  --auth-silver: #e7e6ef;
-  --auth-violet: #9c63ff;
-  --auth-cyan: #61e5ff;
-  --auth-mint: #75f0bd;
-  --auth-red: #ff6575;
+  --auth-black: #070707;
+  --auth-ink: #101013;
+  --auth-paper: #f4f1ea;
+  --auth-muted: rgba(244, 241, 234, 0.7);
+  --auth-faint: rgba(244, 241, 234, 0.48);
+  --auth-line: rgba(244, 241, 234, 0.14);
+  --auth-line-strong: rgba(244, 241, 234, 0.26);
+  --auth-panel: rgba(16, 16, 19, 0.82);
+  --auth-panel-solid: #141418;
+  --auth-gold: #c7a15a;
+  --auth-green: #8ea579;
+  --auth-purple: #8d78d8;
+  --auth-red: #c9797f;
   --auth-radius: 8px;
   --panel: var(--auth-panel);
-  --panel-solid: var(--auth-panel-strong);
-  --field: rgba(255, 255, 255, 0.065);
-  --field-strong: rgba(255, 255, 255, 0.1);
+  --panel-solid: var(--auth-panel-solid);
+  --field: rgba(244, 241, 234, 0.05);
+  --field-strong: rgba(244, 241, 234, 0.08);
   --border: var(--auth-line);
   --border-strong: var(--auth-line-strong);
-  --text: var(--auth-text);
+  --text: var(--auth-paper);
   --text-soft: var(--auth-muted);
   --text-faint: var(--auth-faint);
-  --accent: var(--auth-cyan);
-  --accent-2: var(--auth-violet);
-  --accent-ink: #07070d;
+  --accent: var(--auth-gold);
+  --accent-2: var(--auth-purple);
+  --accent-ink: #080808;
   --danger: var(--auth-red);
 }
 
 body {
   background:
-    linear-gradient(115deg, rgba(156, 99, 255, 0.12), transparent 32%),
-    linear-gradient(245deg, rgba(97, 229, 255, 0.1), transparent 34%),
+    linear-gradient(90deg, rgba(7, 7, 7, 0.94), rgba(7, 7, 7, 0.64) 50%, rgba(7, 7, 7, 0.94)),
     repeating-linear-gradient(
       90deg,
-      rgba(255, 255, 255, 0.026) 0,
-      rgba(255, 255, 255, 0.026) 1px,
+      rgba(244, 241, 234, 0.024) 0,
+      rgba(244, 241, 234, 0.024) 1px,
       transparent 1px,
-      transparent 92px
+      transparent 96px
     ),
     image-set(url("/assets/hero-world-960.jpg") 1x, url("/assets/hero-world-1920.jpg") 2x) center / cover no-repeat,
-    #050508;
-}
-
-body::before {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  background:
-    linear-gradient(90deg, rgba(5, 5, 8, 0.92), rgba(5, 5, 8, 0.54) 45%, rgba(5, 5, 8, 0.9)),
-    repeating-linear-gradient(
-      0deg,
-      transparent 0,
-      transparent 13px,
-      rgba(255, 255, 255, 0.018) 14px,
-      transparent 15px
-    );
-  content: "";
+    var(--auth-black);
 }
 
 .auth-page::before {
@@ -71,12 +53,12 @@ body::before {
 }
 
 .auth-shell {
-  width: min(590px, 100%);
+  width: min(570px, 100%);
 }
 
 .auth-shell:has(.character-panel:not([hidden])) {
-  width: min(1220px, 100%);
   grid-template-columns: minmax(330px, 440px) minmax(520px, 1fr);
+  width: min(1220px, 100%);
 }
 
 .auth-panel,
@@ -91,49 +73,47 @@ body::before {
 .stock-trader-quote,
 .web-action-button,
 .character-stats div,
-.stock-trader-quote,
 .inventory-grid,
 .portfolio-chart-card,
 .portfolio-holding {
   border: 1px solid var(--auth-line);
   border-radius: var(--auth-radius);
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.026)),
+    linear-gradient(180deg, rgba(244, 241, 234, 0.06), rgba(244, 241, 234, 0.02)),
     var(--auth-panel);
-  box-shadow:
-    0 24px 80px rgba(0, 0, 0, 0.42),
-    inset 0 1px 0 rgba(255, 255, 255, 0.09);
-  backdrop-filter: blur(18px) saturate(150%);
+  box-shadow: 0 22px 70px rgba(0, 0, 0, 0.34);
+  backdrop-filter: blur(16px) saturate(115%);
 }
 
 .auth-brand {
   gap: 12px;
-  font-weight: 900;
-  letter-spacing: 0.04em;
+  color: var(--auth-paper);
+  font-weight: 850;
+  letter-spacing: 0.02em;
 }
 
 .auth-brand img {
-  width: 48px;
-  height: 48px;
-  border-radius: var(--auth-radius);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  width: 46px;
+  height: 46px;
+  border: 1px solid var(--auth-line-strong);
+  border-radius: 6px;
   background: #000;
-  box-shadow:
-    0 0 0 5px rgba(156, 99, 255, 0.13),
-    0 16px 38px rgba(0, 0, 0, 0.42),
-    0 0 36px rgba(156, 99, 255, 0.22);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.34);
 }
 
 .auth-eyebrow {
-  color: var(--auth-cyan);
-  letter-spacing: 0.08em;
+  color: var(--auth-gold);
+  font-size: 11px;
+  font-weight: 850;
+  letter-spacing: 0.16em;
 }
 
 .auth-heading h1,
 .character-heading h2 {
-  color: var(--auth-silver);
-  font-weight: 900;
-  text-shadow: 0 0 34px rgba(156, 99, 255, 0.24);
+  color: var(--auth-paper);
+  font-weight: 820;
+  letter-spacing: 0;
+  text-shadow: none;
 }
 
 .auth-heading p,
@@ -160,33 +140,29 @@ body::before {
 .stock-trader input,
 .stock-trader select {
   border: 1px solid var(--auth-line);
-  border-radius: var(--auth-radius);
-  color: var(--auth-text);
-  background: rgba(255, 255, 255, 0.065);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  border-radius: 6px;
+  color: var(--auth-paper);
+  background: rgba(244, 241, 234, 0.05);
+  box-shadow: none;
 }
 
 .auth-form input:focus,
 .character-form input:focus,
 .stock-trader input:focus,
 .stock-trader select:focus {
-  border-color: rgba(97, 229, 255, 0.68);
-  box-shadow:
-    0 0 0 3px rgba(97, 229, 255, 0.14),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  border-color: rgba(199, 161, 90, 0.56);
+  box-shadow: 0 0 0 3px rgba(199, 161, 90, 0.1);
 }
 
 .auth-primary,
 .stock-trader button[data-stock-trader-side="buy"].is-active,
 .stock-trader button[data-stock-trader-side="buy"]:hover {
-  border: 1px solid rgba(255, 255, 255, 0.24);
-  border-radius: var(--auth-radius);
-  color: #08070d;
-  background: linear-gradient(180deg, #ffffff, #d9d6e8 48%, #a996ff);
-  box-shadow:
-    0 18px 42px rgba(156, 99, 255, 0.24),
-    inset 0 1px 0 rgba(255, 255, 255, 0.9);
-  font-weight: 900;
+  border: 1px solid rgba(244, 241, 234, 0.34);
+  border-radius: 6px;
+  color: #080808;
+  background: linear-gradient(180deg, #fffaf0, #cfc8ba);
+  box-shadow: none;
+  font-weight: 850;
 }
 
 .auth-ghost,
@@ -197,10 +173,10 @@ body::before {
 .inventory-view-toggle button,
 .stock-trader button {
   border: 1px solid var(--auth-line);
-  border-radius: var(--auth-radius);
-  color: var(--auth-text);
-  background: rgba(255, 255, 255, 0.07);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.09);
+  border-radius: 6px;
+  color: var(--auth-paper);
+  background: rgba(244, 241, 234, 0.045);
+  box-shadow: none;
 }
 
 .auth-primary:is(:hover, :focus-visible),
@@ -208,20 +184,20 @@ body::before {
 .auth-secondary-actions button:is(:hover, :focus-visible),
 .web-action-button:is(:hover, :focus-visible),
 .stock-trader-link:is(:hover, :focus-visible) {
-  transform: translateY(-2px);
-  filter: brightness(1.06);
+  transform: translateY(-1px);
+  border-color: var(--auth-line-strong);
 }
 
 .character-status,
 .auto-login-button[aria-pressed="true"] {
-  color: #07110d;
-  background: linear-gradient(180deg, #d7ffec, var(--auth-mint));
+  color: #080808;
+  background: linear-gradient(180deg, #e6ecd9, var(--auth-green));
 }
 
 .character-status.is-error,
 .auth-message.is-error {
-  color: #2a080d;
-  background: linear-gradient(180deg, #ffd2d8, var(--auth-red));
+  color: #1a0708;
+  background: linear-gradient(180deg, #ead2d4, var(--auth-red));
 }
 
 .auth-divider::before,
@@ -234,25 +210,25 @@ body::before {
 .stock-trader-balance,
 .portfolio-total,
 .character-stats strong {
-  color: var(--auth-silver);
+  color: var(--auth-paper);
 }
 
 .inventory-slot,
 .equipment-slot {
-  border-color: rgba(232, 229, 255, 0.12);
+  border-color: rgba(244, 241, 234, 0.12);
   border-radius: 6px;
-  background: rgba(255, 255, 255, 0.045);
+  background: rgba(244, 241, 234, 0.04);
 }
 
 .inventory-slot:hover,
 .equipment-slot:hover {
-  border-color: rgba(97, 229, 255, 0.44);
+  border-color: rgba(199, 161, 90, 0.42);
 }
 
 @media (max-width: 980px) {
   .auth-shell:has(.character-panel:not([hidden])) {
-    width: min(620px, 100%);
     grid-template-columns: 1fr;
+    width: min(620px, 100%);
   }
 }
 
