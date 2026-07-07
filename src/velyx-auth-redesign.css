@@ -20,6 +20,11 @@
   --auth-green: #123c2d;
   --auth-green-2: #1f674b;
   --auth-red: #8d3b3f;
+  --auth-font-sans:
+    "Noto Sans KR", Inter, "SF Pro Text", "Segoe UI Variable", "Segoe UI",
+    ui-sans-serif, system-ui, sans-serif;
+  --auth-font-serif:
+    "Gowun Batang", "Cormorant Garamond", Georgia, "Times New Roman", serif;
   --auth-radius: 8px;
   --panel: rgba(255, 253, 248, 0.86);
   --panel-solid: var(--auth-porcelain);
@@ -42,6 +47,7 @@
 
 body {
   color: var(--auth-ink);
+  font-family: var(--auth-font-sans);
   background:
     linear-gradient(90deg, rgba(5, 5, 5, 0.9), rgba(5, 5, 5, 0.46) 50%, rgba(5, 5, 5, 0.9)),
     linear-gradient(180deg, rgba(5, 5, 5, 0.14), rgba(5, 5, 5, 0.72)),
@@ -134,10 +140,19 @@ body {
 .auth-heading h1,
 .character-heading h2 {
   color: var(--auth-ink);
+  font-family: var(--auth-font-serif);
   font-size: 3.5rem;
   line-height: 0.95;
-  font-weight: 900;
+  font-weight: 700;
   text-shadow: none;
+}
+
+.auth-brand,
+.auth-eyebrow,
+.auth-primary,
+.auth-ghost,
+.auth-secondary-actions button {
+  font-family: var(--auth-font-sans);
 }
 
 .auth-heading p,

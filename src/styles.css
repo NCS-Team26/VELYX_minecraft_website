@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Manrope:wght@600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Gowun+Batang:wght@400;700&family=Inter:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap");
 
 :root {
   color: var(--text);
@@ -9,11 +9,12 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   --font-sans:
-    Inter, "SF Pro Text", "Segoe UI Variable", "Segoe UI", ui-sans-serif, system-ui,
-    -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+    "Noto Sans KR", Inter, "SF Pro Text", "Segoe UI Variable", "Segoe UI",
+    ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue",
+    Arial, sans-serif;
   --font-display:
-    Manrope, Inter, "SF Pro Display", "Segoe UI Variable Display", "Segoe UI",
-    ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    "Gowun Batang", "Cormorant Garamond", "Noto Sans KR", Inter, "SF Pro Display",
+    "Segoe UI Variable Display", "Segoe UI", ui-serif, Georgia, serif;
   --font-mono:
     "SFMono-Regular", "Cascadia Mono", "JetBrains Mono", Consolas, "Liberation Mono",
     monospace;

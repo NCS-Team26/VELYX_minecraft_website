@@ -21,6 +21,13 @@
   --vx-green-2: #1f674b;
   --vx-red: #8d3b3f;
   --vx-blue: #253f58;
+  --vx-font-sans:
+    "Noto Sans KR", Inter, "SF Pro Text", "Segoe UI Variable", "Segoe UI",
+    ui-sans-serif, system-ui, sans-serif;
+  --vx-font-serif:
+    "Gowun Batang", "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  --vx-font-latin:
+    "Cormorant Garamond", "Gowun Batang", Georgia, "Times New Roman", serif;
   --vx-line-dark: rgba(5, 5, 5, 0.13);
   --vx-line-light: rgba(255, 253, 248, 0.18);
   --vx-shadow-paper: 0 22px 56px rgba(37, 30, 20, 0.1);
@@ -67,6 +74,7 @@ html {
 
 body {
   color: var(--vx-ink);
+  font-family: var(--vx-font-sans);
   background:
     linear-gradient(180deg, rgba(255, 253, 248, 0.92), rgba(247, 243, 234, 0.98)),
     repeating-linear-gradient(
@@ -97,14 +105,19 @@ h1,
 h2,
 h3,
 h4,
+.eyebrow,
+.stock-brand-mark {
+  font-family: var(--vx-font-serif);
+}
+
 .brand,
 .nav-links,
 .nav-login,
-.eyebrow,
-.stock-brand-mark {
-  font-family:
-    Manrope, Inter, "SF Pro Display", "Segoe UI Variable Display", "Segoe UI",
-    ui-sans-serif, system-ui, sans-serif;
+button,
+input,
+select,
+textarea {
+  font-family: var(--vx-font-sans);
 }
 
 img {
@@ -1041,6 +1054,336 @@ textarea:focus {
 .stock-news-image img,
 .stock-news-dialog-media img {
   filter: saturate(0.84) contrast(1.04) brightness(0.92);
+}
+
+/* Luxury refinement pass ----------------------------------------------------
+   This pass deliberately removes dashboard heaviness from the public pages.
+   Thin editorial lines, calmer shadows, and serif Korean headings make the
+   economy content feel curated instead of boxed-in.
+   -------------------------------------------------------------------------- */
+.section-heading {
+  max-width: 940px;
+  margin-bottom: clamp(42px, 6vw, 74px);
+}
+
+.section-heading h1,
+.section-heading h2,
+.rules-section h1,
+.rules-section h2,
+.join-card h1,
+.join-card h2,
+.world-copy h2,
+.market-copy h3,
+.economy-stock-teaser h3 {
+  font-family: var(--vx-font-serif);
+  font-weight: 600;
+  line-height: 1.12;
+}
+
+.section-heading h1,
+.section-heading h2,
+.rules-section h1,
+.rules-section h2,
+.world-copy h2 {
+  font-size: clamp(40px, 4.85vw, 74px);
+}
+
+.section-heading .eyebrow {
+  margin-bottom: 22px;
+}
+
+.screen-copy,
+.world-copy p:not(.eyebrow),
+.market-copy p:not(.eyebrow),
+.economy-stock-teaser p:not(.eyebrow),
+.dashboard-card p,
+.rules-list li {
+  font-size: 1rem;
+  font-weight: 500;
+  color: rgba(17, 17, 17, 0.58);
+}
+
+.hero h1 {
+  font-family: var(--vx-font-latin);
+  font-size: clamp(92px, 13vw, 184px);
+  font-weight: 700;
+  line-height: 0.84;
+}
+
+.hero-copy {
+  font-family: var(--vx-font-serif);
+  font-size: clamp(20px, 2vw, 29px);
+  font-weight: 600;
+}
+
+.eyebrow {
+  font-family: var(--vx-font-sans);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--vx-gold);
+}
+
+.stats-band {
+  width: min(var(--vx-max), calc(100% - 48px));
+  margin: 34px auto 12px;
+  padding: 0;
+  background: transparent;
+  color: var(--vx-ink);
+}
+
+.stats-inner {
+  width: 100%;
+  gap: 0;
+  overflow: visible;
+  border-block: 1px solid rgba(5, 5, 5, 0.16);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.stats-inner article {
+  display: grid;
+  place-items: center;
+  min-height: 156px;
+  padding: 28px 18px;
+  border: 0;
+  border-right: 1px solid rgba(5, 5, 5, 0.11);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.stats-inner article:last-child {
+  border-right: 0;
+}
+
+.stats-inner article::before {
+  display: none;
+}
+
+.stats-inner strong {
+  color: var(--vx-ink);
+  font-family: var(--vx-font-serif);
+  font-size: clamp(44px, 4.2vw, 68px);
+  font-weight: 600;
+  line-height: 0.9;
+  background: none;
+  -webkit-text-fill-color: currentColor;
+}
+
+.stats-inner span {
+  margin-top: 16px;
+  color: rgba(17, 17, 17, 0.48);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.status-layout {
+  gap: 26px;
+}
+
+.status-panel {
+  display: grid;
+  align-content: start;
+  min-height: 430px;
+  padding: clamp(34px, 4vw, 54px);
+  border-color: rgba(31, 103, 75, 0.22);
+  background:
+    linear-gradient(145deg, rgba(31, 103, 75, 0.055), transparent 54%),
+    rgba(255, 253, 248, 0.86);
+  box-shadow: 0 30px 80px rgba(25, 30, 22, 0.08);
+}
+
+.status-panel strong {
+  margin-top: clamp(34px, 4vw, 54px);
+  font-family: var(--vx-font-serif);
+  font-size: clamp(64px, 7vw, 104px);
+  font-weight: 600;
+  line-height: 0.92;
+}
+
+.status-note,
+.status-topline {
+  font-weight: 500;
+  color: rgba(17, 17, 17, 0.54);
+}
+
+.detail-grid {
+  gap: 20px;
+}
+
+.detail-grid article,
+.dashboard-card,
+.economy-grid article,
+.market-list article,
+.plugin-grid article,
+.feature-grid article,
+.rules-tools article,
+.join-steps article,
+.category-board article,
+.resource-list a {
+  border-color: rgba(17, 17, 17, 0.11);
+  border-radius: 6px;
+  background:
+    linear-gradient(135deg, rgba(255, 253, 248, 0.94), rgba(247, 243, 234, 0.78)),
+    rgba(255, 253, 248, 0.9);
+  box-shadow: 0 26px 76px rgba(44, 37, 27, 0.06);
+}
+
+.detail-grid article::before,
+.dashboard-card::before,
+.economy-grid article::before,
+.plugin-grid article::before,
+.feature-grid article::before,
+.rules-tools article::before,
+.join-steps article::before {
+  width: 38%;
+  height: 1px;
+  background: linear-gradient(90deg, var(--vx-gold), transparent);
+  opacity: 0.58;
+}
+
+.detail-grid article .ic,
+.plugin-grid .ic,
+.feature-grid .ic {
+  width: 42px;
+  height: 42px;
+  padding: 10px;
+  border-radius: 50%;
+  color: var(--vx-green);
+  background: rgba(31, 103, 75, 0.075);
+}
+
+.detail-grid article span,
+.dashboard-card span,
+.economy-grid span,
+.market-list span,
+.rules-tools span,
+.join-steps span {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--vx-green);
+}
+
+.detail-grid article strong,
+.dashboard-card strong,
+.market-list strong {
+  font-family: var(--vx-font-serif);
+  font-weight: 600;
+}
+
+.dashboard-card strong {
+  font-size: clamp(24px, 2.2vw, 34px);
+}
+
+.economy-grid {
+  gap: 22px;
+}
+
+.economy-grid article {
+  min-height: 270px;
+  padding: clamp(26px, 3vw, 38px);
+}
+
+.economy-grid strong {
+  margin-top: 16px;
+  font-family: var(--vx-font-serif);
+  font-size: clamp(28px, 2.7vw, 38px);
+  font-weight: 600;
+}
+
+.economy-grid p {
+  margin-top: 16px;
+  color: rgba(17, 17, 17, 0.58);
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.72;
+}
+
+.market-board {
+  grid-template-columns: minmax(300px, 0.76fr) minmax(0, 1.24fr);
+  gap: clamp(28px, 5vw, 72px);
+  margin-top: clamp(54px, 7vw, 92px);
+  padding: clamp(38px, 5vw, 64px);
+  border: 1px solid rgba(17, 17, 17, 0.1);
+  border-radius: 6px;
+  background:
+    linear-gradient(110deg, rgba(18, 60, 45, 0.055), transparent 52%),
+    rgba(255, 253, 248, 0.72);
+  box-shadow: 0 32px 90px rgba(44, 37, 27, 0.07);
+}
+
+.market-copy h3 {
+  font-size: clamp(38px, 4vw, 62px);
+}
+
+.market-list {
+  gap: 18px;
+}
+
+.market-list article {
+  padding: clamp(24px, 3vw, 36px);
+}
+
+.market-list strong {
+  margin-top: 12px;
+  font-size: clamp(24px, 2.3vw, 34px);
+}
+
+.market-list em {
+  border-radius: 999px;
+  color: var(--vx-green);
+  background: rgba(31, 103, 75, 0.09);
+}
+
+.economy-stock-teaser {
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 32px;
+  margin-top: clamp(42px, 6vw, 76px);
+  padding: clamp(34px, 5vw, 58px);
+  border: 0;
+  border-radius: 0;
+  color: var(--vx-porcelain);
+  background:
+    linear-gradient(90deg, rgba(255, 253, 248, 0.04), transparent 62%),
+    var(--vx-ink);
+  box-shadow: 0 34px 84px rgba(0, 0, 0, 0.18);
+}
+
+.economy-stock-teaser h3 {
+  font-size: clamp(32px, 3.6vw, 56px);
+}
+
+.economy-stock-teaser .stock-trade-link {
+  min-width: 210px;
+  border-color: rgba(255, 253, 248, 0.34);
+  color: var(--vx-porcelain);
+  background: rgba(255, 253, 248, 0.04);
+}
+
+.site-footer {
+  width: min(var(--vx-max), calc(100% - 48px));
+  margin: 80px auto 0;
+  border: 0;
+  border-top: 1px solid rgba(255, 253, 248, 0.14);
+  border-radius: 0;
+  background: var(--vx-black);
+}
+
+.footer-info-row,
+.footer-theme-row {
+  width: calc(100% - 40px);
+}
+
+.footer-theme-row {
+  justify-content: flex-end;
+}
+
+.footer-theme-toggle,
+.footer-theme-customizer {
+  border-radius: 6px;
+  background: rgba(255, 253, 248, 0.08);
+  backdrop-filter: blur(18px);
 }
 
 /* Responsive --------------------------------------------------------------- */
