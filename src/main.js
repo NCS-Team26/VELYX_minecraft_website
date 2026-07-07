@@ -1,6 +1,8 @@
 import "./styles.css";
 // Final brand layer: keeps legacy selectors working while giving every page the VELYX visual system.
 import "./velyx-redesign.css";
+// Minecraft skin: last-loaded visual layer, re-skins the site into a pixel/GUI look.
+import "./velyx-minecraft.css";
 import {
   AreaSeries,
   CandlestickSeries,

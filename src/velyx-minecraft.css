@@ -1,0 +1,605 @@
+/* ==========================================================================
+   VELYX Minecraft Skin  (final visual layer)
+   --------------------------------------------------------------------------
+   Loaded AFTER styles.css + velyx-redesign.css. It re-skins the previous
+   "luxury exchange" look into an authentic Minecraft GUI aesthetic:
+   pixel type, beveled inventory panels, hotbar-style buttons, block palette.
+
+   Strategy: most reach comes from redefining the CSS vars the redesign layer
+   already consumes (fonts + surface colors). Targeted rules then add the
+   pixel bevels, hard corners and drop-shadow text that read as "Minecraft".
+   ========================================================================== */
+
+/* Galmuri: open-source Korean + Latin pixel font. Press Start 2P: Latin display. */
+@import url("https://cdn.jsdelivr.net/gh/quiple/galmuri/dist/galmuri.css");
+@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
+
+:root {
+  /* Minecraft block palette */
+  --mc-grass: #74b43c;
+  --mc-grass-2: #57902b;
+  --mc-dirt: #79553a;
+  --mc-dirt-2: #5a3f2a;
+  --mc-stone: #8f8f97;
+  --mc-stone-2: #56565c;
+  --mc-bg: #16161b;
+  --mc-bg-2: #1e1e26;
+  --mc-panel: #2b2b33;
+  --mc-panel-2: #34343d;
+  --mc-slot: #1a1a20;
+  --mc-ink: #ffffff;
+  --mc-ink-soft: #c7c7d1;
+  --mc-ink-faint: rgba(255, 255, 255, 0.5);
+  --mc-gold: #ffcf4a;
+  --mc-diamond: #4fe4dc;
+  --mc-red: #e0533d;
+  --mc-line: #05050a;
+
+  /* Re-skin the fonts the redesign layer already references everywhere.
+     !important is required: Vite emits this file's <link> BEFORE main.css, so
+     without it the (later) redesign :root would win these shared tokens. */
+  --vx-font-sans:
+    "Galmuri11", "Galmuri9", "Apple SD Gothic Neo", "Malgun Gothic",
+    ui-sans-serif, system-ui, sans-serif !important;
+  --vx-font-serif:
+    "Galmuri14", "Galmuri11", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif !important;
+  --vx-font-latin: "Press Start 2P", "Galmuri14", monospace !important;
+  --vx-font-mono: "GalmuriMono11", "GalmuriMono", ui-monospace, monospace !important;
+
+  /* Re-skin the surface tokens the redesign layer already references */
+  --vx-radius: 0px !important;
+  --text: var(--mc-ink) !important;
+  --text-soft: var(--mc-ink-soft) !important;
+  --text-faint: var(--mc-ink-faint) !important;
+  --bg-solid: var(--mc-bg) !important;
+  --card: var(--mc-panel) !important;
+  --card-solid: var(--mc-panel) !important;
+  --border: var(--mc-line) !important;
+  --nav-bg: #191920 !important;
+  --nav-border: var(--mc-line) !important;
+  --chip: rgba(255, 255, 255, 0.08) !important;
+  --inset: var(--mc-slot) !important;
+  --theme-accent: var(--mc-grass) !important;
+  --theme-accent-soft: rgba(116, 180, 60, 0.16) !important;
+  --theme-accent-border: var(--mc-grass-2) !important;
+  --theme-accent-glow: rgba(116, 180, 60, 0.28) !important;
+
+  /* Re-skin the base palette tokens too: headings resolve to --vx-ink and card
+     labels to --vx-green, both of which were dark ink for the old ivory look.
+     Flipping them here fixes every heading/label at once on the dark skin. */
+  --vx-ink: var(--mc-ink) !important;
+  --vx-ink-soft: var(--mc-ink-soft) !important;
+  --vx-green: var(--mc-grass) !important;
+  --vx-green-2: var(--mc-grass-2) !important;
+}
+
+/* Keep the skin identical regardless of the light/dark toggle — Minecraft is
+   one strong look. (ponytail: single skin; wire dual-theme later if wanted.) */
+:root,
+:root[data-theme="dark"],
+:root[data-theme="light"] {
+  --text: var(--mc-ink) !important;
+  --text-soft: var(--mc-ink-soft) !important;
+  --bg-solid: var(--mc-bg) !important;
+  --card: var(--mc-panel) !important;
+  --card-solid: var(--mc-panel) !important;
+  --nav-bg: #191920 !important;
+  color-scheme: dark;
+}
+
+/* --- Base: dark stone room with a faint pixel grid ------------------------ */
+html {
+  background: var(--mc-bg) !important;
+}
+
+body {
+  color: var(--mc-ink) !important;
+  font-family: var(--vx-font-sans);
+  font-weight: 400;
+  line-height: 1.65;
+  background:
+    linear-gradient(180deg, rgba(22, 22, 27, 0.9), rgba(16, 16, 21, 0.97)),
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.02) 0 1px, transparent 1px 32px),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.02) 0 1px, transparent 1px 32px),
+    var(--mc-bg) !important;
+}
+
+::selection {
+  color: #0e0e12;
+  background: var(--mc-grass);
+}
+
+:focus-visible {
+  outline: 3px solid var(--mc-grass);
+  outline-offset: 3px;
+}
+
+/* Crunch every raster surface so nothing looks anti-aliased/soft */
+img,
+canvas,
+.brand img,
+.footer-brand img,
+.player-heads img,
+[data-player-heads] img {
+  image-rendering: pixelated;
+}
+
+/* Kill soft corners globally; pixel GUIs are square */
+a,
+button,
+article,
+section,
+input,
+select,
+textarea,
+code,
+figure,
+img,
+.status-panel,
+.dashboard-card,
+.join-card,
+.market-board,
+.market-list article,
+[class*="-grid"] article,
+[class*="-card"],
+.meter,
+.meter span {
+  border-radius: 0 !important;
+}
+
+/* --- Pixel type + Minecraft drop-shadow ---------------------------------- */
+h1,
+h2,
+h3,
+h4,
+.eyebrow,
+.brand span,
+.nav-links a,
+.primary-action,
+.secondary-action,
+.nav-login,
+.dashboard-card strong,
+.status-panel strong {
+  font-family: var(--vx-font-serif);
+  letter-spacing: 0 !important;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.55);
+}
+
+h1,
+h2,
+h3,
+h4,
+.section-heading h1,
+.section-heading h2,
+.section-heading h3,
+.rules-section h1,
+.rules-section h2,
+.world-copy h2,
+.join-card h1,
+.join-card h2,
+.market-copy h3,
+.economy-stock-teaser h3 {
+  /* base sheet hardcodes a near-black -webkit-text-fill-color; override both */
+  color: var(--mc-ink) !important;
+  -webkit-text-fill-color: var(--mc-ink) !important;
+  line-height: 1.35;
+  font-weight: 400;
+}
+
+.eyebrow {
+  color: var(--mc-grass);
+  font-family: var(--vx-font-sans);
+  font-size: 11px;
+}
+
+.eyebrow::before,
+.eyebrow::after {
+  background: var(--mc-grass-2) !important;
+}
+
+/* --- Top nav = dark hotbar with a grass underline ------------------------ */
+.site-nav {
+  color: var(--mc-ink);
+  background: #191920;
+  border-bottom: 4px solid var(--mc-grass);
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.4);
+  backdrop-filter: none;
+}
+
+.brand span {
+  font-family: var(--vx-font-latin);
+  font-size: 13px;
+  color: var(--mc-ink);
+}
+
+.brand img,
+.footer-brand img {
+  border: 2px solid var(--mc-line);
+  border-radius: 0 !important;
+  background: var(--mc-slot);
+}
+
+.nav-links a {
+  font-size: 12px;
+  color: var(--mc-ink-soft);
+}
+
+.nav-links a:is(:hover, :focus-visible, .is-active):not(.nav-login) {
+  color: var(--mc-grass);
+}
+
+.nav-links a:not(.nav-login)::after {
+  background: var(--mc-grass) !important;
+}
+
+/* --- The signature Minecraft button bevel (raised block) ----------------- */
+.primary-action,
+.secondary-action,
+.nav-login,
+.stock-trade-link,
+.address-row button,
+.footer-theme-toggle,
+[data-copy-address] {
+  border-radius: 0 !important;
+  border: 2px solid var(--mc-line) !important;
+  color: #ffffff !important;
+  font-family: var(--vx-font-sans);
+  font-weight: 400;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.5);
+  box-shadow:
+    inset 2px 2px 0 rgba(255, 255, 255, 0.22),
+    inset -2px -3px 0 rgba(0, 0, 0, 0.45);
+  transition: filter 90ms steps(2), transform 90ms steps(2);
+}
+
+.primary-action,
+.hero .primary-action,
+[data-copy-address],
+.address-row button,
+.stock-trade-link {
+  background: var(--mc-grass) !important;
+}
+
+.secondary-action,
+.hero .secondary-action,
+.nav-login,
+.footer-theme-toggle {
+  background: var(--mc-stone) !important;
+}
+
+.primary-action:is(:hover, :focus-visible),
+.secondary-action:is(:hover, :focus-visible),
+.nav-login:is(:hover, :focus-visible),
+.stock-trade-link:is(:hover, :focus-visible),
+.address-row button:hover,
+[data-copy-address]:hover,
+.footer-theme-toggle:hover {
+  filter: brightness(1.14);
+}
+
+.primary-action:active,
+.secondary-action:active,
+.nav-login:active,
+[data-copy-address]:active,
+.address-row button:active {
+  transform: translateY(2px);
+  box-shadow: inset 2px 2px 0 rgba(0, 0, 0, 0.35);
+}
+
+/* --- Hero: big pixel wordmark over the voxel scene ----------------------- */
+.hero-content::before {
+  display: none !important;
+}
+
+.hero h1,
+#hero-title {
+  font-family: var(--vx-font-latin);
+  font-size: clamp(42px, 8vw, 96px);
+  line-height: 1.05;
+  color: #ffffff;
+  text-shadow: 4px 4px 0 var(--mc-grass-2), 8px 8px 0 rgba(0, 0, 0, 0.55);
+}
+
+.hero-copy {
+  color: var(--mc-ink);
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.6);
+}
+
+.hero-meta li {
+  color: var(--mc-ink-soft);
+  background: rgba(10, 10, 14, 0.55);
+  border: 2px solid var(--mc-line);
+  padding: 6px 10px;
+}
+
+.hero-meta-dot {
+  background: var(--mc-grass) !important;
+  border-radius: 0 !important;
+}
+
+.hero-shade {
+  background: linear-gradient(180deg, rgba(16, 16, 21, 0.1), rgba(16, 16, 21, 0.82)) !important;
+}
+
+/* --- Inventory panels: every card gets the recessed-slot bevel ------------ */
+.status-panel,
+.dashboard-card,
+.join-card,
+.market-board,
+.market-list article,
+.stats-inner article,
+.economy-grid article,
+.feature-grid article,
+.plugin-grid article,
+.rules-tools article,
+.join-steps article,
+.detail-grid article,
+.economy-stock-teaser {
+  background: var(--mc-panel) !important;
+  border: 2px solid var(--mc-line) !important;
+  border-radius: 0 !important;
+  box-shadow:
+    inset 2px 2px 0 rgba(255, 255, 255, 0.08),
+    inset -2px -2px 0 rgba(0, 0, 0, 0.5),
+    0 4px 0 rgba(0, 0, 0, 0.4) !important;
+  color: var(--mc-ink);
+}
+
+.status-panel::before,
+.dashboard-card::before,
+.plugin-grid article::before,
+.feature-grid article::before,
+.economy-grid article::before {
+  display: none !important;
+}
+
+.status-panel:hover,
+.dashboard-card:hover,
+.plugin-grid article:hover,
+.feature-grid article:hover,
+.economy-grid article:hover {
+  transform: translateY(-3px);
+  box-shadow:
+    inset 2px 2px 0 rgba(255, 255, 255, 0.1),
+    inset -2px -2px 0 rgba(0, 0, 0, 0.5),
+    0 7px 0 rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Card text + labels */
+.status-panel strong,
+.dashboard-card strong,
+.plugin-grid strong,
+.feature-grid h3,
+.economy-grid strong {
+  color: var(--mc-ink);
+}
+
+.detail-grid article span,
+.dashboard-card span,
+.plugin-grid span,
+.economy-grid span,
+.market-list article span,
+.rules-tools article > span,
+.join-steps article > span {
+  /* base sheet hardcodes a dark plum on these labels; force grass */
+  color: var(--mc-grass) !important;
+  -webkit-text-fill-color: var(--mc-grass) !important;
+  font-family: var(--vx-font-sans);
+}
+
+.dashboard-card p,
+.status-note,
+.screen-copy,
+.world-copy p:not(.eyebrow),
+.market-copy p:not(.eyebrow),
+.economy-stock-teaser p:not(.eyebrow),
+.rules-tools p,
+.rules-list li,
+.join-steps p,
+.join-note,
+p[data-motd] {
+  /* redesign hardcodes rgba(17,17,17,.58) on these and loads later — force light */
+  color: var(--mc-ink-soft) !important;
+}
+
+/* Square the hero summary pill */
+.hero-meta,
+.hero-meta li {
+  border-radius: 0 !important;
+}
+
+/* Numbers read as an ore counter */
+[data-player-count],
+[data-latency],
+[data-player-summary],
+.market-list strong {
+  font-family: var(--vx-font-mono);
+  color: var(--mc-gold);
+}
+
+/* --- Stat icons pick up the block palette -------------------------------- */
+.ic,
+.detail-grid article .ic,
+.plugin-grid .ic,
+.feature-grid .ic {
+  stroke: var(--mc-grass) !important;
+  color: var(--mc-grass) !important;
+  fill: none;
+}
+
+/* Status topline label stays legible on dark */
+[data-status-label],
+.status-topline {
+  color: var(--mc-ink);
+}
+
+/* --- Status dot + meters as chunky XP/health bars ------------------------ */
+.status-dot,
+[data-status-dot] {
+  border-radius: 0 !important;
+  box-shadow: 0 0 0 2px var(--mc-line);
+}
+
+.meter {
+  background: var(--mc-slot) !important;
+  border: 2px solid var(--mc-line) !important;
+  border-radius: 0 !important;
+  height: 14px !important;
+  padding: 0 !important;
+}
+
+.meter span {
+  background: var(--mc-grass) !important;
+  border-radius: 0 !important;
+  image-rendering: pixelated;
+}
+
+.temperature-meter span,
+.ram-card-meter span {
+  background: var(--mc-diamond) !important;
+}
+
+/* --- Stats band: four grass placards ------------------------------------- */
+.stats-inner article strong {
+  color: var(--mc-grass);
+  font-family: var(--vx-font-serif);
+}
+
+/* --- Rules list: numbered stone tablets ---------------------------------- */
+.rules-list li {
+  background: var(--mc-panel) !important;
+  border: 2px solid var(--mc-line) !important;
+  border-left: 6px solid var(--mc-grass) !important;
+  color: var(--mc-ink-soft);
+  box-shadow: inset -2px -2px 0 rgba(0, 0, 0, 0.5);
+}
+
+/* --- Join: server-address slot ------------------------------------------- */
+.address-row {
+  background: var(--mc-slot);
+  border: 2px solid var(--mc-line);
+  padding: 6px;
+}
+
+.address-row code,
+code {
+  font-family: var(--vx-font-mono);
+  color: var(--mc-grass);
+  background: var(--mc-slot);
+}
+
+/* --- Footer as a bedrock bar --------------------------------------------- */
+.site-footer {
+  background: #101015;
+  border-top: 4px solid var(--mc-dirt);
+  color: var(--mc-ink-soft);
+}
+
+.footer-brand,
+.footer-info-row a {
+  color: var(--mc-ink-soft);
+}
+
+.footer-info-row a:hover {
+  color: var(--mc-grass);
+}
+
+/* --- Content sections carry an ivory 135deg gradient -> let dark show ----- */
+.economy-section,
+.feature-section,
+.world-section,
+.gallery-band,
+.rules-section,
+.join-section,
+.status-band,
+.stats-band,
+.plugin-section,
+.category-section {
+  background: transparent !important;
+}
+
+/* --- Feature/Plugin bands: ivory gradient -> dark stone slab -------------- */
+.feature-band,
+.plugin-band {
+  border-block: 4px solid var(--mc-line) !important;
+  background:
+    linear-gradient(180deg, rgba(40, 40, 48, 0.96), rgba(26, 26, 32, 0.98)),
+    var(--mc-bg-2) !important;
+}
+
+/* --- Grass/dirt block strip: reusable decorative divider ----------------- */
+.stats-band,
+.join-section {
+  border-top: 4px solid var(--mc-grass);
+  border-image: linear-gradient(
+      180deg,
+      var(--mc-grass) 0 40%,
+      var(--mc-dirt) 40% 100%
+    )
+    1;
+}
+
+/* --- Login / auth page: ivory panel -> Minecraft GUI --------------------- */
+.auth-panel {
+  background: var(--mc-panel) !important;
+  border: 2px solid var(--mc-line) !important;
+  border-radius: 0 !important;
+  box-shadow:
+    inset 2px 2px 0 rgba(255, 255, 255, 0.08),
+    inset -2px -2px 0 rgba(0, 0, 0, 0.5),
+    0 6px 0 rgba(0, 0, 0, 0.4) !important;
+}
+
+.auth-panel input,
+.auth-form input {
+  background: var(--mc-slot) !important;
+  border: 2px solid var(--mc-line) !important;
+  border-radius: 0 !important;
+  color: var(--mc-ink) !important;
+  font-family: var(--vx-font-sans);
+}
+
+.auth-form label,
+.auth-eyebrow {
+  color: var(--mc-grass) !important;
+}
+
+.auth-panel p,
+.auth-message {
+  color: var(--mc-ink-soft) !important;
+}
+
+.auth-primary {
+  background: var(--mc-grass) !important;
+  color: #ffffff !important;
+  border: 2px solid var(--mc-line) !important;
+  border-radius: 0 !important;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.5);
+  box-shadow:
+    inset 2px 2px 0 rgba(255, 255, 255, 0.22),
+    inset -2px -3px 0 rgba(0, 0, 0, 0.45) !important;
+}
+
+.auth-ghost,
+.auto-login-button,
+.google-login-fallback,
+.auth-secondary-actions a,
+.auth-secondary-actions button {
+  color: var(--mc-ink) !important;
+  border-radius: 0 !important;
+}
+
+.auth-secondary-actions,
+.auto-login-row {
+  background: transparent !important;
+  border-color: var(--mc-line) !important;
+}
+
+/* --- Mobile nav sheet stays square + dark -------------------------------- */
+@media (max-width: 860px) {
+  .nav-links {
+    background: #191920 !important;
+    border: 2px solid var(--mc-line) !important;
+    border-radius: 0 !important;
+  }
+}
