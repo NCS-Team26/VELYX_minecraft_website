@@ -2032,3 +2032,135 @@ button.is-active {
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
   }
 }
+
+/* ==========================================================================
+   VELYX brand identity pass  (final override — loads last, wins)
+   --------------------------------------------------------------------------
+   Shifts the site from the emerald/ivory "economy" skin onto the actual brand:
+   the chrome/violet 4-point star logo. Three moves, no new asset, no new JS:
+     1. Repoint the accent tokens emerald -> violet/silver. Most usages read
+        var(--vlx-emerald[-soft]), so two token swaps flip them at once; the
+        handful of hardcoded rgba(74,158,115) glows are overridden below.
+     2. Swap the sepia Minecraft hero image for a cosmic violet/silver scene.
+     3. Drop the logo star in as the signature centrepiece. The art is chrome
+        on black, so mix-blend-mode:screen drops the black and leaves the star
+        + its violet glow floating behind the wordmark.
+   ========================================================================== */
+
+:root,
+:root[data-theme="dark"] {
+  /* Brand accents (new) */
+  --vlx-violet: #8b6fd6;
+  --vlx-violet-strong: #6e3dff;
+  --vlx-silver: #c7cbd6;
+  --vlx-ice: #6ea8d8;
+  /* Repoint the old accent name -> violet so every var() ref inherits the brand */
+  --vlx-emerald: #8b6fd6 !important;
+  --vlx-emerald-soft: rgba(139, 111, 214, 0.18) !important;
+  --theme-accent: #8b6fd6 !important;
+  --theme-accent-soft: rgba(139, 111, 214, 0.18) !important;
+  --theme-accent-border: rgba(139, 111, 214, 0.42) !important;
+  --theme-accent-glow: rgba(139, 111, 214, 0.28) !important;
+}
+
+:root[data-theme="light"] {
+  --vlx-emerald: #6e3dff !important;
+  --vlx-emerald-soft: rgba(110, 61, 255, 0.14) !important;
+}
+
+/* Site-wide ambient bloom (non-home pages): violet / silver / ice, was emerald */
+body::before {
+  background:
+    radial-gradient(32% 36% at 18% 16%, rgba(139, 111, 214, 0.24), transparent 68%),
+    radial-gradient(30% 34% at 84% 26%, rgba(110, 168, 216, 0.16), transparent 70%),
+    radial-gradient(40% 42% at 70% 86%, rgba(199, 203, 214, 0.12), transparent 72%),
+    radial-gradient(38% 40% at 32% 78%, rgba(110, 61, 255, 0.14), transparent 72%) !important;
+}
+
+/* Hardcoded accent glows (couldn't ride the token) -> violet */
+.status-dot,
+[data-status-dot],
+.hero-meta-dot {
+  box-shadow: 0 0 10px rgba(139, 111, 214, 0.7), 0 0 0 3px rgba(139, 111, 214, 0.18) !important;
+}
+
+.nav-login.is-authenticated {
+  background: rgba(139, 111, 214, 0.18) !important;
+  border-color: rgba(139, 111, 214, 0.5) !important;
+}
+
+.status-panel:hover,
+.dashboard-card:hover,
+.economy-grid article:hover,
+.feature-grid article:hover,
+.plugin-grid article:hover,
+.market-list article:hover {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 26px 72px rgba(0, 0, 0, 0.46),
+    0 0 26px rgba(139, 111, 214, 0.2) !important;
+}
+
+/* --- Signature hero: cosmic brand scene ----------------------------------
+   NOTE: velyx-sakazuki-frame.css loads AFTER this sheet and repaints
+   .poster-media with the sepia Minecraft jpg. The `body` prefix here raises
+   specificity (0,2,1 > 0,2,0) so the brand scene wins regardless of order. */
+body.home-page-body .poster-media {
+  background-image:
+    radial-gradient(120% 82% at 50% 6%, rgba(139, 111, 214, 0.30), transparent 56%),
+    radial-gradient(90% 72% at 50% 122%, rgba(110, 168, 216, 0.16), transparent 60%),
+    radial-gradient(58% 48% at 82% 20%, rgba(199, 203, 214, 0.13), transparent 60%),
+    radial-gradient(48% 44% at 16% 78%, rgba(110, 61, 255, 0.16), transparent 62%),
+    linear-gradient(180deg, #08060d 0%, #050409 58%, #04040b 100%) !important;
+  background-size: cover !important;
+  background-position: center !important;
+  filter: none !important;
+  transform: none !important;
+}
+
+/* Faint vignette shift toward violet-black, not warm */
+body.home-page-body .poster-vignette {
+  background:
+    linear-gradient(180deg, rgba(6, 5, 11, 0.28), rgba(6, 5, 11, 0.02) 40%, rgba(6, 5, 11, 0.62)),
+    radial-gradient(circle at 50% 46%, rgba(199, 203, 214, 0.06), transparent 38%, rgba(6, 5, 11, 0.42) 74%) !important;
+}
+
+/* The logo star as the centrepiece: chrome-on-black art, screen-blended so the
+   black drops out and the star + violet halo float behind the wordmark. */
+.home-page-body .poster-hero::after {
+  content: "" !important;
+  position: absolute !important;
+  z-index: 1 !important;
+  left: 50% !important;
+  top: 43% !important;
+  width: min(74vh, 52rem) !important;
+  aspect-ratio: 1 !important;
+  transform: translate(-50%, -50%) !important;
+  background: url("/assets/server-icon.png") center / contain no-repeat !important;
+  opacity: 0.5 !important;
+  mix-blend-mode: screen !important;
+  filter:
+    drop-shadow(0 0 70px rgba(139, 111, 214, 0.62))
+    drop-shadow(0 0 26px rgba(199, 203, 214, 0.32)) !important;
+  pointer-events: none !important;
+  animation: vlxEmblemBreathe 9s ease-in-out infinite alternate;
+}
+
+@keyframes vlxEmblemBreathe {
+  from { opacity: 0.42; transform: translate(-50%, -50%) scale(1); }
+  to   { opacity: 0.58; transform: translate(-50%, -50%) scale(1.045); }
+}
+
+/* Wordmark sits above the emblem and gets a faint silver-violet lift */
+.home-page-body .poster-hero h1,
+.home-page-body .poster-hero #hero-title {
+  position: relative !important;
+  z-index: 2 !important;
+  text-shadow: 0 0 60px rgba(139, 111, 214, 0.28) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-page-body .poster-hero::after {
+    animation: none !important;
+  }
+}

@@ -2236,3 +2236,351 @@ body.public-page-body.home-page-body .site-footer {
     gap: 1rem !important;
   }
 }
+
+/* ==========================================================================
+   VELYX home — section differentiation pass  (loads last, wins)
+   --------------------------------------------------------------------------
+   Breaks the "every section is the same card grid" monotony the brand review
+   flagged: Status becomes a system monitor, Join becomes an access-key
+   credential, and a full-bleed marquee ticker splits the rhythm. Violet brand
+   accent throughout. All existing data-* hooks are preserved untouched.
+   ========================================================================== */
+
+/* --- Status: system monitor ---------------------------------------------- */
+body.home-page-body .sysmon {
+  position: relative !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr) !important;
+  grid-template-rows: auto 1fr !important;
+  gap: 0 !important;
+  overflow: hidden !important;
+  border: 1px solid rgba(139, 111, 214, 0.28) !important;
+  border-radius: var(--vx-radius, 2px) !important;
+  background:
+    linear-gradient(180deg, rgba(139, 111, 214, 0.05), transparent 40%),
+    #07060d !important;
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.02) !important;
+}
+
+/* faint scanlines — reads as a live readout, not a static card */
+body.home-page-body .sysmon::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+  background: repeating-linear-gradient(180deg, rgba(255, 255, 255, 0.018) 0 1px, transparent 1px 4px) !important;
+}
+
+body.home-page-body .sysmon-topbar {
+  grid-column: 1 / -1 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 0.85rem 1.4rem !important;
+  border-bottom: 1px solid rgba(139, 111, 214, 0.2) !important;
+  background: rgba(139, 111, 214, 0.05) !important;
+}
+
+body.home-page-body .sysmon-tag {
+  font-family: var(--fnt-display, monospace) !important;
+  font-size: 0.68rem !important;
+  letter-spacing: 0.24em !important;
+  text-transform: uppercase !important;
+  color: rgba(199, 203, 214, 0.72) !important;
+}
+
+body.home-page-body .sysmon-rec {
+  font-family: var(--fnt-display, monospace) !important;
+  font-size: 0.68rem !important;
+  letter-spacing: 0.22em !important;
+  color: var(--vlx-violet, #8b6fd6) !important;
+  animation: vlxRecBlink 1.8s steps(1) infinite;
+}
+
+@keyframes vlxRecBlink { 0%, 55% { opacity: 1; } 56%, 100% { opacity: 0.28; } }
+
+body.home-page-body .sysmon .status-panel {
+  position: relative !important;
+  z-index: 1 !important;
+  grid-column: 1 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.7rem !important;
+  padding: 2rem 2rem 2.2rem !important;
+  border: 0 !important;
+  border-right: 1px solid rgba(139, 111, 214, 0.16) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+
+body.home-page-body .sysmon .status-panel h2 {
+  font-size: clamp(1.1rem, 2vw, 1.5rem) !important;
+  margin: 0 !important;
+  color: rgba(199, 203, 214, 0.82) !important;
+  -webkit-text-fill-color: rgba(199, 203, 214, 0.82) !important;
+}
+
+body.home-page-body .sysmon [data-player-count] {
+  font-family: var(--fnt-display, monospace) !important;
+  font-size: clamp(3.2rem, 7vw, 5.4rem) !important;
+  font-weight: 700 !important;
+  line-height: 0.9 !important;
+  letter-spacing: -0.03em !important;
+  color: var(--vlx-ivory, #e6e6df) !important;
+  -webkit-text-fill-color: var(--vlx-ivory, #e6e6df) !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+body.home-page-body .sysmon .status-note {
+  font-size: 0.72rem !important;
+  letter-spacing: 0.12em !important;
+  text-transform: uppercase !important;
+  color: rgba(199, 203, 214, 0.5) !important;
+}
+
+body.home-page-body .sysmon .meter {
+  height: 5px !important;
+  background: rgba(139, 111, 214, 0.14) !important;
+}
+body.home-page-body .sysmon .meter span {
+  background: linear-gradient(90deg, var(--vlx-violet, #8b6fd6), var(--vlx-ice, #6ea8d8)) !important;
+}
+
+body.home-page-body .sysmon .live-facts {
+  position: relative !important;
+  z-index: 1 !important;
+  grid-column: 2 !important;
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 0 !important;
+  align-content: start !important;
+}
+
+body.home-page-body .sysmon .live-facts article {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.35rem !important;
+  min-height: 0 !important;
+  padding: 1.1rem 1.4rem !important;
+  border: 0 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+  border-left: 1px solid rgba(255, 255, 255, 0.06) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+
+body.home-page-body .sysmon .live-facts article.live-fact-wide {
+  grid-column: 1 / -1 !important;
+}
+
+body.home-page-body .sysmon .live-facts article > span {
+  font-family: var(--fnt-display, monospace) !important;
+  font-size: 0.64rem !important;
+  letter-spacing: 0.2em !important;
+  text-transform: uppercase !important;
+  color: rgba(199, 203, 214, 0.5) !important;
+  -webkit-text-fill-color: rgba(199, 203, 214, 0.5) !important;
+}
+
+body.home-page-body .sysmon .live-facts article strong {
+  font-family: var(--fnt-display, monospace) !important;
+  font-size: 0.98rem !important;
+  font-weight: 600 !important;
+  color: var(--vlx-ivory, #e6e6df) !important;
+  -webkit-text-fill-color: var(--vlx-ivory, #e6e6df) !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+body.home-page-body .sysmon .live-facts article p {
+  margin: 0 !important;
+  font-size: 0.8rem !important;
+  line-height: 1.5 !important;
+  color: rgba(199, 203, 214, 0.62) !important;
+  -webkit-text-fill-color: rgba(199, 203, 214, 0.62) !important;
+}
+
+@media (max-width: 860px) {
+  body.home-page-body .sysmon { grid-template-columns: 1fr !important; }
+  body.home-page-body .sysmon .status-panel { grid-column: 1 !important; border-right: 0 !important; border-bottom: 1px solid rgba(139, 111, 214, 0.16) !important; }
+  body.home-page-body .sysmon .live-facts { grid-column: 1 !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  body.home-page-body .sysmon-rec { animation: none !important; }
+}
+
+/* --- Join: access-key credential ----------------------------------------- */
+body.home-page-body .access-key {
+  margin: 1.6rem 0 0 !important;
+  padding: 1.1rem 1.2rem !important;
+  border: 1px solid rgba(139, 111, 214, 0.3) !important;
+  border-left: 3px solid var(--vlx-violet, #8b6fd6) !important;
+  border-radius: var(--vx-radius, 2px) !important;
+  background:
+    linear-gradient(120deg, rgba(139, 111, 214, 0.08), transparent 60%),
+    rgba(139, 111, 214, 0.03) !important;
+}
+
+body.home-page-body .access-key-label {
+  display: block !important;
+  margin-bottom: 0.7rem !important;
+  font-family: var(--fnt-display, monospace) !important;
+  font-size: 0.62rem !important;
+  letter-spacing: 0.26em !important;
+  text-transform: uppercase !important;
+  color: rgba(199, 203, 214, 0.6) !important;
+  -webkit-text-fill-color: rgba(199, 203, 214, 0.6) !important;
+}
+
+body.home-page-body .access-key .address-row {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.9rem !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+body.home-page-body .access-key .address-row code {
+  flex: 1 !important;
+  font-family: var(--fnt-display, monospace) !important;
+  font-size: clamp(1.4rem, 3vw, 2rem) !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.14em !important;
+  color: var(--vlx-ivory, #e6e6df) !important;
+  -webkit-text-fill-color: var(--vlx-ivory, #e6e6df) !important;
+}
+
+body.home-page-body .access-key .address-row button {
+  flex: 0 0 auto !important;
+  padding: 0.7rem 1.2rem !important;
+  border: 1px solid var(--vlx-violet, #8b6fd6) !important;
+  border-radius: 999px !important;
+  background: rgba(139, 111, 214, 0.12) !important;
+  color: var(--vlx-ivory, #e6e6df) !important;
+  -webkit-text-fill-color: var(--vlx-ivory, #e6e6df) !important;
+  font-size: 0.72rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.1em !important;
+  text-transform: uppercase !important;
+  transition: background-color 200ms ease, transform 200ms ease !important;
+}
+body.home-page-body .access-key .address-row button:hover {
+  background: rgba(139, 111, 214, 0.24) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* --- Full-bleed marquee ticker ------------------------------------------- */
+body.home-page-body .velyx-ticker {
+  width: 100% !important;
+  margin: 0 !important;
+  padding: clamp(1.4rem, 3vw, 2.4rem) 0 !important;
+  overflow: hidden !important;
+  border-block: 1px solid rgba(139, 111, 214, 0.22) !important;
+  background:
+    linear-gradient(90deg, #04040b, transparent 12%, transparent 88%, #04040b),
+    rgba(139, 111, 214, 0.04) !important;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent) !important;
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent) !important;
+}
+
+body.home-page-body .velyx-ticker-track {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: clamp(1.4rem, 3vw, 3rem) !important;
+  white-space: nowrap !important;
+  will-change: transform !important;
+  animation: vlxMarquee 34s linear infinite !important;
+}
+
+body.home-page-body .velyx-ticker-track span {
+  font-family: var(--fnt-display, sans-serif) !important;
+  font-size: clamp(1.8rem, 4vw, 3.4rem) !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  text-transform: uppercase !important;
+  color: rgba(230, 230, 223, 0.86) !important;
+  -webkit-text-fill-color: rgba(230, 230, 223, 0.86) !important;
+}
+
+body.home-page-body .velyx-ticker-track i {
+  font-style: normal !important;
+  font-size: clamp(1rem, 2vw, 1.6rem) !important;
+  color: var(--vlx-violet, #8b6fd6) !important;
+  -webkit-text-fill-color: var(--vlx-violet, #8b6fd6) !important;
+}
+
+@keyframes vlxMarquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) {
+  body.home-page-body .velyx-ticker-track { animation: none !important; transform: translateX(-12%) !important; }
+}
+
+/* --- Violet chrome: scrollbar + selection -------------------------------- */
+.home-page-body ::selection { background: rgba(139, 111, 214, 0.32); color: #fff; }
+.home-page-body ::-webkit-scrollbar { width: 11px; height: 11px; }
+.home-page-body ::-webkit-scrollbar-track { background: #050409; }
+.home-page-body ::-webkit-scrollbar-thumb {
+  background: rgba(139, 111, 214, 0.4);
+  border: 3px solid #050409;
+  border-radius: 999px;
+}
+.home-page-body ::-webkit-scrollbar-thumb:hover { background: rgba(139, 111, 214, 0.62); }
+
+/* ==========================================================================
+   VELYX home — brand-pass corrections
+   ========================================================================== */
+
+/* Keep the Join / access-key card dark like the rest of the cosmic theme.
+   (The sakazuki cream surface rule was leaking onto it — body prefix wins.) */
+body.home-page-body .join-card,
+body.home-page-body .access-card {
+  background: var(--vlx-panel, #111110) !important;
+  background-image: none !important;
+  border: 1px solid rgba(139, 111, 214, 0.18) !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  color: var(--vlx-ivory, #e6e6df) !important;
+}
+
+/* Collective divider: was a loud solid-violet hazard band after the token
+   swap — drop it to a faint brand chevron. */
+body.home-page-body .collective-divider {
+  height: clamp(0.7rem, 1.6vw, 1.05rem) !important;
+  opacity: 0.5 !important;
+  background:
+    linear-gradient(135deg, rgba(139, 111, 214, 0.5) 0 24%, transparent 24% 50%, rgba(139, 111, 214, 0.5) 50% 74%, transparent 74% 100%)
+    0 0 / 3rem 100% repeat-x !important;
+}
+
+/* System-monitor live label was too dark to read */
+body.home-page-body .sysmon .status-topline,
+body.home-page-body .sysmon [data-status-label] {
+  color: rgba(199, 203, 214, 0.92) !important;
+  -webkit-text-fill-color: rgba(199, 203, 214, 0.92) !important;
+  font-family: var(--fnt-display, monospace) !important;
+  font-size: 0.74rem !important;
+  letter-spacing: 0.14em !important;
+  text-transform: uppercase !important;
+}
+
+/* Text on the now-dark home cards: sakazuki set dark --stage-ink assuming a
+   cream surface. Flip card copy to ivory, index numbers to brand violet. */
+body.home-page-body :is(.benefit-ledger article, .join-steps article, .join-card, .access-card, .poster-textblock, .collective-copy) {
+  color: var(--vlx-ivory-soft, rgba(230, 230, 223, 0.82)) !important;
+}
+body.home-page-body :is(.benefit-ledger article, .join-steps article) strong {
+  color: var(--vlx-ivory, #e6e6df) !important;
+  -webkit-text-fill-color: var(--vlx-ivory, #e6e6df) !important;
+}
+body.home-page-body :is(.benefit-ledger article, .join-steps article) p {
+  color: var(--vlx-ivory-soft, rgba(230, 230, 223, 0.82)) !important;
+  -webkit-text-fill-color: var(--vlx-ivory-soft, rgba(230, 230, 223, 0.82)) !important;
+}
+body.home-page-body :is(.benefit-ledger article, .join-steps article) > span:first-child {
+  color: var(--vlx-violet, #8b6fd6) !important;
+  -webkit-text-fill-color: var(--vlx-violet, #8b6fd6) !important;
+}

@@ -154,7 +154,14 @@
             <span>MARKET</span>
             <span>ACCESS</span>
           </div>
-          <div class="live-layout" data-reveal>
+          <div class="section-kicker" data-reveal>
+            <p class="eyebrow">System monitor</p>
+          </div>
+          <div class="live-layout sysmon" data-reveal>
+            <div class="sysmon-topbar" aria-hidden="true">
+              <span class="sysmon-tag">VELYX · REALM DIAGNOSTICS</span>
+              <span class="sysmon-rec">● LIVE</span>
+            </div>
             <article class="status-panel live-status-card">
               <div class="status-topline">
                 <span class="status-dot" data-status-dot></span>
@@ -243,6 +250,13 @@
           </div>
         </section>
 
+        <div class="velyx-ticker" aria-hidden="true">
+          <div class="velyx-ticker-track">
+            <span>MINING</span><i>✦</i><span>TRADE</span><i>✦</i><span>AUCTION</span><i>✦</i><span>LAND CLAIM</span><i>✦</i><span>STOCK MARKET</span><i>✦</i><span>PLAYER SHOPS</span><i>✦</i>
+            <span>MINING</span><i>✦</i><span>TRADE</span><i>✦</i><span>AUCTION</span><i>✦</i><span>LAND CLAIM</span><i>✦</i><span>STOCK MARKET</span><i>✦</i><span>PLAYER SHOPS</span><i>✦</i>
+          </div>
+        </div>
+
         <section class="editorial-section collective-section collective-poster" id="collective" aria-labelledby="collective-title">
           <div class="poster-triad" data-reveal aria-hidden="true">
             <span>ACTIVE</span>
@@ -289,25 +303,28 @@
             <span>VELYX.KR</span>
           </div>
           <div class="join-layout" data-reveal>
-            <div class="join-card">
-              <p class="eyebrow">Enter</p>
-              <h2 id="join-title">Enter VELYX.</h2>
-              <div class="address-row">
-                <code>velyx.kr</code>
-                <button type="button" data-copy-address>Copy</button>
+            <div class="join-card access-card">
+              <p class="eyebrow">Access key</p>
+              <h2 id="join-title">Provision access.</h2>
+              <div class="access-key" role="group" aria-label="서버 접속 키">
+                <span class="access-key-label">Java realm address</span>
+                <div class="address-row">
+                  <code>velyx.kr</code>
+                  <button type="button" data-copy-address>Issue key</button>
+                </div>
               </div>
               <a class="join-login-gate" href="/login.html" data-login-gate hidden>
-                로그인하면 서버 주소가 공개됩니다 →
+                로그인하면 접속 키가 발급됩니다 →
               </a>
               <p class="join-note" data-copy-feedback>
-                Minecraft Java 멀티플레이 서버 주소에 그대로 넣으면 됩니다.
+                이 키를 Minecraft Java 멀티플레이 서버 주소에 그대로 넣으면 접속됩니다.
               </p>
             </div>
             <div class="join-steps">
               <article>
                 <span>01</span>
-                <strong>Read the room</strong>
-                <p>스폰에서 규칙과 경제 흐름을 먼저 확인합니다.</p>
+                <strong>Request the key</strong>
+                <p>접속 키를 발급받고 스폰에서 규칙과 경제 흐름을 먼저 확인합니다.</p>
               </article>
               <article>
                 <span>02</span>
