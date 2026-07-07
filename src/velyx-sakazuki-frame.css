@@ -2584,3 +2584,75 @@ body.home-page-body :is(.benefit-ledger article, .join-steps article) > span:fir
   color: var(--vlx-violet, #8b6fd6) !important;
   -webkit-text-fill-color: var(--vlx-violet, #8b6fd6) !important;
 }
+
+/* ==========================================================================
+   VELYX — punch pass: Clash Display + metallic type + higher contrast
+   --------------------------------------------------------------------------
+   Feedback: type read flat and muted, font felt generic. This swaps the
+   display face to Clash Display, gives the big headings a silver->violet
+   chrome fill (matching the logo's metal), and lifts the muted greys so copy
+   actually reads. Body/labels stay solid + bright; only huge display type
+   gets the gradient (size keeps it legible).
+   ========================================================================== */
+:root,
+:root[data-theme="dark"] {
+  --fnt-display: "Clash Display", "Space Grotesk", "Pretendard Variable", Pretendard, sans-serif !important;
+  --vx-font-latin: "Clash Display", "Space Grotesk", sans-serif !important;
+  --vlx-ivory: #f4f3ef !important;
+  --vlx-ivory-soft: rgba(244, 243, 239, 0.94) !important;
+  --vlx-ivory-faint: rgba(244, 243, 239, 0.74) !important;
+}
+
+/* Metallic chrome fill on the huge display headings */
+body.home-page-body .poster-hero h1,
+body.home-page-body .poster-hero #hero-title,
+body.home-page-body :is(.section-heading h1, .section-heading h2, .world-copy h2, .join-card h2, .market-copy h3, .economy-stock-teaser h3, .collective-copy h2, .poster-textblock h2) {
+  background: linear-gradient(174deg, #ffffff 2%, #f2f0fa 26%, #cfcae0 48%, #ffffff 62%, #b49bec 96%) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  color: transparent !important;
+  text-shadow: none !important;
+}
+
+/* Hero wordmark keeps its violet bloom via drop-shadow (text-shadow can't show
+   through background-clip:text) */
+body.home-page-body .poster-hero h1,
+body.home-page-body .poster-hero #hero-title {
+  filter: drop-shadow(0 6px 44px rgba(139, 111, 214, 0.44)) !important;
+}
+
+/* Hero side words + tagline: crisp bright */
+body.home-page-body .poster-copy,
+body.home-page-body .poster-footerline,
+body.home-page-body .poster-hero .hero-copy {
+  color: #f7f6f2 !important;
+  -webkit-text-fill-color: #f7f6f2 !important;
+}
+
+/* Eyebrows: gold -> bright brand violet */
+body.home-page-body .eyebrow,
+body.home-page-body .section-kicker .eyebrow,
+body.home-page-body .poster-title .eyebrow {
+  color: #b49bec !important;
+  -webkit-text-fill-color: #b49bec !important;
+  font-weight: 600 !important;
+}
+
+/* Card / readout headings pure bright */
+body.home-page-body :is(.benefit-ledger article, .join-steps article, .sysmon .live-facts article) strong,
+body.home-page-body .sysmon .status-panel h2 {
+  color: #f7f6f2 !important;
+  -webkit-text-fill-color: #f7f6f2 !important;
+}
+
+/* Hero wordmark: stronger chrome — a brighter silver sheen band + real violet
+   at the base, so it reads as metal, not flat white. (Section headings keep
+   the subtler fill above.) */
+body.home-page-body .poster-hero h1,
+body.home-page-body .poster-hero #hero-title {
+  background: linear-gradient(180deg,
+    #ffffff 6%, #efeafb 27%, #b3a4de 46%, #8a6fd9 60%, #efe6fb 78%, #ffffff 100%) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+}
