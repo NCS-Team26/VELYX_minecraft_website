@@ -225,9 +225,12 @@ function renderSignedInControls(isSignedIn) {
 function renderAuthState(user = readStoredUser()) {
   if (!profile) return;
 
+  const serverCard = document.querySelector("[data-server-card]");
+
   if (!user) {
     renderSignedInControls(false);
     profile.hidden = true;
+    if (serverCard) serverCard.hidden = true;
     profile.classList.remove("has-avatar");
     if (avatar) {
       avatar.hidden = true;
@@ -242,6 +245,7 @@ function renderAuthState(user = readStoredUser()) {
   renderSignedInControls(true);
   const displayName = user.name || user.email || "로그인 사용자";
   profile.hidden = false;
+  if (serverCard) serverCard.hidden = false;
   profile.classList.toggle("has-avatar", Boolean(user.picture));
   if (title) title.textContent = "계정 연결됨";
   if (copy) copy.textContent = "인증한 계정으로 캐릭터 정보를 확인할 수 있습니다.";
@@ -2178,6 +2182,23 @@ signoutButton?.addEventListener("click", () => {
   setMode("login");
   renderAuthState(null);
   setMessage("로그아웃되었습니다.");
+});
+
+document.querySelector("[data-copy-server]")?.addEventListener("click", async (event) => {
+  const button = event.currentTarget;
+  const address = document.querySelector("[data-server-address]")?.textContent?.trim() || "velyx.kr";
+  try {
+    await navigator.clipboard.writeText(address);
+  } catch {
+    const hint = document.querySelector("[data-server-hint]");
+    if (hint) hint.textContent = `주소: ${address}`;
+    return;
+  }
+  const original = button.textContent;
+  button.textContent = "복사됨";
+  setTimeout(() => {
+    button.textContent = original;
+  }, 1600);
 });
 
 characterForm?.addEventListener("submit", async (event) => {
