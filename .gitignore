@@ -21,3 +21,7 @@ minecraft-plugin/**/work/
 .modpack/
 __pycache__/
 discord-bot/data/
+
+# OMC/OMX agent tooling state (local only)
+.omc/
+.omx/

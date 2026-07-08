@@ -1,7 +1,0 @@
-{
-  "tool_name": "Read",
-  "tool_input_preview": "{\"file_path\":\"/Users/choi/Desktop/project/VELYX_minecraft_website/.playwright-mcp/mc-hero.png\"}",
-  "error": "File does not exist. Note: your current working directory is /Users/choi/Desktop/project/VELYX_minecraft_website.",
-  "timestamp": "2026-07-07T15:26:28.043Z",
-  "retry_count": 1
-}
