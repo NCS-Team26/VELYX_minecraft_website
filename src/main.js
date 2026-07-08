@@ -407,7 +407,7 @@ const DEFAULT_STOCK_CHART_SETTINGS = {
 };
 const PAGE_LINKS = new Map([
   ["/status.html", "status"],
-  ["/plugins.html", "plugins"],
+  ["/plugins.html", "economy"],
   ["/stock.html", "stock"],
   ["/notice.html", "notice"],
   ["/community.html", "community"],
@@ -415,6 +415,26 @@ const PAGE_LINKS = new Map([
   ["/rules.html", "rules"],
   ["/join.html", "join"],
   ["/admin.html", "admin"],
+]);
+const SECTION_ALIASES = new Map([
+  ["plugins", "economy"],
+  ["plugin", "economy"],
+  ["benefits", "economy"],
+  ["top", "home"],
+]);
+const STAGE_SECTION_LABELS = new Map([
+  ["home", "VELYX"],
+  ["philosophy", "PHILOSOPHY"],
+  ["status", "STATUS"],
+  ["economy", "ECONOMY"],
+  ["collective", "COLLECTIVE"],
+  ["join", "ACCESS"],
+  ["stock", "STOCK"],
+  ["notice", "NOTICE"],
+  ["community", "COMMUNITY"],
+  ["resources", "RESOURCES"],
+  ["rules", "RULES"],
+  ["admin", "ADMIN"],
 ]);
 
 let sessionUser = null;
@@ -1328,12 +1348,32 @@ function getCurrentPageKey() {
   const path = window.location.pathname.endsWith("/")
     ? `${window.location.pathname}index.html`
     : window.location.pathname;
-  return PAGE_LINKS.get(path) || null;
+  return normalizeSectionKey(PAGE_LINKS.get(path) || null);
+}
+
+function normalizeSectionKey(value) {
+  const key = String(value || "")
+    .trim()
+    .replace(/^#/, "")
+    .toLowerCase();
+  if (!key) return null;
+  return SECTION_ALIASES.get(key) || key;
+}
+
+function getCurrentHashKey() {
+  const rawHash = decodeURIComponent(window.location.hash || "").replace(/^#/, "");
+  return normalizeSectionKey(rawHash);
+}
+
+function setStageSectionKey(pageKey) {
+  const key = normalizeSectionKey(pageKey) || "home";
+  document.documentElement.dataset.stageSection = key;
 }
 
 function setActivePage(pageKey) {
+  const normalizedPageKey = normalizeSectionKey(pageKey);
   sectionLinks.forEach((link) => {
-    const active = link.dataset.sectionLink === pageKey;
+    const active = normalizeSectionKey(link.dataset.sectionLink) === normalizedPageKey;
     link.classList.toggle("is-active", active);
     if (active) link.setAttribute("aria-current", "page");
     else link.removeAttribute("aria-current");
@@ -1342,7 +1382,15 @@ function setActivePage(pageKey) {
 
 function initPageNavigation() {
   if (!sectionLinks.length) return;
-  setActivePage(getCurrentPageKey());
+  const sync = () => {
+    const hashKey = getCurrentHashKey();
+    const hasHashNavItem = Array.from(sectionLinks).some(
+      (link) => normalizeSectionKey(link.dataset.sectionLink) === hashKey,
+    );
+    setActivePage(hasHashNavItem ? hashKey : getCurrentPageKey());
+  };
+  sync();
+  window.addEventListener("hashchange", sync);
 }
 
 function initAnimationStagger() {
@@ -1364,6 +1412,18 @@ function initSakazukiStage() {
 
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   document.documentElement.classList.add("vlx-stage-shell");
+  setStageSectionKey(getCurrentHashKey() || getCurrentPageKey() || "home");
+
+  let stageHashRail = document.querySelector(".stage-hash-rail");
+  if (!stageHashRail) {
+    stageHashRail = document.createElement("aside");
+    stageHashRail.className = "stage-hash-rail";
+    stageHashRail.setAttribute("aria-hidden", "true");
+    stageHashRail.innerHTML = '<span class="stage-hash-label">#VELYX</span><i><b></b></i>';
+    document.body.append(stageHashRail);
+  }
+  const stageHashLabel = stageHashRail.querySelector(".stage-hash-label");
+  const stageHashMeter = stageHashRail.querySelector("b");
 
   const footer = document.querySelector(".site-footer");
   if (footer && !footer.querySelector(".stage-clock-live")) {
@@ -1401,6 +1461,26 @@ function initSakazukiStage() {
     el.style.setProperty("--stage-index", index % 12);
   });
 
+  const stageKeyForElement = (el, index) => {
+    const idKey = normalizeSectionKey(el.id);
+    if (idKey) return idKey;
+    if (el.classList.contains("poster-hero") || el.classList.contains("hero")) return "home";
+    if (el.classList.contains("philosophy-poster")) return "philosophy";
+    if (el.classList.contains("benefits-poster")) return "economy";
+    if (el.classList.contains("collective-section")) return "collective";
+    if (el.classList.contains("join-section")) return "join";
+    return index === 0 ? getCurrentPageKey() || "home" : `section-${index + 1}`;
+  };
+
+  const stageSections = Array.from(document.querySelectorAll("main > section")).map((el, index) => {
+    const key = stageKeyForElement(el, index);
+    const label = STAGE_SECTION_LABELS.get(key) || key.toUpperCase();
+    el.dataset.stageKey = key;
+    el.dataset.stageHash = label;
+    el.style.setProperty("--stage-index", index);
+    return { el, key, label };
+  });
+
   const watchTargets = document.querySelectorAll(
     "main > section, [data-reveal], .benefit-ledger article, .live-facts article, .join-steps article, .roster-cell, .stock-panel, .status-panel, .plugin-card, .resource-card, .notice-card, .community-card",
   );
@@ -1408,6 +1488,8 @@ function initSakazukiStage() {
   if (reduceMotion || typeof IntersectionObserver === "undefined") {
     watchTargets.forEach((el) => el.classList.add("is-stage-visible"));
     document.documentElement.classList.add("vlx-stage-ready");
+    const firstKey = getCurrentHashKey() || getCurrentPageKey() || stageSections[0]?.key || "home";
+    setStageSectionKey(firstKey);
     return;
   }
 
@@ -1424,10 +1506,52 @@ function initSakazukiStage() {
   let ticking = false;
   const updateScrollVars = () => {
     ticking = false;
+    const viewportHeight = Math.max(1, window.innerHeight);
+    const viewportCenter = viewportHeight * 0.52;
     const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
     const progress = Math.min(1, Math.max(0, window.scrollY / maxScroll));
+    let currentSection = stageSections[0] || null;
+    let currentScore = Number.POSITIVE_INFINITY;
+
     document.documentElement.style.setProperty("--stage-scroll", progress.toFixed(4));
-    document.documentElement.style.setProperty("--stage-shift", `${Math.round(window.scrollY * -0.08)}px`);
+    document.documentElement.style.setProperty("--stage-shift", `${Math.round(window.scrollY * -0.12)}px`);
+
+    stageSections.forEach((section) => {
+      const rect = section.el.getBoundingClientRect();
+      const localProgress = Math.min(1, Math.max(0, (viewportHeight - rect.top) / (viewportHeight + rect.height)));
+      const localY = Math.round((0.5 - localProgress) * 116);
+      const localMediaY = Math.round((0.5 - localProgress) * -72);
+      const localLift = Math.round((0.5 - localProgress) * 38);
+      const visible = rect.bottom > viewportHeight * 0.08 && rect.top < viewportHeight * 0.92;
+      const center = rect.top + rect.height * 0.5;
+      const score = Math.abs(center - viewportCenter);
+
+      section.el.style.setProperty("--stage-local-progress", localProgress.toFixed(4));
+      section.el.style.setProperty("--stage-local-y", `${localY}px`);
+      section.el.style.setProperty("--stage-local-media-y", `${localMediaY}px`);
+      section.el.style.setProperty("--stage-local-lift", `${localLift}px`);
+      section.el.classList.toggle("is-stage-near", visible);
+      section.el.classList.toggle("is-stage-past", rect.bottom < viewportCenter);
+
+      if (visible && score < currentScore) {
+        currentScore = score;
+        currentSection = section;
+      }
+    });
+
+    if (currentSection) {
+      stageSections.forEach((section) => {
+        section.el.classList.toggle("is-stage-current", section.el === currentSection.el);
+      });
+      setStageSectionKey(currentSection.key);
+      if (stageHashLabel) stageHashLabel.textContent = `#${currentSection.label}`;
+      if (stageHashMeter) stageHashMeter.style.transform = `scaleY(${Math.max(0.04, progress).toFixed(4)})`;
+
+      const hasCurrentNavItem = Array.from(sectionLinks).some(
+        (link) => normalizeSectionKey(link.dataset.sectionLink) === currentSection.key,
+      );
+      if (hasCurrentNavItem) setActivePage(currentSection.key);
+    }
   };
   const requestScrollVars = () => {
     if (ticking) return;
@@ -1436,6 +1560,30 @@ function initSakazukiStage() {
   };
   window.addEventListener("scroll", requestScrollVars, { passive: true });
   updateScrollVars();
+
+  const focusHashTarget = () => {
+    const rawHash = decodeURIComponent(window.location.hash || "").replace(/^#/, "");
+    const hashKey = normalizeSectionKey(rawHash);
+    if (!hashKey) return;
+
+    if (rawHash && rawHash.toLowerCase() !== hashKey && hashKey === "economy") {
+      history.replaceState(null, "", `${window.location.pathname}${window.location.search}#${hashKey}`);
+    }
+
+    const target = document.getElementById(hashKey);
+    if (!target) return;
+    target.classList.add("is-hash-target");
+    setStageSectionKey(hashKey);
+    const hasHashNavItem = Array.from(sectionLinks).some(
+      (link) => normalizeSectionKey(link.dataset.sectionLink) === hashKey,
+    );
+    setActivePage(hasHashNavItem ? hashKey : getCurrentPageKey());
+    target.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+    window.setTimeout(() => target.classList.remove("is-hash-target"), 1500);
+  };
+
+  window.addEventListener("hashchange", () => window.setTimeout(focusHashTarget, 0));
+  if (window.location.hash) window.setTimeout(focusHashTarget, 260);
 
   window.requestAnimationFrame(() => {
     document.documentElement.classList.add("vlx-stage-ready");
