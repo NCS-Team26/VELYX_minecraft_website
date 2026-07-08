@@ -1,7 +1,0 @@
-{
-  "tool_name": "mcp__plugin_playwright_playwright__browser_evaluate",
-  "tool_input_preview": "{\"function\":\"async () => {\\n  const pages=['/','/status.html','/rules.html','/login.html','/plugins.html','/community.html','/stock.html','/resources.html','/notice.html','/join.html'];\\n  function lu...",
-  "error": "### Error\nExecution context was destroyed, most likely because of a navigation.\n### Page\n- Page URL: http://127.0.0.1:4173/?a=40805\n- Page Title: velyx.kr - 경제 야생 Minecraft 서버\n- Console: 1 errors, 0 warnings\n### Events\n- New console entries: .playwright-mcp/console-2026-07-08T03-13-03-031Z.log#L1",
-  "timestamp": "2026-07-08T03:13:45.062Z",
-  "retry_count": 1
-}
