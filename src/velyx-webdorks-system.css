@@ -1267,3 +1267,37 @@ body:is(.public-page-body:not(.home-page-body), .status-page-body, .stock-termin
     line-height: 1 !important;
   }
 }
+
+@media (max-width: 1500px) and (min-width: 1281px) {
+  html.vlx-stage-shell body.public-page-body.home-page-body .poster-hero h1,
+  html.vlx-stage-shell body.public-page-body.home-page-body .poster-hero #hero-title,
+  body.public-page-body.home-page-body .poster-hero h1,
+  body.public-page-body.home-page-body .poster-hero #hero-title {
+    font-size: 11.8rem !important;
+  }
+
+  html.vlx-stage-shell body.public-page-body.home-page-body .poster-copy.poster-copy,
+  body.public-page-body.home-page-body .poster-copy.poster-copy {
+    width: 15rem !important;
+    max-width: 15rem !important;
+    font-size: 2.35rem !important;
+    line-height: 1.02 !important;
+  }
+
+  html.vlx-stage-shell body.public-page-body.home-page-body .poster-copy-left.poster-copy-left,
+  body.public-page-body.home-page-body .poster-copy-left.poster-copy-left {
+    left: 4.5rem !important;
+  }
+
+  html.vlx-stage-shell body.public-page-body.home-page-body .poster-copy-right.poster-copy-right,
+  body.public-page-body.home-page-body .poster-copy-right.poster-copy-right {
+    right: 4.5rem !important;
+  }
+}
+
+@media (max-width: 1280px) {
+  html.vlx-stage-shell body.public-page-body.home-page-body .poster-copy.poster-copy,
+  body.public-page-body.home-page-body .poster-copy.poster-copy {
+    display: none !important;
+  }
+}
