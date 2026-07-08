@@ -1353,7 +1353,98 @@ function initAnimationStagger() {
   animatedGroups.forEach((group) => {
     Array.from(group.children).forEach((child, index) => {
       child.style.setProperty("--item-index", index);
+      child.style.setProperty("--stage-index", index);
     });
+  });
+}
+
+function initSakazukiStage() {
+  const stageBodies = ["public-page-body", "status-page-body", "stock-terminal-body", "auth-page-body"];
+  if (!stageBodies.some((className) => document.body.classList.contains(className))) return;
+
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  document.documentElement.classList.add("vlx-stage-shell");
+
+  const curtain = document.createElement("div");
+  curtain.className = "vlx-page-curtain";
+  curtain.setAttribute("aria-hidden", "true");
+  curtain.innerHTML = "<span></span><span></span>";
+  document.body.prepend(curtain);
+
+  const footer = document.querySelector(".site-footer");
+  if (footer && !footer.querySelector(".stage-clock-live")) {
+    const clock = document.createElement("span");
+    clock.className = "stage-clock-live";
+    clock.setAttribute("aria-hidden", "true");
+    footer.append(clock);
+
+    const formatter = new Intl.DateTimeFormat("ko-KR", {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false,
+      timeZone: "Asia/Seoul",
+    });
+    const updateClock = () => {
+      clock.textContent = `KOREA, ${formatter.format(new Date())}`;
+    };
+    updateClock();
+    window.setInterval(updateClock, 1000);
+  }
+
+  const lineTargets = document.querySelectorAll(
+    ".poster-title .eyebrow, .poster-hero h1, .poster-hero .hero-copy, .poster-copy span, .poster-triad span, .split-wordmark span, .section-kicker .eyebrow, .section-kicker h2, .poster-textblock h2, .collective-copy h2, .join-card h2",
+  );
+  lineTargets.forEach((el, index) => {
+    el.classList.add("stage-line");
+    el.style.setProperty("--stage-index", index % 8);
+  });
+
+  const stagedItems = document.querySelectorAll(
+    ".site-nav .nav-links a, .benefit-ledger article, .live-facts article, .join-steps article, .roster-cell, .market-card, .plugin-card, .rule-card, .resource-card, .notice-card, .community-card, .status-card, .stock-panel",
+  );
+  stagedItems.forEach((el, index) => {
+    el.style.setProperty("--stage-index", index % 12);
+  });
+
+  const watchTargets = document.querySelectorAll(
+    "main > section, [data-reveal], .benefit-ledger article, .live-facts article, .join-steps article, .roster-cell, .stock-panel, .status-panel, .plugin-card, .resource-card, .notice-card, .community-card",
+  );
+
+  if (reduceMotion || typeof IntersectionObserver === "undefined") {
+    watchTargets.forEach((el) => el.classList.add("is-stage-visible"));
+    document.documentElement.classList.add("vlx-stage-ready");
+    return;
+  }
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        entry.target.classList.toggle("is-stage-visible", entry.isIntersecting);
+      });
+    },
+    { threshold: 0.16, rootMargin: "0px 0px -12% 0px" },
+  );
+  watchTargets.forEach((el) => observer.observe(el));
+
+  let ticking = false;
+  const updateScrollVars = () => {
+    ticking = false;
+    const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+    const progress = Math.min(1, Math.max(0, window.scrollY / maxScroll));
+    document.documentElement.style.setProperty("--stage-scroll", progress.toFixed(4));
+    document.documentElement.style.setProperty("--stage-shift", `${Math.round(window.scrollY * -0.08)}px`);
+  };
+  const requestScrollVars = () => {
+    if (ticking) return;
+    ticking = true;
+    window.requestAnimationFrame(updateScrollVars);
+  };
+  window.addEventListener("scroll", requestScrollVars, { passive: true });
+  updateScrollVars();
+
+  window.requestAnimationFrame(() => {
+    document.documentElement.classList.add("vlx-stage-ready");
   });
 }
 
@@ -6733,6 +6824,7 @@ initNav();
 initPageNavigation();
 initStockExchange();
 initAnimationStagger();
+initSakazukiStage();
 initUserPosts();
 initScrollReveal();
 initLogin();
