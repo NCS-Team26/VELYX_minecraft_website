@@ -4057,10 +4057,10 @@ html.vlx-stage-shell[data-stage-section="stock"] {
 .stage-hash-rail {
   position: fixed;
   z-index: 10018;
-  left: 22px;
+  left: 7px;
   top: 50%;
   display: grid;
-  gap: 14px;
+  gap: 12px;
   place-items: center;
   transform: translateY(-50%);
   pointer-events: none;
@@ -4071,11 +4071,13 @@ html.vlx-stage-shell[data-stage-section="stock"] {
   color: var(--vlx-hash-accent-soft);
   -webkit-text-fill-color: var(--vlx-hash-accent-soft);
   font-family: var(--fnt-display, var(--stage-sans));
-  font-size: 0.72rem;
+  font-size: 0.66rem;
   font-weight: 700;
   line-height: 1;
+  opacity: 0.82;
   text-transform: uppercase;
   text-shadow: 0 0 28px var(--vlx-hash-glow);
+  transform: translateX(-1px);
   transition:
     color 520ms var(--vlx-stage-ease),
     text-shadow 520ms var(--vlx-stage-ease);
@@ -4085,7 +4087,7 @@ html.vlx-stage-shell[data-stage-section="stock"] {
   position: relative;
   display: block;
   width: 1px;
-  height: 118px;
+  height: 104px;
   overflow: hidden;
   background: rgba(250, 247, 239, 0.16);
 }
@@ -4200,12 +4202,12 @@ body.home-page-body .editorial-section::after {
   position: absolute;
   z-index: -2;
   left: 50%;
-  top: 50%;
+  top: 58%;
   width: max-content;
-  color: rgba(250, 247, 239, 0.035);
-  -webkit-text-fill-color: rgba(250, 247, 239, 0.035);
+  color: rgba(250, 247, 239, 0.018);
+  -webkit-text-fill-color: rgba(250, 247, 239, 0.018);
   font-family: var(--stage-serif);
-  font-size: 8rem;
+  font-size: clamp(4rem, 10vw, 7rem);
   font-weight: 500;
   line-height: 0.9;
   text-transform: uppercase;
@@ -4225,8 +4227,8 @@ body.home-page-body .editorial-section.is-hash-target::before {
 }
 
 body.home-page-body .editorial-section.is-stage-current::after {
-  color: color-mix(in srgb, var(--vlx-hash-accent-soft) 10%, transparent);
-  -webkit-text-fill-color: color-mix(in srgb, var(--vlx-hash-accent-soft) 10%, transparent);
+  color: color-mix(in srgb, var(--vlx-hash-accent-soft) 4%, transparent);
+  -webkit-text-fill-color: color-mix(in srgb, var(--vlx-hash-accent-soft) 4%, transparent);
 }
 
 body.home-page-body .editorial-section :is(.poster-triad, .split-wordmark, .section-kicker, .poster-textblock, .live-layout, .collective-layout, .join-layout, .benefit-ledger) {
@@ -4294,7 +4296,7 @@ body.home-page-body :is(.benefit-ledger article, .live-facts article, .join-step
 
 @media (max-width: 1080px) {
   .stage-hash-rail {
-    left: 14px;
+    left: 6px;
   }
 
   body.home-page-body .editorial-section::after {
