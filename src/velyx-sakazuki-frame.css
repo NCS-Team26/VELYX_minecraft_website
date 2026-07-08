@@ -6352,3 +6352,16 @@ body.public-page-body:not(.home-page-body) .address-row code {
   color: #faf7ef !important;
   -webkit-text-fill-color: #faf7ef !important;
 }
+
+/* Retire the leftover cosmic-violet accent token on interior pages.
+   An abandoned rebrand left :root --theme-accent = #8b6fd6, which still
+   painted the category / resource pills violet (gold text on violet = 1.46:1,
+   fails contrast). Repoint the token family to the shipped gold, scoped to the
+   interior bodies only — home derives its hero tints from the same token, so
+   it is deliberately excluded. */
+body:is(.public-page-body, .status-page-body, .stock-terminal-body, .auth-page-body):not(.home-page-body) {
+  --theme-accent: #bc9861 !important;
+  --theme-accent-soft: rgba(188, 152, 97, 0.16) !important;
+  --theme-accent-border: rgba(188, 152, 97, 0.42) !important;
+  --theme-accent-glow: rgba(188, 152, 97, 0.28) !important;
+}
