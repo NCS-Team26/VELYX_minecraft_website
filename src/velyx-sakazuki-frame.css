@@ -5725,9 +5725,9 @@ body.public-page-body.home-page-body .poster-media::before {
   content: "" !important;
   pointer-events: none !important;
   background:
-    radial-gradient(circle at 50% 48%, rgba(255, 218, 168, 0.2), rgba(49, 14, 16, 0.2) 25%, transparent 47%),
-    linear-gradient(90deg, rgba(3, 2, 2, 0.82), rgba(3, 2, 2, 0.18) 28%, rgba(3, 2, 2, 0.12) 62%, rgba(3, 2, 2, 0.84)),
-    linear-gradient(180deg, rgba(3, 2, 2, 0.58), transparent 34%, rgba(3, 2, 2, 0.34) 72%, rgba(3, 2, 2, 0.84)) !important;
+    radial-gradient(circle at 50% 48%, rgba(255, 218, 168, 0.14), rgba(49, 14, 16, 0.12) 26%, transparent 48%),
+    linear-gradient(90deg, rgba(5, 5, 5, 0.58) 0%, rgba(5, 5, 5, 0.14) 30%, rgba(5, 5, 5, 0.08) 54%, rgba(5, 5, 5, 0.56) 100%),
+    linear-gradient(180deg, rgba(5, 5, 5, 0.34), rgba(5, 5, 5, 0.02) 44%, rgba(5, 5, 5, 0.54)) !important;
   mix-blend-mode: normal !important;
   opacity: 1 !important;
 }
@@ -5750,9 +5750,10 @@ html.vlx-stage-shell body.home-page-body .poster-vignette,
 body.public-page-body.home-page-body .poster-vignette {
   inset: 0 !important;
   background:
-    radial-gradient(ellipse at 50% 50%, transparent 0 24rem, rgba(5, 2, 2, 0.22) 38rem, rgba(5, 2, 2, 0.78) 74rem),
-    radial-gradient(circle at 58% 43%, rgba(217, 154, 81, 0.18), transparent 26rem),
-    linear-gradient(180deg, rgba(5, 2, 2, 0.34), transparent 26%, rgba(5, 2, 2, 0.7)) !important;
+    radial-gradient(circle at 50% 48%, rgba(238, 218, 190, 0.12), transparent 18rem),
+    radial-gradient(ellipse at 50% 50%, transparent 0 18rem, rgba(5, 5, 5, 0.2) 36rem, rgba(5, 5, 5, 0.58) 74rem),
+    radial-gradient(circle at 58% 43%, rgba(217, 154, 81, 0.18), transparent 28rem),
+    linear-gradient(180deg, rgba(5, 5, 5, 0.28), rgba(5, 5, 5, 0.02) 48%, rgba(5, 5, 5, 0.62)) !important;
 }
 
 html.vlx-stage-shell body.home-page-body .poster-title,
@@ -5793,9 +5794,9 @@ body.public-page-body.home-page-body .poster-hero #hero-title {
   letter-spacing: -0.1em !important;
   text-transform: lowercase !important;
   text-shadow:
-    0 0 18px rgba(244, 238, 230, 0.2),
-    0 24px 72px rgba(0, 0, 0, 0.72),
-    0 0 96px rgba(217, 154, 81, 0.2) !important;
+    0 1px 0 rgba(255, 255, 255, 0.05),
+    0 24px 80px rgba(0, 0, 0, 0.44),
+    0 0 42px rgba(184, 135, 85, 0.14) !important;
 }
 
 html.vlx-stage-shell body.home-page-body .poster-hero .hero-copy,
@@ -5809,8 +5810,8 @@ body.public-page-body.home-page-body .poster-hero .hero-copy {
   line-height: 1.05 !important;
   letter-spacing: 0 !important;
   text-shadow:
-    0 2px 24px rgba(0, 0, 0, 0.9),
-    0 0 42px rgba(217, 154, 81, 0.2) !important;
+    0 1px 18px rgba(0, 0, 0, 0.5),
+    0 0 24px rgba(184, 135, 85, 0.14) !important;
 }
 
 html.vlx-stage-shell body.home-page-body .poster-copy,
@@ -6137,12 +6138,12 @@ body.public-page-body.home-page-body .poster-hero .hero-actions {
   }
 }
 
-/* Keep the supplied screenshot-like artwork as atmosphere while real HTML text stays primary. */
+/* Keep the supplied artwork visible: light flow should read through the dark UI. */
 html.vlx-stage-shell body.home-page-body .poster-media,
 body.public-page-body.home-page-body .poster-media {
-  opacity: 0.74 !important;
-  filter: saturate(1.16) brightness(0.44) contrast(1.2) blur(2px) !important;
-  transform: translate3d(0, calc(var(--stage-shift, 0px) * 0.14), 0) scale(1.075) !important;
+  opacity: 0.96 !important;
+  filter: saturate(1.04) brightness(0.76) contrast(1.1) blur(0.25px) !important;
+  transform: translate3d(0, calc(var(--stage-shift, 0px) * 0.12), 0) scale(1.035) !important;
 }
 
 html.vlx-stage-shell body.home-page-body .poster-title,
@@ -6157,9 +6158,10 @@ body.public-page-body.home-page-body .poster-title::before {
   z-index: 0 !important;
   content: "" !important;
   pointer-events: none !important;
+  opacity: 0.62 !important;
   background:
-    radial-gradient(ellipse at 50% 52%, rgba(3, 2, 2, 0.9), rgba(3, 2, 2, 0.66) 43%, rgba(3, 2, 2, 0.24) 68%, transparent 80%) !important;
-  filter: blur(8px) !important;
+    radial-gradient(ellipse at 50% 52%, rgba(3, 2, 2, 0.34), rgba(3, 2, 2, 0.2) 42%, rgba(3, 2, 2, 0.06) 68%, transparent 82%) !important;
+  filter: blur(4px) !important;
 }
 
 html.vlx-stage-shell body.home-page-body .poster-title > *,
@@ -6188,16 +6190,17 @@ body.public-page-body.home-page-body .site-nav {
 @media (max-width: 760px) {
   html.vlx-stage-shell body.home-page-body .poster-media,
   body.public-page-body.home-page-body .poster-media {
-    opacity: 0.68 !important;
-    filter: saturate(1.08) brightness(0.42) contrast(1.16) blur(2.35px) !important;
-    transform: translate3d(0, calc(var(--stage-shift, 0px) * 0.08), 0) scale(1.12) !important;
+    opacity: 0.94 !important;
+    filter: saturate(1.02) brightness(0.72) contrast(1.08) blur(0.35px) !important;
+    transform: translate3d(0, calc(var(--stage-shift, 0px) * 0.08), 0) scale(1.055) !important;
   }
 
   html.vlx-stage-shell body.home-page-body .poster-title::before,
   body.public-page-body.home-page-body .poster-title::before {
     inset: -5.2rem -3rem -6rem !important;
+    opacity: 0.7 !important;
     background:
-      radial-gradient(ellipse at 50% 53%, rgba(3, 2, 2, 0.94), rgba(3, 2, 2, 0.72) 44%, rgba(3, 2, 2, 0.32) 70%, transparent 84%) !important;
+      radial-gradient(ellipse at 50% 53%, rgba(3, 2, 2, 0.38), rgba(3, 2, 2, 0.24) 44%, rgba(3, 2, 2, 0.08) 70%, transparent 84%) !important;
   }
 
   html.vlx-stage-shell body.home-page-body .poster-hero h1,
