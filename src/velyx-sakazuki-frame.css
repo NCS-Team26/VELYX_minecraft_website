@@ -2775,3 +2775,35 @@ body:is(.public-page-body):not(.home-page-body) .stock-marketplace-section {
     #07060d !important;
   border-color: rgba(180, 155, 236, 0.18) !important;
 }
+
+/* ==========================================================================
+   Contrast fixes — same-colour-on-same-colour cases the unification missed
+   ========================================================================== */
+
+/* join.html: the server address <code> (shows "로그인 후 공개" when gated) kept a
+   dark ink from the old cream card -> ivory */
+body:is(.public-page-body, .status-page-body):not(.home-page-body) .address-row code {
+  color: #f4f3ef !important;
+  -webkit-text-fill-color: #f4f3ef !important;
+}
+
+/* status.html: card <em> (e.g. RAM % "24.3% 사용 중") was dark-on-dark; <em>
+   wasn't in the card-copy override */
+body:is(.public-page-body, .status-page-body):not(.home-page-body) :is(
+  .detail-grid article, .dashboard-card, .ram-live-card, .metric-live-card,
+  .plugin-grid article, .feature-grid article, .economy-grid article, .rules-tools article
+) em {
+  color: rgba(244, 243, 239, 0.82) !important;
+  -webkit-text-fill-color: rgba(244, 243, 239, 0.82) !important;
+}
+
+/* stock terminal: active toggle pills are ivory-filled; their nested text had
+   picked up ivory too (ivory-on-ivory). Force dark text on the pills only.
+   Scoped to button.is-active — NOT bare .is-active, which also matches the
+   chart panel (div.stock-main-panel.is-active) and dark table rows and would
+   drag their dark descendants to dark-on-dark. */
+body.stock-terminal-body button.is-active,
+body.stock-terminal-body button.is-active :is(span, small, strong, b, em) {
+  color: #0b0b10 !important;
+  -webkit-text-fill-color: #0b0b10 !important;
+}
