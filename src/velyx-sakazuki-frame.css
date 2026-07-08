@@ -5710,7 +5710,7 @@ body.public-page-body.home-page-body .poster-hero {
 html.vlx-stage-shell body.home-page-body .poster-media,
 body.public-page-body.home-page-body .poster-media {
   inset: 0 !important;
-  background-image: url("/assets/hero-velyx.webp") !important;
+  background-image: url("/assets/hero-velyx-bg.jpg") !important;
   background-position: center !important;
   background-size: cover !important;
   filter: saturate(1.08) brightness(0.72) contrast(1.13) !important;
@@ -6038,7 +6038,7 @@ body.public-page-body.home-page-body .poster-hero .hero-actions {
 
   html.vlx-stage-shell body.home-page-body .poster-media,
   body.public-page-body.home-page-body .poster-media {
-    background-image: url("/assets/hero-velyx.webp") !important;
+    background-image: url("/assets/hero-velyx-bg.jpg") !important;
     background-position: center !important;
     filter: saturate(1.02) brightness(0.6) contrast(1.12) !important;
     transform: translate3d(0, calc(var(--stage-shift, 0px) * 0.08), 0) scale(1.05) !important;

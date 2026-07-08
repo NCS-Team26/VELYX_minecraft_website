@@ -9,6 +9,8 @@ import "./velyx-sakazuki-frame.css";
 import "./velyx-stock-terminal.css";
 // Small progressive-enhancement flourishes: scroll progress, card spotlight, price tick flash.
 import "./velyx-flourishes.js";
+// Final VELYX agency skin: WebDorks-inspired motion, type, spacing, and dark gloss system.
+import "./velyx-webdorks-system.css";
 
 const SERVER_ADDRESS = "velyx.kr";
 const STATUS_API = `https://api.mcstatus.io/v2/status/java/${SERVER_ADDRESS}`;

@@ -333,6 +333,126 @@ body {
   }
 }
 
+/* WebDorks-inspired final auth pass -------------------------------------- */
+.auth-page-body {
+  --auth-wd-font: "Montserrat", "Poppins", "Inter", "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  --auth-wd-ivory: #f7f1e8;
+  --auth-wd-muted: rgba(247, 241, 232, 0.68);
+  --auth-wd-line: rgba(247, 241, 232, 0.16);
+  --auth-wd-copper: #d99557;
+  background:
+    linear-gradient(120deg, rgba(84, 25, 18, 0.16), transparent 32%, rgba(9, 26, 24, 0.16) 70%, transparent),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.025) 0 1px, transparent 1px 128px),
+    #050505 !important;
+  color: var(--auth-wd-ivory) !important;
+  font-family: var(--auth-wd-font) !important;
+}
+
+.auth-page-body *,
+.auth-page-body *::before,
+.auth-page-body *::after {
+  letter-spacing: 0 !important;
+}
+
+.auth-page-body .auth-page {
+  min-height: 100svh !important;
+  padding: 2.2rem 1.25rem !important;
+  background:
+    radial-gradient(circle at 50% 18%, rgba(217, 149, 87, 0.12), transparent 24rem),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.025), transparent 28%) !important;
+}
+
+.auth-page-body .auth-shell,
+.auth-page-body .auth-shell:not(:has(.character-panel:not([hidden]))) {
+  width: min(460px, calc(100% - 1rem)) !important;
+  max-width: 460px !important;
+}
+
+.auth-page-body .auth-panel,
+.auth-page-body .character-panel {
+  border: 1px solid var(--auth-wd-line) !important;
+  border-radius: 8px !important;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.055), transparent 28%),
+    rgba(15, 13, 12, 0.82) !important;
+  box-shadow: 0 30px 100px rgba(0, 0, 0, 0.58) !important;
+  color: var(--auth-wd-ivory) !important;
+}
+
+.auth-page-body .auth-brand,
+.auth-page-body .auth-heading,
+.auth-page-body .auth-form,
+.auth-page-body .auth-secondary-actions,
+.auth-page-body .auth-message {
+  font-family: var(--auth-wd-font) !important;
+}
+
+.auth-page-body .auth-heading h1,
+.auth-page-body .auth-mode-title {
+  color: var(--auth-wd-ivory) !important;
+  -webkit-text-fill-color: var(--auth-wd-ivory) !important;
+  background: none !important;
+  font-family: var(--auth-wd-font) !important;
+  font-size: 3.2rem !important;
+  font-weight: 900 !important;
+  line-height: 0.96 !important;
+  text-shadow: 0 28px 80px rgba(0, 0, 0, 0.7) !important;
+}
+
+.auth-page-body .auth-heading p,
+.auth-page-body .auth-eyebrow,
+.auth-page-body .auth-form label span {
+  color: var(--auth-wd-muted) !important;
+  -webkit-text-fill-color: var(--auth-wd-muted) !important;
+  font-family: var(--auth-wd-font) !important;
+}
+
+.auth-page-body .auth-form input {
+  border-radius: 0 !important;
+  border-color: rgba(247, 241, 232, 0.22) !important;
+  background: rgba(247, 241, 232, 0.055) !important;
+  color: var(--auth-wd-ivory) !important;
+  font-family: var(--auth-wd-font) !important;
+}
+
+.auth-page-body .auth-primary,
+.auth-page-body .auth-ghost,
+.auth-page-body .auth-secondary-actions button,
+.auth-page-body .google-login-fallback,
+.auth-page-body .web-action-button {
+  min-height: 46px !important;
+  border: 1px solid rgba(247, 241, 232, 0.4) !important;
+  border-radius: 999px !important;
+  background: rgba(247, 241, 232, 0.035) !important;
+  color: var(--auth-wd-ivory) !important;
+  -webkit-text-fill-color: var(--auth-wd-ivory) !important;
+  font-family: var(--auth-wd-font) !important;
+  font-weight: 900 !important;
+  box-shadow: none !important;
+}
+
+.auth-page-body .auth-primary:hover,
+.auth-page-body .auth-ghost:hover,
+.auth-page-body .auth-secondary-actions button:hover,
+.auth-page-body .google-login-fallback:hover,
+.auth-page-body .web-action-button:hover {
+  border-color: rgba(217, 149, 87, 0.62) !important;
+  background: rgba(217, 149, 87, 0.12) !important;
+  box-shadow: 0 0 28px rgba(217, 149, 87, 0.16) !important;
+}
+
+@media (max-width: 560px) {
+  .auth-page-body .auth-page {
+    padding: 1rem !important;
+  }
+
+  .auth-page-body .auth-heading h1,
+  .auth-page-body .auth-mode-title {
+    font-size: 2.55rem !important;
+    line-height: 1 !important;
+  }
+}
+
 /* Compact VELYX account maison -------------------------------------------
    Tightens the account surface so login feels like the same premium system as
    the public pages, without the oversized empty stage from the older layout.
@@ -401,7 +521,7 @@ body {
 
 .auth-page-body .auth-heading h1,
 .auth-page-body .character-heading h2 {
-  font-size: clamp(38px, 5vw, 58px);
+  font-size: 3.35rem;
   line-height: 0.98;
 }
 
@@ -573,7 +693,7 @@ body {
 
 .auth-heading h1,
 .character-heading h2 {
-  font-size: clamp(42px, 9vw, 58px);
+  font-size: 3.35rem;
   line-height: 0.92;
   font-weight: 500;
 }
