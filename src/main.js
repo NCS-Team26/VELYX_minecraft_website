@@ -5,6 +5,8 @@ import "./velyx-redesign.css";
 import "./velyx-minecraft.css";
 // Final visual frame: VELYX-tailored membership stage inspired by modern luxury web direction.
 import "./velyx-sakazuki-frame.css";
+// Stock page only: Bloomberg-style trading terminal skin (scoped to .stock-terminal-body).
+import "./velyx-stock-terminal.css";
 
 const SERVER_ADDRESS = "velyx.kr";
 const STATUS_API = `https://api.mcstatus.io/v2/status/java/${SERVER_ADDRESS}`;

@@ -1,0 +1,346 @@
+/* ==========================================================================
+   VELYX — Bloomberg-style trading terminal (stock page only)
+   --------------------------------------------------------------------------
+   Final layer for `body.stock-terminal-body`. The rest of the site wears the
+   dark editorial identity; the trading screen instead gets a dense financial
+   terminal look: pure-black canvas, monospace tabular data, amber panel
+   headers, sharp hairline-boxed panels, and green/red directional ticks.
+
+   Scoped entirely to .stock-terminal-body so no other page is affected.
+   Loaded after velyx-sakazuki-frame.css, so it overrides the editorial skin.
+   ========================================================================== */
+
+body.stock-terminal-body {
+  /* Terminal palette */
+  --bt-black: #000000;
+  --bt-panel: #08080a;
+  --bt-panel-2: #0d0d10;
+  --bt-line: #1d1d22;
+  --bt-line-soft: #141418;
+  --bt-amber: #ffab2e;
+  --bt-amber-dim: #b9812a;
+  --bt-amber-glow: rgba(255, 171, 46, 0.12);
+  --bt-green: #0ecb81;
+  --bt-red: #f6465d;
+  --bt-ink: #e8e8ea;
+  --bt-muted: #85858e;
+  --bt-mono: ui-monospace, "SFMono-Regular", "JetBrains Mono", "IBM Plex Mono",
+    Menlo, Consolas, "Liberation Mono", "Apple SD Gothic Neo", "Malgun Gothic", monospace;
+}
+
+/* ---- Canvas + global type ------------------------------------------------ */
+body.stock-terminal-body {
+  background: var(--bt-black) !important;
+  color: var(--bt-ink) !important;
+  font-family: var(--bt-mono) !important;
+  -webkit-font-smoothing: antialiased;
+}
+body.stock-terminal-body::before,
+body.stock-terminal-body::after { display: none !important; }
+
+body.stock-terminal-body :is(
+  .stock-workspace, .stock-exchange, .stock-pro-terminal, .stock-futures-layout,
+  #app
+) {
+  background: var(--bt-black) !important;
+}
+
+/* Everything monospace + no letter-spacing tricks; tabular figures for data */
+body.stock-terminal-body * {
+  font-family: var(--bt-mono) !important;
+  letter-spacing: 0 !important;
+  border-radius: 2px !important;
+  font-feature-settings: "tnum" 1, "zero" 1 !important;
+}
+
+/* ---- Panels: flat black, hairline box, no blur/shadow -------------------- */
+body.stock-terminal-body .stock-panel {
+  border: 1px solid var(--bt-line) !important;
+  background: var(--bt-panel) !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  color: var(--bt-ink) !important;
+}
+
+/* Panel header bar — the Bloomberg amber label rail */
+body.stock-terminal-body .stock-board-heading {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 8px !important;
+  min-height: 26px !important;
+  margin: 0 0 8px !important;
+  padding: 5px 9px !important;
+  border: 0 !important;
+  border-bottom: 1px solid var(--bt-line) !important;
+  border-left: 2px solid var(--bt-amber) !important;
+  background: linear-gradient(90deg, var(--bt-amber-glow), transparent 60%) !important;
+  color: var(--bt-amber) !important;
+  font-size: 0.72rem !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
+}
+body.stock-terminal-body .stock-board-heading :is(h1, h2, h3, h4, strong, span) {
+  color: var(--bt-amber) !important;
+  -webkit-text-fill-color: var(--bt-amber) !important;
+  font-size: 0.72rem !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+}
+
+/* ---- Top ticker strip ---------------------------------------------------- */
+body.stock-terminal-body .stock-ticker,
+body.stock-terminal-body .stock-market-strip {
+  border: 1px solid var(--bt-line) !important;
+  background: var(--bt-panel-2) !important;
+  box-shadow: none !important;
+}
+body.stock-terminal-body .stock-coin,
+body.stock-terminal-body .stock-market-pair strong {
+  color: var(--bt-amber) !important;
+  -webkit-text-fill-color: var(--bt-amber) !important;
+  font-weight: 700 !important;
+}
+body.stock-terminal-body .stock-session {
+  color: var(--bt-green) !important;
+  -webkit-text-fill-color: var(--bt-green) !important;
+  border: 1px solid rgba(14, 203, 129, 0.4) !important;
+  background: rgba(14, 203, 129, 0.08) !important;
+  text-transform: uppercase !important;
+  font-size: 0.62rem !important;
+}
+
+/* Big price + stat readouts -> mono, tight, white with amber emphasis */
+body.stock-terminal-body :is(.stock-market-price, .stock-market-stat) strong,
+body.stock-terminal-body .stock-market-price {
+  font-family: var(--bt-mono) !important;
+  color: var(--bt-ink) !important;
+  -webkit-text-fill-color: var(--bt-ink) !important;
+  font-weight: 700 !important;
+}
+body.stock-terminal-body .stock-market-stat span:not(.is-up):not(.is-down) {
+  color: var(--bt-muted) !important;
+  -webkit-text-fill-color: var(--bt-muted) !important;
+  text-transform: uppercase !important;
+  font-size: 0.62rem !important;
+  letter-spacing: 0.04em !important;
+}
+
+/* ---- Directional up / down ----------------------------------------------- */
+body.stock-terminal-body :is(.is-up, .up, .positive, [data-trend="up"]),
+body.stock-terminal-body :is(.is-up, .up, .positive) * {
+  color: var(--bt-green) !important;
+  -webkit-text-fill-color: var(--bt-green) !important;
+}
+body.stock-terminal-body :is(.is-down, .down, .negative, [data-trend="down"]),
+body.stock-terminal-body :is(.is-down, .down, .negative) * {
+  color: var(--bt-red) !important;
+  -webkit-text-fill-color: var(--bt-red) !important;
+}
+
+/* ---- Tabs / toggles ------------------------------------------------------ */
+body.stock-terminal-body :is(
+  .stock-chart-tabs, .stock-range-tabs, .stock-tabs, .stock-info-subtabs,
+  .stock-depth-mode-toggle, .stock-depth-tools
+) button {
+  border: 1px solid transparent !important;
+  background: transparent !important;
+  color: var(--bt-muted) !important;
+  -webkit-text-fill-color: var(--bt-muted) !important;
+  font-size: 0.7rem !important;
+  text-transform: uppercase !important;
+  font-weight: 600 !important;
+}
+body.stock-terminal-body :is(
+  .stock-chart-tabs, .stock-range-tabs, .stock-tabs, .stock-info-subtabs,
+  .stock-depth-mode-toggle, .stock-depth-tools
+) button.is-active {
+  color: var(--bt-amber) !important;
+  -webkit-text-fill-color: var(--bt-amber) !important;
+  background: var(--bt-amber-glow) !important;
+  border-color: rgba(255, 171, 46, 0.4) !important;
+}
+
+/* ---- Data tables --------------------------------------------------------- */
+body.stock-terminal-body :is(.stock-market-table, .stock-data-table) {
+  width: 100% !important;
+  border-collapse: collapse !important;
+  font-size: 0.74rem !important;
+}
+body.stock-terminal-body :is(.stock-market-table, .stock-data-table) :is(th, td) {
+  padding: 3px 8px !important;
+  border-bottom: 1px solid var(--bt-line-soft) !important;
+  color: var(--bt-ink) !important;
+  -webkit-text-fill-color: var(--bt-ink) !important;
+  font-weight: 500 !important;
+  text-align: right !important;
+  white-space: nowrap !important;
+}
+body.stock-terminal-body :is(.stock-market-table, .stock-data-table) th {
+  color: var(--bt-muted) !important;
+  -webkit-text-fill-color: var(--bt-muted) !important;
+  text-transform: uppercase !important;
+  font-size: 0.64rem !important;
+  letter-spacing: 0.05em !important;
+  border-bottom: 1px solid var(--bt-line) !important;
+}
+body.stock-terminal-body :is(.stock-market-table, .stock-data-table) :is(th, td):first-child {
+  text-align: left !important;
+  color: var(--bt-amber) !important;
+  -webkit-text-fill-color: var(--bt-amber) !important;
+}
+body.stock-terminal-body :is(.stock-market-table, .stock-data-table) tbody tr:hover :is(td) {
+  background: var(--bt-amber-glow) !important;
+}
+
+/* ---- Order book ---------------------------------------------------------- */
+body.stock-terminal-body .stock-order-book li {
+  display: flex !important;
+  justify-content: space-between !important;
+  padding: 1px 9px !important;
+  font-size: 0.72rem !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+body.stock-terminal-body .stock-order-book-asks li,
+body.stock-terminal-body .stock-order-book-asks li * {
+  color: var(--bt-red) !important;
+  -webkit-text-fill-color: var(--bt-red) !important;
+}
+body.stock-terminal-body .stock-order-book:not(.stock-order-book-asks) li,
+body.stock-terminal-body .stock-order-book:not(.stock-order-book-asks) li * {
+  color: var(--bt-green) !important;
+  -webkit-text-fill-color: var(--bt-green) !important;
+}
+body.stock-terminal-body .stock-mid-price {
+  border-top: 1px solid var(--bt-line) !important;
+  border-bottom: 1px solid var(--bt-line) !important;
+  background: var(--bt-panel-2) !important;
+  color: var(--bt-amber) !important;
+  -webkit-text-fill-color: var(--bt-amber) !important;
+  font-size: 0.95rem !important;
+  font-weight: 700 !important;
+  padding: 4px 9px !important;
+}
+
+/* ---- Order ticket / buy-sell -------------------------------------------- */
+body.stock-terminal-body :is(.stock-order-input-combo, .stock-size-stepper, .stock-order-available) {
+  border: 1px solid var(--bt-line) !important;
+  background: var(--bt-panel-2) !important;
+}
+body.stock-terminal-body :is(input, select, textarea) {
+  background: var(--bt-black) !important;
+  border-color: var(--bt-line) !important;
+  color: var(--bt-ink) !important;
+  -webkit-text-fill-color: var(--bt-ink) !important;
+  font-family: var(--bt-mono) !important;
+}
+body.stock-terminal-body .stock-order-side-buttons button {
+  border: 1px solid var(--bt-line) !important;
+  background: transparent !important;
+  color: var(--bt-muted) !important;
+  -webkit-text-fill-color: var(--bt-muted) !important;
+  text-transform: uppercase !important;
+  font-weight: 700 !important;
+}
+body.stock-terminal-body .stock-order-side-buttons button:is(.is-active, [data-side="buy"].is-active) {
+  background: rgba(14, 203, 129, 0.16) !important;
+  border-color: var(--bt-green) !important;
+  color: var(--bt-green) !important;
+  -webkit-text-fill-color: var(--bt-green) !important;
+}
+body.stock-terminal-body .stock-order-side-buttons button[data-side="sell"].is-active {
+  background: rgba(246, 70, 93, 0.16) !important;
+  border-color: var(--bt-red) !important;
+  color: var(--bt-red) !important;
+  -webkit-text-fill-color: var(--bt-red) !important;
+}
+body.stock-terminal-body .stock-order-submit {
+  border: 0 !important;
+  background: var(--bt-green) !important;
+  color: #04130c !important;
+  -webkit-text-fill-color: #04130c !important;
+  text-transform: uppercase !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.04em !important;
+}
+
+/* ---- Chart shell --------------------------------------------------------- */
+body.stock-terminal-body .stock-chart-stage,
+body.stock-terminal-body .stock-chart-shell {
+  background: var(--bt-black) !important;
+  border-color: var(--bt-line) !important;
+}
+body.stock-terminal-body :is(.stock-ohlc-line, .stock-chart-readout) {
+  font-family: var(--bt-mono) !important;
+  color: var(--bt-muted) !important;
+  -webkit-text-fill-color: var(--bt-muted) !important;
+  font-size: 0.72rem !important;
+}
+
+/* ---- Generic body copy inside panels -> readable mono grey --------------- */
+body.stock-terminal-body .stock-panel :is(p, li, span, small, label, dd, dt) {
+  color: var(--bt-ink) !important;
+}
+body.stock-terminal-body .stock-panel :is(.stock-detail-body, .stock-strength-meta) :is(span, small, label) {
+  color: var(--bt-muted) !important;
+  -webkit-text-fill-color: var(--bt-muted) !important;
+}
+
+/* ---- Kill residual blue-grey inner surfaces ------------------------------ */
+/* Many nested containers ship a hardcoded #1e2329-family fill; flatten them
+   to the terminal's near-black so the whole screen reads as one dark board. */
+body.stock-terminal-body :is(
+  .stock-main-panel, .stock-info-terminal, .stock-info-body, .stock-data-terminal,
+  .stock-data-analytics, .stock-data-summary, .stock-data-raw, .stock-data-table-wrap,
+  .stock-detail-body, .stock-axis, .stock-performance-grid, .stock-account-body,
+  .stock-account-gauge, .stock-account-actions, .stock-account-mode, .stock-expert-grid,
+  .stock-risk-panel, .stock-strength-meter, .stock-strength-meta, .stock-order-available,
+  .stock-advanced-orders, .stock-control-deck, .stock-chart-top, .trade-tape,
+  .stock-order-leverage, .stock-chart-settings-head, .stock-chart-settings-body,
+  .stock-chart-settings-foot, .stock-depth-settings-head, .stock-depth-settings-grid,
+  .stock-depth-settings-foot, .stock-depth-settings-dialog, .stock-chart-settings-modal,
+  .stock-news-card, .stock-news-list, .stock-news-head, .stock-news-meta,
+  .stock-activity-body, .stock-activity-tabs, .stock-activity-empty
+) {
+  background: var(--bt-panel-2) !important;
+  border-color: var(--bt-line) !important;
+}
+body.stock-terminal-body .stock-market-strip :is(.stock-market-price, .stock-market-stat, .stock-market-pair) {
+  background: transparent !important;
+}
+
+/* Generic control buttons / chips -> flat black hairline (leave the amber
+   active tabs, green/red side buttons and the submit button untouched) */
+body.stock-terminal-body .stock-panel button:not(.is-active):not(.stock-order-submit):not([data-side]):not(.stock-favorite) {
+  background: var(--bt-black) !important;
+  border: 1px solid var(--bt-line) !important;
+  color: var(--bt-muted) !important;
+  -webkit-text-fill-color: var(--bt-muted) !important;
+}
+body.stock-terminal-body :is(.stock-market-table, .stock-data-table) th {
+  background: transparent !important;
+}
+
+/* Active pills (ticker symbol + generic tabs) -> amber tint, not cream */
+body.stock-terminal-body button.is-active:not([data-side]) {
+  background: var(--bt-amber-glow) !important;
+  border-color: rgba(255, 171, 46, 0.42) !important;
+  color: var(--bt-amber) !important;
+  -webkit-text-fill-color: var(--bt-amber) !important;
+}
+/* ...but keep the active ticker button's price white and its change directional */
+body.stock-terminal-body .stock-ticker button strong,
+body.stock-terminal-body .stock-market-pair strong { color: var(--bt-amber) !important; -webkit-text-fill-color: var(--bt-amber) !important; }
+body.stock-terminal-body .stock-ticker button span { color: var(--bt-ink) !important; -webkit-text-fill-color: var(--bt-ink) !important; }
+body.stock-terminal-body .stock-ticker button em:not(.is-down),
+body.stock-terminal-body .stock-market-pair em:not(.is-down) {
+  color: var(--bt-green) !important;
+  -webkit-text-fill-color: var(--bt-green) !important;
+}
+body.stock-terminal-body .stock-ticker button em.is-down,
+body.stock-terminal-body .stock-market-pair em.is-down {
+  color: var(--bt-red) !important;
+  -webkit-text-fill-color: var(--bt-red) !important;
+}
