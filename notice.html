@@ -10,11 +10,10 @@
     <script>
       (function () {
         try {
-          var p = localStorage.getItem("nfoifsb.themePreset");
           document.documentElement.setAttribute("data-theme", "dark");
           localStorage.removeItem("nfoifsb.theme");
-          if (["forest", "cave", "amethyst", "ember", "ocean"].includes(p))
-            document.documentElement.setAttribute("data-theme-preset", p);
+          localStorage.removeItem("nfoifsb.themePreset");
+          localStorage.removeItem("nfoifsb.themeCustom");
         } catch (e) {
           document.documentElement.setAttribute("data-theme", "dark");
         }

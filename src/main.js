@@ -1057,262 +1057,23 @@ function initLogin() {
 }
 
 function initTheme() {
-  const storageKeys = {
-    preset: "nfoifsb.themePreset",
-    custom: "nfoifsb.themeCustom",
-  };
-  const customFallback = "#c30d23";
   const root = document.documentElement;
   root.setAttribute("data-theme", "dark");
+  root.removeAttribute("data-theme-preset");
+
   try {
     localStorage.removeItem("nfoifsb.theme");
+    localStorage.removeItem("nfoifsb.themePreset");
+    localStorage.removeItem("nfoifsb.themeCustom");
   } catch {
-    // Fixed dark presentation does not require theme persistence.
+    // The fixed VELYX theme does not require client-side theme storage.
   }
 
-  const normalizeHex = (value) => {
-    if (typeof value !== "string") return "";
-    const raw = value.trim().replace(/^#/, "");
-    if (/^[0-9a-f]{3}$/i.test(raw)) {
-      return `#${raw
-        .split("")
-        .map((char) => char + char)
-        .join("")
-        .toLowerCase()}`;
-    }
-    if (/^[0-9a-f]{6}$/i.test(raw)) return `#${raw.toLowerCase()}`;
-    return "";
-  };
-
-  const hexToRgb = (value) => {
-    const hex = normalizeHex(value);
-    if (!hex) return null;
-    return {
-      r: parseInt(hex.slice(1, 3), 16),
-      g: parseInt(hex.slice(3, 5), 16),
-      b: parseInt(hex.slice(5, 7), 16),
-    };
-  };
-
-  const rgba = (value, alpha) => {
-    const rgb = hexToRgb(value) || hexToRgb("#93e2a6");
-    return `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${alpha})`;
-  };
-
-  const mixHex = (value, target, amount) => {
-    const from = hexToRgb(value) || hexToRgb("#93e2a6");
-    const to = hexToRgb(target) || hexToRgb("#ffffff");
-    const channel = (start, end) =>
-      Math.round(start + (end - start) * amount)
-        .toString(16)
-        .padStart(2, "0");
-    return `#${channel(from.r, to.r)}${channel(from.g, to.g)}${channel(from.b, to.b)}`;
-  };
-
-  let customColor = customFallback;
-  try {
-    customColor = normalizeHex(localStorage.getItem(storageKeys.custom)) || customFallback;
-  } catch {
-    customColor = customFallback;
-  }
-
-  const presets = [
-    {
-      id: "forest",
-      label: "숲",
-      meta: "#0d1411",
-      swatchA: "#13221a",
-      swatchB: "#93e2a6",
-      accent: "#93e2a6",
-    },
-    {
-      id: "cave",
-      label: "동굴",
-      meta: "#101111",
-      swatchA: "#151716",
-      swatchB: "#94d7c8",
-      accent: "#94d7c8",
-    },
-    {
-      id: "amethyst",
-      label: "자수정",
-      meta: "#16121c",
-      swatchA: "#241d2d",
-      swatchB: "#c6a6ff",
-      accent: "#c6a6ff",
-    },
-    {
-      id: "ember",
-      label: "불빛",
-      meta: "#17130f",
-      swatchA: "#241b14",
-      swatchB: "#ffb06a",
-      accent: "#ffb06a",
-    },
-    {
-      id: "ocean",
-      label: "바다",
-      meta: "#0d171a",
-      swatchA: "#17282d",
-      swatchB: "#76dbe4",
-      accent: "#76dbe4",
-    },
-    {
-      id: "custom",
-      label: "Custom",
-      meta: customColor,
-      swatchA: "#050505",
-      swatchB: customColor,
-      accent: customColor,
-      custom: true,
-    },
-  ];
-  const presetById = new Map(presets.map((preset) => [preset.id, preset]));
-  let savedPreset = "";
-  try {
-    savedPreset = localStorage.getItem(storageKeys.preset) || "";
-  } catch {
-    savedPreset = "";
-  }
-  let activePreset = presetById.has(savedPreset) ? savedPreset : "forest";
-  const getActivePreset = () => {
-    if (activePreset === "custom") {
-      return {
-        ...presetById.get("custom"),
-        meta: customColor,
-        swatchB: customColor,
-        accent: customColor,
-      };
-    }
-    return presetById.get(activePreset) || presetById.get("forest");
-  };
-
-  const applyAccent = () => {
-    const preset = getActivePreset();
-    const accent = normalizeHex(preset.accent || preset.swatchB) || customFallback;
-    root.style.setProperty("--theme-accent", accent, "important");
-    root.style.setProperty("--theme-accent-soft", rgba(accent, 0.18), "important");
-    root.style.setProperty("--theme-accent-border", rgba(accent, 0.42), "important");
-    root.style.setProperty("--theme-accent-glow", rgba(accent, 0.24), "important");
-    root.style.setProperty("--vlx-hash-accent", accent, "important");
-    root.style.setProperty("--vlx-hash-accent-soft", mixHex(accent, "#ffffff", 0.58), "important");
-    root.style.setProperty("--vlx-hash-glow", rgba(accent, 0.24), "important");
-    root.style.setProperty("--vlx-hash-line", rgba(accent, 0.42), "important");
-    root.style.setProperty("--vlx-stage-violet", accent, "important");
-    root.style.setProperty("--vlx-hero-accent", accent, "important");
-    root.style.setProperty("--vlx-hero-bronze", mixHex(accent, "#e1d6ce", 0.44), "important");
-  };
-
-  const ensurePalette = () => {
-    document.querySelectorAll(".footer-theme-row").forEach((row) => {
-      if (row.querySelector("[data-theme-palette]")) return;
-
-      const customizer = document.createElement("div");
-      customizer.className = "footer-theme-customizer";
-      customizer.dataset.themeCustomizer = "";
-
-      const label = document.createElement("span");
-      label.textContent = "색상";
-      customizer.append(label);
-
-      const palette = document.createElement("div");
-      palette.className = "theme-palette";
-      palette.dataset.themePalette = "";
-      presets.forEach((preset) => {
-        const button = document.createElement("button");
-        button.className = "theme-preset-button";
-        button.type = "button";
-        button.dataset.themePreset = preset.id;
-        button.style.setProperty("--swatch-a", preset.swatchA);
-        button.style.setProperty("--swatch-b", preset.custom ? customColor : preset.swatchB);
-        button.setAttribute("aria-label", `${preset.label} 색상`);
-        button.setAttribute("title", preset.label);
-        palette.append(button);
-      });
-      customizer.append(palette);
-
-      const customField = document.createElement("label");
-      customField.className = "theme-custom-color";
-      customField.setAttribute("title", "커스텀 색상");
-
-      const customText = document.createElement("span");
-      customText.textContent = "Custom";
-      customField.append(customText);
-
-      const customInput = document.createElement("input");
-      customInput.type = "color";
-      customInput.value = customColor;
-      customInput.dataset.themeCustomColor = "";
-      customInput.setAttribute("aria-label", "커스텀 테마 색상");
-      customField.append(customInput);
-
-      customizer.append(customField);
-      row.append(customizer);
-    });
-  };
-
-  const sync = () => {
-    const preset = getActivePreset();
-    applyAccent();
-    root.setAttribute("data-theme", "dark");
-    root.setAttribute("data-theme-preset", activePreset);
-    document.querySelectorAll(".theme-preset-button[data-theme-preset]").forEach((button) => {
-      const pressed = button.dataset.themePreset === activePreset;
-      if (button.dataset.themePreset === "custom") {
-        button.style.setProperty("--swatch-b", customColor);
-      }
-      button.setAttribute("aria-pressed", String(pressed));
-    });
-    document.querySelectorAll("[data-theme-custom-color]").forEach((input) => {
-      if (input.value !== customColor) input.value = customColor;
-    });
-    document.querySelectorAll('meta[name="theme-color"]').forEach((m) => {
-      // Drop the media filter so the fixed dark shell color always wins.
-      m.removeAttribute("media");
-      m.setAttribute("content", preset.meta || "#050505");
-    });
-  };
-
-  ensurePalette();
-
-  document.querySelectorAll(".theme-preset-button[data-theme-preset]").forEach((button) => {
-    button.addEventListener("click", () => {
-      const nextPreset = button.dataset.themePreset;
-      if (!presetById.has(nextPreset)) return;
-      activePreset = nextPreset;
-      root.setAttribute("data-theme", "dark");
-      root.setAttribute("data-theme-preset", activePreset);
-      try {
-        localStorage.setItem(storageKeys.preset, activePreset);
-        if (activePreset === "custom") localStorage.setItem(storageKeys.custom, customColor);
-      } catch {
-        // Palette still works for this session without persistence.
-      }
-      sync();
-    });
+  document.querySelectorAll('meta[name="theme-color"]').forEach((meta) => {
+    meta.removeAttribute("media");
+    meta.setAttribute("content", "#050505");
   });
-
-  document.querySelectorAll("[data-theme-custom-color]").forEach((input) => {
-    input.addEventListener("input", () => {
-      const nextColor = normalizeHex(input.value);
-      if (!nextColor) return;
-      customColor = nextColor;
-      activePreset = "custom";
-      root.setAttribute("data-theme", "dark");
-      root.setAttribute("data-theme-preset", activePreset);
-      try {
-        localStorage.setItem(storageKeys.preset, activePreset);
-        localStorage.setItem(storageKeys.custom, customColor);
-      } catch {
-        // Custom color still applies for this session without persistence.
-      }
-      sync();
-    });
-  });
-
-  sync();
 }
-
 function initNav() {
   const nav = document.querySelector(".site-nav");
   const toggle = document.querySelector("[data-nav-toggle]");
@@ -1518,26 +1279,27 @@ function initSakazukiStage() {
   const stageBodies = ["public-page-body", "status-page-body", "stock-terminal-body", "auth-page-body"];
   if (!stageBodies.some((className) => document.body.classList.contains(className))) return;
 
+  const isHomePage = document.body.classList.contains("home-page-body");
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const compactMotion = window.matchMedia("(max-width: 760px), (pointer: coarse)").matches || Boolean(navigator.connection?.saveData);
   document.documentElement.classList.add("vlx-stage-shell");
   document.documentElement.classList.toggle("vlx-stage-compact-motion", compactMotion);
   setStageSectionKey(getCurrentHashKey() || getCurrentPageKey() || "home");
 
-  let stageHashRail = document.querySelector(".stage-hash-rail");
-  if (!stageHashRail) {
+  let stageHashRail = isHomePage ? null : document.querySelector(".stage-hash-rail");
+  if (!isHomePage && !stageHashRail) {
     stageHashRail = document.createElement("aside");
     stageHashRail.className = "stage-hash-rail";
     stageHashRail.setAttribute("aria-hidden", "true");
     stageHashRail.innerHTML = '<span class="stage-hash-label">#VELYX</span><i><b></b></i>';
     document.body.append(stageHashRail);
   }
-  const stageHashLabel = stageHashRail.querySelector(".stage-hash-label");
-  const stageHashMeter = stageHashRail.querySelector("b");
+  const stageHashLabel = stageHashRail?.querySelector(".stage-hash-label") || null;
+  const stageHashMeter = stageHashRail?.querySelector("b") || null;
 
   const clockTargets = Array.from(document.querySelectorAll(".poster-clock, .stage-clock-live"));
   const footer = document.querySelector(".site-footer");
-  if (footer && !footer.querySelector(".stage-clock-live")) {
+  if (footer && !isHomePage && !footer.querySelector(".stage-clock-live")) {
     const footerClock = document.createElement("span");
     footerClock.className = "stage-clock-live";
     footerClock.setAttribute("aria-hidden", "true");

@@ -14,11 +14,10 @@
     <script>
       (function () {
         try {
-          var p = localStorage.getItem("nfoifsb.themePreset");
           document.documentElement.setAttribute("data-theme", "dark");
           localStorage.removeItem("nfoifsb.theme");
-          if (["forest", "cave", "amethyst", "ember", "ocean"].includes(p))
-            document.documentElement.setAttribute("data-theme-preset", p);
+          localStorage.removeItem("nfoifsb.themePreset");
+          localStorage.removeItem("nfoifsb.themeCustom");
         } catch (e) {
           document.documentElement.setAttribute("data-theme", "dark");
         }
@@ -208,7 +207,6 @@
           <span>Paper 26.1.2 · 경제 야생 서버</span>
           <a href="#content">맨 위로</a>
         </div>
-        <div class="footer-theme-row" aria-label="Color controls"></div>
       </footer>
     </div>
     <script type="module" src="/src/main.js"></script>
