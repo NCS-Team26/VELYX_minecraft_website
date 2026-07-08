@@ -1051,6 +1051,61 @@ function initTheme() {
   const toggles = document.querySelectorAll("[data-theme-toggle]");
   if (!toggles.length) return;
 
+  const storageKeys = {
+    theme: "nfoifsb.theme",
+    preset: "nfoifsb.themePreset",
+    custom: "nfoifsb.themeCustom",
+  };
+  const customFallback = "#c30d23";
+  const root = document.documentElement;
+  const systemDark = window.matchMedia("(prefers-color-scheme: dark)");
+
+  const normalizeHex = (value) => {
+    if (typeof value !== "string") return "";
+    const raw = value.trim().replace(/^#/, "");
+    if (/^[0-9a-f]{3}$/i.test(raw)) {
+      return `#${raw
+        .split("")
+        .map((char) => char + char)
+        .join("")
+        .toLowerCase()}`;
+    }
+    if (/^[0-9a-f]{6}$/i.test(raw)) return `#${raw.toLowerCase()}`;
+    return "";
+  };
+
+  const hexToRgb = (value) => {
+    const hex = normalizeHex(value);
+    if (!hex) return null;
+    return {
+      r: parseInt(hex.slice(1, 3), 16),
+      g: parseInt(hex.slice(3, 5), 16),
+      b: parseInt(hex.slice(5, 7), 16),
+    };
+  };
+
+  const rgba = (value, alpha) => {
+    const rgb = hexToRgb(value) || hexToRgb("#93e2a6");
+    return `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${alpha})`;
+  };
+
+  const mixHex = (value, target, amount) => {
+    const from = hexToRgb(value) || hexToRgb("#93e2a6");
+    const to = hexToRgb(target) || hexToRgb("#ffffff");
+    const channel = (start, end) =>
+      Math.round(start + (end - start) * amount)
+        .toString(16)
+        .padStart(2, "0");
+    return `#${channel(from.r, to.r)}${channel(from.g, to.g)}${channel(from.b, to.b)}`;
+  };
+
+  let customColor = customFallback;
+  try {
+    customColor = normalizeHex(localStorage.getItem(storageKeys.custom)) || customFallback;
+  } catch {
+    customColor = customFallback;
+  }
+
   const presets = [
     {
       id: "forest",
@@ -1058,6 +1113,7 @@ function initTheme() {
       meta: "#0d1411",
       swatchA: "#13221a",
       swatchB: "#93e2a6",
+      accent: "#93e2a6",
     },
     {
       id: "cave",
@@ -1065,6 +1121,7 @@ function initTheme() {
       meta: "#101111",
       swatchA: "#151716",
       swatchB: "#94d7c8",
+      accent: "#94d7c8",
     },
     {
       id: "amethyst",
@@ -1072,6 +1129,7 @@ function initTheme() {
       meta: "#16121c",
       swatchA: "#241d2d",
       swatchB: "#c6a6ff",
+      accent: "#c6a6ff",
     },
     {
       id: "ember",
@@ -1079,6 +1137,7 @@ function initTheme() {
       meta: "#17130f",
       swatchA: "#241b14",
       swatchB: "#ffb06a",
+      accent: "#ffb06a",
     },
     {
       id: "ocean",
@@ -1086,20 +1145,56 @@ function initTheme() {
       meta: "#0d171a",
       swatchA: "#17282d",
       swatchB: "#76dbe4",
+      accent: "#76dbe4",
+    },
+    {
+      id: "custom",
+      label: "Custom",
+      meta: customColor,
+      swatchA: "#050505",
+      swatchB: customColor,
+      accent: customColor,
+      custom: true,
     },
   ];
   const presetById = new Map(presets.map((preset) => [preset.id, preset]));
-  const root = document.documentElement;
-  const systemDark = window.matchMedia("(prefers-color-scheme: dark)");
   let savedPreset = "";
   try {
-    savedPreset = localStorage.getItem("nfoifsb.themePreset") || "";
+    savedPreset = localStorage.getItem(storageKeys.preset) || "";
   } catch {
     savedPreset = "";
   }
   let activePreset = presetById.has(savedPreset) ? savedPreset : "forest";
   const resolved = () =>
     root.getAttribute("data-theme") || (systemDark.matches ? "dark" : "light");
+
+  const getActivePreset = () => {
+    if (activePreset === "custom") {
+      return {
+        ...presetById.get("custom"),
+        meta: customColor,
+        swatchB: customColor,
+        accent: customColor,
+      };
+    }
+    return presetById.get(activePreset) || presetById.get("forest");
+  };
+
+  const applyAccent = () => {
+    const preset = getActivePreset();
+    const accent = normalizeHex(preset.accent || preset.swatchB) || customFallback;
+    root.style.setProperty("--theme-accent", accent, "important");
+    root.style.setProperty("--theme-accent-soft", rgba(accent, 0.18), "important");
+    root.style.setProperty("--theme-accent-border", rgba(accent, 0.42), "important");
+    root.style.setProperty("--theme-accent-glow", rgba(accent, 0.24), "important");
+    root.style.setProperty("--vlx-hash-accent", accent, "important");
+    root.style.setProperty("--vlx-hash-accent-soft", mixHex(accent, "#ffffff", 0.58), "important");
+    root.style.setProperty("--vlx-hash-glow", rgba(accent, 0.24), "important");
+    root.style.setProperty("--vlx-hash-line", rgba(accent, 0.42), "important");
+    root.style.setProperty("--vlx-stage-violet", accent, "important");
+    root.style.setProperty("--vlx-hero-accent", accent, "important");
+    root.style.setProperty("--vlx-hero-bronze", mixHex(accent, "#e1d6ce", 0.44), "important");
+  };
 
   const ensurePalette = () => {
     document.querySelectorAll(".footer-theme-row").forEach((row) => {
@@ -1122,12 +1217,29 @@ function initTheme() {
         button.type = "button";
         button.dataset.themePreset = preset.id;
         button.style.setProperty("--swatch-a", preset.swatchA);
-        button.style.setProperty("--swatch-b", preset.swatchB);
-        button.setAttribute("aria-label", `${preset.label} 다크모드 색상`);
+        button.style.setProperty("--swatch-b", preset.custom ? customColor : preset.swatchB);
+        button.setAttribute("aria-label", `${preset.label} 색상`);
         button.setAttribute("title", preset.label);
         palette.append(button);
       });
       customizer.append(palette);
+
+      const customField = document.createElement("label");
+      customField.className = "theme-custom-color";
+      customField.setAttribute("title", "커스텀 색상");
+
+      const customText = document.createElement("span");
+      customText.textContent = "Custom";
+      customField.append(customText);
+
+      const customInput = document.createElement("input");
+      customInput.type = "color";
+      customInput.value = customColor;
+      customInput.dataset.themeCustomColor = "";
+      customInput.setAttribute("aria-label", "커스텀 테마 색상");
+      customField.append(customInput);
+
+      customizer.append(customField);
       row.append(customizer);
     });
   };
@@ -1135,6 +1247,8 @@ function initTheme() {
   const sync = () => {
     const theme = resolved();
     const nextTheme = theme === "dark" ? "light" : "dark";
+    const preset = getActivePreset();
+    applyAccent();
     root.setAttribute("data-theme-preset", activePreset);
     toggles.forEach((toggle) => {
       toggle.dataset.theme = theme;
@@ -1153,14 +1267,20 @@ function initTheme() {
     });
     document.querySelectorAll(".theme-preset-button[data-theme-preset]").forEach((button) => {
       const pressed = button.dataset.themePreset === activePreset;
+      if (button.dataset.themePreset === "custom") {
+        button.style.setProperty("--swatch-b", customColor);
+      }
       button.setAttribute("aria-pressed", String(pressed));
+    });
+    document.querySelectorAll("[data-theme-custom-color]").forEach((input) => {
+      if (input.value !== customColor) input.value = customColor;
     });
     document.querySelectorAll('meta[name="theme-color"]').forEach((m) => {
       // Drop the media filter so the pinned theme's color always wins.
       m.removeAttribute("media");
       m.setAttribute(
         "content",
-        theme === "dark" ? presetById.get(activePreset)?.meta || "#0d1411" : "#e8efeb",
+        theme === "dark" ? preset.meta || "#050505" : "#f6efe5",
       );
     });
   };
@@ -1172,7 +1292,7 @@ function initTheme() {
       const next = resolved() === "dark" ? "light" : "dark";
       root.setAttribute("data-theme", next);
       try {
-        localStorage.setItem("nfoifsb.theme", next);
+        localStorage.setItem(storageKeys.theme, next);
       } catch {
         // Toggle still works for this session without persistence.
       }
@@ -1185,13 +1305,33 @@ function initTheme() {
       const nextPreset = button.dataset.themePreset;
       if (!presetById.has(nextPreset)) return;
       activePreset = nextPreset;
-      root.setAttribute("data-theme", "dark");
+      root.setAttribute("data-theme", resolved());
       root.setAttribute("data-theme-preset", activePreset);
       try {
-        localStorage.setItem("nfoifsb.theme", "dark");
-        localStorage.setItem("nfoifsb.themePreset", activePreset);
+        localStorage.setItem(storageKeys.theme, resolved());
+        localStorage.setItem(storageKeys.preset, activePreset);
+        if (activePreset === "custom") localStorage.setItem(storageKeys.custom, customColor);
       } catch {
         // Palette still works for this session without persistence.
+      }
+      sync();
+    });
+  });
+
+  document.querySelectorAll("[data-theme-custom-color]").forEach((input) => {
+    input.addEventListener("input", () => {
+      const nextColor = normalizeHex(input.value);
+      if (!nextColor) return;
+      customColor = nextColor;
+      activePreset = "custom";
+      root.setAttribute("data-theme", resolved());
+      root.setAttribute("data-theme-preset", activePreset);
+      try {
+        localStorage.setItem(storageKeys.theme, resolved());
+        localStorage.setItem(storageKeys.preset, activePreset);
+        localStorage.setItem(storageKeys.custom, customColor);
+      } catch {
+        // Custom color still applies for this session without persistence.
       }
       sync();
     });
