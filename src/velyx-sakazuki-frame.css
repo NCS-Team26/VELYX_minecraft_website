@@ -6364,4 +6364,13 @@ body:is(.public-page-body, .status-page-body, .stock-terminal-body, .auth-page-b
   --theme-accent-soft: rgba(188, 152, 97, 0.16) !important;
   --theme-accent-border: rgba(188, 152, 97, 0.42) !important;
   --theme-accent-glow: rgba(188, 152, 97, 0.28) !important;
+  /* the redesign layer paints rules-list counters and other markers with a
+     second violet token; flip it too so the whole interior reads gold */
+  --vx-amaranth: #bc9861 !important;
+}
+
+/* rules-list number badges: dark text on the now-gold counter badge */
+body.public-page-body:not(.home-page-body) .rules-list li::before {
+  background: #bc9861 !important;
+  color: #14100a !important;
 }

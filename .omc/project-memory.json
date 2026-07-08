@@ -1,0 +1,501 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1783443991201,
+  "projectRoot": "/Users/choi/Desktop/project/VELYX_minecraft_website",
+  "techStack": {
+    "languages": [
+      {
+        "name": "JavaScript/TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "package.json"
+        ]
+      }
+    ],
+    "frameworks": [
+      {
+        "name": "vite",
+        "version": "7.0.0",
+        "category": "build"
+      }
+    ],
+    "packageManager": "npm",
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": "npm run build 2>&1 | grep -E \"built in|error|Error\" | tail -1",
+    "testCommand": null,
+    "lintCommand": null,
+    "devCommand": "npm run dev",
+    "scripts": {
+      "dev": "vite --host 127.0.0.1",
+      "dev:local": "node scripts/dev-local.mjs",
+      "auth:dev": "node server/auth/local-server.mjs",
+      "admin:create": "node scripts/create-admin-user.mjs",
+      "admin:create:aws": "node scripts/create-aws-admin-user.mjs",
+      "build": "vite build",
+      "discord:register": "node discord-bot/register-commands.mjs",
+      "discord:start": "node discord-bot/index.mjs",
+      "discord:stock-webhook": "node discord-bot/stock-webhook.mjs",
+      "discord:stock-webhook:once": "node discord-bot/stock-webhook.mjs --once",
+      "minecraft:api-bridge": "node server/minecraft-api-bridge.mjs",
+      "auth:setup:aws": "node scripts/aws-auth-setup.mjs",
+      "deploy:aws": "npm run build && node scripts/aws-deploy.mjs",
+      "preview": "vite preview --host 127.0.0.1",
+      "modpack:server": "python scripts/minecraft/install-modrinth-pack.py --side server --target .modpack/server-plugins --minecraft-version 26.1.2 --prune-managed",
+      "modpack:server:dry": "python scripts/minecraft/install-modrinth-pack.py --side server --target .modpack/server-plugins --minecraft-version 26.1.2 --dry-run",
+      "modpack:client:dry": "python scripts/minecraft/install-modrinth-pack.py --side client --target .modpack/client-mods --minecraft-version 26.1.2 --dry-run",
+      "modpack:client": "python scripts/minecraft/install-modrinth-pack.py --side client --target .modpack/client-mods --minecraft-version 26.1.2 --prune-managed",
+      "modpack:client:mrpack": "npm run modpack:client && python scripts/minecraft/export-modrinth-pack.py",
+      "modpack:fabric-server": "python scripts/minecraft/install-modrinth-pack.py --side fabric-server --target .modpack/fabric-server-mods --minecraft-version 26.1.2 --prune-managed",
+      "modpack:fabric-server:dry": "python scripts/minecraft/install-modrinth-pack.py --side fabric-server --target .modpack/fabric-server-mods --minecraft-version 26.1.2 --dry-run"
+    }
+  },
+  "conventions": {
+    "namingStyle": "camelCase",
+    "importStyle": "ES modules",
+    "testPattern": null,
+    "fileOrganization": null
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [
+      "docs",
+      "public",
+      "scripts",
+      "src"
+    ],
+    "gitBranches": {
+      "defaultBranch": "main",
+      "branchingStrategy": null
+    }
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "discord-bot": {
+      "path": "discord-bot",
+      "purpose": null,
+      "fileCount": 9,
+      "lastAccessed": 1783443991194,
+      "keyFiles": [
+        "api.mjs",
+        "chart.mjs",
+        "commands.mjs",
+        "config.mjs",
+        "format.mjs"
+      ]
+    },
+    "dist": {
+      "path": "dist",
+      "purpose": "Distribution/build output",
+      "fileCount": 13,
+      "lastAccessed": 1783443991194,
+      "keyFiles": [
+        "admin.html",
+        "community.html",
+        "index.html",
+        "join.html",
+        "login.html"
+      ]
+    },
+    "docs": {
+      "path": "docs",
+      "purpose": "Documentation",
+      "fileCount": 6,
+      "lastAccessed": 1783443991197,
+      "keyFiles": [
+        "aurora-link-plugin.md",
+        "auth-api.md",
+        "aws-zero-cost.md",
+        "discord-bot.md",
+        "minecraft-building-pack.md"
+      ]
+    },
+    "infra": {
+      "path": "infra",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1783443991197,
+      "keyFiles": []
+    },
+    "minecraft-plugin": {
+      "path": "minecraft-plugin",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1783443991197,
+      "keyFiles": []
+    },
+    "public": {
+      "path": "public",
+      "purpose": "Public files",
+      "fileCount": 2,
+      "lastAccessed": 1783443991197,
+      "keyFiles": [
+        "robots.txt",
+        "sitemap.xml"
+      ]
+    },
+    "scripts": {
+      "path": "scripts",
+      "purpose": "Build/utility scripts",
+      "fileCount": 8,
+      "lastAccessed": 1783443991197,
+      "keyFiles": [
+        "aws-auth-setup.mjs",
+        "aws-deploy.mjs",
+        "cloudfront-console-deploy.sh",
+        "create-admin-user.mjs",
+        "create-aws-admin-user.mjs"
+      ]
+    },
+    "server": {
+      "path": "server",
+      "purpose": null,
+      "fileCount": 1,
+      "lastAccessed": 1783443991197,
+      "keyFiles": [
+        "minecraft-api-bridge.mjs"
+      ]
+    },
+    "src": {
+      "path": "src",
+      "purpose": "Source code",
+      "fileCount": 9,
+      "lastAccessed": 1783443991198,
+      "keyFiles": [
+        "admin.js",
+        "login.css",
+        "login.js",
+        "main.js",
+        "scene.js"
+      ]
+    },
+    "dist/assets": {
+      "path": "dist/assets",
+      "purpose": "Static assets",
+      "fileCount": 36,
+      "lastAccessed": 1783443991198,
+      "keyFiles": [
+        "admin-BlZLK1rd.js",
+        "atlasParser-B-e6ADN4.js",
+        "blockStatesModels-BSctFV9h.js"
+      ]
+    },
+    "public/assets": {
+      "path": "public/assets",
+      "purpose": "Static assets",
+      "fileCount": 8,
+      "lastAccessed": 1783443991198,
+      "keyFiles": [
+        "hero-world-1920.jpg",
+        "hero-world-960.jpg",
+        "hero-world.png"
+      ]
+    }
+  },
+  "hotPaths": [
+    {
+      "path": "src/velyx-sakazuki-frame.css",
+      "accessCount": 20,
+      "lastAccessed": 1783529554353,
+      "type": "file"
+    },
+    {
+      "path": "src/velyx-minecraft.css",
+      "accessCount": 9,
+      "lastAccessed": 1783527349934,
+      "type": "file"
+    },
+    {
+      "path": "src/velyx-stock-terminal.css",
+      "accessCount": 5,
+      "lastAccessed": 1783529330869,
+      "type": "file"
+    },
+    {
+      "path": "index.html",
+      "accessCount": 4,
+      "lastAccessed": 1783454375725,
+      "type": "file"
+    },
+    {
+      "path": "src/main.js",
+      "accessCount": 3,
+      "lastAccessed": 1783524469008,
+      "type": "file"
+    },
+    {
+      "path": "docs/sakazuki-design-prompt.md",
+      "accessCount": 1,
+      "lastAccessed": 1783444147556,
+      "type": "file"
+    },
+    {
+      "path": "public/assets/server-icon.png",
+      "accessCount": 1,
+      "lastAccessed": 1783444236864,
+      "type": "file"
+    },
+    {
+      "path": "src/scene.js",
+      "accessCount": 1,
+      "lastAccessed": 1783453698422,
+      "type": "file"
+    },
+    {
+      "path": "hero-brand.png",
+      "accessCount": 1,
+      "lastAccessed": 1783453919345,
+      "type": "file"
+    },
+    {
+      "path": "hero-brand2.png",
+      "accessCount": 1,
+      "lastAccessed": 1783454016378,
+      "type": "file"
+    },
+    {
+      "path": "full.png",
+      "accessCount": 1,
+      "lastAccessed": 1783454488420,
+      "type": "file"
+    },
+    {
+      "path": "status.png",
+      "accessCount": 1,
+      "lastAccessed": 1783454516999,
+      "type": "file"
+    },
+    {
+      "path": "join.png",
+      "accessCount": 1,
+      "lastAccessed": 1783454541887,
+      "type": "file"
+    },
+    {
+      "path": "coll.png",
+      "accessCount": 1,
+      "lastAccessed": 1783454591007,
+      "type": "file"
+    },
+    {
+      "path": "join2.png",
+      "accessCount": 1,
+      "lastAccessed": 1783454689747,
+      "type": "file"
+    },
+    {
+      "path": "join3.png",
+      "accessCount": 1,
+      "lastAccessed": 1783454797687,
+      "type": "file"
+    },
+    {
+      "path": "join4.png",
+      "accessCount": 1,
+      "lastAccessed": 1783454826234,
+      "type": "file"
+    },
+    {
+      "path": "benefits.png",
+      "accessCount": 1,
+      "lastAccessed": 1783454919290,
+      "type": "file"
+    },
+    {
+      "path": "ledger.png",
+      "accessCount": 1,
+      "lastAccessed": 1783454937739,
+      "type": "file"
+    },
+    {
+      "path": "philo.png",
+      "accessCount": 1,
+      "lastAccessed": 1783454970417,
+      "type": "file"
+    },
+    {
+      "path": "h.png",
+      "accessCount": 1,
+      "lastAccessed": 1783456297040,
+      "type": "file"
+    },
+    {
+      "path": "bh.png",
+      "accessCount": 1,
+      "lastAccessed": 1783456325903,
+      "type": "file"
+    },
+    {
+      "path": "h2.png",
+      "accessCount": 1,
+      "lastAccessed": 1783456408575,
+      "type": "file"
+    },
+    {
+      "path": "h3.png",
+      "accessCount": 1,
+      "lastAccessed": 1783456523818,
+      "type": "file"
+    },
+    {
+      "path": "a-status.png",
+      "accessCount": 1,
+      "lastAccessed": 1783462280840,
+      "type": "file"
+    },
+    {
+      "path": "a-rules.png",
+      "accessCount": 1,
+      "lastAccessed": 1783462370549,
+      "type": "file"
+    },
+    {
+      "path": "b-status.png",
+      "accessCount": 1,
+      "lastAccessed": 1783462570121,
+      "type": "file"
+    },
+    {
+      "path": "b-rules.png",
+      "accessCount": 1,
+      "lastAccessed": 1783462597434,
+      "type": "file"
+    },
+    {
+      "path": "b-login.png",
+      "accessCount": 1,
+      "lastAccessed": 1783462621225,
+      "type": "file"
+    },
+    {
+      "path": "b-econ.png",
+      "accessCount": 1,
+      "lastAccessed": 1783462661753,
+      "type": "file"
+    },
+    {
+      "path": "b-econ2.png",
+      "accessCount": 1,
+      "lastAccessed": 1783462772349,
+      "type": "file"
+    },
+    {
+      "path": "b-comm.png",
+      "accessCount": 1,
+      "lastAccessed": 1783462839473,
+      "type": "file"
+    },
+    {
+      "path": "b-stock.png",
+      "accessCount": 1,
+      "lastAccessed": 1783462864383,
+      "type": "file"
+    },
+    {
+      "path": "b-econ3.png",
+      "accessCount": 1,
+      "lastAccessed": 1783462902954,
+      "type": "file"
+    },
+    {
+      "path": "b-econ4.png",
+      "accessCount": 1,
+      "lastAccessed": 1783463037984,
+      "type": "file"
+    },
+    {
+      "path": "b-res.png",
+      "accessCount": 1,
+      "lastAccessed": 1783463064291,
+      "type": "file"
+    },
+    {
+      "path": "stock-fixed.png",
+      "accessCount": 1,
+      "lastAccessed": 1783481197361,
+      "type": "file"
+    },
+    {
+      "path": "plugins.jpeg",
+      "accessCount": 1,
+      "lastAccessed": 1783523793230,
+      "type": "file"
+    },
+    {
+      "path": "plugins2.jpeg",
+      "accessCount": 1,
+      "lastAccessed": 1783523835248,
+      "type": "file"
+    },
+    {
+      "path": "home.jpeg",
+      "accessCount": 1,
+      "lastAccessed": 1783523891749,
+      "type": "file"
+    },
+    {
+      "path": "home-full.jpeg",
+      "accessCount": 1,
+      "lastAccessed": 1783523946212,
+      "type": "file"
+    },
+    {
+      "path": "plugins3.jpeg",
+      "accessCount": 1,
+      "lastAccessed": 1783524202157,
+      "type": "file"
+    },
+    {
+      "path": "join.jpeg",
+      "accessCount": 1,
+      "lastAccessed": 1783524253244,
+      "type": "file"
+    },
+    {
+      "path": "stock-before.jpeg",
+      "accessCount": 1,
+      "lastAccessed": 1783524311123,
+      "type": "file"
+    },
+    {
+      "path": "stock-after.jpeg",
+      "accessCount": 1,
+      "lastAccessed": 1783524514566,
+      "type": "file"
+    },
+    {
+      "path": "stock-top.jpeg",
+      "accessCount": 1,
+      "lastAccessed": 1783524708597,
+      "type": "file"
+    },
+    {
+      "path": "stock-after2.jpeg",
+      "accessCount": 1,
+      "lastAccessed": 1783524729778,
+      "type": "file"
+    },
+    {
+      "path": "community.jpeg",
+      "accessCount": 1,
+      "lastAccessed": 1783524830819,
+      "type": "file"
+    },
+    {
+      "path": "m-stock.jpeg",
+      "accessCount": 1,
+      "lastAccessed": 1783527076056,
+      "type": "file"
+    },
+    {
+      "path": "m-home.jpeg",
+      "accessCount": 1,
+      "lastAccessed": 1783527118776,
+      "type": "file"
+    }
+  ],
+  "userDirectives": []
+}

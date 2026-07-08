@@ -196,12 +196,36 @@ body.stock-terminal-body :is(.stock-market-table, .stock-data-table) tbody tr:ho
 
 /* ---- Order book ---------------------------------------------------------- */
 body.stock-terminal-body .stock-order-book li {
+  position: relative !important;
   display: flex !important;
   justify-content: space-between !important;
   padding: 1px 9px !important;
   font-size: 0.72rem !important;
   border: 0 !important;
   background: transparent !important;
+  overflow: hidden !important;
+}
+/* Depth bar — rows already expose `--depth: N%`; fill from the right,
+   red for asks / green for bids. Classic terminal size ladder. */
+body.stock-terminal-body .stock-order-book li::before {
+  content: "" !important;
+  position: absolute !important;
+  top: 0 !important;
+  bottom: 0 !important;
+  right: 0 !important;
+  width: var(--depth, 0%) !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+}
+body.stock-terminal-body .stock-order-book-asks li::before {
+  background: rgba(246, 70, 93, 0.16) !important;
+}
+body.stock-terminal-body .stock-order-book:not(.stock-order-book-asks) li::before {
+  background: rgba(14, 203, 129, 0.16) !important;
+}
+body.stock-terminal-body .stock-order-book li > * {
+  position: relative !important;
+  z-index: 1 !important;
 }
 body.stock-terminal-body .stock-order-book-asks li,
 body.stock-terminal-body .stock-order-book-asks li * {
