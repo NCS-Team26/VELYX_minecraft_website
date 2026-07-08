@@ -4558,3 +4558,219 @@ body.home-page-body .poster-hero .hero-copy.stage-line {
     margin-top: 0.2rem !important;
   }
 }
+
+/* Urban economy hero reset ----------------------------------------------
+   Replaces the older Minecraft-world backdrop with a city/market stage and
+   cleans up the lower frame chrome so the first viewport feels intentional. */
+body.public-page-body.home-page-body,
+body.home-page-body {
+  --vlx-hero-accent: #c30d23;
+  --vlx-hero-paper: #e1d6ce;
+  --vlx-hero-bronze: #b88755;
+  --vlx-hero-ink: #050505;
+  --stage-serif: "Cormorant Garamond", "Gowun Batang", Georgia, "Times New Roman", serif;
+}
+
+body.public-page-body.home-page-body .poster-hero,
+body.home-page-body .poster-hero {
+  min-height: 42rem !important;
+  background:
+    radial-gradient(circle at 50% 48%, rgba(225, 214, 206, 0.1), transparent 22rem),
+    var(--vlx-hero-ink) !important;
+}
+
+body.public-page-body.home-page-body .poster-media,
+body.home-page-body .poster-media {
+  inset: -4% !important;
+  background-image:
+    linear-gradient(90deg, rgba(5, 5, 5, 0.96) 0%, rgba(5, 5, 5, 0.34) 28%, rgba(5, 5, 5, 0.15) 52%, rgba(5, 5, 5, 0.92) 100%),
+    radial-gradient(circle at 50% 54%, rgba(225, 214, 206, 0.25), transparent 18rem),
+    linear-gradient(145deg, rgba(195, 13, 35, 0.34), transparent 35%, rgba(184, 135, 85, 0.2) 72%, rgba(5, 5, 5, 0.48)),
+    url("/assets/velyx-urban-economy-hero.png") !important;
+  background-size: cover !important;
+  background-position: center 54% !important;
+  filter: saturate(0.94) brightness(0.56) contrast(1.18) blur(0.35px) !important;
+  transform: translate3d(0, var(--stage-shift), 0) scale(1.055) !important;
+}
+
+body.public-page-body.home-page-body .poster-vignette,
+body.home-page-body .poster-vignette {
+  background:
+    radial-gradient(circle at 50% 46%, rgba(225, 214, 206, 0.13), transparent 15rem),
+    radial-gradient(circle at 51% 50%, transparent 0 14rem, rgba(5, 5, 5, 0.36) 25rem, rgba(5, 5, 5, 0.92) 58rem),
+    linear-gradient(180deg, rgba(5, 5, 5, 0.5), rgba(5, 5, 5, 0.02) 44%, rgba(5, 5, 5, 0.9)) !important;
+}
+
+body.public-page-body.home-page-body .poster-hero::before,
+body.home-page-body .poster-hero::before {
+  inset: 5.8rem 1.2rem 3.65rem !important;
+  border: 1px solid rgba(225, 214, 206, 0.17) !important;
+  border-radius: 1.15rem !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.025),
+    inset 0 0 80px rgba(5, 5, 5, 0.42) !important;
+}
+
+body.public-page-body.home-page-body .poster-hero::after,
+body.home-page-body .poster-hero::after {
+  display: none !important;
+}
+
+body.public-page-body.home-page-body .poster-footerline,
+body.home-page-body .poster-footerline {
+  display: none !important;
+}
+
+body.public-page-body.home-page-body .poster-title .eyebrow,
+body.home-page-body .poster-title .eyebrow {
+  color: rgba(225, 214, 206, 0.72) !important;
+  -webkit-text-fill-color: rgba(225, 214, 206, 0.72) !important;
+  letter-spacing: 0 !important;
+}
+
+body.public-page-body.home-page-body .poster-copy,
+body.home-page-body .poster-copy {
+  max-width: 16rem !important;
+  color: rgba(225, 214, 206, 0.9) !important;
+  -webkit-text-fill-color: rgba(225, 214, 206, 0.9) !important;
+  font-family: var(--stage-serif) !important;
+  font-size: 2.35rem !important;
+  font-weight: 500 !important;
+  line-height: 0.94 !important;
+  letter-spacing: 0 !important;
+  text-shadow: 0 0 34px rgba(5, 5, 5, 0.76) !important;
+}
+
+body.public-page-body.home-page-body .poster-copy-left,
+body.home-page-body .poster-copy-left {
+  left: 7rem !important;
+}
+
+body.public-page-body.home-page-body .poster-copy-right,
+body.home-page-body .poster-copy-right {
+  right: 7rem !important;
+}
+
+body.public-page-body.home-page-body .poster-clock,
+body.home-page-body .poster-clock {
+  opacity: 1 !important;
+  bottom: 4.05rem !important;
+  min-width: 12rem !important;
+  color: rgba(225, 214, 206, 0.76) !important;
+  -webkit-text-fill-color: rgba(225, 214, 206, 0.76) !important;
+  font-family: var(--fnt-display, var(--stage-sans)) !important;
+  font-size: 0.82rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0 !important;
+  text-align: center !important;
+  text-shadow: 0 0 26px rgba(5, 5, 5, 0.72) !important;
+}
+
+body.public-page-body.home-page-body .poster-hero .hero-actions,
+body.home-page-body .poster-hero .hero-actions {
+  right: 1.6rem !important;
+  bottom: 3.3rem !important;
+}
+
+body.public-page-body.home-page-body .poster-hero .primary-action,
+body.home-page-body .poster-hero .primary-action {
+  min-width: 10.25rem !important;
+  min-height: 3.55rem !important;
+  justify-content: center !important;
+  padding: 0 1.65rem !important;
+  border-color: rgba(225, 214, 206, 0.78) !important;
+  border-radius: 999px !important;
+  background:
+    linear-gradient(135deg, rgba(225, 214, 206, 0.14), rgba(195, 13, 35, 0.12)) !important;
+  color: var(--vlx-hero-paper) !important;
+  -webkit-text-fill-color: var(--vlx-hero-paper) !important;
+  font-size: 0.82rem !important;
+  letter-spacing: 0 !important;
+  box-shadow:
+    0 18px 70px rgba(5, 5, 5, 0.46),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.025) !important;
+}
+
+body.public-page-body.home-page-body .poster-hero .primary-action span,
+body.home-page-body .poster-hero .primary-action span {
+  display: none !important;
+}
+
+body.public-page-body.home-page-body .poster-hero .primary-action:hover,
+body.home-page-body .poster-hero .primary-action:hover {
+  background: var(--vlx-hero-paper) !important;
+  border-color: var(--vlx-hero-paper) !important;
+  color: var(--vlx-hero-ink) !important;
+  -webkit-text-fill-color: var(--vlx-hero-ink) !important;
+}
+
+body.public-page-body.home-page-body .collective-poster::after,
+body.home-page-body .collective-poster::after,
+body.public-page-body.home-page-body .roster-grid,
+body.home-page-body .roster-grid {
+  display: none !important;
+}
+
+@media (max-width: 1080px) {
+  body.public-page-body.home-page-body .poster-copy,
+  body.home-page-body .poster-copy {
+    max-width: 10rem !important;
+    font-size: 1.6rem !important;
+  }
+
+  body.public-page-body.home-page-body .poster-copy-left,
+  body.home-page-body .poster-copy-left {
+    left: 2rem !important;
+  }
+
+  body.public-page-body.home-page-body .poster-copy-right,
+  body.home-page-body .poster-copy-right {
+    right: 2rem !important;
+  }
+}
+
+@media (max-width: 760px) {
+  body.public-page-body.home-page-body .poster-hero,
+  body.home-page-body .poster-hero {
+    min-height: 42rem !important;
+  }
+
+  body.public-page-body.home-page-body .poster-media,
+  body.home-page-body .poster-media {
+    background-position: center 50% !important;
+  }
+
+  body.public-page-body.home-page-body .poster-hero::before,
+  body.home-page-body .poster-hero::before {
+    inset: 5.25rem 0.75rem 3.25rem !important;
+    border-radius: 0.95rem !important;
+  }
+
+  body.public-page-body.home-page-body .poster-copy,
+  body.home-page-body .poster-copy {
+    display: none !important;
+  }
+
+  body.public-page-body.home-page-body .poster-clock,
+  body.home-page-body .poster-clock {
+    display: block !important;
+    bottom: 9.2rem !important;
+    min-width: 10rem !important;
+    font-size: 0.72rem !important;
+    opacity: 1 !important;
+  }
+
+  body.public-page-body.home-page-body .poster-hero .hero-actions,
+  body.home-page-body .poster-hero .hero-actions {
+    right: 1rem !important;
+    bottom: 2.85rem !important;
+  }
+
+  body.public-page-body.home-page-body .poster-hero .primary-action,
+  body.home-page-body .poster-hero .primary-action {
+    min-width: 7.25rem !important;
+    min-height: 3rem !important;
+    padding: 0 1rem !important;
+    font-size: 0.72rem !important;
+  }
+}

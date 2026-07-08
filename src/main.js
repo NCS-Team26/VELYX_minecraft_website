@@ -1425,13 +1425,16 @@ function initSakazukiStage() {
   const stageHashLabel = stageHashRail.querySelector(".stage-hash-label");
   const stageHashMeter = stageHashRail.querySelector("b");
 
+  const clockTargets = Array.from(document.querySelectorAll(".poster-clock, .stage-clock-live"));
   const footer = document.querySelector(".site-footer");
   if (footer && !footer.querySelector(".stage-clock-live")) {
-    const clock = document.createElement("span");
-    clock.className = "stage-clock-live";
-    clock.setAttribute("aria-hidden", "true");
-    footer.append(clock);
-
+    const footerClock = document.createElement("span");
+    footerClock.className = "stage-clock-live";
+    footerClock.setAttribute("aria-hidden", "true");
+    footer.append(footerClock);
+    clockTargets.push(footerClock);
+  }
+  if (clockTargets.length) {
     const formatter = new Intl.DateTimeFormat("ko-KR", {
       hour: "2-digit",
       minute: "2-digit",
@@ -1440,7 +1443,10 @@ function initSakazukiStage() {
       timeZone: "Asia/Seoul",
     });
     const updateClock = () => {
-      clock.textContent = `KOREA, ${formatter.format(new Date())}`;
+      const label = `KOREA, ${formatter.format(new Date())}`;
+      clockTargets.forEach((clock) => {
+        clock.textContent = label;
+      });
     };
     updateClock();
     window.setInterval(updateClock, 1000);
