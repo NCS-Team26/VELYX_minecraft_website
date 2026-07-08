@@ -3765,3 +3765,221 @@ body.home-page-body .poster-hero .hero-actions {
     justify-content: center !important;
   }
 }
+
+/* ==========================================================================
+   Sakazuki-style first entrance timing
+   --------------------------------------------------------------------------
+   The reference opens on the live hero image immediately: no black curtain.
+   The center mark is already present, side lines unmask quickly, then the
+   navigation and bottom actions enter after the hero has settled.
+   ========================================================================== */
+
+.vlx-page-curtain {
+  display: none !important;
+}
+
+body.home-page-body .poster-media,
+body.home-page-body .poster-vignette {
+  opacity: 1 !important;
+}
+
+body.home-page-body .poster-media {
+  animation: vlxSakazukiMediaDrift 4200ms cubic-bezier(0.22, 1, 0.36, 1) 0ms both !important;
+}
+
+body.home-page-body .poster-title .eyebrow.stage-line,
+body.home-page-body .poster-hero .hero-copy.stage-line,
+body.home-page-body .poster-copy .stage-line {
+  opacity: 0;
+  will-change: clip-path, transform, opacity;
+}
+
+body.home-page-body .poster-hero h1,
+body.home-page-body .poster-hero #hero-title,
+body.home-page-body .poster-hero h1.stage-line,
+body.home-page-body .poster-hero #hero-title.stage-line {
+  opacity: 1 !important;
+  clip-path: none !important;
+  transform: translateY(0) scale(1.04) !important;
+  animation: vlxSakazukiTitleHold 1900ms cubic-bezier(0.22, 1, 0.36, 1) 0ms both !important;
+}
+
+.vlx-stage-ready body.home-page-body .poster-hero h1,
+.vlx-stage-ready body.home-page-body .poster-hero #hero-title {
+  animation: vlxSakazukiTitleHold 1900ms cubic-bezier(0.22, 1, 0.36, 1) 0ms both !important;
+}
+
+.vlx-stage-ready body.home-page-body .poster-title .eyebrow.stage-line {
+  animation: vlxSakazukiCenterLine 880ms cubic-bezier(0.22, 1, 0.36, 1) 260ms both !important;
+}
+
+.vlx-stage-ready body.home-page-body .poster-hero .hero-copy.stage-line {
+  animation: vlxSakazukiCenterLine 900ms cubic-bezier(0.22, 1, 0.36, 1) 980ms both !important;
+}
+
+.vlx-stage-ready body.home-page-body .poster-copy-left .stage-line {
+  animation: vlxSakazukiSideLeft 940ms cubic-bezier(0.22, 1, 0.36, 1) both !important;
+  animation-delay: calc(240ms + (var(--stage-index, 0) * 85ms)) !important;
+}
+
+.vlx-stage-ready body.home-page-body .poster-copy-right .stage-line {
+  animation: vlxSakazukiSideRight 940ms cubic-bezier(0.22, 1, 0.36, 1) both !important;
+  animation-delay: calc(360ms + (var(--stage-index, 0) * 85ms)) !important;
+}
+
+body.home-page-body .poster-footerline,
+body.home-page-body .poster-clock,
+body.home-page-body .poster-hero .hero-actions {
+  opacity: 0;
+  transform: translateY(18px);
+}
+
+.vlx-stage-ready body.home-page-body .poster-footerline,
+.vlx-stage-ready body.home-page-body .poster-clock,
+.vlx-stage-ready body.home-page-body .poster-hero .hero-actions {
+  animation: vlxSakazukiBottomIn 720ms cubic-bezier(0.22, 1, 0.36, 1) 2350ms both !important;
+}
+
+.vlx-stage-ready :is(.public-page-body, .status-page-body, .stock-terminal-body) .site-nav {
+  animation: vlxRailDown 780ms cubic-bezier(0.22, 1, 0.36, 1) 2260ms both !important;
+}
+
+.vlx-stage-ready :is(.public-page-body, .status-page-body, .stock-terminal-body) .site-footer {
+  animation: vlxRailUp 780ms cubic-bezier(0.22, 1, 0.36, 1) 2360ms both !important;
+}
+
+.vlx-stage-ready :is(.public-page-body, .status-page-body, .stock-terminal-body) .nav-links a {
+  animation: vlxSmallTextIn 620ms cubic-bezier(0.22, 1, 0.36, 1) both !important;
+  animation-delay: calc(2480ms + (var(--stage-index, 0) * 34ms)) !important;
+}
+
+.vlx-stage-shell:not(.vlx-stage-rails-ready) :is(.public-page-body, .status-page-body, .stock-terminal-body) .site-nav,
+.vlx-stage-shell:not(.vlx-stage-rails-ready) :is(.public-page-body, .status-page-body, .stock-terminal-body) .site-footer,
+.vlx-stage-shell:not(.vlx-stage-rails-ready) body.home-page-body .poster-footerline,
+.vlx-stage-shell:not(.vlx-stage-rails-ready) body.home-page-body .poster-clock,
+.vlx-stage-shell:not(.vlx-stage-rails-ready) body.home-page-body .poster-hero .hero-actions {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  animation: none !important;
+}
+
+.vlx-stage-shell:not(.vlx-stage-rails-ready) :is(.public-page-body, .status-page-body, .stock-terminal-body) .site-nav {
+  transform: translateY(-110%) !important;
+}
+
+.vlx-stage-shell:not(.vlx-stage-rails-ready) :is(.public-page-body, .status-page-body, .stock-terminal-body) .site-footer,
+.vlx-stage-shell:not(.vlx-stage-rails-ready) body.home-page-body .poster-footerline,
+.vlx-stage-shell:not(.vlx-stage-rails-ready) body.home-page-body .poster-clock,
+.vlx-stage-shell:not(.vlx-stage-rails-ready) body.home-page-body .poster-hero .hero-actions {
+  transform: translateY(18px) !important;
+}
+
+.vlx-stage-rails-ready :is(.public-page-body, .status-page-body, .stock-terminal-body) .site-nav {
+  animation: vlxRailDown 780ms cubic-bezier(0.22, 1, 0.36, 1) 0ms both !important;
+}
+
+.vlx-stage-rails-ready :is(.public-page-body, .status-page-body, .stock-terminal-body) .site-footer {
+  animation: vlxRailUp 780ms cubic-bezier(0.22, 1, 0.36, 1) 80ms both !important;
+}
+
+.vlx-stage-rails-ready body.home-page-body .poster-footerline,
+.vlx-stage-rails-ready body.home-page-body .poster-clock,
+.vlx-stage-rails-ready body.home-page-body .poster-hero .hero-actions {
+  animation: vlxSakazukiBottomIn 720ms cubic-bezier(0.22, 1, 0.36, 1) 80ms both !important;
+}
+
+.vlx-stage-rails-ready :is(.public-page-body, .status-page-body, .stock-terminal-body) .nav-links a {
+  animation: vlxSmallTextIn 620ms cubic-bezier(0.22, 1, 0.36, 1) both !important;
+  animation-delay: calc(160ms + (var(--stage-index, 0) * 34ms)) !important;
+}
+
+@keyframes vlxSakazukiMediaDrift {
+  from {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1.115);
+    filter: saturate(0.95) brightness(0.55) contrast(1.16) blur(1.5px);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, var(--stage-shift), 0) scale(1.07);
+    filter: saturate(0.9) brightness(0.52) contrast(1.14) blur(1px);
+  }
+}
+
+@keyframes vlxSakazukiTitleHold {
+  from {
+    opacity: 1;
+    clip-path: none;
+    transform: translateY(0) scale(1.045);
+    filter: drop-shadow(0 10px 42px rgba(139, 111, 214, 0.18));
+  }
+  to {
+    opacity: 1;
+    clip-path: none;
+    transform: translateY(0) scale(1);
+    filter: drop-shadow(0 22px 68px rgba(139, 111, 214, 0.44));
+  }
+}
+
+@keyframes vlxSakazukiCenterLine {
+  from {
+    opacity: 0;
+    clip-path: inset(0 50% 0 50%);
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+    transform: translateY(0);
+  }
+}
+
+@keyframes vlxSakazukiSideLeft {
+  from {
+    opacity: 0;
+    clip-path: inset(0 100% 0 0);
+    transform: translateX(-34px);
+  }
+  to {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+    transform: translateX(0);
+  }
+}
+
+@keyframes vlxSakazukiSideRight {
+  from {
+    opacity: 0;
+    clip-path: inset(0 0 0 100%);
+    transform: translateX(34px);
+  }
+  to {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+    transform: translateX(0);
+  }
+}
+
+@keyframes vlxSakazukiBottomIn {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 760px) {
+  .vlx-stage-ready :is(.public-page-body, .status-page-body, .stock-terminal-body) .site-nav {
+    animation-delay: 2100ms !important;
+  }
+
+  .vlx-stage-ready :is(.public-page-body, .status-page-body, .stock-terminal-body) .site-footer,
+  .vlx-stage-ready body.home-page-body .poster-footerline,
+  .vlx-stage-ready body.home-page-body .poster-clock,
+  .vlx-stage-ready body.home-page-body .poster-hero .hero-actions {
+    animation-delay: 2220ms !important;
+  }
+}

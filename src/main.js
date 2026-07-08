@@ -1365,12 +1365,6 @@ function initSakazukiStage() {
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   document.documentElement.classList.add("vlx-stage-shell");
 
-  const curtain = document.createElement("div");
-  curtain.className = "vlx-page-curtain";
-  curtain.setAttribute("aria-hidden", "true");
-  curtain.innerHTML = "<span></span><span></span>";
-  document.body.prepend(curtain);
-
   const footer = document.querySelector(".site-footer");
   if (footer && !footer.querySelector(".stage-clock-live")) {
     const clock = document.createElement("span");
@@ -1446,6 +1440,15 @@ function initSakazukiStage() {
   window.requestAnimationFrame(() => {
     document.documentElement.classList.add("vlx-stage-ready");
   });
+
+  const revealRails = () => {
+    document.documentElement.classList.add("vlx-stage-rails-ready");
+  };
+  if (reduceMotion) {
+    revealRails();
+  } else {
+    window.setTimeout(revealRails, 2320);
+  }
 }
 
 function formatStockNumber(value) {
