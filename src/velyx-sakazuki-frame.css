@@ -4335,3 +4335,150 @@ body.home-page-body :is(.benefit-ledger article, .live-facts article, .join-step
     filter: none !important;
   }
 }
+
+/* Scroll-velocity image distortion ---------------------------------------
+   Inspired by the reference site's pushed/pulled image layers, but tuned for
+   VELYX so the effect stays urban and readable instead of glitchy. */
+html.vlx-stage-shell {
+  --stage-distort-amount: 0;
+  --stage-distort-opacity: 0;
+  --stage-distort-opacity-mobile: 0;
+  --stage-distort-x: 0px;
+  --stage-distort-x-inverse: 0px;
+  --stage-distort-x-soft: 0px;
+  --stage-distort-x-mobile: 0px;
+  --stage-skew: 0deg;
+  --stage-counter-skew: 0deg;
+  --stage-scan-skew: 0deg;
+  --stage-vignette-skew: 0deg;
+  --stage-watermark-skew: 0deg;
+  --stage-content-skew: 0deg;
+  --stage-mobile-skew: 0deg;
+  --stage-distort-scale: 1.07;
+  --stage-vignette-scale: 1;
+  --stage-watermark-scale-x: 1;
+  --stage-mobile-scale: 1.055;
+  --stage-distort-blur: 0px;
+  --stage-content-blur: 0px;
+}
+
+body.home-page-body .poster-media {
+  overflow: hidden !important;
+  transform:
+    translate3d(var(--stage-distort-x), var(--stage-shift), 0)
+    skewY(var(--stage-skew))
+    scale(var(--stage-distort-scale)) !important;
+  filter:
+    saturate(calc(0.9 + var(--stage-distort-amount) * 0.16))
+    brightness(0.52)
+    contrast(calc(1.14 + var(--stage-distort-amount) * 0.16))
+    blur(calc(1px + var(--stage-distort-blur))) !important;
+  transition:
+    transform 460ms cubic-bezier(0.22, 1, 0.36, 1),
+    filter 460ms cubic-bezier(0.22, 1, 0.36, 1) !important;
+  will-change: transform, filter;
+}
+
+body.home-page-body .poster-media::before,
+body.home-page-body .poster-media::after {
+  content: "";
+  position: absolute;
+  inset: -4%;
+  pointer-events: none;
+  opacity: var(--stage-distort-opacity);
+  transition: opacity 260ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+body.home-page-body .poster-media::before {
+  background-image: inherit;
+  background-size: inherit;
+  background-position: inherit;
+  background-repeat: no-repeat;
+  clip-path: polygon(
+    0 5%, 100% 2%, 100% 16%, 0 21%,
+    0 37%, 100% 32%, 100% 46%, 0 52%,
+    0 67%, 100% 63%, 100% 78%, 0 84%,
+    0 93%, 100% 89%, 100% 100%, 0 100%
+  );
+  filter: saturate(1.22) contrast(1.28) blur(var(--stage-distort-blur));
+  mix-blend-mode: screen;
+  transform:
+    translate3d(var(--stage-distort-x-inverse), 0, 0)
+    skewY(var(--stage-counter-skew))
+    scale(1.025);
+}
+
+body.home-page-body .poster-media::after {
+  background:
+    linear-gradient(90deg, transparent, rgba(250, 247, 239, 0.16), transparent),
+    repeating-linear-gradient(
+      180deg,
+      rgba(250, 247, 239, 0.11) 0 1px,
+      transparent 1px 22px
+    );
+  mix-blend-mode: overlay;
+  transform:
+    translate3d(var(--stage-distort-x-soft), 0, 0)
+    skewY(var(--stage-scan-skew));
+}
+
+body.home-page-body .poster-vignette {
+  transform: skewY(var(--stage-vignette-skew)) scale(var(--stage-vignette-scale)) !important;
+  transition: transform 520ms cubic-bezier(0.22, 1, 0.36, 1) !important;
+  will-change: transform;
+}
+
+body.home-page-body .editorial-section::after {
+  transform:
+    translate3d(-50%, calc(-50% + var(--stage-local-media-y, 0px)), 0)
+    skewY(var(--stage-watermark-skew))
+    scaleX(var(--stage-watermark-scale-x)) !important;
+  transition:
+    color 520ms var(--vlx-stage-ease),
+    transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+body.home-page-body .editorial-section.is-stage-near :is(.split-wordmark, .sysmon, .benefit-ledger, .roster-grid) {
+  filter: blur(var(--stage-content-blur));
+  transform:
+    translate3d(var(--stage-distort-x), var(--stage-local-y, 0px), 0)
+    skewY(var(--stage-content-skew)) !important;
+  transition:
+    transform 360ms cubic-bezier(0.22, 1, 0.36, 1),
+    filter 360ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (max-width: 760px) {
+  body.home-page-body .poster-media {
+    transform:
+      translate3d(var(--stage-distort-x-mobile), var(--stage-shift), 0)
+      skewY(var(--stage-mobile-skew))
+      scale(var(--stage-mobile-scale)) !important;
+  }
+
+  body.home-page-body .poster-media::before,
+  body.home-page-body .poster-media::after {
+    opacity: var(--stage-distort-opacity-mobile);
+  }
+
+  body.home-page-body .editorial-section.is-stage-near :is(.split-wordmark, .sysmon, .benefit-ledger, .roster-grid) {
+    filter: none;
+    transform: translate3d(0, var(--stage-local-lift, 0px), 0) !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.home-page-body .poster-media,
+  body.home-page-body .poster-vignette,
+  body.home-page-body .editorial-section::after,
+  body.home-page-body .editorial-section.is-stage-near :is(.split-wordmark, .sysmon, .benefit-ledger, .roster-grid) {
+    transform: none !important;
+    filter: none !important;
+    transition: none !important;
+  }
+
+  body.home-page-body .poster-media::before,
+  body.home-page-body .poster-media::after {
+    display: none !important;
+  }
+}

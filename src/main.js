@@ -1504,8 +1504,68 @@ function initSakazukiStage() {
   watchTargets.forEach((el) => observer.observe(el));
 
   let ticking = false;
+  let lastScrollY = window.scrollY;
+  let lastScrollAt = Date.now();
+  let distortionResetTimer = 0;
+
+  const setDistortionVars = (velocity) => {
+    const direction = velocity === 0 ? 0 : Math.sign(velocity);
+    const amount = Math.min(1, Math.abs(velocity) / 2.2);
+    const skew = direction * amount * 2.8;
+    const drift = direction * amount * 22;
+
+    document.documentElement.style.setProperty("--stage-distort-amount", amount.toFixed(4));
+    document.documentElement.style.setProperty("--stage-distort-opacity", (amount * 0.36).toFixed(4));
+    document.documentElement.style.setProperty("--stage-distort-opacity-mobile", (amount * 0.2).toFixed(4));
+    document.documentElement.style.setProperty("--stage-distort-x", `${drift.toFixed(2)}px`);
+    document.documentElement.style.setProperty("--stage-distort-x-inverse", `${(-drift * 1.2).toFixed(2)}px`);
+    document.documentElement.style.setProperty("--stage-distort-x-soft", `${(drift * 0.45).toFixed(2)}px`);
+    document.documentElement.style.setProperty("--stage-distort-x-mobile", `${(drift * 0.35).toFixed(2)}px`);
+    document.documentElement.style.setProperty("--stage-skew", `${skew.toFixed(3)}deg`);
+    document.documentElement.style.setProperty("--stage-counter-skew", `${(-skew * 0.72).toFixed(3)}deg`);
+    document.documentElement.style.setProperty("--stage-scan-skew", `${(-skew * 0.45).toFixed(3)}deg`);
+    document.documentElement.style.setProperty("--stage-vignette-skew", `${(-skew * 0.2).toFixed(3)}deg`);
+    document.documentElement.style.setProperty("--stage-watermark-skew", `${(-skew * 0.274).toFixed(3)}deg`);
+    document.documentElement.style.setProperty("--stage-content-skew", `${(skew * 0.18).toFixed(3)}deg`);
+    document.documentElement.style.setProperty("--stage-mobile-skew", `${(skew * 0.32).toFixed(3)}deg`);
+    document.documentElement.style.setProperty("--stage-distort-scale", (1.07 + amount * 0.035).toFixed(4));
+    document.documentElement.style.setProperty("--stage-vignette-scale", (1 + amount * 0.018).toFixed(4));
+    document.documentElement.style.setProperty("--stage-watermark-scale-x", (1 + amount * 0.05).toFixed(4));
+    document.documentElement.style.setProperty("--stage-mobile-scale", (1.055 + amount * 0.018).toFixed(4));
+    document.documentElement.style.setProperty("--stage-distort-blur", `${(amount * 1.35).toFixed(2)}px`);
+    document.documentElement.style.setProperty("--stage-content-blur", `${(amount * 0.24).toFixed(2)}px`);
+
+    window.clearTimeout(distortionResetTimer);
+    distortionResetTimer = window.setTimeout(() => {
+      document.documentElement.style.setProperty("--stage-distort-amount", "0");
+      document.documentElement.style.setProperty("--stage-distort-opacity", "0");
+      document.documentElement.style.setProperty("--stage-distort-opacity-mobile", "0");
+      document.documentElement.style.setProperty("--stage-distort-x", "0px");
+      document.documentElement.style.setProperty("--stage-distort-x-inverse", "0px");
+      document.documentElement.style.setProperty("--stage-distort-x-soft", "0px");
+      document.documentElement.style.setProperty("--stage-distort-x-mobile", "0px");
+      document.documentElement.style.setProperty("--stage-skew", "0deg");
+      document.documentElement.style.setProperty("--stage-counter-skew", "0deg");
+      document.documentElement.style.setProperty("--stage-scan-skew", "0deg");
+      document.documentElement.style.setProperty("--stage-vignette-skew", "0deg");
+      document.documentElement.style.setProperty("--stage-watermark-skew", "0deg");
+      document.documentElement.style.setProperty("--stage-content-skew", "0deg");
+      document.documentElement.style.setProperty("--stage-mobile-skew", "0deg");
+      document.documentElement.style.setProperty("--stage-distort-scale", "1.07");
+      document.documentElement.style.setProperty("--stage-vignette-scale", "1");
+      document.documentElement.style.setProperty("--stage-watermark-scale-x", "1");
+      document.documentElement.style.setProperty("--stage-mobile-scale", "1.055");
+      document.documentElement.style.setProperty("--stage-distort-blur", "0px");
+      document.documentElement.style.setProperty("--stage-content-blur", "0px");
+    }, 140);
+  };
+
   const updateScrollVars = () => {
     ticking = false;
+    const now = Date.now();
+    const scrollDelta = window.scrollY - lastScrollY;
+    const elapsed = Math.max(16, now - lastScrollAt);
+    const velocity = Math.max(-3, Math.min(3, scrollDelta / elapsed));
     const viewportHeight = Math.max(1, window.innerHeight);
     const viewportCenter = viewportHeight * 0.52;
     const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
@@ -1515,6 +1575,9 @@ function initSakazukiStage() {
 
     document.documentElement.style.setProperty("--stage-scroll", progress.toFixed(4));
     document.documentElement.style.setProperty("--stage-shift", `${Math.round(window.scrollY * -0.12)}px`);
+    setDistortionVars(velocity);
+    lastScrollY = window.scrollY;
+    lastScrollAt = now;
 
     stageSections.forEach((section) => {
       const rect = section.el.getBoundingClientRect();
