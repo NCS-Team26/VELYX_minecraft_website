@@ -19,7 +19,10 @@
       content="채굴과 농사로 벌고, 유저 상점에서 거래하고, 토지를 지키며 성장하는 경제 야생 서버."
     />
     <meta property="og:url" content="https://www.velyx.kr/" />
-    <meta property="og:image" content="https://www.velyx.kr/assets/hero-world-1920.jpg" />
+    <meta property="og:image" content="https://www.velyx.kr/assets/velyx-og-thumbnail.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="VELYX urban economy Minecraft server thumbnail" />
     <meta property="og:locale" content="ko_KR" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="velyx.kr — 경제 야생 Minecraft 서버" />
@@ -27,20 +30,20 @@
       name="twitter:description"
       content="채굴, 농사, 거래, 토지 보호가 맞물리는 경제 야생 월드."
     />
-    <meta name="twitter:image" content="https://www.velyx.kr/assets/hero-world-1920.jpg" />
+    <meta name="twitter:image" content="https://www.velyx.kr/assets/velyx-og-thumbnail.png" />
+    <meta name="twitter:image:alt" content="VELYX urban economy Minecraft server thumbnail" />
+    <link rel="preload" as="image" href="/assets/hero-velyx.png" />
 
     <title>velyx.kr - 경제 야생 Minecraft 서버</title>
 
     <script>
-      // Apply saved theme before first paint to avoid a flash.
+      // Pin the shell to the fixed VELYX dark theme before first paint.
       (function () {
         try {
-          var t = localStorage.getItem("nfoifsb.theme");
-          var p = localStorage.getItem("nfoifsb.themePreset");
-          var theme = t === "dark" || t === "light" ? t : "dark";
-          document.documentElement.setAttribute("data-theme", theme);
-          if (["forest", "cave", "amethyst", "ember", "ocean"].includes(p))
-            document.documentElement.setAttribute("data-theme-preset", p);
+          document.documentElement.setAttribute("data-theme", "dark");
+          localStorage.removeItem("nfoifsb.theme");
+          localStorage.removeItem("nfoifsb.themePreset");
+          localStorage.removeItem("nfoifsb.themeCustom");
         } catch (e) {
           document.documentElement.setAttribute("data-theme", "dark");
         }
@@ -78,7 +81,7 @@
         </button>
         <nav class="nav-links" id="primary-nav" aria-label="사이트 페이지">
           <a href="/status.html" data-section-link="status">Status</a>
-          <a href="/plugins.html" data-section-link="plugins">Economy</a>
+          <a href="/plugins.html" data-section-link="economy">Economy</a>
           <a href="/stock.html" data-section-link="stock">Stock</a>
           <a href="/notice.html" data-section-link="notice">Notice</a>
           <a href="/community.html" data-section-link="community">Community</a>
@@ -94,35 +97,41 @@
         <section class="hero poster-hero" aria-labelledby="hero-title">
           <div class="poster-media" aria-hidden="true"></div>
           <div class="poster-vignette" aria-hidden="true"></div>
+          <div class="poster-edge-label" aria-hidden="true">#VELYX</div>
           <div class="poster-copy poster-copy-left" aria-hidden="true">
             <span>Unlocking</span>
-            <span>player</span>
-            <span>economy</span>
+            <span>market</span>
+            <span>access</span>
           </div>
           <div class="poster-copy poster-copy-right" aria-hidden="true">
             <span>Guided</span>
             <span>by</span>
-            <span>the realm</span>
+            <span>capital flow</span>
           </div>
           <div class="poster-title">
             <p class="eyebrow">PRIVATE ECONOMY REALM</p>
             <h1 id="hero-title">velyx</h1>
             <p class="hero-copy">Connection, beyond access.</p>
           </div>
-          <div class="poster-footerline" aria-hidden="true">
-            <span>(ST)</span>
-            <span>(EC)</span>
-            <span>(OS)</span>
+          <div class="poster-meta-left" aria-hidden="true">
+            <span>VELYX.KR</span>
+            <span>PAPER 26.1.2 · 경제 야생 서버</span>
           </div>
-          <div class="poster-clock" aria-hidden="true">VELYX.KR</div>
+          <div class="poster-clock" aria-hidden="true">KOREA, --:--:--</div>
+          <div class="poster-accent-controls" aria-hidden="true">
+            <span class="poster-swatch poster-swatch-graphite"></span>
+            <span class="poster-swatch poster-swatch-jade"></span>
+            <span class="poster-swatch poster-swatch-ivory"></span>
+            <span class="poster-swatch poster-swatch-copper"></span>
+            <span class="poster-swatch poster-swatch-rose"></span>
+            <span class="poster-custom-pill">CUSTOM <i></i></span>
+          </div>
           <div class="hero-actions">
             <button class="primary-action" type="button" data-copy-address>
               ENTER
-              <span aria-hidden="true">>>>>>>></span>
             </button>
             <a class="primary-action" href="/login.html" data-login-gate hidden>
-              LOGIN
-              <span aria-hidden="true">>>>>>>></span>
+              ENTER
             </a>
           </div>
         </section>
@@ -211,7 +220,7 @@
           </div>
         </section>
 
-        <section class="editorial-section benefits-poster" id="plugins" aria-labelledby="benefits-title">
+        <section class="editorial-section benefits-poster" id="economy" aria-labelledby="benefits-title">
           <div class="poster-triad" data-reveal aria-hidden="true">
             <span>TRADE</span>
             <span>PROTECT</span>
@@ -274,26 +283,6 @@
             </div>
             <div class="collective-divider" aria-hidden="true" data-reveal></div>
           </div>
-          <div
-            class="roster-grid"
-            data-player-roster
-            data-reveal
-            aria-live="polite"
-            aria-label="접속 중인 플레이어 roster"
-          >
-            <span class="roster-cell is-empty">ACCESS SLOT</span>
-            <span class="roster-cell is-empty">ACCESS SLOT</span>
-            <span class="roster-cell is-empty">ACCESS SLOT</span>
-            <span class="roster-cell is-empty">ACCESS SLOT</span>
-            <span class="roster-cell is-empty">ACCESS SLOT</span>
-            <span class="roster-cell is-empty">ACCESS SLOT</span>
-            <span class="roster-cell is-empty">ACCESS SLOT</span>
-            <span class="roster-cell is-empty">ACCESS SLOT</span>
-            <span class="roster-cell is-empty">ACCESS SLOT</span>
-            <span class="roster-cell is-empty">ACCESS SLOT</span>
-            <span class="roster-cell is-empty">ACCESS SLOT</span>
-            <span class="roster-cell is-empty">ACCESS SLOT</span>
-          </div>
         </section>
 
         <section class="editorial-section join-section join-poster" id="join" aria-labelledby="join-title">
@@ -349,23 +338,6 @@
           </span>
           <span>Paper 26.1.2 · 경제 야생 서버</span>
           <a href="#top">맨 위로 ↑</a>
-        </div>
-        <div class="footer-theme-row">
-          <button class="footer-theme-toggle" type="button" data-theme-toggle>
-            <span class="footer-theme-icon" aria-hidden="true">
-              <svg class="ic" data-theme-icon="light" viewBox="0 0 24 24">
-                <path d="M21 12.8A8 8 0 1 1 11.2 3a6 6 0 0 0 9.8 9.8z" />
-              </svg>
-              <svg class="ic" data-theme-icon="dark" viewBox="0 0 24 24" hidden>
-                <circle cx="12" cy="12" r="4.2" />
-                <path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.5 4.5l2 2M17.5 17.5l2 2M19.5 4.5l-2 2M6.5 17.5l-2 2" />
-              </svg>
-            </span>
-            <span class="footer-theme-text">
-              <strong data-theme-label>다크모드</strong>
-              <span data-theme-description>밝은 화면에서 어두운 화면으로 전환</span>
-            </span>
-          </button>
         </div>
       </footer>
 

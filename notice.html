@@ -10,12 +10,10 @@
     <script>
       (function () {
         try {
-          var t = localStorage.getItem("nfoifsb.theme");
-          var p = localStorage.getItem("nfoifsb.themePreset");
-          var theme = t === "dark" || t === "light" ? t : "dark";
-          document.documentElement.setAttribute("data-theme", theme);
-          if (["forest", "cave", "amethyst", "ember", "ocean"].includes(p))
-            document.documentElement.setAttribute("data-theme-preset", p);
+          document.documentElement.setAttribute("data-theme", "dark");
+          localStorage.removeItem("nfoifsb.theme");
+          localStorage.removeItem("nfoifsb.themePreset");
+          localStorage.removeItem("nfoifsb.themeCustom");
         } catch (e) {
           document.documentElement.setAttribute("data-theme", "dark");
         }
@@ -35,7 +33,7 @@
         </button>
         <nav class="nav-links" id="primary-nav" aria-label="사이트 페이지">
           <a href="/status.html" data-section-link="status">Status</a>
-          <a href="/plugins.html" data-section-link="plugins">Economy</a>
+          <a href="/plugins.html" data-section-link="economy">Economy</a>
           <a href="/stock.html" data-section-link="stock">Stock</a>
           <a href="/notice.html" data-section-link="notice">Notice</a>
           <a href="/community.html" data-section-link="community">Community</a>

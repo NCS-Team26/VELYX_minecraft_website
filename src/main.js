@@ -5,15 +5,6 @@ import "./velyx-redesign.css";
 import "./velyx-minecraft.css";
 // Final visual frame: VELYX-tailored membership stage inspired by modern luxury web direction.
 import "./velyx-sakazuki-frame.css";
-import {
-  AreaSeries,
-  CandlestickSeries,
-  ColorType,
-  CrosshairMode,
-  HistogramSeries,
-  LineSeries,
-  createChart,
-} from "lightweight-charts";
 
 const SERVER_ADDRESS = "velyx.kr";
 const STATUS_API = `https://api.mcstatus.io/v2/status/java/${SERVER_ADDRESS}`;
@@ -24,6 +15,24 @@ const LEGACY_PLAYER_API_BASE = "https://api.velyx.kr/minecraft";
 const isHostedSite = ["www.velyx.kr", "velyx.kr"].includes(window.location.hostname);
 const PRODUCTION_PLAYER_API_BASE = isHostedSite ? PUBLIC_PLAYER_API_BASE : FUNNEL_PLAYER_API_BASE;
 const PRODUCTION_PLAYER_API_FALLBACK_BASE = `${FUNNEL_PLAYER_API_BASE},${LEGACY_PLAYER_API_BASE}`;
+let stockChartLibrary = null;
+let stockChartLibraryPromise = null;
+
+function loadStockChartLibrary() {
+  if (stockChartLibrary) return Promise.resolve(stockChartLibrary);
+  if (!stockChartLibraryPromise) {
+    stockChartLibraryPromise = import("lightweight-charts")
+      .then((module) => {
+        stockChartLibrary = module;
+        return module;
+      })
+      .catch((error) => {
+        stockChartLibraryPromise = null;
+        throw error;
+      });
+  }
+  return stockChartLibraryPromise;
+}
 
 function apiBaseList(...values) {
   return [
@@ -180,7 +189,7 @@ const STOCK_NEWS_IMAGES = {
   DEFAULT: [
     { src: "/assets/hero-world-1920.jpg", position: "50% 45%" },
     { src: "/assets/hero-world-960.jpg", position: "18% 42%" },
-    { src: "/assets/hero-world.png", position: "72% 52%" },
+    { src: "/assets/hero-world-1920.jpg", position: "72% 52%" },
     { src: "/assets/hero-world-1920.jpg", position: "82% 38%" },
   ],
 };
@@ -407,7 +416,7 @@ const DEFAULT_STOCK_CHART_SETTINGS = {
 };
 const PAGE_LINKS = new Map([
   ["/status.html", "status"],
-  ["/plugins.html", "plugins"],
+  ["/plugins.html", "economy"],
   ["/stock.html", "stock"],
   ["/notice.html", "notice"],
   ["/community.html", "community"],
@@ -415,6 +424,26 @@ const PAGE_LINKS = new Map([
   ["/rules.html", "rules"],
   ["/join.html", "join"],
   ["/admin.html", "admin"],
+]);
+const SECTION_ALIASES = new Map([
+  ["plugins", "economy"],
+  ["plugin", "economy"],
+  ["benefits", "economy"],
+  ["top", "home"],
+]);
+const STAGE_SECTION_LABELS = new Map([
+  ["home", "VELYX"],
+  ["philosophy", "PHILOSOPHY"],
+  ["status", "STATUS"],
+  ["economy", "ECONOMY"],
+  ["collective", "COLLECTIVE"],
+  ["join", "ACCESS"],
+  ["stock", "STOCK"],
+  ["notice", "NOTICE"],
+  ["community", "COMMUNITY"],
+  ["resources", "RESOURCES"],
+  ["rules", "RULES"],
+  ["admin", "ADMIN"],
 ]);
 
 let sessionUser = null;
@@ -1028,163 +1057,23 @@ function initLogin() {
 }
 
 function initTheme() {
-  const toggles = document.querySelectorAll("[data-theme-toggle]");
-  if (!toggles.length) return;
-
-  const presets = [
-    {
-      id: "forest",
-      label: "숲",
-      meta: "#0d1411",
-      swatchA: "#13221a",
-      swatchB: "#93e2a6",
-    },
-    {
-      id: "cave",
-      label: "동굴",
-      meta: "#101111",
-      swatchA: "#151716",
-      swatchB: "#94d7c8",
-    },
-    {
-      id: "amethyst",
-      label: "자수정",
-      meta: "#16121c",
-      swatchA: "#241d2d",
-      swatchB: "#c6a6ff",
-    },
-    {
-      id: "ember",
-      label: "불빛",
-      meta: "#17130f",
-      swatchA: "#241b14",
-      swatchB: "#ffb06a",
-    },
-    {
-      id: "ocean",
-      label: "바다",
-      meta: "#0d171a",
-      swatchA: "#17282d",
-      swatchB: "#76dbe4",
-    },
-  ];
-  const presetById = new Map(presets.map((preset) => [preset.id, preset]));
   const root = document.documentElement;
-  const systemDark = window.matchMedia("(prefers-color-scheme: dark)");
-  let savedPreset = "";
+  root.setAttribute("data-theme", "dark");
+  root.removeAttribute("data-theme-preset");
+
   try {
-    savedPreset = localStorage.getItem("nfoifsb.themePreset") || "";
+    localStorage.removeItem("nfoifsb.theme");
+    localStorage.removeItem("nfoifsb.themePreset");
+    localStorage.removeItem("nfoifsb.themeCustom");
   } catch {
-    savedPreset = "";
+    // The fixed VELYX theme does not require client-side theme storage.
   }
-  let activePreset = presetById.has(savedPreset) ? savedPreset : "forest";
-  const resolved = () =>
-    root.getAttribute("data-theme") || (systemDark.matches ? "dark" : "light");
 
-  const ensurePalette = () => {
-    document.querySelectorAll(".footer-theme-row").forEach((row) => {
-      if (row.querySelector("[data-theme-palette]")) return;
-
-      const customizer = document.createElement("div");
-      customizer.className = "footer-theme-customizer";
-      customizer.dataset.themeCustomizer = "";
-
-      const label = document.createElement("span");
-      label.textContent = "색상";
-      customizer.append(label);
-
-      const palette = document.createElement("div");
-      palette.className = "theme-palette";
-      palette.dataset.themePalette = "";
-      presets.forEach((preset) => {
-        const button = document.createElement("button");
-        button.className = "theme-preset-button";
-        button.type = "button";
-        button.dataset.themePreset = preset.id;
-        button.style.setProperty("--swatch-a", preset.swatchA);
-        button.style.setProperty("--swatch-b", preset.swatchB);
-        button.setAttribute("aria-label", `${preset.label} 다크모드 색상`);
-        button.setAttribute("title", preset.label);
-        palette.append(button);
-      });
-      customizer.append(palette);
-      row.append(customizer);
-    });
-  };
-
-  const sync = () => {
-    const theme = resolved();
-    const nextTheme = theme === "dark" ? "light" : "dark";
-    root.setAttribute("data-theme-preset", activePreset);
-    toggles.forEach((toggle) => {
-      toggle.dataset.theme = theme;
-      toggle.setAttribute("aria-pressed", String(theme === "dark"));
-      toggle.setAttribute("aria-label", theme === "dark" ? "라이트모드로 전환" : "다크모드로 전환");
-      toggle.querySelectorAll("[data-theme-icon]").forEach((ic) => {
-        ic.hidden = ic.dataset.themeIcon !== nextTheme;
-      });
-      toggle.querySelectorAll("[data-theme-label]").forEach((label) => {
-        label.textContent = theme === "dark" ? "라이트모드" : "다크모드";
-      });
-      toggle.querySelectorAll("[data-theme-description]").forEach((description) => {
-        description.textContent =
-          theme === "dark" ? "어두운 화면에서 밝은 화면으로 전환" : "밝은 화면에서 어두운 화면으로 전환";
-      });
-    });
-    document.querySelectorAll(".theme-preset-button[data-theme-preset]").forEach((button) => {
-      const pressed = button.dataset.themePreset === activePreset;
-      button.setAttribute("aria-pressed", String(pressed));
-    });
-    document.querySelectorAll('meta[name="theme-color"]').forEach((m) => {
-      // Drop the media filter so the pinned theme's color always wins.
-      m.removeAttribute("media");
-      m.setAttribute(
-        "content",
-        theme === "dark" ? presetById.get(activePreset)?.meta || "#0d1411" : "#e8efeb",
-      );
-    });
-  };
-
-  ensurePalette();
-
-  toggles.forEach((toggle) => {
-    toggle.addEventListener("click", () => {
-      const next = resolved() === "dark" ? "light" : "dark";
-      root.setAttribute("data-theme", next);
-      try {
-        localStorage.setItem("nfoifsb.theme", next);
-      } catch {
-        // Toggle still works for this session without persistence.
-      }
-      sync();
-    });
+  document.querySelectorAll('meta[name="theme-color"]').forEach((meta) => {
+    meta.removeAttribute("media");
+    meta.setAttribute("content", "#050505");
   });
-
-  document.querySelectorAll(".theme-preset-button[data-theme-preset]").forEach((button) => {
-    button.addEventListener("click", () => {
-      const nextPreset = button.dataset.themePreset;
-      if (!presetById.has(nextPreset)) return;
-      activePreset = nextPreset;
-      root.setAttribute("data-theme", "dark");
-      root.setAttribute("data-theme-preset", activePreset);
-      try {
-        localStorage.setItem("nfoifsb.theme", "dark");
-        localStorage.setItem("nfoifsb.themePreset", activePreset);
-      } catch {
-        // Palette still works for this session without persistence.
-      }
-      sync();
-    });
-  });
-
-  // Follow OS changes only while the user hasn't pinned a theme.
-  systemDark.addEventListener("change", () => {
-    if (!root.getAttribute("data-theme")) sync();
-  });
-
-  sync();
 }
-
 function initNav() {
   const nav = document.querySelector(".site-nav");
   const toggle = document.querySelector("[data-nav-toggle]");
@@ -1328,12 +1217,32 @@ function getCurrentPageKey() {
   const path = window.location.pathname.endsWith("/")
     ? `${window.location.pathname}index.html`
     : window.location.pathname;
-  return PAGE_LINKS.get(path) || null;
+  return normalizeSectionKey(PAGE_LINKS.get(path) || null);
+}
+
+function normalizeSectionKey(value) {
+  const key = String(value || "")
+    .trim()
+    .replace(/^#/, "")
+    .toLowerCase();
+  if (!key) return null;
+  return SECTION_ALIASES.get(key) || key;
+}
+
+function getCurrentHashKey() {
+  const rawHash = decodeURIComponent(window.location.hash || "").replace(/^#/, "");
+  return normalizeSectionKey(rawHash);
+}
+
+function setStageSectionKey(pageKey) {
+  const key = normalizeSectionKey(pageKey) || "home";
+  document.documentElement.dataset.stageSection = key;
 }
 
 function setActivePage(pageKey) {
+  const normalizedPageKey = normalizeSectionKey(pageKey);
   sectionLinks.forEach((link) => {
-    const active = link.dataset.sectionLink === pageKey;
+    const active = normalizeSectionKey(link.dataset.sectionLink) === normalizedPageKey;
     link.classList.toggle("is-active", active);
     if (active) link.setAttribute("aria-current", "page");
     else link.removeAttribute("aria-current");
@@ -1342,7 +1251,15 @@ function setActivePage(pageKey) {
 
 function initPageNavigation() {
   if (!sectionLinks.length) return;
-  setActivePage(getCurrentPageKey());
+  const sync = () => {
+    const hashKey = getCurrentHashKey();
+    const hasHashNavItem = Array.from(sectionLinks).some(
+      (link) => normalizeSectionKey(link.dataset.sectionLink) === hashKey,
+    );
+    setActivePage(hasHashNavItem ? hashKey : getCurrentPageKey());
+  };
+  sync();
+  window.addEventListener("hashchange", sync);
 }
 
 function initAnimationStagger() {
@@ -1353,8 +1270,276 @@ function initAnimationStagger() {
   animatedGroups.forEach((group) => {
     Array.from(group.children).forEach((child, index) => {
       child.style.setProperty("--item-index", index);
+      child.style.setProperty("--stage-index", index);
     });
   });
+}
+
+function initSakazukiStage() {
+  const stageBodies = ["public-page-body", "status-page-body", "stock-terminal-body", "auth-page-body"];
+  if (!stageBodies.some((className) => document.body.classList.contains(className))) return;
+
+  const isHomePage = document.body.classList.contains("home-page-body");
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const compactMotion = window.matchMedia("(max-width: 760px), (pointer: coarse)").matches || Boolean(navigator.connection?.saveData);
+  document.documentElement.classList.add("vlx-stage-shell");
+  document.documentElement.classList.toggle("vlx-stage-compact-motion", compactMotion);
+  setStageSectionKey(getCurrentHashKey() || getCurrentPageKey() || "home");
+
+  let stageHashRail = isHomePage ? null : document.querySelector(".stage-hash-rail");
+  if (!isHomePage && !stageHashRail) {
+    stageHashRail = document.createElement("aside");
+    stageHashRail.className = "stage-hash-rail";
+    stageHashRail.setAttribute("aria-hidden", "true");
+    stageHashRail.innerHTML = '<span class="stage-hash-label">#VELYX</span><i><b></b></i>';
+    document.body.append(stageHashRail);
+  }
+  const stageHashLabel = stageHashRail?.querySelector(".stage-hash-label") || null;
+  const stageHashMeter = stageHashRail?.querySelector("b") || null;
+
+  const clockTargets = Array.from(document.querySelectorAll(".poster-clock, .stage-clock-live"));
+  const footer = document.querySelector(".site-footer");
+  if (footer && !isHomePage && !footer.querySelector(".stage-clock-live")) {
+    const footerClock = document.createElement("span");
+    footerClock.className = "stage-clock-live";
+    footerClock.setAttribute("aria-hidden", "true");
+    footer.append(footerClock);
+    clockTargets.push(footerClock);
+  }
+  if (clockTargets.length) {
+    const formatter = new Intl.DateTimeFormat("ko-KR", {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false,
+      timeZone: "Asia/Seoul",
+    });
+    const updateClock = () => {
+      const label = `KOREA, ${formatter.format(new Date())}`;
+      clockTargets.forEach((clock) => {
+        clock.textContent = label;
+      });
+    };
+    updateClock();
+    window.setInterval(updateClock, 1000);
+  }
+
+  const lineTargets = document.querySelectorAll(
+    ".poster-title .eyebrow, .poster-hero h1, .poster-hero .hero-copy, .poster-copy span, .poster-triad span, .split-wordmark span, .section-kicker .eyebrow, .section-kicker h2, .poster-textblock h2, .collective-copy h2, .join-card h2",
+  );
+  lineTargets.forEach((el, index) => {
+    el.classList.add("stage-line");
+    el.style.setProperty("--stage-index", index % 8);
+  });
+
+  const stagedItems = document.querySelectorAll(
+    ".site-nav .nav-links a, .benefit-ledger article, .live-facts article, .join-steps article, .roster-cell, .market-card, .plugin-card, .rule-card, .resource-card, .notice-card, .community-card, .status-card, .stock-panel",
+  );
+  stagedItems.forEach((el, index) => {
+    el.style.setProperty("--stage-index", index % 12);
+  });
+
+  const stageKeyForElement = (el, index) => {
+    const idKey = normalizeSectionKey(el.id);
+    if (idKey) return idKey;
+    if (el.classList.contains("poster-hero") || el.classList.contains("hero")) return "home";
+    if (el.classList.contains("philosophy-poster")) return "philosophy";
+    if (el.classList.contains("benefits-poster")) return "economy";
+    if (el.classList.contains("collective-section")) return "collective";
+    if (el.classList.contains("join-section")) return "join";
+    return index === 0 ? getCurrentPageKey() || "home" : `section-${index + 1}`;
+  };
+
+  const stageSections = Array.from(document.querySelectorAll("main > section")).map((el, index) => {
+    const key = stageKeyForElement(el, index);
+    const label = STAGE_SECTION_LABELS.get(key) || key.toUpperCase();
+    el.dataset.stageKey = key;
+    el.dataset.stageHash = label;
+    el.style.setProperty("--stage-index", index);
+    return { el, key, label };
+  });
+
+  const watchTargets = document.querySelectorAll(
+    "main > section, [data-reveal], .benefit-ledger article, .live-facts article, .join-steps article, .roster-cell, .stock-panel, .status-panel, .plugin-card, .resource-card, .notice-card, .community-card",
+  );
+
+  if (reduceMotion || typeof IntersectionObserver === "undefined") {
+    watchTargets.forEach((el) => el.classList.add("is-stage-visible"));
+    document.documentElement.classList.add("vlx-stage-ready");
+    const firstKey = getCurrentHashKey() || getCurrentPageKey() || stageSections[0]?.key || "home";
+    setStageSectionKey(firstKey);
+    return;
+  }
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        entry.target.classList.toggle("is-stage-visible", entry.isIntersecting);
+      });
+    },
+    { threshold: 0.16, rootMargin: "0px 0px -12% 0px" },
+  );
+  watchTargets.forEach((el) => observer.observe(el));
+
+  let ticking = false;
+  let lastScrollY = window.scrollY;
+  let lastScrollAt = Date.now();
+  let distortionResetTimer = 0;
+
+  const setDistortionVars = (velocity) => {
+    const direction = velocity === 0 ? 0 : Math.sign(velocity);
+    const amount = Math.min(1, Math.abs(velocity) / 2.2);
+    const skew = direction * amount * 2.8;
+    const drift = direction * amount * 22;
+
+    document.documentElement.style.setProperty("--stage-distort-amount", amount.toFixed(4));
+    document.documentElement.style.setProperty("--stage-distort-opacity", (amount * 0.36).toFixed(4));
+    document.documentElement.style.setProperty("--stage-distort-opacity-mobile", (amount * 0.2).toFixed(4));
+    document.documentElement.style.setProperty("--stage-distort-x", `${drift.toFixed(2)}px`);
+    document.documentElement.style.setProperty("--stage-distort-x-inverse", `${(-drift * 1.2).toFixed(2)}px`);
+    document.documentElement.style.setProperty("--stage-distort-x-soft", `${(drift * 0.45).toFixed(2)}px`);
+    document.documentElement.style.setProperty("--stage-distort-x-mobile", `${(drift * 0.35).toFixed(2)}px`);
+    document.documentElement.style.setProperty("--stage-skew", `${skew.toFixed(3)}deg`);
+    document.documentElement.style.setProperty("--stage-counter-skew", `${(-skew * 0.72).toFixed(3)}deg`);
+    document.documentElement.style.setProperty("--stage-scan-skew", `${(-skew * 0.45).toFixed(3)}deg`);
+    document.documentElement.style.setProperty("--stage-vignette-skew", `${(-skew * 0.2).toFixed(3)}deg`);
+    document.documentElement.style.setProperty("--stage-watermark-skew", `${(-skew * 0.274).toFixed(3)}deg`);
+    document.documentElement.style.setProperty("--stage-content-skew", `${(skew * 0.18).toFixed(3)}deg`);
+    document.documentElement.style.setProperty("--stage-mobile-skew", `${(skew * 0.32).toFixed(3)}deg`);
+    document.documentElement.style.setProperty("--stage-distort-scale", (1.07 + amount * 0.035).toFixed(4));
+    document.documentElement.style.setProperty("--stage-vignette-scale", (1 + amount * 0.018).toFixed(4));
+    document.documentElement.style.setProperty("--stage-watermark-scale-x", (1 + amount * 0.05).toFixed(4));
+    document.documentElement.style.setProperty("--stage-mobile-scale", (1.055 + amount * 0.018).toFixed(4));
+    document.documentElement.style.setProperty("--stage-distort-blur", `${(amount * 1.35).toFixed(2)}px`);
+    document.documentElement.style.setProperty("--stage-content-blur", `${(amount * 0.24).toFixed(2)}px`);
+
+    window.clearTimeout(distortionResetTimer);
+    distortionResetTimer = window.setTimeout(() => {
+      document.documentElement.style.setProperty("--stage-distort-amount", "0");
+      document.documentElement.style.setProperty("--stage-distort-opacity", "0");
+      document.documentElement.style.setProperty("--stage-distort-opacity-mobile", "0");
+      document.documentElement.style.setProperty("--stage-distort-x", "0px");
+      document.documentElement.style.setProperty("--stage-distort-x-inverse", "0px");
+      document.documentElement.style.setProperty("--stage-distort-x-soft", "0px");
+      document.documentElement.style.setProperty("--stage-distort-x-mobile", "0px");
+      document.documentElement.style.setProperty("--stage-skew", "0deg");
+      document.documentElement.style.setProperty("--stage-counter-skew", "0deg");
+      document.documentElement.style.setProperty("--stage-scan-skew", "0deg");
+      document.documentElement.style.setProperty("--stage-vignette-skew", "0deg");
+      document.documentElement.style.setProperty("--stage-watermark-skew", "0deg");
+      document.documentElement.style.setProperty("--stage-content-skew", "0deg");
+      document.documentElement.style.setProperty("--stage-mobile-skew", "0deg");
+      document.documentElement.style.setProperty("--stage-distort-scale", "1.07");
+      document.documentElement.style.setProperty("--stage-vignette-scale", "1");
+      document.documentElement.style.setProperty("--stage-watermark-scale-x", "1");
+      document.documentElement.style.setProperty("--stage-mobile-scale", "1.055");
+      document.documentElement.style.setProperty("--stage-distort-blur", "0px");
+      document.documentElement.style.setProperty("--stage-content-blur", "0px");
+    }, 140);
+  };
+
+  const updateScrollVars = () => {
+    ticking = false;
+    const now = Date.now();
+    const scrollDelta = window.scrollY - lastScrollY;
+    const elapsed = Math.max(16, now - lastScrollAt);
+    const velocity = Math.max(-3, Math.min(3, scrollDelta / elapsed));
+    const viewportHeight = Math.max(1, window.innerHeight);
+    const viewportCenter = viewportHeight * 0.52;
+    const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+    const progress = Math.min(1, Math.max(0, window.scrollY / maxScroll));
+    let currentSection = stageSections[0] || null;
+    let currentScore = Number.POSITIVE_INFINITY;
+
+    document.documentElement.style.setProperty("--stage-scroll", progress.toFixed(4));
+    document.documentElement.style.setProperty("--stage-shift", `${Math.round(window.scrollY * -0.12)}px`);
+    if (!compactMotion) setDistortionVars(velocity);
+    lastScrollY = window.scrollY;
+    lastScrollAt = now;
+
+    stageSections.forEach((section) => {
+      const rect = section.el.getBoundingClientRect();
+      const localProgress = Math.min(1, Math.max(0, (viewportHeight - rect.top) / (viewportHeight + rect.height)));
+      const localY = Math.round((0.5 - localProgress) * 116);
+      const localMediaY = Math.round((0.5 - localProgress) * -72);
+      const localLift = Math.round((0.5 - localProgress) * 38);
+      const visible = rect.bottom > viewportHeight * 0.08 && rect.top < viewportHeight * 0.92;
+      const center = rect.top + rect.height * 0.5;
+      const score = Math.abs(center - viewportCenter);
+
+      if (!compactMotion) {
+        section.el.style.setProperty("--stage-local-progress", localProgress.toFixed(4));
+        section.el.style.setProperty("--stage-local-y", `${localY}px`);
+        section.el.style.setProperty("--stage-local-media-y", `${localMediaY}px`);
+        section.el.style.setProperty("--stage-local-lift", `${localLift}px`);
+      }
+      section.el.classList.toggle("is-stage-near", visible);
+      section.el.classList.toggle("is-stage-past", rect.bottom < viewportCenter);
+
+      if (visible && score < currentScore) {
+        currentScore = score;
+        currentSection = section;
+      }
+    });
+
+    if (currentSection) {
+      stageSections.forEach((section) => {
+        section.el.classList.toggle("is-stage-current", section.el === currentSection.el);
+      });
+      setStageSectionKey(currentSection.key);
+      if (stageHashLabel) stageHashLabel.textContent = `#${currentSection.label}`;
+      if (stageHashMeter) stageHashMeter.style.transform = `scaleY(${Math.max(0.04, progress).toFixed(4)})`;
+
+      const hasCurrentNavItem = Array.from(sectionLinks).some(
+        (link) => normalizeSectionKey(link.dataset.sectionLink) === currentSection.key,
+      );
+      if (hasCurrentNavItem) setActivePage(currentSection.key);
+    }
+  };
+  const requestScrollVars = () => {
+    if (ticking) return;
+    ticking = true;
+    window.requestAnimationFrame(updateScrollVars);
+  };
+  window.addEventListener("scroll", requestScrollVars, { passive: true });
+  updateScrollVars();
+
+  const focusHashTarget = () => {
+    const rawHash = decodeURIComponent(window.location.hash || "").replace(/^#/, "");
+    const hashKey = normalizeSectionKey(rawHash);
+    if (!hashKey) return;
+
+    if (rawHash && rawHash.toLowerCase() !== hashKey && hashKey === "economy") {
+      history.replaceState(null, "", `${window.location.pathname}${window.location.search}#${hashKey}`);
+    }
+
+    const target = document.getElementById(hashKey);
+    if (!target) return;
+    target.classList.add("is-hash-target");
+    setStageSectionKey(hashKey);
+    const hasHashNavItem = Array.from(sectionLinks).some(
+      (link) => normalizeSectionKey(link.dataset.sectionLink) === hashKey,
+    );
+    setActivePage(hasHashNavItem ? hashKey : getCurrentPageKey());
+    target.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+    window.setTimeout(() => target.classList.remove("is-hash-target"), 1500);
+  };
+
+  window.addEventListener("hashchange", () => window.setTimeout(focusHashTarget, 0));
+  if (window.location.hash) window.setTimeout(focusHashTarget, 260);
+
+  window.requestAnimationFrame(() => {
+    document.documentElement.classList.add("vlx-stage-ready");
+  });
+
+  const revealRails = () => {
+    document.documentElement.classList.add("vlx-stage-rails-ready");
+  };
+  if (reduceMotion) {
+    revealRails();
+  } else {
+    window.setTimeout(revealRails, 2320);
+  }
 }
 
 function formatStockNumber(value) {
@@ -3695,7 +3880,16 @@ function addStockSeries(chart, definition, options) {
   return chart.addSeries(definition, options);
 }
 
-function createStockChartState(container) {
+function createStockChartState(container, chartLibrary) {
+  const {
+    AreaSeries,
+    CandlestickSeries,
+    ColorType,
+    CrosshairMode,
+    HistogramSeries,
+    LineSeries,
+    createChart,
+  } = chartLibrary;
   const chartMount = container.querySelector("[data-stock-chart-canvas]") || container;
   const chart = createChart(chartMount, {
     autoSize: true,
@@ -3851,6 +4045,7 @@ function createStockChartState(container) {
     area,
     candle,
     chart,
+    chartLibrary,
     chartMount,
     container,
     dataByTime: new Map(),
@@ -3889,7 +4084,7 @@ function ensureStockLineSeries(state, id, setting, settings, priceScaleId = "rig
   let series = state.indicatorSeries.get(id);
   const options = stockLineSeriesOptions(setting, settings, priceScaleId);
   if (!series) {
-    series = addStockSeries(state.chart, LineSeries, options);
+    series = addStockSeries(state.chart, state.chartLibrary.LineSeries, options);
     state.indicatorSeries.set(id, series);
   } else {
     series.applyOptions(options);
@@ -3955,6 +4150,35 @@ function renderStockChartTooltip(state, param) {
   tooltip.style.transform = `translate(${left}px, ${top}px)`;
 }
 
+function stockChartSummary(stock, rows, last = rows.at(-1), first = rows[0] || last) {
+  const fallbackPrice = Number(stock?.price ?? stock?.close ?? 0);
+  if (!rows.length || !last || !first) {
+    return {
+      price: fallbackPrice,
+      change: Number(stock?.change24h ?? 0),
+      volume: Number(stock?.volume24h ?? 0),
+      open: Number(stock?.open24h ?? fallbackPrice),
+      high: Number(stock?.high24h ?? fallbackPrice),
+      low: Number(stock?.low24h ?? fallbackPrice),
+    };
+  }
+
+  const reportedVolume = Number(stock.volume24h);
+  const displayVolume =
+    Number.isFinite(reportedVolume) && reportedVolume > 0
+      ? reportedVolume
+      : rows.reduce((sum, point) => sum + point.volume, 0);
+
+  return {
+    price: Number(stock.price ?? last?.close ?? 0),
+    change: Number(stock.change24h ?? (((last?.close || 0) - (first?.open || 1)) / Math.max(1, first?.open || 1)) * 100),
+    volume: displayVolume,
+    open: Number(first?.open ?? first?.price ?? 0),
+    high: Math.max(...rows.map((point) => Number(point.high || point.price))),
+    low: Math.min(...rows.map((point) => Number(point.low || point.price))),
+  };
+}
+
 function renderStockChart(container, stock, tick, selectedRange = "1D", options = {}) {
   const series = stockSeries(stock, tick, selectedRange);
   const settings = sanitizeStockChartSettings(options.settings || {});
@@ -3963,7 +4187,31 @@ function renderStockChart(container, stock, tick, selectedRange = "1D", options 
   const rows = stockChartRows(series, selectedRange, scale);
   const last = rows.at(-1) || rows[0];
   const first = rows[0] || last;
-  const state = stockChartStates.get(container) || createStockChartState(container);
+  const summary = stockChartSummary(stock, rows, last, first);
+  const chartLibrary = stockChartLibrary;
+
+  if (!chartLibrary) {
+    const watermark = container.querySelector(".stock-chart-watermark");
+    if (watermark) {
+      watermark.hidden = false;
+      watermark.textContent = "Loading chart";
+    }
+    container.dataset.chartLoading = "true";
+    loadStockChartLibrary()
+      .then((module) => {
+        if (!module || container.dataset.chartLoading !== "true") return;
+        container.dataset.chartLoading = "false";
+        renderStockChart(container, stock, tick, selectedRange, options);
+      })
+      .catch(() => {
+        container.dataset.chartLoading = "error";
+        if (watermark) watermark.textContent = "Chart unavailable";
+      });
+    return summary;
+  }
+
+  const state = stockChartStates.get(container) || createStockChartState(container, chartLibrary);
+  const { ColorType, CrosshairMode } = state.chartLibrary;
   const priceFormatter = scale === "percent" ? (value) => `${value.toFixed(2)}%` : (value) => formatStockKrw(value);
   const gridOpacity = Math.max(0, Math.min(0.6, settings.custom.gridOpacity / 100));
   const gridColor = `rgba(94, 102, 115, ${gridOpacity})`;
@@ -4187,20 +4435,7 @@ function renderStockChart(container, stock, tick, selectedRange = "1D", options 
     state.viewKey = nextViewKey;
   }
 
-  const reportedVolume = Number(stock.volume24h);
-  const displayVolume =
-    Number.isFinite(reportedVolume) && reportedVolume > 0
-      ? reportedVolume
-      : rows.reduce((sum, point) => sum + point.volume, 0);
-
-  return {
-    price: Number(stock.price ?? last?.close ?? 0),
-    change: Number(stock.change24h ?? (((last?.close || 0) - (first?.open || 1)) / Math.max(1, first?.open || 1)) * 100),
-    volume: displayVolume,
-    open: Number(first?.open ?? first?.price ?? 0),
-    high: Math.max(...rows.map((point) => Number(point.high || point.price))),
-    low: Math.min(...rows.map((point) => Number(point.low || point.price))),
-  };
+  return summary;
 }
 
 function renderStockChartReadout(container, stock, result) {
@@ -6568,8 +6803,11 @@ function loadScene() {
   const canvas = document.querySelector("#minecraft-scene");
   if (!(canvas instanceof HTMLCanvasElement)) return;
 
+  const skipDecorativeScene =
+    navigator.connection?.saveData || window.matchMedia("(max-width: 900px), (prefers-reduced-motion: reduce)").matches;
+
   // Skip the heavy WebGL bundle entirely on Data Saver — the CSS gradient sky stands in.
-  if (navigator.connection?.saveData) {
+  if (skipDecorativeScene) {
     canvas.remove();
     return;
   }
@@ -6588,9 +6826,9 @@ function deferSceneLoad() {
 
   const schedule = () => {
     if ("requestIdleCallback" in window) {
-      window.requestIdleCallback(loadScene, { timeout: 1200 });
+      window.requestIdleCallback(loadScene, { timeout: 2200 });
     } else {
-      window.setTimeout(loadScene, 250);
+      window.setTimeout(loadScene, 900);
     }
   };
 
@@ -6733,6 +6971,7 @@ initNav();
 initPageNavigation();
 initStockExchange();
 initAnimationStagger();
+initSakazukiStage();
 initUserPosts();
 initScrollReveal();
 initLogin();
