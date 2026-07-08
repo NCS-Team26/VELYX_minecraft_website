@@ -4482,3 +4482,79 @@ body.home-page-body .editorial-section.is-stage-near :is(.split-wordmark, .sysmo
     display: none !important;
   }
 }
+
+/* Hero wordmark collision guard ----------------------------------------- */
+body.public-page-body.home-page-body .poster-title,
+body.home-page-body .poster-title {
+  gap: 4.3rem !important;
+  transform: translateY(-1.4rem) !important;
+}
+
+body.home-page-body .poster-hero h1,
+body.home-page-body .poster-hero #hero-title,
+body.home-page-body .poster-hero h1.stage-line,
+body.home-page-body .poster-hero #hero-title.stage-line {
+  font-size: 13.2rem !important;
+  line-height: 0.92 !important;
+  margin: 0 !important;
+  transform-origin: center center !important;
+}
+
+body.home-page-body .poster-hero .hero-copy,
+body.home-page-body .poster-hero .hero-copy.stage-line {
+  position: relative !important;
+  z-index: 5 !important;
+  margin: 0.35rem 0 0 !important;
+  padding-top: 0.15rem !important;
+  line-height: 1.08 !important;
+  text-shadow: 0 0 22px rgba(5, 5, 5, 0.62) !important;
+}
+
+@media (min-width: 1280px) {
+  body.home-page-body .poster-hero h1,
+  body.home-page-body .poster-hero #hero-title,
+  body.home-page-body .poster-hero h1.stage-line,
+  body.home-page-body .poster-hero #hero-title.stage-line {
+    font-size: 14.25rem !important;
+  }
+}
+
+@media (max-width: 1080px) {
+  body.public-page-body.home-page-body .poster-title,
+  body.home-page-body .poster-title {
+    gap: 2.6rem !important;
+    transform: translateY(-1rem) !important;
+  }
+
+  body.home-page-body .poster-hero h1,
+  body.home-page-body .poster-hero #hero-title,
+  body.home-page-body .poster-hero h1.stage-line,
+  body.home-page-body .poster-hero #hero-title.stage-line {
+    font-size: 9rem !important;
+    line-height: 0.94 !important;
+  }
+}
+
+@media (max-width: 760px) {
+  body.public-page-body.home-page-body .poster-title,
+  body.home-page-body .poster-title {
+    gap: 1.3rem !important;
+    transform: translateY(-0.65rem) !important;
+  }
+
+  body.home-page-body .poster-hero h1,
+  body.home-page-body .poster-hero #hero-title,
+  body.home-page-body .poster-hero h1.stage-line,
+  body.home-page-body .poster-hero #hero-title.stage-line {
+    font-size: 4.25rem !important;
+    line-height: 0.98 !important;
+  }
+
+  body.home-page-body .poster-hero .hero-copy,
+  body.home-page-body .poster-hero .hero-copy.stage-line {
+    max-width: 18rem !important;
+    font-size: 1.22rem !important;
+    line-height: 1.12 !important;
+    margin-top: 0.2rem !important;
+  }
+}
