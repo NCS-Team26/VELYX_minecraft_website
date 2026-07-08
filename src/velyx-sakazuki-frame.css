@@ -6210,3 +6210,145 @@ body.public-page-body.home-page-body .site-nav {
     font-size: clamp(5.85rem, 28vw, 8.25rem) !important;
   }
 }
+
+/* ==========================================================================
+   VELYX — interior-page unification (public pages -> shipped interior look)
+   --------------------------------------------------------------------------
+   Main's "vlx-stage" layer darkened every page background but only re-skinned
+   the home hero and the status / stock cards (surface block ~line 3665). The
+   six public content pages (plugins, community, notice, resources, rules,
+   join) kept the base membership-stage CREAM card surfaces + dark serif ink,
+   so on the now-dark page they read as a different site.
+
+   This block re-skins those surfaces with the SAME values main already ships
+   on the status / stock cards, verified against the live status page:
+     - dark-glass cards  rgba(10,9,11,.86) + rgba(250,247,239,.055) sheen
+     - serif ivory headings  rgb(250,247,239)  (base Noto Serif KR kept)
+     - ivory-soft body copy   rgba(250,247,239,.70)
+     - gold #bc9861 accent (the site-wide default, e.g. status eyebrows)
+   ========================================================================== */
+
+/* Card + panel surfaces -> dark glass (identical to status / stock cards) */
+body.public-page-body:not(.home-page-body) :is(
+  .status-panel, .detail-grid article, .dashboard-card, .plugin-grid article,
+  .feature-grid article, .economy-grid article, .market-list article,
+  .rules-list li, .rules-tools article, .join-card, .join-steps article,
+  .quick-install-panel, .install-checklist, .category-feature,
+  .category-grid article, .category-board article, .resource-list a,
+  .user-post-workspace, .user-post-list article, .economy-market-snapshot,
+  .stock-marketplace-section
+) {
+  border: 1px solid rgba(250, 247, 239, 0.14) !important;
+  border-radius: 8px !important;
+  background:
+    linear-gradient(180deg, rgba(250, 247, 239, 0.055), rgba(250, 247, 239, 0.018)),
+    rgba(10, 9, 11, 0.86) !important;
+  color: #faf7ef !important;
+  -webkit-text-fill-color: #faf7ef !important;
+  box-shadow: none !important;
+}
+
+/* Card top-accent hairline: keep the site's gold (matches status / stock) */
+body.public-page-body:not(.home-page-body) :is(
+  .status-panel, .detail-grid article, .dashboard-card, .plugin-grid article,
+  .feature-grid article, .economy-grid article, .rules-tools article,
+  .join-steps article, .category-grid article, .resource-list a
+)::before {
+  background: linear-gradient(90deg, transparent, rgba(188, 152, 97, 0.72), transparent) !important;
+  opacity: 1 !important;
+}
+
+/* Section headings: dark ink -> ivory (the base serif face is kept, as on
+   the status page's "서버 상태를 바로 확인." heading) */
+body.public-page-body:not(.home-page-body) :is(
+  .section-heading h1, .section-heading h2, .rules-section h1, .rules-section h2,
+  .world-copy h2, .join-card h1, .join-card h2, .market-copy h3, .economy-stock-teaser h3
+) {
+  color: rgb(250, 247, 239) !important;
+  -webkit-text-fill-color: rgb(250, 247, 239) !important;
+}
+
+/* Intro / body copy off the cards -> ivory-faint (was dark-on-cream) */
+body.public-page-body:not(.home-page-body) :is(
+  .screen-copy, .world-copy p:not(.eyebrow), .market-copy p:not(.eyebrow),
+  .economy-market-heading p, .join-note, .category-board p, .resource-list p,
+  .user-post-head p, .dashboard-card p, .rules-list li
+) {
+  color: rgba(250, 247, 239, 0.72) !important;
+  -webkit-text-fill-color: rgba(250, 247, 239, 0.72) !important;
+}
+
+/* Text inside the now-dark cards -> ivory-soft body, ivory headings */
+body.public-page-body:not(.home-page-body) :is(
+  .status-panel, .detail-grid article, .dashboard-card, .plugin-grid article,
+  .feature-grid article, .economy-grid article, .market-list article,
+  .rules-list li, .rules-tools article, .join-card, .join-steps article,
+  .quick-install-panel, .install-checklist, .category-feature,
+  .category-grid article, .category-board article, .resource-list a,
+  .user-post-workspace, .user-post-list article, .economy-market-snapshot,
+  .stock-marketplace-section
+) :is(p, span, small, label, li, td, th, em, div, a) {
+  color: rgba(250, 247, 239, 0.7) !important;
+  -webkit-text-fill-color: rgba(250, 247, 239, 0.7) !important;
+}
+body.public-page-body:not(.home-page-body) :is(
+  .status-panel, .detail-grid article, .dashboard-card, .plugin-grid article,
+  .feature-grid article, .economy-grid article, .market-list article,
+  .rules-list li, .rules-tools article, .join-card, .join-steps article,
+  .quick-install-panel, .install-checklist, .category-feature,
+  .category-grid article, .category-board article, .resource-list a,
+  .user-post-workspace, .user-post-list article, .economy-market-snapshot,
+  .stock-marketplace-section
+) :is(h2, h3, h4, strong, b, code) {
+  color: #faf7ef !important;
+  -webkit-text-fill-color: #faf7ef !important;
+}
+
+/* Small-caps eyebrow spans: emerald -> the site's gold accent */
+body.public-page-body:not(.home-page-body) :is(
+  .detail-grid article span, .plugin-grid span, .economy-grid span, .market-list span,
+  .dashboard-card span, .rules-tools span, .join-steps span, .category-feature span,
+  .category-grid span, .category-board span, .resource-list span
+) {
+  color: #bc9861 !important;
+  -webkit-text-fill-color: #bc9861 !important;
+}
+
+/* Wine-tinted interior bands -> neutral black to match the home's sections */
+body.public-page-body:not(.home-page-body) :is(
+  .stats-band, .feature-band, .plugin-band, .economy-stock-teaser
+) {
+  background:
+    linear-gradient(120deg, rgba(188, 152, 97, 0.1), transparent 42%),
+    linear-gradient(180deg, #0a090b, #050505) !important;
+  border-color: rgba(250, 247, 239, 0.14) !important;
+}
+
+/* Inputs, secondary buttons, economy tab pills -> dark + gold active */
+body.public-page-body:not(.home-page-body) :is(input, textarea, select) {
+  background: rgba(16, 15, 12, 0.68) !important;
+  border-color: rgba(188, 152, 97, 0.24) !important;
+  color: #faf7ef !important;
+  -webkit-text-fill-color: #faf7ef !important;
+}
+body.public-page-body:not(.home-page-body) .secondary-action {
+  background: rgba(250, 247, 239, 0.06) !important;
+  border-color: rgba(250, 247, 239, 0.22) !important;
+  color: #faf7ef !important;
+  -webkit-text-fill-color: #faf7ef !important;
+}
+body.public-page-body:not(.home-page-body) .economy-page-tabs a {
+  color: rgba(250, 247, 239, 0.72) !important;
+  -webkit-text-fill-color: rgba(250, 247, 239, 0.72) !important;
+}
+body.public-page-body:not(.home-page-body) .economy-page-tabs a:is(:hover, :focus-visible, .is-active) {
+  background: rgba(188, 152, 97, 0.92) !important;
+  color: #14100a !important;
+  -webkit-text-fill-color: #14100a !important;
+}
+
+/* join.html: gated server address <code> ("로그인 후 공개") -> ivory */
+body.public-page-body:not(.home-page-body) .address-row code {
+  color: #faf7ef !important;
+  -webkit-text-fill-color: #faf7ef !important;
+}
