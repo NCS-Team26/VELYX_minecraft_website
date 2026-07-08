@@ -368,3 +368,44 @@ body.stock-terminal-body .stock-market-pair em.is-down {
   color: var(--bt-red) !important;
   -webkit-text-fill-color: var(--bt-red) !important;
 }
+
+/* ==========================================================================
+   Terminal motion — restrained "live" cues (reduced-motion gated)
+   ========================================================================== */
+
+/* Depth bars ease to their new width instead of snapping on each tick */
+body.stock-terminal-body .stock-order-book li::before {
+  transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1) !important;
+}
+
+/* Order-book row hover — amber wash, the terminal cursor feel */
+body.stock-terminal-body .stock-order-book li:hover {
+  background: rgba(255, 171, 46, 0.06) !important;
+}
+
+/* Active buy / sell button carries a soft glow in its own direction colour */
+body.stock-terminal-body .stock-order-side-buttons button.is-active {
+  box-shadow: 0 0 0 1px currentColor, 0 0 16px -3px currentColor !important;
+}
+
+/* Submit button: brighten on hover, depress on click */
+body.stock-terminal-body .stock-order-submit {
+  transition: filter 0.2s ease, transform 0.12s ease !important;
+}
+body.stock-terminal-body .stock-order-submit:hover {
+  filter: brightness(1.12) !important;
+}
+body.stock-terminal-body .stock-order-submit:active {
+  transform: translateY(1px) !important;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* "24H LIVE" badge breathes so the board reads as live */
+  @keyframes vlxLivePulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(14, 203, 129, 0); }
+    50% { box-shadow: 0 0 10px 1px rgba(14, 203, 129, 0.4); }
+  }
+  body.stock-terminal-body .stock-session {
+    animation: vlxLivePulse 2.4s ease-in-out infinite;
+  }
+}

@@ -5710,7 +5710,7 @@ body.public-page-body.home-page-body .poster-hero {
 html.vlx-stage-shell body.home-page-body .poster-media,
 body.public-page-body.home-page-body .poster-media {
   inset: 0 !important;
-  background-image: url("/assets/hero-velyx.png") !important;
+  background-image: url("/assets/hero-velyx.webp") !important;
   background-position: center !important;
   background-size: cover !important;
   filter: saturate(1.08) brightness(0.72) contrast(1.13) !important;
@@ -6038,7 +6038,7 @@ body.public-page-body.home-page-body .poster-hero .hero-actions {
 
   html.vlx-stage-shell body.home-page-body .poster-media,
   body.public-page-body.home-page-body .poster-media {
-    background-image: url("/assets/hero-velyx.png") !important;
+    background-image: url("/assets/hero-velyx.webp") !important;
     background-position: center !important;
     filter: saturate(1.02) brightness(0.6) contrast(1.12) !important;
     transform: translate3d(0, calc(var(--stage-shift, 0px) * 0.08), 0) scale(1.05) !important;
@@ -6373,4 +6373,49 @@ body:is(.public-page-body, .status-page-body, .stock-terminal-body, .auth-page-b
 body.public-page-body:not(.home-page-body) .rules-list li::before {
   background: #bc9861 !important;
   color: #14100a !important;
+}
+
+/* ==========================================================================
+   VELYX interior — tactile flourishes (hover lift + focus rings)
+   --------------------------------------------------------------------------
+   Cards on the six content pages were static (the old warm-shadow hover reads
+   as nothing on the dark surfaces). Give them a restrained gold lift, and add
+   a consistent gold focus ring for keyboard users across the interior.
+   ========================================================================== */
+
+body.public-page-body:not(.home-page-body) :is(
+  .detail-grid article, .dashboard-card, .plugin-grid article, .feature-grid article,
+  .economy-grid article, .market-list article, .rules-tools article, .join-steps article,
+  .quick-install-panel, .category-feature, .category-grid article, .category-board article,
+  .resource-list a
+) {
+  transition:
+    transform 0.34s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.34s ease,
+    box-shadow 0.34s ease !important;
+}
+body.public-page-body:not(.home-page-body) :is(
+  .detail-grid article, .dashboard-card, .plugin-grid article, .feature-grid article,
+  .economy-grid article, .market-list article, .rules-tools article, .join-steps article,
+  .quick-install-panel, .category-feature, .category-grid article, .category-board article,
+  .resource-list a
+):hover {
+  transform: translateY(-4px) !important;
+  border-color: rgba(188, 152, 97, 0.5) !important;
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(188, 152, 97, 0.14) !important;
+}
+/* the gold top-hairline brightens to a full line on hover */
+body.public-page-body:not(.home-page-body) :is(
+  .detail-grid article, .dashboard-card, .plugin-grid article, .feature-grid article,
+  .economy-grid article, .rules-tools article, .join-steps article,
+  .category-grid article, .resource-list a
+):hover::before {
+  background: linear-gradient(90deg, transparent, rgba(188, 152, 97, 0.95), transparent) !important;
+}
+
+/* Keyboard focus ring — gold, consistent across the interior */
+body:is(.public-page-body, .status-page-body, .auth-page-body):not(.home-page-body)
+  :is(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid rgba(188, 152, 97, 0.72) !important;
+  outline-offset: 2px !important;
 }
