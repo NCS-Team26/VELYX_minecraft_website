@@ -1,0 +1,19 @@
+{
+  "name": "VELYX — 경제 야생 Minecraft 서버",
+  "short_name": "VELYX",
+  "description": "velyx.kr 경제 야생 Minecraft 서버. 채굴, 농사, 거래, 토지 보호, 유저 상점이 맞물리는 생존 월드.",
+  "lang": "ko",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#050505",
+  "theme_color": "#0d1411",
+  "icons": [
+    {
+      "src": "/assets/server-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
