@@ -14,10 +14,9 @@
     <script>
       (function () {
         try {
-          var t = localStorage.getItem("nfoifsb.theme");
           var p = localStorage.getItem("nfoifsb.themePreset");
-          var theme = t === "dark" || t === "light" ? t : "dark";
-          document.documentElement.setAttribute("data-theme", theme);
+          document.documentElement.setAttribute("data-theme", "dark");
+          localStorage.removeItem("nfoifsb.theme");
           if (["forest", "cave", "amethyst", "ember", "ocean"].includes(p))
             document.documentElement.setAttribute("data-theme-preset", p);
         } catch (e) {
@@ -144,23 +143,7 @@
           <span>Paper 26.1.2 · 경제 야생 서버</span>
           <a href="#content">맨 위로</a>
         </div>
-        <div class="footer-theme-row">
-          <button class="footer-theme-toggle" type="button" data-theme-toggle>
-            <span class="footer-theme-icon" aria-hidden="true">
-              <svg class="ic" data-theme-icon="light" viewBox="0 0 24 24">
-                <path d="M21 12.8A8 8 0 1 1 11.2 3a6 6 0 0 0 9.8 9.8z" />
-              </svg>
-              <svg class="ic" data-theme-icon="dark" viewBox="0 0 24 24" hidden>
-                <circle cx="12" cy="12" r="4.2" />
-                <path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.5 4.5l2 2M17.5 17.5l2 2M19.5 4.5l-2 2M6.5 17.5l-2 2" />
-              </svg>
-            </span>
-            <span class="footer-theme-text">
-              <strong data-theme-label>다크모드</strong>
-              <span data-theme-description>밝은 화면에서 어두운 화면으로 전환</span>
-            </span>
-          </button>
-        </div>
+        <div class="footer-theme-row" aria-label="Color controls"></div>
       </footer>
     </div>
     <script type="module" src="/src/main.js"></script>

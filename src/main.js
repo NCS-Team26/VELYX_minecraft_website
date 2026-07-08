@@ -1057,17 +1057,18 @@ function initLogin() {
 }
 
 function initTheme() {
-  const toggles = document.querySelectorAll("[data-theme-toggle]");
-  if (!toggles.length) return;
-
   const storageKeys = {
-    theme: "nfoifsb.theme",
     preset: "nfoifsb.themePreset",
     custom: "nfoifsb.themeCustom",
   };
   const customFallback = "#c30d23";
   const root = document.documentElement;
-  const systemDark = window.matchMedia("(prefers-color-scheme: dark)");
+  root.setAttribute("data-theme", "dark");
+  try {
+    localStorage.removeItem("nfoifsb.theme");
+  } catch {
+    // Fixed dark presentation does not require theme persistence.
+  }
 
   const normalizeHex = (value) => {
     if (typeof value !== "string") return "";
@@ -1174,9 +1175,6 @@ function initTheme() {
     savedPreset = "";
   }
   let activePreset = presetById.has(savedPreset) ? savedPreset : "forest";
-  const resolved = () =>
-    root.getAttribute("data-theme") || (systemDark.matches ? "dark" : "light");
-
   const getActivePreset = () => {
     if (activePreset === "custom") {
       return {
@@ -1254,26 +1252,10 @@ function initTheme() {
   };
 
   const sync = () => {
-    const theme = resolved();
-    const nextTheme = theme === "dark" ? "light" : "dark";
     const preset = getActivePreset();
     applyAccent();
+    root.setAttribute("data-theme", "dark");
     root.setAttribute("data-theme-preset", activePreset);
-    toggles.forEach((toggle) => {
-      toggle.dataset.theme = theme;
-      toggle.setAttribute("aria-pressed", String(theme === "dark"));
-      toggle.setAttribute("aria-label", theme === "dark" ? "라이트모드로 전환" : "다크모드로 전환");
-      toggle.querySelectorAll("[data-theme-icon]").forEach((ic) => {
-        ic.hidden = ic.dataset.themeIcon !== nextTheme;
-      });
-      toggle.querySelectorAll("[data-theme-label]").forEach((label) => {
-        label.textContent = theme === "dark" ? "라이트모드" : "다크모드";
-      });
-      toggle.querySelectorAll("[data-theme-description]").forEach((description) => {
-        description.textContent =
-          theme === "dark" ? "어두운 화면에서 밝은 화면으로 전환" : "밝은 화면에서 어두운 화면으로 전환";
-      });
-    });
     document.querySelectorAll(".theme-preset-button[data-theme-preset]").forEach((button) => {
       const pressed = button.dataset.themePreset === activePreset;
       if (button.dataset.themePreset === "custom") {
@@ -1285,39 +1267,22 @@ function initTheme() {
       if (input.value !== customColor) input.value = customColor;
     });
     document.querySelectorAll('meta[name="theme-color"]').forEach((m) => {
-      // Drop the media filter so the pinned theme's color always wins.
+      // Drop the media filter so the fixed dark shell color always wins.
       m.removeAttribute("media");
-      m.setAttribute(
-        "content",
-        theme === "dark" ? preset.meta || "#050505" : "#f6efe5",
-      );
+      m.setAttribute("content", preset.meta || "#050505");
     });
   };
 
   ensurePalette();
-
-  toggles.forEach((toggle) => {
-    toggle.addEventListener("click", () => {
-      const next = resolved() === "dark" ? "light" : "dark";
-      root.setAttribute("data-theme", next);
-      try {
-        localStorage.setItem(storageKeys.theme, next);
-      } catch {
-        // Toggle still works for this session without persistence.
-      }
-      sync();
-    });
-  });
 
   document.querySelectorAll(".theme-preset-button[data-theme-preset]").forEach((button) => {
     button.addEventListener("click", () => {
       const nextPreset = button.dataset.themePreset;
       if (!presetById.has(nextPreset)) return;
       activePreset = nextPreset;
-      root.setAttribute("data-theme", resolved());
+      root.setAttribute("data-theme", "dark");
       root.setAttribute("data-theme-preset", activePreset);
       try {
-        localStorage.setItem(storageKeys.theme, resolved());
         localStorage.setItem(storageKeys.preset, activePreset);
         if (activePreset === "custom") localStorage.setItem(storageKeys.custom, customColor);
       } catch {
@@ -1333,10 +1298,9 @@ function initTheme() {
       if (!nextColor) return;
       customColor = nextColor;
       activePreset = "custom";
-      root.setAttribute("data-theme", resolved());
+      root.setAttribute("data-theme", "dark");
       root.setAttribute("data-theme-preset", activePreset);
       try {
-        localStorage.setItem(storageKeys.theme, resolved());
         localStorage.setItem(storageKeys.preset, activePreset);
         localStorage.setItem(storageKeys.custom, customColor);
       } catch {
@@ -1344,11 +1308,6 @@ function initTheme() {
       }
       sync();
     });
-  });
-
-  // Follow OS changes only while the user hasn't pinned a theme.
-  systemDark.addEventListener("change", () => {
-    if (!root.getAttribute("data-theme")) sync();
   });
 
   sync();

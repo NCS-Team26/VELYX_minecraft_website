@@ -11,10 +11,9 @@
     <script>
       (function () {
         try {
-          var t = localStorage.getItem("nfoifsb.theme");
           var p = localStorage.getItem("nfoifsb.themePreset");
-          var theme = t === "dark" || t === "light" ? t : "dark";
-          document.documentElement.setAttribute("data-theme", theme);
+          document.documentElement.setAttribute("data-theme", "dark");
+          localStorage.removeItem("nfoifsb.theme");
           if (["forest", "cave", "amethyst", "ember", "ocean"].includes(p))
             document.documentElement.setAttribute("data-theme-preset", p);
         } catch (e) {
