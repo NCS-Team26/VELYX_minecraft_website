@@ -5,15 +5,6 @@ import "./velyx-redesign.css";
 import "./velyx-minecraft.css";
 // Final visual frame: VELYX-tailored membership stage inspired by modern luxury web direction.
 import "./velyx-sakazuki-frame.css";
-import {
-  AreaSeries,
-  CandlestickSeries,
-  ColorType,
-  CrosshairMode,
-  HistogramSeries,
-  LineSeries,
-  createChart,
-} from "lightweight-charts";
 
 const SERVER_ADDRESS = "velyx.kr";
 const STATUS_API = `https://api.mcstatus.io/v2/status/java/${SERVER_ADDRESS}`;
@@ -24,6 +15,24 @@ const LEGACY_PLAYER_API_BASE = "https://api.velyx.kr/minecraft";
 const isHostedSite = ["www.velyx.kr", "velyx.kr"].includes(window.location.hostname);
 const PRODUCTION_PLAYER_API_BASE = isHostedSite ? PUBLIC_PLAYER_API_BASE : FUNNEL_PLAYER_API_BASE;
 const PRODUCTION_PLAYER_API_FALLBACK_BASE = `${FUNNEL_PLAYER_API_BASE},${LEGACY_PLAYER_API_BASE}`;
+let stockChartLibrary = null;
+let stockChartLibraryPromise = null;
+
+function loadStockChartLibrary() {
+  if (stockChartLibrary) return Promise.resolve(stockChartLibrary);
+  if (!stockChartLibraryPromise) {
+    stockChartLibraryPromise = import("lightweight-charts")
+      .then((module) => {
+        stockChartLibrary = module;
+        return module;
+      })
+      .catch((error) => {
+        stockChartLibraryPromise = null;
+        throw error;
+      });
+  }
+  return stockChartLibraryPromise;
+}
 
 function apiBaseList(...values) {
   return [
@@ -180,7 +189,7 @@ const STOCK_NEWS_IMAGES = {
   DEFAULT: [
     { src: "/assets/hero-world-1920.jpg", position: "50% 45%" },
     { src: "/assets/hero-world-960.jpg", position: "18% 42%" },
-    { src: "/assets/hero-world.png", position: "72% 52%" },
+    { src: "/assets/hero-world-1920.jpg", position: "72% 52%" },
     { src: "/assets/hero-world-1920.jpg", position: "82% 38%" },
   ],
 };
@@ -1551,7 +1560,9 @@ function initSakazukiStage() {
   if (!stageBodies.some((className) => document.body.classList.contains(className))) return;
 
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const compactMotion = window.matchMedia("(max-width: 760px), (pointer: coarse)").matches || Boolean(navigator.connection?.saveData);
   document.documentElement.classList.add("vlx-stage-shell");
+  document.documentElement.classList.toggle("vlx-stage-compact-motion", compactMotion);
   setStageSectionKey(getCurrentHashKey() || getCurrentPageKey() || "home");
 
   let stageHashRail = document.querySelector(".stage-hash-rail");
@@ -1721,7 +1732,7 @@ function initSakazukiStage() {
 
     document.documentElement.style.setProperty("--stage-scroll", progress.toFixed(4));
     document.documentElement.style.setProperty("--stage-shift", `${Math.round(window.scrollY * -0.12)}px`);
-    setDistortionVars(velocity);
+    if (!compactMotion) setDistortionVars(velocity);
     lastScrollY = window.scrollY;
     lastScrollAt = now;
 
@@ -1735,10 +1746,12 @@ function initSakazukiStage() {
       const center = rect.top + rect.height * 0.5;
       const score = Math.abs(center - viewportCenter);
 
-      section.el.style.setProperty("--stage-local-progress", localProgress.toFixed(4));
-      section.el.style.setProperty("--stage-local-y", `${localY}px`);
-      section.el.style.setProperty("--stage-local-media-y", `${localMediaY}px`);
-      section.el.style.setProperty("--stage-local-lift", `${localLift}px`);
+      if (!compactMotion) {
+        section.el.style.setProperty("--stage-local-progress", localProgress.toFixed(4));
+        section.el.style.setProperty("--stage-local-y", `${localY}px`);
+        section.el.style.setProperty("--stage-local-media-y", `${localMediaY}px`);
+        section.el.style.setProperty("--stage-local-lift", `${localLift}px`);
+      }
       section.el.classList.toggle("is-stage-near", visible);
       section.el.classList.toggle("is-stage-past", rect.bottom < viewportCenter);
 
@@ -4146,7 +4159,16 @@ function addStockSeries(chart, definition, options) {
   return chart.addSeries(definition, options);
 }
 
-function createStockChartState(container) {
+function createStockChartState(container, chartLibrary) {
+  const {
+    AreaSeries,
+    CandlestickSeries,
+    ColorType,
+    CrosshairMode,
+    HistogramSeries,
+    LineSeries,
+    createChart,
+  } = chartLibrary;
   const chartMount = container.querySelector("[data-stock-chart-canvas]") || container;
   const chart = createChart(chartMount, {
     autoSize: true,
@@ -4302,6 +4324,7 @@ function createStockChartState(container) {
     area,
     candle,
     chart,
+    chartLibrary,
     chartMount,
     container,
     dataByTime: new Map(),
@@ -4340,7 +4363,7 @@ function ensureStockLineSeries(state, id, setting, settings, priceScaleId = "rig
   let series = state.indicatorSeries.get(id);
   const options = stockLineSeriesOptions(setting, settings, priceScaleId);
   if (!series) {
-    series = addStockSeries(state.chart, LineSeries, options);
+    series = addStockSeries(state.chart, state.chartLibrary.LineSeries, options);
     state.indicatorSeries.set(id, series);
   } else {
     series.applyOptions(options);
@@ -4406,6 +4429,35 @@ function renderStockChartTooltip(state, param) {
   tooltip.style.transform = `translate(${left}px, ${top}px)`;
 }
 
+function stockChartSummary(stock, rows, last = rows.at(-1), first = rows[0] || last) {
+  const fallbackPrice = Number(stock?.price ?? stock?.close ?? 0);
+  if (!rows.length || !last || !first) {
+    return {
+      price: fallbackPrice,
+      change: Number(stock?.change24h ?? 0),
+      volume: Number(stock?.volume24h ?? 0),
+      open: Number(stock?.open24h ?? fallbackPrice),
+      high: Number(stock?.high24h ?? fallbackPrice),
+      low: Number(stock?.low24h ?? fallbackPrice),
+    };
+  }
+
+  const reportedVolume = Number(stock.volume24h);
+  const displayVolume =
+    Number.isFinite(reportedVolume) && reportedVolume > 0
+      ? reportedVolume
+      : rows.reduce((sum, point) => sum + point.volume, 0);
+
+  return {
+    price: Number(stock.price ?? last?.close ?? 0),
+    change: Number(stock.change24h ?? (((last?.close || 0) - (first?.open || 1)) / Math.max(1, first?.open || 1)) * 100),
+    volume: displayVolume,
+    open: Number(first?.open ?? first?.price ?? 0),
+    high: Math.max(...rows.map((point) => Number(point.high || point.price))),
+    low: Math.min(...rows.map((point) => Number(point.low || point.price))),
+  };
+}
+
 function renderStockChart(container, stock, tick, selectedRange = "1D", options = {}) {
   const series = stockSeries(stock, tick, selectedRange);
   const settings = sanitizeStockChartSettings(options.settings || {});
@@ -4414,7 +4466,31 @@ function renderStockChart(container, stock, tick, selectedRange = "1D", options 
   const rows = stockChartRows(series, selectedRange, scale);
   const last = rows.at(-1) || rows[0];
   const first = rows[0] || last;
-  const state = stockChartStates.get(container) || createStockChartState(container);
+  const summary = stockChartSummary(stock, rows, last, first);
+  const chartLibrary = stockChartLibrary;
+
+  if (!chartLibrary) {
+    const watermark = container.querySelector(".stock-chart-watermark");
+    if (watermark) {
+      watermark.hidden = false;
+      watermark.textContent = "Loading chart";
+    }
+    container.dataset.chartLoading = "true";
+    loadStockChartLibrary()
+      .then((module) => {
+        if (!module || container.dataset.chartLoading !== "true") return;
+        container.dataset.chartLoading = "false";
+        renderStockChart(container, stock, tick, selectedRange, options);
+      })
+      .catch(() => {
+        container.dataset.chartLoading = "error";
+        if (watermark) watermark.textContent = "Chart unavailable";
+      });
+    return summary;
+  }
+
+  const state = stockChartStates.get(container) || createStockChartState(container, chartLibrary);
+  const { ColorType, CrosshairMode } = state.chartLibrary;
   const priceFormatter = scale === "percent" ? (value) => `${value.toFixed(2)}%` : (value) => formatStockKrw(value);
   const gridOpacity = Math.max(0, Math.min(0.6, settings.custom.gridOpacity / 100));
   const gridColor = `rgba(94, 102, 115, ${gridOpacity})`;
@@ -4638,20 +4714,7 @@ function renderStockChart(container, stock, tick, selectedRange = "1D", options 
     state.viewKey = nextViewKey;
   }
 
-  const reportedVolume = Number(stock.volume24h);
-  const displayVolume =
-    Number.isFinite(reportedVolume) && reportedVolume > 0
-      ? reportedVolume
-      : rows.reduce((sum, point) => sum + point.volume, 0);
-
-  return {
-    price: Number(stock.price ?? last?.close ?? 0),
-    change: Number(stock.change24h ?? (((last?.close || 0) - (first?.open || 1)) / Math.max(1, first?.open || 1)) * 100),
-    volume: displayVolume,
-    open: Number(first?.open ?? first?.price ?? 0),
-    high: Math.max(...rows.map((point) => Number(point.high || point.price))),
-    low: Math.min(...rows.map((point) => Number(point.low || point.price))),
-  };
+  return summary;
 }
 
 function renderStockChartReadout(container, stock, result) {
@@ -7019,8 +7082,11 @@ function loadScene() {
   const canvas = document.querySelector("#minecraft-scene");
   if (!(canvas instanceof HTMLCanvasElement)) return;
 
+  const skipDecorativeScene =
+    navigator.connection?.saveData || window.matchMedia("(max-width: 900px), (prefers-reduced-motion: reduce)").matches;
+
   // Skip the heavy WebGL bundle entirely on Data Saver — the CSS gradient sky stands in.
-  if (navigator.connection?.saveData) {
+  if (skipDecorativeScene) {
     canvas.remove();
     return;
   }
@@ -7039,9 +7105,9 @@ function deferSceneLoad() {
 
   const schedule = () => {
     if ("requestIdleCallback" in window) {
-      window.requestIdleCallback(loadScene, { timeout: 1200 });
+      window.requestIdleCallback(loadScene, { timeout: 2200 });
     } else {
-      window.setTimeout(loadScene, 250);
+      window.setTimeout(loadScene, 900);
     }
   };
 
