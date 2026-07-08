@@ -6419,3 +6419,68 @@ body:is(.public-page-body, .status-page-body, .auth-page-body):not(.home-page-bo
   outline: 2px solid rgba(188, 152, 97, 0.72) !important;
   outline-offset: 2px !important;
 }
+
+/* ==========================================================================
+   VELYX flourishes — scroll progress, eyebrow line-draw, card spotlight
+   (paired with src/velyx-flourishes.js)
+   ========================================================================== */
+
+/* Gold scroll-progress rail — width comes from the existing --stage-scroll 0..1 */
+.vlx-scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 2px;
+  width: calc(var(--stage-scroll, 0) * 100%);
+  z-index: 10050;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(188, 152, 97, 0), #bc9861 45%, #e7c98a);
+  box-shadow: 0 0 12px rgba(188, 152, 97, 0.5);
+  transition: width 0.1s linear;
+}
+
+/* Eyebrow flanking lines draw in when their section reveals */
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes vlxEyebrowLine {
+    from { width: 0; opacity: 0; }
+    to { width: 42px; opacity: 0.7; }
+  }
+  body:is(.public-page-body, .status-page-body):not(.home-page-body) .eyebrow::before,
+  body:is(.public-page-body, .status-page-body):not(.home-page-body) .eyebrow::after {
+    animation: vlxEyebrowLine 720ms var(--vlx-stage-ease, ease) both;
+  }
+}
+
+/* Cursor spotlight — a soft gold radial that follows the pointer across cards.
+   --mx/--my are set per-card by velyx-flourishes.js. */
+body.public-page-body:not(.home-page-body) :is(
+  .detail-grid article, .dashboard-card, .plugin-grid article, .feature-grid article,
+  .economy-grid article, .market-list article, .rules-tools article, .join-steps article,
+  .quick-install-panel, .category-feature, .category-grid article, .category-board article,
+  .resource-list a
+) {
+  position: relative !important;
+}
+body.public-page-body:not(.home-page-body) :is(
+  .detail-grid article, .dashboard-card, .plugin-grid article, .feature-grid article,
+  .economy-grid article, .market-list article, .rules-tools article, .join-steps article,
+  .quick-install-panel, .category-feature, .category-grid article, .category-board article,
+  .resource-list a
+)::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  background: radial-gradient(180px circle at var(--mx, 50%) var(--my, 50%), rgba(188, 152, 97, 0.1), transparent 62%);
+}
+body.public-page-body:not(.home-page-body) :is(
+  .detail-grid article, .dashboard-card, .plugin-grid article, .feature-grid article,
+  .economy-grid article, .market-list article, .rules-tools article, .join-steps article,
+  .quick-install-panel, .category-feature, .category-grid article, .category-board article,
+  .resource-list a
+):hover::after {
+  opacity: 1;
+}

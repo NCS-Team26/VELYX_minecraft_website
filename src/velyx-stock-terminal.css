@@ -409,3 +409,27 @@ body.stock-terminal-body .stock-order-submit:active {
     animation: vlxLivePulse 2.4s ease-in-out infinite;
   }
 }
+
+/* Scroll rail + price tick flash on the terminal use amber / directional green-red */
+body.stock-terminal-body .vlx-scroll-progress {
+  background: linear-gradient(90deg, rgba(255, 171, 46, 0), #ffab2e 45%, #ffd48a) !important;
+  box-shadow: 0 0 12px rgba(255, 171, 46, 0.5) !important;
+}
+
+@keyframes vlxTickUp {
+  0% { background: rgba(14, 203, 129, 0.32); }
+  100% { background: transparent; }
+}
+@keyframes vlxTickDown {
+  0% { background: rgba(246, 70, 93, 0.32); }
+  100% { background: transparent; }
+}
+body.stock-terminal-body .stock-market-price {
+  border-radius: 3px !important;
+}
+body.stock-terminal-body .stock-market-price.vlx-tick-up {
+  animation: vlxTickUp 0.55s ease-out;
+}
+body.stock-terminal-body .stock-market-price.vlx-tick-down {
+  animation: vlxTickDown 0.55s ease-out;
+}
