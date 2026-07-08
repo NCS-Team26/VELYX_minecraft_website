@@ -7,6 +7,8 @@ import "./velyx-minecraft.css";
 import "./velyx-sakazuki-frame.css";
 // Stock page only: Bloomberg-style trading terminal skin (scoped to .stock-terminal-body).
 import "./velyx-stock-terminal.css";
+// Small progressive-enhancement flourishes: scroll progress, card spotlight, price tick flash.
+import "./velyx-flourishes.js";
 
 const SERVER_ADDRESS = "velyx.kr";
 const STATUS_API = `https://api.mcstatus.io/v2/status/java/${SERVER_ADDRESS}`;
