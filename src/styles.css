@@ -486,7 +486,7 @@ html:not(.is-loading) .transition-screen {
   z-index: 2;
   left: var(--site-margin);
   right: var(--site-margin);
-  bottom: -0.08em;
+  bottom: calc(clamp(12rem, 24vh, 14rem) + 1.5rem);
   overflow: hidden;
   color: rgba(232, 232, 227, 0.8);
   font-family: var(--display);
@@ -498,6 +498,7 @@ html:not(.is-loading) .transition-screen {
   white-space: nowrap;
   filter: blur(0.1px);
   transform: scaleY(1.04);
+  z-index: 1;
 }
 
 .g-button,
@@ -578,8 +579,24 @@ html:not(.is-loading) .transition-screen {
   right: var(--site-margin);
   bottom: clamp(1.4rem, 5vw, 3.5rem);
   width: min(18rem, calc(100vw - var(--site-margin) * 2));
+  overflow: hidden;
+  z-index: 6;
   border-top: 1px solid var(--line);
   padding-top: 1rem;
+}
+
+.hero-status::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    180deg,
+    rgba(8, 8, 7, 0.86) 0,
+    rgba(8, 8, 7, 0.96) 100%
+  );
+  opacity: 0.96;
+  backdrop-filter: blur(14px);
 }
 
 .status-topline {
@@ -1431,7 +1448,7 @@ a:focus-visible {
   }
 
   .hero-wordmark {
-    bottom: 7rem;
+    bottom: calc(clamp(9.5rem, 18vh, 11rem) + 0.75rem);
     color: rgba(232, 232, 227, 0.58);
     font-size: clamp(4.5rem, 24vw, 7rem);
   }
