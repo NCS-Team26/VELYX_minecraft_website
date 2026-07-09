@@ -1239,13 +1239,77 @@ function initPageNavigation() {
 
 function initAnimationStagger() {
   const animatedGroups = document.querySelectorAll(
-    ".detail-grid, .plugin-grid, .feature-grid, .economy-grid, .market-list, .stock-heading, .stock-ticker, [data-stock-list], .section-dashboard, .rules-list, .rules-tools, .join-steps, .stats-inner, .gallery-strip, .live-facts, .benefit-ledger, .benefit-links, .roster-grid",
+    ".detail-grid, .plugin-grid, .feature-grid, .economy-grid, .market-list, .stock-heading, .stock-ticker, [data-stock-list], .section-dashboard, .rules-list, .rules-tools, .join-steps, .stats-inner, .gallery-strip, .live-facts, .benefit-ledger, .benefit-links, .roster-grid, .poster-copy",
   );
 
   animatedGroups.forEach((group) => {
     Array.from(group.children).forEach((child, index) => {
       child.style.setProperty("--item-index", index);
     });
+  });
+}
+
+function initHomeAtmosphere() {
+  const hero = document.querySelector(".poster-hero");
+  if (!hero) return;
+
+  const title = hero.querySelector(".poster-title h1");
+  if (title && !title.dataset.splitLetters) {
+    const label = title.textContent?.trim() || "";
+    if (label) {
+      title.setAttribute("aria-label", label);
+      title.replaceChildren(
+        ...Array.from(label).map((char, index) => {
+          const span = document.createElement("span");
+          span.textContent = char;
+          span.setAttribute("aria-hidden", "true");
+          span.style.setProperty("--char-index", index);
+          return span;
+        }),
+      );
+      title.dataset.splitLetters = "true";
+    }
+  }
+
+  const clock = hero.querySelector(".poster-clock");
+  if (clock) {
+    const formatter = new Intl.DateTimeFormat("en-GB", {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      timeZone: "Asia/Seoul",
+    });
+    const updateClock = () => {
+      clock.textContent = `KOREA, ${formatter.format(new Date())}`;
+    };
+    updateClock();
+    window.setInterval(updateClock, 1000);
+  }
+
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+  if (reduceMotion || !finePointer) return;
+
+  let frame = 0;
+  let nextX = 0;
+  let nextY = 0;
+  const syncPointer = () => {
+    frame = 0;
+    hero.style.setProperty("--pointer-x", nextX.toFixed(3));
+    hero.style.setProperty("--pointer-y", nextY.toFixed(3));
+  };
+
+  hero.addEventListener("pointermove", (event) => {
+    const rect = hero.getBoundingClientRect();
+    nextX = ((event.clientX - rect.left) / Math.max(rect.width, 1) - 0.5) * 2;
+    nextY = ((event.clientY - rect.top) / Math.max(rect.height, 1) - 0.5) * 2;
+    if (!frame) frame = window.requestAnimationFrame(syncPointer);
+  });
+
+  hero.addEventListener("pointerleave", () => {
+    nextX = 0;
+    nextY = 0;
+    if (!frame) frame = window.requestAnimationFrame(syncPointer);
   });
 }
 
@@ -6678,6 +6742,7 @@ initNav();
 initPageNavigation();
 initStockExchange();
 initAnimationStagger();
+initHomeAtmosphere();
 initUserPosts();
 initScrollReveal();
 initLogin();
