@@ -380,11 +380,11 @@ html:not(.is-loading) .transition-screen {
   align-self: center;
   justify-self: center;
   display: flex;
-  width: min(100%, 34rem);
+  width: min(100%, 36rem);
   flex-direction: column;
   align-items: center;
   margin: 0 auto;
-  padding-top: clamp(1rem, 5vw, 4rem);
+  padding: clamp(0.5rem, 4vw, 3rem) 0 clamp(9rem, 22vh, 13rem);
   text-align: center;
 }
 
@@ -429,19 +429,19 @@ html:not(.is-loading) .transition-screen {
 }
 
 .hero-statement h1 {
-  max-width: 24ch;
+  max-width: 25ch;
   margin: 0;
   font-family: var(--display);
   font-size: clamp(1.35rem, 2.08vw, 1.95rem);
   font-weight: 800;
-  line-height: 1.15;
+  line-height: 1.18;
   text-wrap: balance;
 }
 
 [data-split] .split-char,
 [data-split] .split-word {
   display: inline-block;
-  line-height: 1.15;
+  line-height: inherit;
   vertical-align: baseline;
   transform: translateY(105%);
   opacity: 0;
@@ -488,19 +488,20 @@ html:not(.is-loading) .transition-screen {
   z-index: 2;
   left: var(--site-margin);
   right: var(--site-margin);
-  bottom: calc(clamp(12rem, 24vh, 14rem) + 1.5rem);
+  bottom: calc(clamp(10rem, 21vh, 12.5rem) + 2rem);
   overflow: hidden;
-  color: rgba(232, 232, 227, 0.8);
+  color: rgba(232, 232, 227, 0.58);
   font-family: var(--display);
-  font-size: clamp(7rem, 26vw, 23rem);
+  font-size: clamp(5.4rem, 18vw, 16rem);
   font-weight: 900;
-  line-height: 0.88;
+  line-height: 0.7;
   text-align: center;
   text-transform: uppercase;
   white-space: nowrap;
   filter: blur(0.1px);
   transform: scaleY(1.04);
   z-index: 1;
+  mask-image: linear-gradient(180deg, transparent 0, rgba(0, 0, 0, 0.42) 30%, #000 68%);
 }
 
 .g-button,
@@ -734,7 +735,7 @@ html:not(.is-loading) .transition-screen {
 
 .story-title,
 .section-heading {
-  grid-column: 3 / span 6;
+  grid-column: 3 / span 7;
 }
 
 .story-title h2,
@@ -745,15 +746,15 @@ html:not(.is-loading) .transition-screen {
 .content-section h2 {
   margin: 0;
   font-family: var(--display);
-  font-size: clamp(3.5rem, 8.6vw, 8.2rem);
+  font-size: clamp(3.25rem, 7.4vw, 7.1rem);
   font-weight: 900;
-  line-height: 1.04;
+  line-height: 0.98;
   text-wrap: balance;
   scroll-margin-top: calc(var(--nav-height) + 1.3rem);
 }
 
 .story-copy {
-  grid-column: 9 / span 3;
+  grid-column: 10 / span 3;
   align-self: end;
   color: var(--paper-soft);
 }
@@ -823,9 +824,9 @@ html:not(.is-loading) .transition-screen {
   margin: 0;
   color: var(--paper);
   font-family: var(--display);
-  font-size: clamp(4rem, 11vw, 10.5rem);
+  font-size: clamp(3.8rem, 9.6vw, 9.2rem);
   font-weight: 900;
-  line-height: 1.02;
+  line-height: 0.94;
   text-wrap: balance;
 }
 
