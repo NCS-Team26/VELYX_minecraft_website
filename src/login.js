@@ -1,10 +1,4 @@
 import "./login.css";
-// Auth-only brand layer so the login, inventory, and player dashboard match the public site.
-import "./velyx-auth-redesign.css";
-// Minecraft skin: last-loaded visual layer, shared with the public site.
-import "./velyx-minecraft.css";
-// Final visual frame shared with public pages.
-import "./velyx-sakazuki-frame.css";
 
 const AUTH_STORAGE_KEY = "nfoifsb.googleUser";
 const AUTH_EVENT_KEY = "nfoifsb.authEvent";

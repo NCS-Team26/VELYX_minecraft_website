@@ -1,16 +1,4 @@
 import "./styles.css";
-// Final brand layer: keeps legacy selectors working while giving every page the VELYX visual system.
-import "./velyx-redesign.css";
-// Minecraft skin: last-loaded visual layer, re-skins the site into a pixel/GUI look.
-import "./velyx-minecraft.css";
-// Final visual frame: VELYX-tailored membership stage inspired by modern luxury web direction.
-import "./velyx-sakazuki-frame.css";
-// Stock page only: Bloomberg-style trading terminal skin (scoped to .stock-terminal-body).
-import "./velyx-stock-terminal.css";
-// Small progressive-enhancement flourishes: scroll progress, card spotlight, price tick flash.
-import "./velyx-flourishes.js";
-// Final VELYX agency skin: WebDorks-inspired motion, type, spacing, and dark gloss system.
-import "./velyx-webdorks-system.css";
 
 const SERVER_ADDRESS = "velyx.kr";
 const STATUS_API = `https://api.mcstatus.io/v2/status/java/${SERVER_ADDRESS}`;
