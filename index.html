@@ -5,21 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="VELYX는 채굴, 거래, 주식, 상점, 보호 구역이 하나의 흐름으로 이어지는 Minecraft 경제 야생 서버입니다."
+      content="VELYX는 플레이어의 접속, 노동, 거래, 기록이 하나의 경제권으로 이어지는 Minecraft 서버입니다."
     />
-    <meta name="theme-color" content="#090807" />
+    <meta name="theme-color" content="#080807" />
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="VELYX - 경제 야생 Minecraft 서버" />
+    <meta property="og:title" content="VELYX - Minecraft Economy Realm" />
     <meta
       property="og:description"
-      content="접속을 넘어 연결로 움직이는 프라이빗 경제 렐름. velyx.kr에서 시작하세요."
+      content="접속을 넘어 가치가 남는 Minecraft 경제 렐름. velyx.kr에서 시작하세요."
     />
     <meta property="og:url" content="https://www.velyx.kr/" />
     <meta property="og:locale" content="ko_KR" />
     <meta name="twitter:card" content="summary" />
-    <meta name="twitter:title" content="VELYX - 경제 야생 Minecraft 서버" />
-    <meta name="twitter:description" content="채굴, 거래, 상점, 주식이 이어지는 VELYX 경제 렐름." />
-    <title>VELYX - 경제 야생 Minecraft 서버</title>
+    <meta name="twitter:title" content="VELYX - Minecraft Economy Realm" />
+    <meta name="twitter:description" content="접속, 노동, 거래, 기록이 하나의 경제권으로 이어지는 서버." />
+    <title>VELYX - Minecraft Economy Realm</title>
     <link rel="canonical" href="https://www.velyx.kr/" />
     <link rel="manifest" href="/site.webmanifest" />
     <script>
@@ -34,7 +34,7 @@
         "@type": "WebSite",
         "name": "VELYX",
         "url": "https://www.velyx.kr/",
-        "description": "Minecraft 경제 야생 서버",
+        "description": "Minecraft economy realm",
         "inLanguage": "ko"
       }
     </script>
@@ -83,40 +83,41 @@
 
       <main id="main">
         <section class="hero-home" aria-labelledby="hero-title">
-          <canvas class="hero-field" data-vx-field aria-hidden="true"></canvas>
-          <div class="hero-grid" aria-hidden="true"></div>
-
+          <div class="hero-frame" aria-hidden="true"></div>
           <div class="hero-meta hero-meta-left" data-reveal>
             <span>PRIVATE ECONOMY REALM</span>
-            <span>JAVA · PAPER 26.1.2</span>
+            <span>JAVA / PAPER 26.1.2</span>
           </div>
           <div class="hero-meta hero-meta-right" data-reveal>
             <span>KOREA</span>
             <span data-vx-clock>--:--:--</span>
           </div>
 
-          <div class="hero-title-wrap">
-            <p class="eyebrow" data-reveal>
-              <span></span>
-              Access becomes capital
-            </p>
-            <h1 id="hero-title" data-split="chars">VELYX</h1>
-            <p class="hero-copy" data-reveal>
-              접속으로 끝나는 서버가 아니라, 플레이어의 거래와 선택이 계속 가치로 남는 경제 렐름.
-            </p>
-            <div class="hero-actions" data-reveal>
-              <button class="primary-action" type="button" data-copy-address data-cursor-label="Copy">
-                <span>velyx.kr</span>
-                <i aria-hidden="true">↗</i>
-              </button>
-              <a class="secondary-action" href="/join.html" data-cursor-label="Join">참가 절차</a>
+          <div class="hero-statement">
+            <p class="eyebrow" data-reveal><span></span>Statement-driven realm</p>
+            <h1 id="hero-title" data-split="words">가치는 접속 이후에 생긴다.</h1>
+            <div class="hero-bottom" data-reveal>
+              <p>
+                VELYX는 마인크래프트 서버를 접속 안내 페이지로 포장하지 않습니다. 플레이어의 노동,
+                거래, 소유, 평판이 남는 하나의 경제권으로 다룹니다.
+              </p>
+              <div class="hero-actions">
+                <button class="g-button" type="button" data-copy-address data-cursor-label="Copy">
+                  <span>velyx.kr</span>
+                  <i aria-hidden="true">↗</i>
+                </button>
+                <a class="g-button is-quiet" href="/join.html" data-cursor-label="Join">
+                  <span>Join process</span>
+                  <i aria-hidden="true">→</i>
+                </a>
+              </div>
+              <p class="copy-feedback" data-copy-feedback aria-live="polite">
+                Minecraft Java 멀티플레이 주소에 그대로 입력하세요.
+              </p>
             </div>
-            <p class="copy-feedback" data-copy-feedback aria-live="polite">
-              Minecraft Java 멀티플레이 서버 주소에 그대로 입력하세요.
-            </p>
           </div>
 
-          <div class="hero-status-card status-panel" id="status" data-reveal>
+          <aside class="hero-status status-panel" id="status" data-reveal aria-label="서버 상태 요약">
             <div class="status-topline">
               <span class="status-dot" data-status-dot></span>
               <span data-status-label>상태 확인 중</span>
@@ -125,138 +126,160 @@
             <span class="status-note">현재 접속 / 최대 슬롯</span>
             <div class="meter" aria-hidden="true"><span data-player-meter></span></div>
             <div class="player-heads" data-player-heads hidden aria-label="접속 중인 플레이어"></div>
-          </div>
+          </aside>
         </section>
 
-        <section class="manifesto-section" aria-labelledby="manifesto-title">
-          <div class="section-index" aria-hidden="true">01 / 04</div>
-          <div class="section-heading" data-reveal>
-            <p class="eyebrow"><span></span>Philosophy</p>
-            <h2 id="manifesto-title" data-split="words">Connection, beyond access.</h2>
+        <section class="story-section" aria-labelledby="story-title">
+          <div class="section-index" aria-hidden="true">01</div>
+          <div class="story-kicker" data-reveal>
+            <p class="eyebrow"><span></span>Homepage storytelling</p>
           </div>
-          <div class="manifesto-copy" data-reveal>
+          <div class="story-title" data-reveal>
+            <h2 id="story-title" data-split="words">서버의 첫 화면은 기능표가 아니라 세계관이어야 한다.</h2>
+          </div>
+          <div class="story-copy" data-reveal>
             <p>
-              VELYX는 기능을 나열하는 서버가 아니라, 서로의 노동과 자본이 읽히는 장소입니다. 채굴은
-              공급이 되고, 상점은 신뢰가 되고, 주식은 플레이어가 만든 흐름을 보여주는 지표가 됩니다.
+              Awwwards가 MONOLOG에서 강조한 건 거대한 장식이 아니라 흐름입니다. 한 문장으로 시작하고,
+              그 문장이 섹션을 지날수록 작동 방식, 증거, 행동으로 이어집니다.
             </p>
             <p>
-              MONOLOG의 큰 타이포그래피와 절제된 모션을 VELYX의 경제 감성에 맞춰, 어둡고 정밀한
-              관제실 같은 화면으로 재구성했습니다.
+              VELYX도 같은 방식으로 갑니다. 접속 주소는 마지막 버튼이 아니라, 이 경제권에 들어가는
+              열쇠처럼 다룹니다.
             </p>
           </div>
         </section>
 
-        <section class="monitor-section" aria-labelledby="monitor-title">
-          <div class="section-index" aria-hidden="true">02 / 04</div>
-          <div class="monitor-shell" data-reveal>
-            <div class="monitor-head">
-              <p class="eyebrow"><span></span>Live system</p>
-              <h2 id="monitor-title">Realm diagnostics</h2>
-              <span class="live-pill">Live</span>
-            </div>
-            <div class="monitor-grid">
-              <article>
-                <span>Address</span>
-                <strong>velyx.kr</strong>
-              </article>
-              <article>
-                <span>Version</span>
-                <strong data-version>Paper 26.1.2</strong>
-              </article>
-              <article>
-                <span>Latency</span>
-                <strong data-latency>-- ms</strong>
-              </article>
-              <article>
-                <span>Cache</span>
-                <strong data-cache-state>실시간 확인 준비 중</strong>
-              </article>
-              <article class="wide">
-                <span>Health</span>
-                <strong data-player-summary>--</strong>
-                <p data-status-health>API 응답을 기다리고 있습니다.</p>
-              </article>
-              <article class="wide">
-                <span>Server message</span>
-                <strong>MOTD</strong>
-                <p data-motd>서버 메시지를 불러오고 있습니다.</p>
-              </article>
-              <article class="wide">
-                <span>Last checked</span>
-                <strong data-last-checked>아직 상태 값을 받지 못했습니다.</strong>
-              </article>
-            </div>
-          </div>
-        </section>
-
-        <section class="systems-section" aria-labelledby="systems-title">
-          <div class="section-index" aria-hidden="true">03 / 04</div>
+        <section class="process-section" aria-labelledby="process-title">
+          <div class="section-index" aria-hidden="true">02</div>
           <div class="section-heading" data-reveal>
-            <p class="eyebrow"><span></span>Operating model</p>
-            <h2 id="systems-title" data-split="words">A server economy with a pulse.</h2>
+            <p class="eyebrow"><span></span>Process section</p>
+            <h2 id="process-title" data-split="words">A realm that turns play into record.</h2>
           </div>
-          <div class="system-ledger" data-reveal>
+          <div class="process-list" data-reveal>
             <article>
               <span>01</span>
-              <strong>Trade access</strong>
-              <p>상점, 경매, 직접 거래를 통해 자원을 서버 안의 가격 신호로 바꿉니다.</p>
+              <strong>Enter</strong>
+              <p>접속은 단순 입장이 아니라 신원과 규칙을 받아들이는 첫 단계입니다.</p>
             </article>
             <article>
               <span>02</span>
-              <strong>Protected property</strong>
-              <p>건축과 거점은 보호 규칙 아래 운영되고, 분쟁은 기록을 기반으로 처리합니다.</p>
+              <strong>Move value</strong>
+              <p>채굴, 생산, 교환은 서버 안에서 가격과 평판으로 다시 읽힙니다.</p>
             </article>
             <article>
               <span>03</span>
-              <strong>Market index</strong>
-              <p>주식 화면은 단순 장식이 아니라 플레이어 활동을 읽는 또 하나의 인터페이스입니다.</p>
+              <strong>Protect property</strong>
+              <p>거점과 상점은 보호 규칙 안에서 오래 유지되는 자산이 됩니다.</p>
             </article>
             <article>
               <span>04</span>
-              <strong>Collective growth</strong>
-              <p>개인의 수익이 공동 프로젝트, 이벤트, 서버 보상으로 다시 순환합니다.</p>
+              <strong>Stay visible</strong>
+              <p>상태, 주식, 커뮤니티 기록은 플레이어 활동을 계속 드러냅니다.</p>
             </article>
-          </div>
-          <div class="link-row" data-reveal>
-            <a href="/stock.html" data-cursor-label="Stock">Stock exchange</a>
-            <a href="/plugins.html" data-cursor-label="Economy">Economy system</a>
-            <a href="/rules.html" data-cursor-label="Rules">Rules</a>
           </div>
         </section>
 
-        <div class="ticker" aria-hidden="true">
-          <div class="ticker-track">
-            <span>MINING</span><i></i><span>TRADE</span><i></i><span>AUCTION</span><i></i><span>LAND CLAIM</span><i></i><span>STOCK MARKET</span><i></i><span>PLAYER SHOPS</span><i></i>
-            <span>MINING</span><i></i><span>TRADE</span><i></i><span>AUCTION</span><i></i><span>LAND CLAIM</span><i></i><span>STOCK MARKET</span><i></i><span>PLAYER SHOPS</span><i></i>
+        <section class="works-section" aria-labelledby="works-title">
+          <div class="section-index" aria-hidden="true">03</div>
+          <div class="section-heading" data-reveal>
+            <p class="eyebrow"><span></span>Works gallery</p>
+            <h2 id="works-title" data-split="words">Interfaces as evidence.</h2>
           </div>
-        </div>
+          <div class="works-list" data-reveal>
+            <a href="/status.html" data-cursor-label="Status">
+              <span>01</span>
+              <strong>Live status</strong>
+              <p data-player-summary>서버 상태를 불러오는 중입니다.</p>
+              <i aria-hidden="true">→</i>
+            </a>
+            <a href="/stock.html" data-cursor-label="Stock">
+              <span>02</span>
+              <strong>Stock exchange</strong>
+              <p>플레이어 활동이 시장 화면으로 번역되는 실험적인 경제 인터페이스.</p>
+              <i aria-hidden="true">→</i>
+            </a>
+            <a href="/plugins.html" data-cursor-label="Economy">
+              <span>03</span>
+              <strong>Economy system</strong>
+              <p>상점, 경매, 보호, 거래가 서버의 운영 규칙으로 연결됩니다.</p>
+              <i aria-hidden="true">→</i>
+            </a>
+            <a href="/community.html" data-cursor-label="Community">
+              <span>04</span>
+              <strong>Community board</strong>
+              <p>공지와 기록이 서버의 기억을 만듭니다.</p>
+              <i aria-hidden="true">→</i>
+            </a>
+          </div>
+        </section>
 
-        <section class="join-section" id="join" aria-labelledby="join-title">
-          <div class="section-index" aria-hidden="true">04 / 04</div>
-          <div class="join-layout" data-reveal>
-            <div>
-              <p class="eyebrow"><span></span>Access key</p>
-              <h2 id="join-title" data-split="words">Provision access.</h2>
+        <section class="diagnostic-section" aria-labelledby="diagnostic-title">
+          <div class="section-index" aria-hidden="true">04</div>
+          <div class="section-heading" data-reveal>
+            <p class="eyebrow"><span></span>Usability proof</p>
+            <h2 id="diagnostic-title" data-split="words">Live information, held quietly.</h2>
+          </div>
+          <div class="diagnostic-grid" data-reveal>
+            <article>
+              <span>Address</span>
+              <strong>velyx.kr</strong>
+            </article>
+            <article>
+              <span>Version</span>
+              <strong data-version>Paper 26.1.2</strong>
+            </article>
+            <article>
+              <span>Latency</span>
+              <strong data-latency>-- ms</strong>
+            </article>
+            <article>
+              <span>Cache</span>
+              <strong data-cache-state>실시간 확인 준비 중</strong>
+            </article>
+            <article class="wide">
+              <span>Health</span>
+              <strong data-status-health>API 응답을 기다리고 있습니다.</strong>
+            </article>
+            <article class="wide">
+              <span>Message</span>
+              <strong data-motd>서버 메시지를 불러오고 있습니다.</strong>
+            </article>
+            <article class="wide">
+              <span>Last checked</span>
+              <strong data-last-checked>아직 상태 값을 받지 못했습니다.</strong>
+            </article>
+          </div>
+        </section>
+
+        <section class="cinematic-cta" id="join" aria-labelledby="join-title">
+          <p class="eyebrow" data-reveal><span></span>Cinematic call to action</p>
+          <h2 id="join-title" data-split="words">Refuse to be undervalued.</h2>
+          <div class="cta-row" data-reveal>
+            <p>서버 주소는 짧지만, 들어온 뒤 남는 기록은 길어야 합니다.</p>
+            <div class="address-row">
+              <code>velyx.kr</code>
+              <button class="g-button" type="button" data-copy-address data-cursor-label="Copy">
+                <span>Copy address</span>
+                <i aria-hidden="true">↗</i>
+              </button>
             </div>
-            <div class="access-panel">
-              <span>Java realm address</span>
-              <div class="address-row">
-                <code>velyx.kr</code>
-                <button type="button" data-copy-address data-cursor-label="Copy">Copy</button>
-              </div>
-              <a class="join-login-gate" href="/login.html" data-login-gate hidden>로그인 후 접속 키를 확인하세요.</a>
-              <p>서버 주소를 복사하고, 규칙을 확인한 뒤 렐름에 들어오면 경제가 시작됩니다.</p>
-            </div>
+            <a class="join-login-gate" href="/login.html" data-login-gate hidden>로그인 후 접속 키를 확인하세요.</a>
           </div>
         </section>
       </main>
 
       <footer class="site-footer">
-        <div>
-          <span class="footer-wordmark">VELYX</span>
-          <span>Private economy realm · Korea</span>
+        <div class="footer-top">
+          <span>VELYX</span>
+          <span>PRIVATE ECONOMY REALM</span>
         </div>
-        <a href="#main" data-cursor-label="Top">Back to top</a>
+        <div class="footer-middle">
+          <strong>Connection, beyond access.</strong>
+        </div>
+        <div class="footer-bottom">
+          <span>Paper 26.1.2 / Korea</span>
+          <a href="#main" data-cursor-label="Top">Back to top</a>
+        </div>
       </footer>
     </div>
 
