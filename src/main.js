@@ -156,36 +156,11 @@ const STOCK_MARKET_VOLATILITY_PROFILE = {
 const FINANCIAL_PERIOD_COUNT = 4;
 const FINANCIAL_QUARTER_SEASONALITY = [0.94, 1.0, 1.02, 1.08];
 const STOCK_NEWS_IMAGES = {
-  DMD: [
-    { src: "/assets/stock-news-dmd.webp", position: "46% 50%" },
-    { src: "/assets/stock-news-dmd.webp", position: "18% 48%" },
-    { src: "/assets/stock-news-dmd.webp", position: "64% 42%" },
-    { src: "/assets/stock-news-dmd.webp", position: "78% 56%" },
-  ],
-  FARM: [
-    { src: "/assets/stock-news-farm.webp", position: "48% 50%" },
-    { src: "/assets/stock-news-farm.webp", position: "20% 58%" },
-    { src: "/assets/stock-news-farm.webp", position: "62% 42%" },
-    { src: "/assets/stock-news-farm.webp", position: "82% 54%" },
-  ],
-  LOG: [
-    { src: "/assets/stock-news-log.webp", position: "50% 50%" },
-    { src: "/assets/stock-news-log.webp", position: "18% 54%" },
-    { src: "/assets/stock-news-log.webp", position: "68% 48%" },
-    { src: "/assets/stock-news-log.webp", position: "86% 40%" },
-  ],
-  RED: [
-    { src: "/assets/stock-news-red.webp", position: "52% 50%" },
-    { src: "/assets/stock-news-red.webp", position: "16% 48%" },
-    { src: "/assets/stock-news-red.webp", position: "66% 50%" },
-    { src: "/assets/stock-news-red.webp", position: "84% 46%" },
-  ],
-  DEFAULT: [
-    { src: "/assets/hero-world-1920.jpg", position: "50% 45%" },
-    { src: "/assets/hero-world-960.jpg", position: "18% 42%" },
-    { src: "/assets/hero-world-1920.jpg", position: "72% 52%" },
-    { src: "/assets/hero-world-1920.jpg", position: "82% 38%" },
-  ],
+  DMD: [{ position: "46% 50%" }, { position: "18% 48%" }, { position: "64% 42%" }, { position: "78% 56%" }],
+  FARM: [{ position: "48% 50%" }, { position: "20% 58%" }, { position: "62% 42%" }, { position: "82% 54%" }],
+  LOG: [{ position: "50% 50%" }, { position: "18% 54%" }, { position: "68% 48%" }, { position: "86% 40%" }],
+  RED: [{ position: "52% 50%" }, { position: "16% 48%" }, { position: "66% 50%" }, { position: "84% 46%" }],
+  DEFAULT: [{ position: "50% 45%" }, { position: "18% 42%" }, { position: "72% 52%" }, { position: "82% 38%" }],
 };
 const STOCK_NEWS_SCENE_THEMES = {
   DMD: {
@@ -2944,32 +2919,40 @@ function stockNewsDrawMarketHud(ctx, theme, imageData, rng, width, height) {
   ctx.restore();
 }
 
+function stockNewsPlaceholderDataUrl(imageData, theme) {
+  const accent = imageData.tone === "bad" ? "#ff5b45" : imageData.tone === "good" ? theme.accent : "#76a8ff";
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900"><rect width="1600" height="900" fill="${theme.sky}"/><path d="M0 650H1600V900H0Z" fill="${theme.groundDark}"/><path d="M120 620H420V900H120Z" fill="${theme.ground}"/><path d="M520 500H760V900H520Z" fill="${theme.groundLight}"/><path d="M900 560H1260V900H900Z" fill="${theme.ground}"/><path d="M0 760C260 660 420 800 650 700C910 588 1080 720 1600 610V900H0Z" fill="${accent}" opacity=".28"/><g fill="none" stroke="#f4efe5" stroke-opacity=".28"><path d="M0 180H1600M0 360H1600M0 540H1600M200 0V900M400 0V900M600 0V900M800 0V900M1000 0V900M1200 0V900M1400 0V900"/></g></svg>`;
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+}
+
 function buildGeneratedStockNewsImage(article, context, index) {
   const { code, name, week, topic, seed } = context;
   const theme = stockNewsSceneTheme(code);
   const fallbackImages = stockNewsImagesFor(code);
   const fallback = fallbackImages[index % fallbackImages.length];
   const imageSeed = `${seed}:${index}:${article.title}:${article.tone}`;
-  return {
-    src: fallback?.src || "/assets/hero-world-1920.jpg",
-    baseSrc: fallback?.src || "/assets/hero-world-1920.jpg",
+  const imageData = {
     position: fallback?.position || "50% 50%",
-    key: `${imageSeed}:${fallback?.src || "fallback"}`,
+    key: `${imageSeed}:generated`,
     seed: imageSeed,
     code,
     tone: article.tone,
     visualType: ["lead", "orderbook", "financial", "briefing"][index % 4],
     generated: true,
-    fallback: fallback?.src || "/assets/hero-world-1920.jpg",
     description: `${week.label} ${name} ${topic} ${article.tag} Minecraft-style generated image`,
+  };
+  return {
+    ...imageData,
+    src: stockNewsPlaceholderDataUrl(imageData, theme),
+    fallback: stockNewsPlaceholderDataUrl(imageData, theme),
   };
 }
 
 async function generateStockNewsComposite(imageData) {
-  if (!imageData?.generated || !imageData.baseSrc) return imageData?.src || "";
+  if (!imageData?.generated) return imageData?.src || "";
   if (stockNewsCompositeCache.has(imageData.key)) return stockNewsCompositeCache.get(imageData.key);
-  const promise = stockNewsLoadSourceImage(imageData.baseSrc)
-    .then((source) => {
+  const promise = Promise.resolve()
+    .then(() => {
       const width = 1600;
       const height = 900;
       const canvas = document.createElement("canvas");
@@ -2978,9 +2961,29 @@ async function generateStockNewsComposite(imageData) {
       const ctx = canvas.getContext("2d", { alpha: false });
       const theme = stockNewsSceneTheme(imageData.code);
       const rng = stockNewsRng(imageData.seed);
+      const sky = ctx.createLinearGradient(0, 0, 0, height);
+      sky.addColorStop(0, theme.sky);
+      sky.addColorStop(0.46, theme.horizon);
+      sky.addColorStop(1, theme.groundDark);
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = "high";
-      stockNewsDrawCover(ctx, source, width, height, imageData.position);
+      ctx.fillStyle = sky;
+      ctx.fillRect(0, 0, width, height);
+      ctx.fillStyle = theme.ground;
+      for (let i = 0; i < 26; i += 1) {
+        const blockWidth = stockNewsRange(imageData.seed, 930 + i, 42, 140);
+        const blockHeight = stockNewsRange(imageData.seed, 960 + i, 68, 340);
+        const x = stockNewsRange(imageData.seed, 990 + i, -80, width - 40);
+        const y = height - blockHeight - stockNewsRange(imageData.seed, 1020 + i, 0, 90);
+        ctx.globalAlpha = stockNewsRange(imageData.seed, 1050 + i, 0.28, 0.72);
+        ctx.fillRect(
+          Math.round(x / 16) * 16,
+          Math.round(y / 16) * 16,
+          Math.round(blockWidth / 16) * 16,
+          Math.round(blockHeight / 16) * 16,
+        );
+      }
+      ctx.globalAlpha = 1;
       stockNewsDrawColorGrade(ctx, theme, imageData, rng, width, height);
       stockNewsDrawTopicDetails(ctx, theme, imageData, rng, width, height);
       stockNewsDrawMarketHud(ctx, theme, imageData, rng, width, height);
@@ -6669,16 +6672,245 @@ function initUserPosts() {
   });
 }
 
+function initResponsiveNav() {
+  const nav = document.querySelector(".site-nav");
+  const toggle = document.querySelector("[data-nav-toggle]");
+  const links = document.querySelector(".nav-links");
+  if (!nav || !toggle || !links) return;
+
+  const setOpen = (open) => {
+    nav.classList.toggle("nav-open", open);
+    document.body.classList.toggle("nav-locked", open);
+    toggle.setAttribute("aria-expanded", String(open));
+    toggle.setAttribute("aria-label", open ? "메뉴 닫기" : "메뉴 열기");
+  };
+
+  toggle.addEventListener("click", () => setOpen(!nav.classList.contains("nav-open")));
+  links.addEventListener("click", (event) => {
+    if (event.target.closest("a")) setOpen(false);
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") setOpen(false);
+  });
+  document.addEventListener("click", (event) => {
+    if (!nav.contains(event.target)) setOpen(false);
+  });
+  setOpen(false);
+}
+
+function initLoadingWipe() {
+  const release = () => {
+    document.documentElement.classList.remove("is-loading");
+    window.setTimeout(() => document.querySelector(".transition-screen")?.remove(), 1200);
+  };
+  if (document.readyState === "complete") window.setTimeout(release, 80);
+  else window.addEventListener("load", () => window.setTimeout(release, 80), { once: true });
+}
+
+function initSplitText() {
+  document.querySelectorAll("[data-split]").forEach((target) => {
+    const mode = target.dataset.split || "words";
+    const text = target.textContent || "";
+    if (!text.trim()) return;
+    target.setAttribute("aria-label", text.trim());
+
+    if (mode === "chars") {
+      target.replaceChildren(
+        ...Array.from(text).map((char, index) => {
+          const span = document.createElement("span");
+          span.className = "split-char";
+          span.style.setProperty("--split-index", String(index));
+          span.setAttribute("aria-hidden", "true");
+          span.textContent = char === " " ? "\u00a0" : char;
+          return span;
+        }),
+      );
+      return;
+    }
+
+    const nodes = [];
+    let wordIndex = 0;
+    text.split(/(\s+)/).forEach((part) => {
+      if (!part) return;
+      if (/^\s+$/.test(part)) {
+        nodes.push(document.createTextNode(part));
+        return;
+      }
+      const span = document.createElement("span");
+      span.className = "split-word";
+      span.style.setProperty("--split-index", String(wordIndex));
+      span.setAttribute("aria-hidden", "true");
+      span.textContent = part;
+      nodes.push(span);
+      wordIndex += 1;
+    });
+    target.replaceChildren(...nodes);
+  });
+}
+
+function initVelyxClock() {
+  const targets = document.querySelectorAll("[data-vx-clock]");
+  if (!targets.length) return;
+  const formatter = new Intl.DateTimeFormat("ko-KR", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    timeZone: "Asia/Seoul",
+  });
+  const render = () => {
+    const value = formatter.format(new Date());
+    targets.forEach((target) => {
+      target.textContent = value;
+    });
+  };
+  render();
+  window.setInterval(render, 1000);
+}
+
+function initVelyxCursor() {
+  const cursor = document.querySelector("[data-vx-cursor]");
+  const label = cursor?.querySelector("[data-vx-cursor-text]");
+  const canHover = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+  if (!cursor || !label || !canHover) return;
+
+  let x = window.innerWidth / 2;
+  let y = window.innerHeight / 2;
+  let targetX = x;
+  let targetY = y;
+
+  const move = () => {
+    x += (targetX - x) * 0.2;
+    y += (targetY - y) * 0.2;
+    cursor.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)`;
+    window.requestAnimationFrame(move);
+  };
+
+  window.addEventListener("pointermove", (event) => {
+    targetX = event.clientX;
+    targetY = event.clientY;
+  });
+
+  document.querySelectorAll("[data-cursor-label], a, button").forEach((element) => {
+    element.addEventListener("pointerenter", () => {
+      label.textContent = element.dataset.cursorLabel || element.getAttribute("aria-label") || "Open";
+      cursor.classList.add("is-active");
+    });
+    element.addEventListener("pointerleave", () => cursor.classList.remove("is-active"));
+  });
+
+  move();
+}
+
+function initVelyxField() {
+  const canvas = document.querySelector("[data-vx-field]");
+  if (!(canvas instanceof HTMLCanvasElement)) return;
+  const ctx = canvas.getContext("2d");
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let width = 0;
+  let height = 0;
+  let pixelRatio = 1;
+  let frame = 0;
+  let raf = 0;
+
+  const resize = () => {
+    const rect = canvas.getBoundingClientRect();
+    pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+    width = Math.max(1, Math.floor(rect.width));
+    height = Math.max(1, Math.floor(rect.height));
+    canvas.width = Math.floor(width * pixelRatio);
+    canvas.height = Math.floor(height * pixelRatio);
+    ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+  };
+
+  const draw = () => {
+    frame += reduceMotion ? 0 : 1;
+    ctx.clearRect(0, 0, width, height);
+
+    const gradient = ctx.createLinearGradient(0, 0, 0, height);
+    gradient.addColorStop(0, "#17110f");
+    gradient.addColorStop(0.52, "#090807");
+    gradient.addColorStop(1, "#030303");
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, width, height);
+
+    const cell = Math.max(42, Math.min(86, width / 15));
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = "rgba(244,239,229,0.08)";
+    for (let x = (frame * 0.18) % cell; x < width; x += cell) {
+      ctx.beginPath();
+      ctx.moveTo(Math.round(x), 0);
+      ctx.lineTo(Math.round(x), height);
+      ctx.stroke();
+    }
+    for (let y = 0; y < height; y += cell) {
+      ctx.beginPath();
+      ctx.moveTo(0, Math.round(y));
+      ctx.lineTo(width, Math.round(y));
+      ctx.stroke();
+    }
+
+    const columns = Math.ceil(width / cell) + 2;
+    for (let i = 0; i < columns; i += 1) {
+      const blockHeight = ((i * 73) % 260) + 70;
+      const blockWidth = cell * (((i * 5) % 3) + 1);
+      const x = i * cell - ((frame * 0.09) % cell);
+      const y = height - blockHeight - ((i * 19) % 90);
+      ctx.fillStyle = i % 4 === 0 ? "rgba(255,91,69,0.28)" : i % 3 === 0 ? "rgba(87,214,141,0.18)" : "rgba(244,239,229,0.09)";
+      ctx.fillRect(Math.round(x), Math.round(y), Math.round(blockWidth), Math.round(blockHeight));
+    }
+
+    const points = 32;
+    ctx.strokeStyle = "rgba(244,239,229,0.58)";
+    ctx.lineWidth = 1.4;
+    ctx.beginPath();
+    for (let i = 0; i < points; i += 1) {
+      const progress = i / (points - 1);
+      const x = progress * width;
+      const y = height * 0.52 + Math.sin(progress * Math.PI * 4 + frame * 0.018) * height * 0.08 - progress * height * 0.16;
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+
+    ctx.fillStyle = "rgba(244,239,229,0.82)";
+    for (let i = 0; i < points; i += 4) {
+      const progress = i / (points - 1);
+      const x = progress * width;
+      const y = height * 0.52 + Math.sin(progress * Math.PI * 4 + frame * 0.018) * height * 0.08 - progress * height * 0.16;
+      ctx.fillRect(Math.round(x) - 2, Math.round(y) - 2, 4, 4);
+    }
+
+    if (!reduceMotion) raf = window.requestAnimationFrame(draw);
+  };
+
+  resize();
+  draw();
+  window.addEventListener("resize", () => {
+    window.cancelAnimationFrame(raf);
+    resize();
+    draw();
+  });
+}
+
+function initVelyxMotionShell() {
+  initLoadingWipe();
+  initSplitText();
+  initVelyxClock();
+  initVelyxCursor();
+  initVelyxField();
+}
+
 document.querySelectorAll("[data-copy-address]").forEach((button) => {
   button.addEventListener("click", copyAddress);
 });
 
 initTheme();
-initNav();
+initResponsiveNav();
 initPageNavigation();
 initStockExchange();
 initAnimationStagger();
 initUserPosts();
+initVelyxMotionShell();
 initScrollReveal();
 initLogin();
 deferSceneLoad();
