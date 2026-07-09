@@ -434,13 +434,15 @@ html:not(.is-loading) .transition-screen {
   font-family: var(--display);
   font-size: clamp(1.35rem, 2.08vw, 1.95rem);
   font-weight: 800;
-  line-height: 1.08;
+  line-height: 1.15;
   text-wrap: balance;
 }
 
 [data-split] .split-char,
 [data-split] .split-word {
   display: inline-block;
+  line-height: 1.15;
+  vertical-align: baseline;
   transform: translateY(105%);
   opacity: 0;
   animation: split-rise 1.05s var(--ease) forwards;
@@ -492,7 +494,7 @@ html:not(.is-loading) .transition-screen {
   font-family: var(--display);
   font-size: clamp(7rem, 26vw, 23rem);
   font-weight: 900;
-  line-height: 0.72;
+  line-height: 0.88;
   text-align: center;
   text-transform: uppercase;
   white-space: nowrap;
@@ -717,7 +719,7 @@ html:not(.is-loading) .transition-screen {
   font-family: var(--display);
   font-size: clamp(2.3rem, 5vw, 4.5rem);
   font-weight: 900;
-  line-height: 0.86;
+  line-height: 1.08;
 }
 
 .story-stats span {
@@ -745,7 +747,7 @@ html:not(.is-loading) .transition-screen {
   font-family: var(--display);
   font-size: clamp(3.5rem, 8.6vw, 8.2rem);
   font-weight: 900;
-  line-height: 0.86;
+  line-height: 1.04;
   text-wrap: balance;
   scroll-margin-top: calc(var(--nav-height) + 1.3rem);
 }
@@ -823,7 +825,7 @@ html:not(.is-loading) .transition-screen {
   font-family: var(--display);
   font-size: clamp(4rem, 11vw, 10.5rem);
   font-weight: 900;
-  line-height: 0.78;
+  line-height: 1.02;
   text-wrap: balance;
 }
 
