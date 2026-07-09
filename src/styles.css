@@ -9762,12 +9762,12 @@ body.stock-chart-settings-open {
 .home-page-body .poster-media canvas {
   opacity: 1;
   filter:
-    saturate(2.65)
-    contrast(1.48)
-    brightness(1.72)
-    drop-shadow(0 0 30px rgba(171, 86, 255, 0.58))
-    drop-shadow(0 0 86px rgba(141, 69, 255, 0.34));
-  mix-blend-mode: hard-light;
+    saturate(2.35)
+    contrast(1.34)
+    brightness(1.54)
+    drop-shadow(0 0 26px rgba(214, 166, 255, 0.46))
+    drop-shadow(0 0 78px rgba(141, 69, 255, 0.32));
+  mix-blend-mode: screen;
   transform: scale(1.035);
 }
 
@@ -9837,15 +9837,15 @@ body.stock-chart-settings-open {
 .home-page-body .mono-hero-glyph {
   top: clamp(188px, 28svh, 260px);
   z-index: 3;
-  width: clamp(182px, 18vw, 286px);
-  height: clamp(132px, 13vw, 206px);
+  width: clamp(184px, 17.4vw, 274px);
+  height: clamp(168px, 15.9vw, 252px);
   border: 0;
   border-radius: 0;
   filter:
-    drop-shadow(0 0 12px rgba(245, 232, 255, 0.4))
-    drop-shadow(0 0 32px rgba(141, 69, 255, 0.38));
+    drop-shadow(0 0 9px rgba(245, 232, 255, 0.38))
+    drop-shadow(0 0 24px rgba(141, 69, 255, 0.34));
   mix-blend-mode: screen;
-  opacity: 0.8;
+  opacity: 0.72;
   animation: velyx-orbit-breathe 3.6s ease-in-out infinite;
 }
 
@@ -9859,12 +9859,13 @@ body.stock-chart-settings-open {
   height: 100%;
   object-fit: contain;
   object-position: center;
+  image-rendering: auto;
   filter:
-    saturate(1.18)
-    contrast(1.08)
-    brightness(1.24)
-    drop-shadow(0 0 8px rgba(245, 232, 255, 0.42))
-    drop-shadow(0 0 22px rgba(192, 122, 255, 0.4));
+    saturate(1.28)
+    contrast(1.18)
+    brightness(1.16)
+    drop-shadow(0 0 6px rgba(245, 232, 255, 0.36))
+    drop-shadow(0 0 18px rgba(192, 122, 255, 0.34));
 }
 
 .home-page-body .poster-edge-label,
@@ -10060,11 +10061,11 @@ body.stock-chart-settings-open {
 
   .home-page-body .poster-media canvas {
     filter:
-      saturate(2.15)
-      contrast(1.28)
-      brightness(1.46)
-      drop-shadow(0 0 22px rgba(171, 86, 255, 0.44));
-    mix-blend-mode: hard-light;
+      saturate(2.1)
+      contrast(1.22)
+      brightness(1.38)
+      drop-shadow(0 0 20px rgba(214, 166, 255, 0.38));
+    mix-blend-mode: screen;
     transform: scale(1.02);
   }
 
@@ -10075,8 +10076,8 @@ body.stock-chart-settings-open {
 
   .home-page-body .mono-hero-glyph {
     top: 34svh;
-    width: 178px;
-    height: 130px;
+    width: 160px;
+    height: 148px;
   }
 }
 

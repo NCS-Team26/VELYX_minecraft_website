@@ -43,14 +43,16 @@ function createEnvironmentTexture() {
   context.fillStyle = sky;
   context.fillRect(0, 0, canvas.width, canvas.height);
 
-  for (let i = 0; i < 14; i += 1) {
+  for (let i = 0; i < 18; i += 1) {
     const y = 54 + i * 31;
     const glow = context.createLinearGradient(0, y, canvas.width, y + 40);
     glow.addColorStop(0, "rgba(255,255,255,0)");
-    glow.addColorStop(0.48, i % 2 ? "rgba(163,79,255,0.34)" : "rgba(255,255,255,0.42)");
+    glow.addColorStop(0.35, i % 3 ? "rgba(92,222,255,0.18)" : "rgba(255,255,255,0.38)");
+    glow.addColorStop(0.52, i % 2 ? "rgba(163,79,255,0.42)" : "rgba(255,255,255,0.48)");
+    glow.addColorStop(0.68, "rgba(255,114,216,0.18)");
     glow.addColorStop(1, "rgba(255,255,255,0)");
     context.fillStyle = glow;
-    context.fillRect(0, y, canvas.width, 18);
+    context.fillRect(0, y, canvas.width, 14);
   }
 
   const texture = new THREE.CanvasTexture(canvas);
@@ -87,6 +89,7 @@ function createPrismaticGlassMaterial(options = {}) {
     refractPower = 0.13,
     chromaticAberration = 0.58,
     saturation = 1.22,
+    edgeBoost = 1.0,
   } = options;
 
   return new THREE.ShaderMaterial({
@@ -101,6 +104,7 @@ function createPrismaticGlassMaterial(options = {}) {
       uRefractPower: { value: refractPower },
       uChromaticAberration: { value: chromaticAberration },
       uSaturation: { value: saturation },
+      uEdgeBoost: { value: edgeBoost },
       uLight: { value: new THREE.Vector3(-1.8, -0.5, -5).normalize() },
     },
     vertexShader: `
@@ -127,6 +131,7 @@ function createPrismaticGlassMaterial(options = {}) {
       uniform float uRefractPower;
       uniform float uChromaticAberration;
       uniform float uSaturation;
+      uniform float uEdgeBoost;
       uniform vec3 uLight;
 
       varying vec3 vWorldNormal;
@@ -156,7 +161,11 @@ function createPrismaticGlassMaterial(options = {}) {
         vec2 uv = gl_FragCoord.xy / max(uResolution.xy, vec2(1.0));
         vec3 normal = normalize(vWorldNormal);
         vec3 eyeVector = normalize(vEyeVector);
-        vec2 wobble = normal.xy * 0.012 + vec2(sin(uTime * 0.34), cos(uTime * 0.27)) * 0.002;
+        float flowA = sin(vWorldPosition.x * 4.7 + vWorldPosition.y * 6.1 + uTime * 0.74);
+        float flowB = sin(vWorldPosition.y * 5.3 - vWorldPosition.z * 3.9 - uTime * 0.62);
+        float flowC = sin((vWorldPosition.x - vWorldPosition.y) * 8.4 + uTime * 1.12);
+        vec2 liquidLens = vec2(flowA + flowC * 0.35, flowB - flowC * 0.24) * 0.0065;
+        vec2 wobble = normal.xy * 0.016 + liquidLens + vec2(sin(uTime * 0.34), cos(uTime * 0.27)) * 0.002;
         vec3 refractR = refract(eyeVector, normal, 1.0 / 1.15);
         vec3 refractG = refract(eyeVector, normal, 1.0 / 1.2);
         vec3 refractB = refract(eyeVector, normal, 1.0 / 1.36);
@@ -172,12 +181,19 @@ function createPrismaticGlassMaterial(options = {}) {
 
         float rim = fresnel(eyeVector, normal, uFresnelPower);
         float shine = specularTerm(eyeVector, normal);
-        vec3 glass = mix(uBaseColor * 0.5, prismatic + uTintColor * 0.24, 0.78);
-        glass += vec3(rim) * 1.35;
-        glass += vec3(shine) * 0.72;
-        glass += uTintColor * (0.18 + rim * 0.36);
+        float caustic = pow(max(0.0, flowA * 0.5 + flowB * 0.34 + flowC * 0.28), 3.0);
+        float spectralEdge = smoothstep(0.12, 0.92, rim) * uEdgeBoost;
+        vec3 spectral = vec3(0.34, 0.86, 1.0) * spectralEdge * 0.28;
+        spectral += vec3(1.0, 0.18, 0.86) * pow(spectralEdge, 1.4) * 0.34;
 
-        float alpha = clamp(uAlpha * (0.58 + rim * 0.34 + shine * 0.12), 0.45, 0.96);
+        vec3 glass = mix(uBaseColor * 0.36, prismatic + uTintColor * 0.18, 0.82);
+        glass += vec3(rim) * (1.05 + uEdgeBoost * 0.32);
+        glass += vec3(shine) * 0.84;
+        glass += spectral;
+        glass += (uBaseColor * 0.58 + uTintColor * 0.42) * caustic * 0.38;
+        glass += uTintColor * (0.1 + rim * 0.24);
+
+        float alpha = clamp(uAlpha * (0.42 + rim * 0.46 + shine * 0.18 + caustic * 0.1), 0.34, 0.94);
         gl_FragColor = vec4(glass, alpha);
       }
     `,
@@ -385,12 +401,12 @@ function createStarShape() {
 
 function createNcsStar(lowPower, sheenTexture, glowTexture, glassMaterial) {
   const geometry = new THREE.ExtrudeGeometry(createStarShape(), {
-    depth: lowPower ? 0.32 : 0.46,
+    depth: lowPower ? 0.38 : 0.56,
     bevelEnabled: true,
-    bevelSegments: lowPower ? 3 : 8,
-    bevelSize: 0.105,
-    bevelThickness: 0.11,
-    curveSegments: lowPower ? 10 : 22,
+    bevelSegments: lowPower ? 5 : 12,
+    bevelSize: 0.095,
+    bevelThickness: 0.16,
+    curveSegments: lowPower ? 12 : 28,
   });
   geometry.center();
   geometry.computeVertexNormals();
@@ -400,7 +416,7 @@ function createNcsStar(lowPower, sheenTexture, glowTexture, glassMaterial) {
     geometry,
     glassMaterial || createLiquidGlassMaterial(0xfffbff, 0xa240ff, 0.9),
   );
-  const innerColor = createLightMaterial(0x8b32ff, 0.22);
+  const innerColor = createLightMaterial(0x8b32ff, 0.14);
   const innerGlow = new THREE.Mesh(new THREE.ShapeGeometry(createStarShape()), innerColor);
   innerGlow.position.z = 0.26;
   innerGlow.scale.set(0.985, 0.985, 1);
@@ -410,15 +426,25 @@ function createNcsStar(lowPower, sheenTexture, glowTexture, glassMaterial) {
     new THREE.LineBasicMaterial({
       color: 0xf4e7ff,
       transparent: true,
-      opacity: 0.94,
+      opacity: 0.72,
+      blending: THREE.AdditiveBlending,
+      toneMapped: false,
+    }),
+  );
+  const spectralEdge = new THREE.LineSegments(
+    new THREE.EdgesGeometry(geometry, 28),
+    new THREE.LineBasicMaterial({
+      color: 0xc07aff,
+      transparent: true,
+      opacity: 0.28,
       blending: THREE.AdditiveBlending,
       toneMapped: false,
     }),
   );
 
-  star.add(innerGlow, shell, edge);
+  star.add(innerGlow, shell, edge, spectralEdge);
 
-  const highlightMaterial = createLightMaterial(0xffffff, 0.92);
+  const highlightMaterial = createLightMaterial(0xffffff, 0.74);
   const highlightSpecs = [
     [[-3.1, 0.03], [-0.65, 0.2], [0.1, 0.1]],
     [[0.18, 0.18], [0.72, 2.58], [0.5, 0.18]],
@@ -452,7 +478,7 @@ function createNcsStar(lowPower, sheenTexture, glowTexture, glassMaterial) {
       0.22,
       new THREE.Vector3(-0.84, 0.2, 0.38),
       new THREE.Vector3(0.08, -0.18, -0.08),
-      0.42,
+      0.5,
     ),
     createGlassReflection(
       sheenTexture,
@@ -460,7 +486,7 @@ function createNcsStar(lowPower, sheenTexture, glowTexture, glassMaterial) {
       0.16,
       new THREE.Vector3(0.42, 1.12, 0.42),
       new THREE.Vector3(0.14, -0.22, 1.2),
-      0.34,
+      0.42,
     ),
     createGlassReflection(
       sheenTexture,
@@ -468,7 +494,7 @@ function createNcsStar(lowPower, sheenTexture, glowTexture, glassMaterial) {
       0.18,
       new THREE.Vector3(0.58, -0.72, 0.4),
       new THREE.Vector3(0.16, -0.18, -1.1),
-      0.32,
+      0.38,
     ),
   ];
   reflections.forEach((reflection) => star.add(reflection));
@@ -531,7 +557,9 @@ function createGlassCube(size, position, rotation, glassMaterial) {
     new THREE.LineBasicMaterial({
       color: 0xf9eaff,
       transparent: true,
-      opacity: 0.52,
+      opacity: 0.72,
+      blending: THREE.AdditiveBlending,
+      toneMapped: false,
     }),
   );
   const shine = new THREE.Mesh(
@@ -541,8 +569,23 @@ function createGlassCube(size, position, rotation, glassMaterial) {
   shine.position.z = size * 0.52;
   shine.rotation.z = -0.7;
   shine.position.y = size * 0.16;
+  const diagonal = new THREE.LineSegments(
+    new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(-size * 0.37, -size * 0.35, size * 0.535),
+      new THREE.Vector3(size * 0.35, size * 0.35, size * 0.535),
+      new THREE.Vector3(-size * 0.35, size * 0.36, size * 0.535),
+      new THREE.Vector3(size * 0.34, -size * 0.34, size * 0.535),
+    ]),
+    new THREE.LineBasicMaterial({
+      color: 0xffffff,
+      transparent: true,
+      opacity: 0.36,
+      blending: THREE.AdditiveBlending,
+      toneMapped: false,
+    }),
+  );
 
-  group.add(mesh, edge, shine);
+  group.add(mesh, edge, shine, diagonal);
   group.position.copy(position);
   group.rotation.set(rotation.x, rotation.y, rotation.z);
   group.userData.geometry = geometry;
@@ -649,7 +692,7 @@ export function initAbstractScene(canvas) {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, lowPower ? 1.05 : 1.4));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.34;
+  renderer.toneMappingExposure = 1.46;
 
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 80);
@@ -670,25 +713,28 @@ export function initAbstractScene(canvas) {
       fresnelPower: 2.4,
       refractPower: 0.145,
       chromaticAberration: 0.66,
-      saturation: 1.32,
+      saturation: 1.38,
+      edgeBoost: 1.18,
     }),
     createPrismaticGlassMaterial({
       baseColor: new THREE.Color(0xf3e7ff),
       tintColor: new THREE.Color(0x8d45ff),
-      alpha: 0.7,
+      alpha: 0.66,
       fresnelPower: 2.1,
-      refractPower: 0.12,
-      chromaticAberration: 0.52,
-      saturation: 1.2,
+      refractPower: 0.132,
+      chromaticAberration: 0.58,
+      saturation: 1.26,
+      edgeBoost: 1.04,
     }),
     createPrismaticGlassMaterial({
       baseColor: new THREE.Color(0xf8efff),
       tintColor: new THREE.Color(0xc07aff),
-      alpha: 0.76,
+      alpha: 0.7,
       fresnelPower: 1.95,
-      refractPower: 0.105,
-      chromaticAberration: 0.48,
-      saturation: 1.22,
+      refractPower: 0.118,
+      chromaticAberration: 0.54,
+      saturation: 1.28,
+      edgeBoost: 1.08,
     }),
   ];
   const [starGlassMaterial, ribbonGlassMaterial, cubeGlassMaterial] = prismaticMaterials;
