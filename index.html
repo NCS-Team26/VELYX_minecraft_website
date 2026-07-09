@@ -84,6 +84,7 @@
       <main id="main">
         <section class="hero-home" aria-labelledby="hero-title">
           <div class="hero-frame" aria-hidden="true"></div>
+          <div class="hero-atmosphere" aria-hidden="true"></div>
           <div class="hero-meta hero-meta-left" data-reveal>
             <span>PRIVATE ECONOMY REALM</span>
             <span>JAVA / PAPER 26.1.2</span>
@@ -94,12 +95,17 @@
           </div>
 
           <div class="hero-statement">
-            <p class="eyebrow" data-reveal><span></span>Statement-driven realm</p>
-            <h1 id="hero-title" data-split="words">가치는 접속 이후에 생긴다.</h1>
+            <div class="hero-sigil" aria-hidden="true">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+            <p class="eyebrow" data-reveal><span></span>Founder-led economy realm</p>
+            <h1 id="hero-title" data-split="words">접속으로 끝나지 않는 마인크래프트 경제 경험.</h1>
             <div class="hero-bottom" data-reveal>
               <p>
-                VELYX는 마인크래프트 서버를 접속 안내 페이지로 포장하지 않습니다. 플레이어의 노동,
-                거래, 소유, 평판이 남는 하나의 경제권으로 다룹니다.
+                VELYX는 플레이어의 노동, 거래, 소유, 평판이 실제 기록으로 남는 서버입니다.
+                접속 주소 하나가 경제권의 입구가 되도록 설계했습니다.
               </p>
               <div class="hero-actions">
                 <button class="g-button" type="button" data-copy-address data-cursor-label="Copy">
@@ -117,6 +123,8 @@
             </div>
           </div>
 
+          <div class="hero-wordmark" aria-hidden="true">VELYX</div>
+
           <aside class="hero-status status-panel" id="status" data-reveal aria-label="서버 상태 요약">
             <div class="status-topline">
               <span class="status-dot" data-status-dot></span>
@@ -131,22 +139,41 @@
 
         <section class="story-section" aria-labelledby="story-title">
           <div class="section-index" aria-hidden="true">01</div>
+          <div class="story-stats" data-reveal aria-label="서버 핵심 지표">
+            <article>
+              <strong>10</strong>
+              <span>Maximum slots for a focused economy</span>
+            </article>
+            <article>
+              <strong>4</strong>
+              <span>Status, market, rules, community surfaces</span>
+            </article>
+          </div>
           <div class="story-kicker" data-reveal>
-            <p class="eyebrow"><span></span>Homepage storytelling</p>
+            <p class="eyebrow"><span></span>Reputation gap</p>
           </div>
           <div class="story-title" data-reveal>
-            <h2 id="story-title" data-split="words">서버의 첫 화면은 기능표가 아니라 세계관이어야 한다.</h2>
+            <h2 id="story-title" data-split="words">좋은 서버는 접속 수보다 남는 기록으로 증명됩니다.</h2>
           </div>
           <div class="story-copy" data-reveal>
             <p>
-              Awwwards가 MONOLOG에서 강조한 건 거대한 장식이 아니라 흐름입니다. 한 문장으로 시작하고,
-              그 문장이 섹션을 지날수록 작동 방식, 증거, 행동으로 이어집니다.
+              서버 소개가 기능표에서 멈추면 플레이어는 왜 머물러야 하는지 알 수 없습니다.
+              VELYX는 상태, 시장, 규칙, 커뮤니티를 하나의 평판 시스템처럼 보여줍니다.
             </p>
             <p>
-              VELYX도 같은 방식으로 갑니다. 접속 주소는 마지막 버튼이 아니라, 이 경제권에 들어가는
-              열쇠처럼 다룹니다.
+              접속 전에는 세계의 분위기를, 접속 후에는 행동의 가치를 읽을 수 있어야 합니다.
             </p>
           </div>
+        </section>
+
+        <section class="gap-section" aria-labelledby="gap-title">
+          <div class="gap-visual" aria-hidden="true">
+            <span>VELYX.KR</span>
+          </div>
+          <h2 id="gap-title" data-split="words">WE CLOSE THE GAP</h2>
+          <p data-reveal>
+            Between joining and belonging. Between mining and market value. Between a player action and the record it leaves behind.
+          </p>
         </section>
 
         <section class="process-section" aria-labelledby="process-title">
@@ -183,30 +210,34 @@
           <div class="section-index" aria-hidden="true">03</div>
           <div class="section-heading" data-reveal>
             <p class="eyebrow"><span></span>Works gallery</p>
-            <h2 id="works-title" data-split="words">Interfaces as evidence.</h2>
+            <h2 id="works-title" data-split="words">Interfaces as evidence, not decoration.</h2>
           </div>
           <div class="works-list" data-reveal>
             <a href="/status.html" data-cursor-label="Status">
               <span>01</span>
               <strong>Live status</strong>
+              <b aria-hidden="true">STATUS</b>
               <p data-player-summary>서버 상태를 불러오는 중입니다.</p>
               <i aria-hidden="true">→</i>
             </a>
             <a href="/stock.html" data-cursor-label="Stock">
               <span>02</span>
               <strong>Stock exchange</strong>
+              <b aria-hidden="true">MARKET</b>
               <p>플레이어 활동이 시장 화면으로 번역되는 실험적인 경제 인터페이스.</p>
               <i aria-hidden="true">→</i>
             </a>
             <a href="/plugins.html" data-cursor-label="Economy">
               <span>03</span>
               <strong>Economy system</strong>
+              <b aria-hidden="true">SYSTEM</b>
               <p>상점, 경매, 보호, 거래가 서버의 운영 규칙으로 연결됩니다.</p>
               <i aria-hidden="true">→</i>
             </a>
             <a href="/community.html" data-cursor-label="Community">
               <span>04</span>
               <strong>Community board</strong>
+              <b aria-hidden="true">MEMORY</b>
               <p>공지와 기록이 서버의 기억을 만듭니다.</p>
               <i aria-hidden="true">→</i>
             </a>
@@ -253,7 +284,7 @@
 
         <section class="cinematic-cta" id="join" aria-labelledby="join-title">
           <p class="eyebrow" data-reveal><span></span>Cinematic call to action</p>
-          <h2 id="join-title" data-split="words">Refuse to be undervalued.</h2>
+          <h2 id="join-title" data-split="words">Build value that moves people.</h2>
           <div class="cta-row" data-reveal>
             <p>서버 주소는 짧지만, 들어온 뒤 남는 기록은 길어야 합니다.</p>
             <div class="address-row">
