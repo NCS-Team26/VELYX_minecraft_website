@@ -81,6 +81,7 @@ const playerChart = document.querySelector("[data-player-chart]");
 const sectionLinks = document.querySelectorAll("[data-section-link]");
 const adminLinks = document.querySelectorAll("[data-admin-link]");
 const stockAuthLink = document.querySelector("[data-stock-auth-link]");
+const posterClock = document.querySelector("[data-poster-clock]");
 const AUTH_STORAGE_KEY = "nfoifsb.googleUser";
 const AUTH_EVENT_KEY = "nfoifsb.authEvent";
 const PLAYER_PROFILES_KEY = "nfoifsb.playerProfiles";
@@ -1247,6 +1248,25 @@ function initAnimationStagger() {
       child.style.setProperty("--item-index", index);
     });
   });
+}
+
+function initPosterClock() {
+  if (!posterClock) return;
+
+  const formatter = new Intl.DateTimeFormat("ko-KR", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+    timeZone: "Asia/Seoul",
+  });
+
+  const sync = () => {
+    posterClock.textContent = `KOREA, ${formatter.format(new Date())}`;
+  };
+
+  sync();
+  window.setInterval(sync, 1000);
 }
 
 function formatStockNumber(value) {
@@ -6527,6 +6547,45 @@ function loadScene() {
     });
 }
 
+function loadAbstractScene() {
+  const canvas = document.querySelector("#velyx-abstract-scene");
+  if (!(canvas instanceof HTMLCanvasElement)) return;
+
+  const skipWebglScene =
+    navigator.connection?.saveData ||
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  if (skipWebglScene) {
+    canvas.remove();
+    return;
+  }
+
+  import("./abstract-scene.js")
+    .then((module) => {
+      const dispose = module.initAbstractScene(canvas);
+      if (typeof dispose === "function") window.addEventListener("pagehide", dispose, { once: true });
+    })
+    .catch(() => {
+      canvas.remove();
+    });
+}
+
+function deferAbstractSceneLoad() {
+  const canvas = document.querySelector("#velyx-abstract-scene");
+  if (!(canvas instanceof HTMLCanvasElement)) return;
+
+  const schedule = () => {
+    if ("requestIdleCallback" in window) {
+      window.requestIdleCallback(loadAbstractScene, { timeout: 1200 });
+    } else {
+      window.setTimeout(loadAbstractScene, 420);
+    }
+  };
+
+  if (document.readyState === "complete") schedule();
+  else window.addEventListener("load", schedule, { once: true });
+}
+
 function deferSceneLoad() {
   const canvas = document.querySelector("#minecraft-scene");
   if (!(canvas instanceof HTMLCanvasElement)) return;
@@ -6678,9 +6737,11 @@ initNav();
 initPageNavigation();
 initStockExchange();
 initAnimationStagger();
+initPosterClock();
 initUserPosts();
 initScrollReveal();
 initLogin();
+deferAbstractSceneLoad();
 deferSceneLoad();
 if (statusDot || cacheState) {
   startVisiblePoll(refreshStatus, 60000);

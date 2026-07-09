@@ -97,7 +97,14 @@
 
       <main id="top">
         <section class="hero poster-hero" aria-labelledby="hero-title">
-          <div class="poster-media" aria-hidden="true"></div>
+          <div class="poster-media" aria-hidden="true">
+            <canvas id="velyx-abstract-scene" data-abstract-scene></canvas>
+            <div class="glass-fallback">
+              <span class="glass-shape glass-shape-a"></span>
+              <span class="glass-shape glass-shape-b"></span>
+              <span class="glass-shape glass-shape-c"></span>
+            </div>
+          </div>
           <div class="poster-vignette" aria-hidden="true"></div>
           <div class="poster-edge-label" aria-hidden="true">#VELYX</div>
           <div class="poster-copy poster-copy-left" aria-hidden="true">
@@ -119,7 +126,7 @@
             <span>VELYX.KR</span>
             <span>PAPER 26.1.2 · 경제 야생 서버</span>
           </div>
-          <div class="poster-clock" aria-hidden="true">KOREA, --:--:--</div>
+          <div class="poster-clock" data-poster-clock aria-hidden="true">KOREA, --:--:--</div>
           <div class="hero-actions">
             <a class="primary-action" href="#status">Explore</a>
             <a class="secondary-action" href="/join.html">Join realm</a>
