@@ -9835,17 +9835,17 @@ body.stock-chart-settings-open {
 }
 
 .home-page-body .mono-hero-glyph {
-  top: clamp(188px, 27.5svh, 262px);
+  top: clamp(188px, 28svh, 260px);
   z-index: 3;
-  width: clamp(116px, 10.4vw, 172px);
-  height: clamp(116px, 10.4vw, 172px);
+  width: clamp(182px, 18vw, 286px);
+  height: clamp(132px, 13vw, 206px);
   border: 0;
   border-radius: 0;
   filter:
-    drop-shadow(0 0 18px rgba(220, 177, 255, 0.46))
-    drop-shadow(0 0 42px rgba(141, 69, 255, 0.28));
-  mix-blend-mode: normal;
-  opacity: 0.78;
+    drop-shadow(0 0 12px rgba(245, 232, 255, 0.4))
+    drop-shadow(0 0 32px rgba(141, 69, 255, 0.38));
+  mix-blend-mode: screen;
+  opacity: 0.8;
   animation: velyx-orbit-breathe 3.6s ease-in-out infinite;
 }
 
@@ -9860,11 +9860,11 @@ body.stock-chart-settings-open {
   object-fit: contain;
   object-position: center;
   filter:
-    saturate(1.35)
-    contrast(1.12)
-    brightness(1.08)
-    drop-shadow(0 0 18px rgba(192, 122, 255, 0.46))
-    drop-shadow(0 0 34px rgba(141, 69, 255, 0.24));
+    saturate(1.18)
+    contrast(1.08)
+    brightness(1.24)
+    drop-shadow(0 0 8px rgba(245, 232, 255, 0.42))
+    drop-shadow(0 0 22px rgba(192, 122, 255, 0.4));
 }
 
 .home-page-body .poster-edge-label,
@@ -10074,9 +10074,9 @@ body.stock-chart-settings-open {
   }
 
   .home-page-body .mono-hero-glyph {
-    top: 33svh;
-    width: 104px;
-    height: 104px;
+    top: 34svh;
+    width: 178px;
+    height: 130px;
   }
 }
 
