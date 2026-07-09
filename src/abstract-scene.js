@@ -28,21 +28,77 @@ function createGlowTexture() {
   return texture;
 }
 
+function createEnvironmentTexture() {
+  const canvas = document.createElement("canvas");
+  canvas.width = 1024;
+  canvas.height = 512;
+  const context = canvas.getContext("2d");
+  const sky = context.createLinearGradient(0, 0, canvas.width, canvas.height);
+  sky.addColorStop(0, "#ffffff");
+  sky.addColorStop(0.18, "#c49cff");
+  sky.addColorStop(0.38, "#080807");
+  sky.addColorStop(0.58, "#6d2cff");
+  sky.addColorStop(0.78, "#f5edff");
+  sky.addColorStop(1, "#080807");
+  context.fillStyle = sky;
+  context.fillRect(0, 0, canvas.width, canvas.height);
+
+  for (let i = 0; i < 14; i += 1) {
+    const y = 54 + i * 31;
+    const glow = context.createLinearGradient(0, y, canvas.width, y + 40);
+    glow.addColorStop(0, "rgba(255,255,255,0)");
+    glow.addColorStop(0.48, i % 2 ? "rgba(163,79,255,0.34)" : "rgba(255,255,255,0.42)");
+    glow.addColorStop(1, "rgba(255,255,255,0)");
+    context.fillStyle = glow;
+    context.fillRect(0, y, canvas.width, 18);
+  }
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.mapping = THREE.EquirectangularReflectionMapping;
+  return texture;
+}
+
+function createSheenTexture() {
+  const canvas = document.createElement("canvas");
+  canvas.width = 512;
+  canvas.height = 96;
+  const context = canvas.getContext("2d");
+  const gradient = context.createLinearGradient(0, 0, canvas.width, 0);
+  gradient.addColorStop(0, "rgba(255,255,255,0)");
+  gradient.addColorStop(0.28, "rgba(179,89,255,0.22)");
+  gradient.addColorStop(0.5, "rgba(255,255,255,0.92)");
+  gradient.addColorStop(0.68, "rgba(209,168,255,0.32)");
+  gradient.addColorStop(1, "rgba(255,255,255,0)");
+  context.fillStyle = gradient;
+  context.fillRect(0, 0, canvas.width, canvas.height);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  return texture;
+}
+
 function createLiquidGlassMaterial(color, emissive, opacity = 0.72) {
   return new THREE.MeshPhysicalMaterial({
     color,
     emissive,
-    emissiveIntensity: 0.42,
-    roughness: 0.045,
-    metalness: 0.04,
-    transmission: 0.68,
-    thickness: 1.42,
-    ior: 1.48,
+    emissiveIntensity: 0.5,
+    roughness: 0.018,
+    metalness: 0.02,
+    transmission: 0.82,
+    thickness: 1.72,
+    ior: 1.52,
+    attenuationColor: new THREE.Color(0xb96cff),
+    attenuationDistance: 1.85,
+    iridescence: 0.58,
+    iridescenceIOR: 1.38,
+    iridescenceThicknessRange: [120, 520],
     transparent: true,
     opacity,
     clearcoat: 1,
-    clearcoatRoughness: 0.04,
+    clearcoatRoughness: 0.018,
     specularIntensity: 1,
+    specularColor: new THREE.Color(0xf6e9ff),
     side: THREE.DoubleSide,
   });
 }
@@ -58,6 +114,27 @@ function createLightMaterial(color, opacity = 0.82) {
     toneMapped: false,
     side: THREE.DoubleSide,
   });
+}
+
+function createGlassReflection(texture, width, height, position, rotation, opacity) {
+  const mesh = new THREE.Mesh(
+    new THREE.PlaneGeometry(width, height),
+    new THREE.MeshBasicMaterial({
+      map: texture,
+      color: 0xffffff,
+      transparent: true,
+      opacity,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+      depthTest: false,
+      toneMapped: false,
+      side: THREE.DoubleSide,
+    }),
+  );
+  mesh.position.copy(position);
+  mesh.rotation.set(rotation.x, rotation.y, rotation.z);
+  mesh.userData.baseOpacity = opacity;
+  return mesh;
 }
 
 function createStarShape() {
@@ -83,14 +160,14 @@ function createStarShape() {
   return shape;
 }
 
-function createNcsStar(lowPower) {
+function createNcsStar(lowPower, sheenTexture, glowTexture) {
   const geometry = new THREE.ExtrudeGeometry(createStarShape(), {
-    depth: lowPower ? 0.26 : 0.34,
+    depth: lowPower ? 0.32 : 0.46,
     bevelEnabled: true,
-    bevelSegments: lowPower ? 2 : 5,
-    bevelSize: 0.08,
-    bevelThickness: 0.08,
-    curveSegments: lowPower ? 8 : 16,
+    bevelSegments: lowPower ? 3 : 8,
+    bevelSize: 0.105,
+    bevelThickness: 0.11,
+    curveSegments: lowPower ? 10 : 22,
   });
   geometry.center();
   geometry.computeVertexNormals();
@@ -98,18 +175,25 @@ function createNcsStar(lowPower) {
   const star = new THREE.Group();
   const shell = new THREE.Mesh(
     geometry,
-    createLiquidGlassMaterial(0xfbf7ff, 0xa240ff, 0.88),
+    createLiquidGlassMaterial(0xfffbff, 0xa240ff, 0.9),
   );
+  const innerColor = createLightMaterial(0x8b32ff, 0.22);
+  const innerGlow = new THREE.Mesh(new THREE.ShapeGeometry(createStarShape()), innerColor);
+  innerGlow.position.z = 0.26;
+  innerGlow.scale.set(0.985, 0.985, 1);
+
   const edge = new THREE.LineSegments(
     new THREE.EdgesGeometry(geometry, 18),
     new THREE.LineBasicMaterial({
       color: 0xf4e7ff,
       transparent: true,
-      opacity: 0.82,
+      opacity: 0.94,
+      blending: THREE.AdditiveBlending,
+      toneMapped: false,
     }),
   );
 
-  star.add(shell, edge);
+  star.add(innerGlow, shell, edge);
 
   const highlightMaterial = createLightMaterial(0xffffff, 0.92);
   const highlightSpecs = [
@@ -132,11 +216,53 @@ function createNcsStar(lowPower) {
 
   const glowPlate = new THREE.Mesh(
     new THREE.ShapeGeometry(createStarShape()),
-    createLightMaterial(0x9d48ff, 0.28),
+    createLightMaterial(0x9d48ff, 0.34),
   );
-  glowPlate.position.z = -0.19;
-  glowPlate.scale.set(1.06, 1.06, 1);
+  glowPlate.position.z = -0.28;
+  glowPlate.scale.set(1.09, 1.09, 1);
   star.add(glowPlate);
+
+  const reflections = [
+    createGlassReflection(
+      sheenTexture,
+      2.75,
+      0.22,
+      new THREE.Vector3(-0.84, 0.2, 0.38),
+      new THREE.Vector3(0.08, -0.18, -0.08),
+      0.42,
+    ),
+    createGlassReflection(
+      sheenTexture,
+      1.8,
+      0.16,
+      new THREE.Vector3(0.42, 1.12, 0.42),
+      new THREE.Vector3(0.14, -0.22, 1.2),
+      0.34,
+    ),
+    createGlassReflection(
+      sheenTexture,
+      2.18,
+      0.18,
+      new THREE.Vector3(0.58, -0.72, 0.4),
+      new THREE.Vector3(0.16, -0.18, -1.1),
+      0.32,
+    ),
+  ];
+  reflections.forEach((reflection) => star.add(reflection));
+  star.userData.reflections = reflections;
+
+  const glints = [
+    createGlow(glowTexture, 0.92, new THREE.Vector3(0, 0, 0.58), 0.9, 0xffffff),
+    createGlow(glowTexture, 0.46, new THREE.Vector3(0.68, 2.58, 0.56), 0.64, 0xf7ecff),
+    createGlow(glowTexture, 0.38, new THREE.Vector3(2.72, 0.05, 0.54), 0.5, 0xf7ecff),
+    createGlow(glowTexture, 0.42, new THREE.Vector3(-0.64, -2.42, 0.54), 0.54, 0xc77dff),
+  ];
+  glints.forEach((glint) => {
+    glint.userData.baseOpacity = glint.material.opacity;
+    glint.userData.baseScale = glint.scale.x;
+    star.add(glint);
+  });
+  star.userData.glints = glints;
 
   return { group: star, geometry };
 }
@@ -175,7 +301,7 @@ function createGlassCube(size, position, rotation) {
   const geometry = new THREE.BoxGeometry(size, size, size);
   const mesh = new THREE.Mesh(
     geometry,
-    createLiquidGlassMaterial(0xd9c1ff, 0xa341ff, 0.68),
+    createLiquidGlassMaterial(0xf2e6ff, 0xa341ff, 0.76),
   );
   const edge = new THREE.LineSegments(
     new THREE.EdgesGeometry(geometry),
@@ -187,7 +313,7 @@ function createGlassCube(size, position, rotation) {
   );
   const shine = new THREE.Mesh(
     new THREE.PlaneGeometry(size * 0.74, size * 0.14),
-    createLightMaterial(0xffffff, 0.48),
+    createLightMaterial(0xffffff, 0.68),
   );
   shine.position.z = size * 0.52;
   shine.rotation.z = -0.7;
@@ -229,10 +355,10 @@ function createCubeCluster(lowPower) {
   return group;
 }
 
-function createGlow(texture, scale, position, opacity = 0.6) {
+function createGlow(texture, scale, position, opacity = 0.6, color = 0xb35cff) {
   const material = new THREE.SpriteMaterial({
     map: texture,
-    color: 0xb35cff,
+    color,
     transparent: true,
     opacity,
     blending: THREE.AdditiveBlending,
@@ -299,7 +425,7 @@ export function initAbstractScene(canvas) {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, lowPower ? 1.05 : 1.4));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.18;
+  renderer.toneMappingExposure = 1.34;
 
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 80);
@@ -309,13 +435,18 @@ export function initAbstractScene(canvas) {
   scene.add(group);
 
   const glowTexture = createGlowTexture();
-  const star = createNcsStar(lowPower);
+  const environmentTexture = createEnvironmentTexture();
+  const sheenTexture = createSheenTexture();
+  scene.environment = environmentTexture;
+
+  const star = createNcsStar(lowPower, sheenTexture, glowTexture);
   star.group.scale.set(0.86, 0.86, 0.86);
   star.group.position.set(-0.82, -0.08, 0.18);
   star.group.rotation.set(0.12, -0.18, -0.03);
 
   const swooshA = createSwoosh(lowPower, 3.18, 0.045, -1.1, -0.34, Math.PI * 1.05, Math.PI * 1.96, 0x9d48ff, 0.66);
   const swooshB = createSwoosh(lowPower, 3.46, 0.026, -1.18, -0.42, Math.PI * 1.02, Math.PI * 1.94, 0xf3e9ff, 0.42);
+  const swooshC = createSwoosh(lowPower, 2.86, 0.018, -1.04, -0.22, Math.PI * 1.09, Math.PI * 1.88, 0xffffff, 0.24);
   const cubes = createCubeCluster(lowPower);
   const particles = createParticles(lowPower ? 36 : 68);
 
@@ -323,22 +454,36 @@ export function initAbstractScene(canvas) {
   const sweepGlow = createGlow(glowTexture, 3.8, new THREE.Vector3(1.5, -1.15, -1.0), 0.52);
   const cubeGlow = createGlow(glowTexture, 2.4, new THREE.Vector3(3.15, 1.05, -0.9), 0.42);
 
-  group.add(swooshA.mesh, swooshA.core, swooshB.mesh, swooshB.core, star.group, cubes, particles);
+  group.add(
+    swooshA.mesh,
+    swooshA.core,
+    swooshB.mesh,
+    swooshB.core,
+    swooshC.mesh,
+    swooshC.core,
+    star.group,
+    cubes,
+    particles,
+  );
   scene.add(starGlow, sweepGlow, cubeGlow);
 
-  scene.add(new THREE.AmbientLight(0xbaa4ff, 1.65));
+  scene.add(new THREE.AmbientLight(0xbaa4ff, 1.3));
 
-  const key = new THREE.DirectionalLight(0xffffff, 4.4);
+  const key = new THREE.DirectionalLight(0xffffff, 6.2);
   key.position.set(-3.6, 4.5, 5.4);
   scene.add(key);
 
-  const purple = new THREE.PointLight(0x9138ff, 14, 18, 1.6);
+  const purple = new THREE.PointLight(0x9138ff, 22, 18, 1.55);
   purple.position.set(-1.2, -0.1, 2.4);
   scene.add(purple);
 
-  const rim = new THREE.PointLight(0xf0d6ff, 8, 16, 1.8);
+  const rim = new THREE.PointLight(0xf0d6ff, 13, 16, 1.6);
   rim.position.set(3.6, 1.6, 2.2);
   scene.add(rim);
+
+  const violetFill = new THREE.DirectionalLight(0x7d34ff, 2.8);
+  violetFill.position.set(4.8, -3.1, 4.5);
+  scene.add(violetFill);
 
   const pointer = { x: 0, y: 0 };
   const target = { x: 0, y: 0 };
@@ -385,6 +530,8 @@ export function initAbstractScene(canvas) {
     swooshA.core.rotation.z = swooshA.mesh.rotation.z;
     swooshB.mesh.rotation.z = -0.08 + drift * 0.032;
     swooshB.core.rotation.z = swooshB.mesh.rotation.z;
+    swooshC.mesh.rotation.z = -0.1 + drift * 0.044;
+    swooshC.core.rotation.z = swooshC.mesh.rotation.z;
     particles.rotation.z = drift * 0.055;
     particles.rotation.y = Math.sin(drift * 0.2) * 0.12;
 
@@ -399,6 +546,17 @@ export function initAbstractScene(canvas) {
     starGlow.material.opacity = 0.66 * pulse;
     sweepGlow.material.opacity = 0.44 * pulse;
     cubeGlow.material.opacity = 0.34 * pulse;
+
+    star.group.userData.reflections?.forEach((reflection, index) => {
+      reflection.material.opacity =
+        reflection.userData.baseOpacity * (0.72 + Math.sin(drift * 1.6 + index * 1.1) * 0.28);
+      reflection.position.x += Math.sin(drift * 0.95 + index) * 0.0008;
+    });
+    star.group.userData.glints?.forEach((glint, index) => {
+      const sparkle = 0.78 + Math.sin(drift * 1.8 + index * 1.45) * 0.22;
+      glint.material.opacity = glint.userData.baseOpacity * sparkle;
+      glint.scale.setScalar(glint.userData.baseScale * (0.92 + sparkle * 0.12));
+    });
 
     renderer.render(scene, camera);
   }
@@ -453,10 +611,14 @@ export function initAbstractScene(canvas) {
       swooshA.coreGeometry,
       swooshB.geometry,
       swooshB.coreGeometry,
+      swooshC.geometry,
+      swooshC.coreGeometry,
       particles.geometry,
     ].forEach(disposeGeometry);
     particles.material.dispose();
     glowTexture.dispose();
+    environmentTexture.dispose();
+    sheenTexture.dispose();
 
     group.traverse((object) => {
       if (object.material) object.material.dispose();
