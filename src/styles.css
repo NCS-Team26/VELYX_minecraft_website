@@ -9835,8 +9835,36 @@ body.stock-chart-settings-open {
 }
 
 .home-page-body .mono-hero-glyph {
-  filter: drop-shadow(0 0 18px rgba(220, 177, 255, 0.42));
+  top: clamp(188px, 27.5svh, 262px);
+  z-index: 3;
+  width: clamp(116px, 10.4vw, 172px);
+  height: clamp(116px, 10.4vw, 172px);
+  border: 0;
+  border-radius: 0;
+  filter:
+    drop-shadow(0 0 18px rgba(220, 177, 255, 0.46))
+    drop-shadow(0 0 42px rgba(141, 69, 255, 0.28));
+  mix-blend-mode: normal;
+  opacity: 0.78;
   animation: velyx-orbit-breathe 3.6s ease-in-out infinite;
+}
+
+.home-page-body .mono-hero-glyph span {
+  display: none;
+}
+
+.home-page-body .mono-hero-logo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  filter:
+    saturate(1.35)
+    contrast(1.12)
+    brightness(1.08)
+    drop-shadow(0 0 18px rgba(192, 122, 255, 0.46))
+    drop-shadow(0 0 34px rgba(141, 69, 255, 0.24));
 }
 
 .home-page-body .poster-edge-label,
@@ -10043,6 +10071,12 @@ body.stock-chart-settings-open {
   .home-page-body .poster-vignette::before,
   .home-page-body .poster-vignette::after {
     font-size: clamp(72px, 28vw, 126px);
+  }
+
+  .home-page-body .mono-hero-glyph {
+    top: 33svh;
+    width: 104px;
+    height: 104px;
   }
 }
 
