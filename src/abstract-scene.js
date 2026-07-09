@@ -78,6 +78,229 @@ function createSheenTexture() {
   return texture;
 }
 
+function createPrismaticGlassMaterial(options = {}) {
+  const {
+    baseColor = new THREE.Color(0xf8f0ff),
+    tintColor = new THREE.Color(0xa855ff),
+    alpha = 0.9,
+    fresnelPower = 2.15,
+    refractPower = 0.13,
+    chromaticAberration = 0.58,
+    saturation = 1.22,
+  } = options;
+
+  return new THREE.ShaderMaterial({
+    uniforms: {
+      uTexture: { value: null },
+      uResolution: { value: new THREE.Vector2(1, 1) },
+      uTime: { value: 0 },
+      uBaseColor: { value: baseColor },
+      uTintColor: { value: tintColor },
+      uAlpha: { value: alpha },
+      uFresnelPower: { value: fresnelPower },
+      uRefractPower: { value: refractPower },
+      uChromaticAberration: { value: chromaticAberration },
+      uSaturation: { value: saturation },
+      uLight: { value: new THREE.Vector3(-1.8, -0.5, -5).normalize() },
+    },
+    vertexShader: `
+      varying vec3 vWorldNormal;
+      varying vec3 vEyeVector;
+      varying vec3 vWorldPosition;
+
+      void main() {
+        vec4 worldPosition = modelMatrix * vec4(position, 1.0);
+        vWorldPosition = worldPosition.xyz;
+        vWorldNormal = normalize(mat3(modelMatrix) * normal);
+        vEyeVector = normalize(worldPosition.xyz - cameraPosition);
+        gl_Position = projectionMatrix * viewMatrix * worldPosition;
+      }
+    `,
+    fragmentShader: `
+      uniform sampler2D uTexture;
+      uniform vec2 uResolution;
+      uniform float uTime;
+      uniform vec3 uBaseColor;
+      uniform vec3 uTintColor;
+      uniform float uAlpha;
+      uniform float uFresnelPower;
+      uniform float uRefractPower;
+      uniform float uChromaticAberration;
+      uniform float uSaturation;
+      uniform vec3 uLight;
+
+      varying vec3 vWorldNormal;
+      varying vec3 vEyeVector;
+      varying vec3 vWorldPosition;
+
+      vec3 saturateColor(vec3 rgb, float adjustment) {
+        const vec3 weight = vec3(0.2126, 0.7152, 0.0722);
+        vec3 intensity = vec3(dot(rgb, weight));
+        return mix(intensity, rgb, adjustment);
+      }
+
+      float fresnel(vec3 eyeVector, vec3 normal, float power) {
+        float facing = abs(dot(eyeVector, normal));
+        return pow(1.0 - facing, power);
+      }
+
+      float specularTerm(vec3 eyeVector, vec3 normal) {
+        vec3 lightVector = normalize(-uLight);
+        vec3 halfVector = normalize(eyeVector + lightVector);
+        float diffuse = max(dot(normal, lightVector), 0.0);
+        float specular = pow(max(dot(normal, halfVector), 0.0), 24.0);
+        return specular + diffuse * 0.36;
+      }
+
+      void main() {
+        vec2 uv = gl_FragCoord.xy / max(uResolution.xy, vec2(1.0));
+        vec3 normal = normalize(vWorldNormal);
+        vec3 eyeVector = normalize(vEyeVector);
+        vec2 wobble = normal.xy * 0.012 + vec2(sin(uTime * 0.34), cos(uTime * 0.27)) * 0.002;
+        vec3 refractR = refract(eyeVector, normal, 1.0 / 1.15);
+        vec3 refractG = refract(eyeVector, normal, 1.0 / 1.2);
+        vec3 refractB = refract(eyeVector, normal, 1.0 / 1.36);
+        vec2 offsetR = refractR.xy * uRefractPower * uChromaticAberration + wobble;
+        vec2 offsetG = refractG.xy * (uRefractPower * 1.6) * uChromaticAberration + wobble * 0.55;
+        vec2 offsetB = refractB.xy * (uRefractPower * 2.35) * uChromaticAberration - wobble;
+
+        vec3 sampleR = texture2D(uTexture, uv + offsetR).rgb;
+        vec3 sampleG = texture2D(uTexture, uv + offsetG).rgb;
+        vec3 sampleB = texture2D(uTexture, uv + offsetB).rgb;
+        vec3 prismatic = vec3(sampleR.r, sampleG.g, sampleB.b);
+        prismatic = saturateColor(prismatic, uSaturation);
+
+        float rim = fresnel(eyeVector, normal, uFresnelPower);
+        float shine = specularTerm(eyeVector, normal);
+        vec3 glass = mix(uBaseColor * 0.5, prismatic + uTintColor * 0.24, 0.78);
+        glass += vec3(rim) * 1.35;
+        glass += vec3(shine) * 0.72;
+        glass += uTintColor * (0.18 + rim * 0.36);
+
+        float alpha = clamp(uAlpha * (0.58 + rim * 0.34 + shine * 0.12), 0.45, 0.96);
+        gl_FragColor = vec4(glass, alpha);
+      }
+    `,
+    transparent: true,
+    depthWrite: false,
+    side: THREE.DoubleSide,
+  });
+}
+
+function createRefractionField(lowPower) {
+  const count = lowPower ? 900 : 1800;
+  const radius = 2.1;
+  const positions = new Float32Array(count * 3);
+  const seeds = new Float32Array(count);
+
+  for (let i = 0; i < count; i += 1) {
+    const stride = i * 3;
+    const distance = Math.sqrt(Math.random()) * radius;
+    const angle = Math.random() * Math.PI * 2;
+    const height = THREE.MathUtils.randFloatSpread(radius * 1.2);
+    positions[stride] = Math.cos(angle) * distance;
+    positions[stride + 1] = height * 0.58;
+    positions[stride + 2] = Math.sin(angle) * distance;
+    seeds[i] = Math.random();
+  }
+
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+  geometry.setAttribute("aSeed", new THREE.BufferAttribute(seeds, 1));
+
+  const uniforms = {
+    uTime: { value: 0 },
+    uRadius: { value: radius },
+  };
+  const material = new THREE.ShaderMaterial({
+    uniforms,
+    vertexShader: `
+      uniform float uTime;
+      uniform float uRadius;
+      attribute float aSeed;
+      varying float vDepth;
+      varying float vSeed;
+
+      mat3 rotateY(float angle) {
+        float s = sin(angle);
+        float c = cos(angle);
+        return mat3(c, 0.0, -s, 0.0, 1.0, 0.0, s, 0.0, c);
+      }
+
+      void main() {
+        float distanceFactor = pow(max(uRadius - length(position), 0.0), 1.45);
+        vec3 particle = position * rotateY(uTime * (0.12 + aSeed * 0.34));
+        particle.y += sin(uTime * 0.7 + aSeed * 6.2831) * 0.08;
+        vec4 viewPosition = viewMatrix * modelMatrix * vec4(particle, 1.0);
+        gl_Position = projectionMatrix * viewPosition;
+        gl_PointSize = (2.4 + distanceFactor * 1.9 + aSeed * 2.0) / max(-viewPosition.z, 0.35);
+        vDepth = clamp((-viewPosition.z - 0.6) / 3.0, 0.0, 1.0);
+        vSeed = aSeed;
+      }
+    `,
+    fragmentShader: `
+      varying float vDepth;
+      varying float vSeed;
+
+      void main() {
+        vec2 point = gl_PointCoord - 0.5;
+        float mask = smoothstep(0.5, 0.08, length(point));
+        vec3 nearColor = vec3(0.96, 0.92, 1.0);
+        vec3 violet = vec3(0.62, 0.22, 1.0);
+        vec3 color = mix(nearColor, violet, vDepth * 0.7 + vSeed * 0.22);
+        float alpha = mask * (0.32 + (1.0 - vDepth) * 0.48);
+        gl_FragColor = vec4(color, alpha);
+      }
+    `,
+    transparent: true,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+  });
+
+  const points = new THREE.Points(geometry, material);
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 30);
+  camera.position.set(0.5, 0.4, 3.2);
+  camera.lookAt(0, 0, 0);
+  scene.add(points);
+
+  const renderTarget = new THREE.WebGLRenderTarget(1, 1, {
+    format: THREE.RGBAFormat,
+    generateMipmaps: false,
+    minFilter: THREE.LinearFilter,
+    magFilter: THREE.LinearFilter,
+  });
+
+  function resize(width, height) {
+    const ratio = Math.min(window.devicePixelRatio || 1, lowPower ? 1.05 : 1.4);
+    camera.aspect = width / Math.max(height, 1);
+    camera.updateProjectionMatrix();
+    renderTarget.setSize(Math.max(1, width * ratio), Math.max(1, height * ratio));
+  }
+
+  function update(renderer, time) {
+    uniforms.uTime.value = time;
+    const previousTarget = renderer.getRenderTarget();
+    const previousColor = new THREE.Color();
+    renderer.getClearColor(previousColor);
+    const previousAlpha = renderer.getClearAlpha();
+    renderer.setRenderTarget(renderTarget);
+    renderer.setClearColor(0x000000, 0);
+    renderer.clear();
+    renderer.render(scene, camera);
+    renderer.setRenderTarget(previousTarget);
+    renderer.setClearColor(previousColor, previousAlpha);
+  }
+
+  function dispose() {
+    geometry.dispose();
+    material.dispose();
+    renderTarget.dispose();
+  }
+
+  return { texture: renderTarget.texture, resize, update, dispose };
+}
+
 function createLiquidGlassMaterial(color, emissive, opacity = 0.72) {
   return new THREE.MeshPhysicalMaterial({
     color,
@@ -160,7 +383,7 @@ function createStarShape() {
   return shape;
 }
 
-function createNcsStar(lowPower, sheenTexture, glowTexture) {
+function createNcsStar(lowPower, sheenTexture, glowTexture, glassMaterial) {
   const geometry = new THREE.ExtrudeGeometry(createStarShape(), {
     depth: lowPower ? 0.32 : 0.46,
     bevelEnabled: true,
@@ -175,7 +398,7 @@ function createNcsStar(lowPower, sheenTexture, glowTexture) {
   const star = new THREE.Group();
   const shell = new THREE.Mesh(
     geometry,
-    createLiquidGlassMaterial(0xfffbff, 0xa240ff, 0.9),
+    glassMaterial || createLiquidGlassMaterial(0xfffbff, 0xa240ff, 0.9),
   );
   const innerColor = createLightMaterial(0x8b32ff, 0.22);
   const innerGlow = new THREE.Mesh(new THREE.ShapeGeometry(createStarShape()), innerColor);
@@ -267,7 +490,7 @@ function createNcsStar(lowPower, sheenTexture, glowTexture) {
   return { group: star, geometry };
 }
 
-function createSwoosh(lowPower, radius, thickness, yOffset, zOffset, start, end, color, opacity) {
+function createSwoosh(lowPower, radius, thickness, yOffset, zOffset, start, end, color, opacity, glassMaterial) {
   const points = [];
   const segments = lowPower ? 72 : 128;
   for (let i = 0; i <= segments; i += 1) {
@@ -285,7 +508,7 @@ function createSwoosh(lowPower, radius, thickness, yOffset, zOffset, start, end,
 
   const curve = new THREE.CatmullRomCurve3(points);
   const geometry = new THREE.TubeGeometry(curve, segments, thickness, lowPower ? 8 : 12, false);
-  const mesh = new THREE.Mesh(geometry, createLiquidGlassMaterial(color, 0x8b32ff, opacity));
+  const mesh = new THREE.Mesh(geometry, glassMaterial || createLiquidGlassMaterial(color, 0x8b32ff, opacity));
   mesh.rotation.z = -0.12;
 
   const core = new THREE.Mesh(
@@ -296,12 +519,12 @@ function createSwoosh(lowPower, radius, thickness, yOffset, zOffset, start, end,
   return { mesh, core, geometry, coreGeometry: core.geometry };
 }
 
-function createGlassCube(size, position, rotation) {
+function createGlassCube(size, position, rotation, glassMaterial) {
   const group = new THREE.Group();
   const geometry = new THREE.BoxGeometry(size, size, size);
   const mesh = new THREE.Mesh(
     geometry,
-    createLiquidGlassMaterial(0xf2e6ff, 0xa341ff, 0.76),
+    glassMaterial || createLiquidGlassMaterial(0xf2e6ff, 0xa341ff, 0.76),
   );
   const edge = new THREE.LineSegments(
     new THREE.EdgesGeometry(geometry),
@@ -326,7 +549,7 @@ function createGlassCube(size, position, rotation) {
   return group;
 }
 
-function createCubeCluster(lowPower) {
+function createCubeCluster(lowPower, glassMaterial) {
   const group = new THREE.Group();
   const cubes = [
     [0.3, 3.12, 1.52, -0.18],
@@ -346,6 +569,7 @@ function createCubeCluster(lowPower) {
       size,
       new THREE.Vector3(x, y, z),
       new THREE.Vector3(0.55 + index * 0.08, 0.2 + index * 0.1, 0.78 + index * 0.16),
+      glassMaterial,
     );
     cube.userData.base = cube.position.clone();
     cube.userData.phase = index * 0.8;
@@ -437,17 +661,48 @@ export function initAbstractScene(canvas) {
   const glowTexture = createGlowTexture();
   const environmentTexture = createEnvironmentTexture();
   const sheenTexture = createSheenTexture();
+  const refractionField = createRefractionField(lowPower);
+  const prismaticMaterials = [
+    createPrismaticGlassMaterial({
+      baseColor: new THREE.Color(0xfffbff),
+      tintColor: new THREE.Color(0xb85cff),
+      alpha: 0.92,
+      fresnelPower: 2.4,
+      refractPower: 0.145,
+      chromaticAberration: 0.66,
+      saturation: 1.32,
+    }),
+    createPrismaticGlassMaterial({
+      baseColor: new THREE.Color(0xf3e7ff),
+      tintColor: new THREE.Color(0x8d45ff),
+      alpha: 0.7,
+      fresnelPower: 2.1,
+      refractPower: 0.12,
+      chromaticAberration: 0.52,
+      saturation: 1.2,
+    }),
+    createPrismaticGlassMaterial({
+      baseColor: new THREE.Color(0xf8efff),
+      tintColor: new THREE.Color(0xc07aff),
+      alpha: 0.76,
+      fresnelPower: 1.95,
+      refractPower: 0.105,
+      chromaticAberration: 0.48,
+      saturation: 1.22,
+    }),
+  ];
+  const [starGlassMaterial, ribbonGlassMaterial, cubeGlassMaterial] = prismaticMaterials;
   scene.environment = environmentTexture;
 
-  const star = createNcsStar(lowPower, sheenTexture, glowTexture);
+  const star = createNcsStar(lowPower, sheenTexture, glowTexture, starGlassMaterial);
   star.group.scale.set(0.86, 0.86, 0.86);
   star.group.position.set(-0.82, -0.08, 0.18);
   star.group.rotation.set(0.12, -0.18, -0.03);
 
-  const swooshA = createSwoosh(lowPower, 3.18, 0.045, -1.1, -0.34, Math.PI * 1.05, Math.PI * 1.96, 0x9d48ff, 0.66);
-  const swooshB = createSwoosh(lowPower, 3.46, 0.026, -1.18, -0.42, Math.PI * 1.02, Math.PI * 1.94, 0xf3e9ff, 0.42);
-  const swooshC = createSwoosh(lowPower, 2.86, 0.018, -1.04, -0.22, Math.PI * 1.09, Math.PI * 1.88, 0xffffff, 0.24);
-  const cubes = createCubeCluster(lowPower);
+  const swooshA = createSwoosh(lowPower, 3.18, 0.045, -1.1, -0.34, Math.PI * 1.05, Math.PI * 1.96, 0x9d48ff, 0.66, ribbonGlassMaterial);
+  const swooshB = createSwoosh(lowPower, 3.46, 0.026, -1.18, -0.42, Math.PI * 1.02, Math.PI * 1.94, 0xf3e9ff, 0.42, ribbonGlassMaterial);
+  const swooshC = createSwoosh(lowPower, 2.86, 0.018, -1.04, -0.22, Math.PI * 1.09, Math.PI * 1.88, 0xffffff, 0.24, ribbonGlassMaterial);
+  const cubes = createCubeCluster(lowPower, cubeGlassMaterial);
   const particles = createParticles(lowPower ? 36 : 68);
 
   const starGlow = createGlow(glowTexture, 5.9, new THREE.Vector3(-0.86, -0.05, -0.8), 0.72);
@@ -495,6 +750,7 @@ export function initAbstractScene(canvas) {
   let lastFrameAt = 0;
   let inView = true;
   let disposed = false;
+  const renderResolution = new THREE.Vector2(1, 1);
 
   function resize() {
     const nextWidth = canvas.clientWidth;
@@ -504,6 +760,7 @@ export function initAbstractScene(canvas) {
     width = nextWidth;
     height = nextHeight;
     renderer.setSize(width, height, false);
+    refractionField.resize(width, height);
     camera.aspect = width / height;
     camera.fov = camera.aspect < 0.86 ? 43 : 35;
     camera.position.z = camera.aspect < 0.86 ? 13.2 : 10.8;
@@ -556,6 +813,14 @@ export function initAbstractScene(canvas) {
       const sparkle = 0.78 + Math.sin(drift * 1.8 + index * 1.45) * 0.22;
       glint.material.opacity = glint.userData.baseOpacity * sparkle;
       glint.scale.setScalar(glint.userData.baseScale * (0.92 + sparkle * 0.12));
+    });
+
+    renderer.getDrawingBufferSize(renderResolution);
+    refractionField.update(renderer, drift);
+    prismaticMaterials.forEach((material) => {
+      material.uniforms.uTexture.value = refractionField.texture;
+      material.uniforms.uResolution.value.copy(renderResolution);
+      material.uniforms.uTime.value = drift;
     });
 
     renderer.render(scene, camera);
@@ -619,13 +884,26 @@ export function initAbstractScene(canvas) {
     glowTexture.dispose();
     environmentTexture.dispose();
     sheenTexture.dispose();
+    refractionField.dispose();
+
+    const disposedMaterials = new Set();
+    const disposeMaterial = (material) => {
+      if (!material) return;
+      if (Array.isArray(material)) {
+        material.forEach(disposeMaterial);
+        return;
+      }
+      if (disposedMaterials.has(material)) return;
+      material.dispose();
+      disposedMaterials.add(material);
+    };
 
     group.traverse((object) => {
-      if (object.material) object.material.dispose();
+      disposeMaterial(object.material);
       disposeGeometry(object.userData.geometry);
       disposeGeometry(object.geometry);
     });
-    [starGlow, sweepGlow, cubeGlow].forEach((sprite) => sprite.material.dispose());
+    [starGlow, sweepGlow, cubeGlow].forEach((sprite) => disposeMaterial(sprite.material));
     renderer.dispose();
   };
 }
