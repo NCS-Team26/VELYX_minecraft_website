@@ -137,7 +137,9 @@ html:not(.is-loading) .transition-screen {
   inset: 0 0 auto 0;
   z-index: 1000;
   display: grid;
-  grid-template-columns: minmax(130px, 1fr) auto minmax(130px, 1fr);
+  width: 100%;
+  grid-template-columns: minmax(0, 1fr) minmax(0, auto) minmax(0, auto);
+  column-gap: clamp(0.45rem, 1.6vw, 0.9rem);
   align-items: center;
   height: var(--nav-height);
   padding: 0 var(--site-margin);
@@ -149,6 +151,7 @@ html:not(.is-loading) .transition-screen {
 .brand,
 .nav-links,
 .nav-actions {
+  min-width: 0;
   display: flex;
   align-items: center;
 }
@@ -160,6 +163,13 @@ html:not(.is-loading) .transition-screen {
   font-size: 0.78rem;
   font-weight: 600;
   text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.brand-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .brand-mark {
@@ -179,6 +189,8 @@ html:not(.is-loading) .transition-screen {
   font-family: var(--mono);
   font-size: 0.7rem;
   text-transform: uppercase;
+  min-width: 0;
+  min-height: var(--nav-height);
 }
 
 .nav-links a,
@@ -187,8 +199,10 @@ html:not(.is-loading) .transition-screen {
   display: inline-flex;
   align-items: center;
   min-height: 2.2rem;
+  min-width: max-content;
   color: var(--paper-faint);
   transition: color 0.35s var(--ease), transform 0.35s var(--ease);
+  white-space: nowrap;
 }
 
 .nav-links a::after,
@@ -236,10 +250,12 @@ html:not(.is-loading) .transition-screen {
 
 .nav-toggle {
   display: none;
+  position: relative;
   width: 2.65rem;
   height: 2.65rem;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
   border: 1px solid var(--line-strong);
   border-radius: 50%;
   background: transparent;
@@ -248,26 +264,28 @@ html:not(.is-loading) .transition-screen {
 
 .nav-toggle span {
   position: absolute;
+  left: 50%;
+  top: 50%;
   width: 1rem;
   height: 1px;
   background: currentColor;
-  transition: transform 0.35s var(--ease);
+  transition: transform 0.35s var(--ease), opacity 0.35s var(--ease);
 }
 
 .nav-toggle span:first-child {
-  transform: translateY(-4px);
+  transform: translate(-50%, -0.32rem);
 }
 
 .nav-toggle span:last-child {
-  transform: translateY(4px);
+  transform: translate(-50%, 0.32rem);
 }
 
 .site-nav.nav-open .nav-toggle span:first-child {
-  transform: rotate(45deg);
+  transform: translate(-50%, -50%) rotate(45deg);
 }
 
 .site-nav.nav-open .nav-toggle span:last-child {
-  transform: rotate(-45deg);
+  transform: translate(-50%, -50%) rotate(-45deg);
 }
 
 .hero-home {
@@ -1277,11 +1295,14 @@ a:focus-visible {
   }
 
   .nav-links {
+    z-index: 1001;
     position: fixed;
     inset: var(--nav-height) 0 auto 0;
     display: grid;
     gap: 0;
     padding: 1rem var(--site-margin) 1.4rem;
+    max-height: calc(100svh - var(--nav-height));
+    overflow-y: auto;
     border-bottom: 1px solid var(--line);
     background: rgba(8, 8, 7, 0.97);
     clip-path: inset(0 0 100% 0);

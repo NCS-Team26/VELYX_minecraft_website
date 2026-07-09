@@ -6678,22 +6678,28 @@ function initResponsiveNav() {
   const links = document.querySelector(".nav-links");
   if (!nav || !toggle || !links) return;
 
+  const mobileQuery = window.matchMedia("(max-width: 980px)");
+
   const setOpen = (open) => {
     nav.classList.toggle("nav-open", open);
-    document.body.classList.toggle("nav-locked", open);
+    document.body.classList.toggle("nav-locked", open && mobileQuery.matches);
     toggle.setAttribute("aria-expanded", String(open));
     toggle.setAttribute("aria-label", open ? "메뉴 닫기" : "메뉴 열기");
   };
 
   toggle.addEventListener("click", () => setOpen(!nav.classList.contains("nav-open")));
   links.addEventListener("click", (event) => {
-    if (event.target.closest("a")) setOpen(false);
+    if (event.target.closest("a, .nav-login")) setOpen(false);
   });
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") setOpen(false);
   });
   document.addEventListener("click", (event) => {
+    if (!mobileQuery.matches || !nav.classList.contains("nav-open")) return;
     if (!nav.contains(event.target)) setOpen(false);
+  });
+  mobileQuery.addEventListener("change", (event) => {
+    if (!event.matches) setOpen(false);
   });
   setOpen(false);
 }
