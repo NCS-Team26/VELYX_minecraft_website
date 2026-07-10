@@ -434,13 +434,17 @@ async function syncDistributionDefaults(distributionId, bucket, oacId, responseH
     desiredPlayerApiOrigin,
     ...originItems.filter((item) => ![existingOrigin.Id, originId, playerApiOriginId].includes(item.Id)),
   ];
-  const existingFunctionItems = config.DefaultCacheBehavior?.FunctionAssociations?.Items || [];
-  const nextFunctionItems = [
-    { EventType: "viewer-request", FunctionARN: redirectFunctionArn },
-    // Preserve any other associations (e.g. a viewer-response function) untouched.
-    ...existingFunctionItems.filter((item) => item.EventType !== "viewer-request"),
-  ];
-  const desiredFunctionAssociations = { Quantity: nextFunctionItems.length, Items: nextFunctionItems };
+  const existingFunctionAssociations = config.DefaultCacheBehavior?.FunctionAssociations || { Quantity: 0 };
+  let desiredFunctionAssociations = existingFunctionAssociations;
+  if (redirectFunctionArn) {
+    const existingItems = existingFunctionAssociations.Items || [];
+    const nextItems = [
+      { EventType: "viewer-request", FunctionARN: redirectFunctionArn },
+      // Preserve any other associations (e.g. a viewer-response function) untouched.
+      ...existingItems.filter((item) => item.EventType !== "viewer-request"),
+    ];
+    desiredFunctionAssociations = { Quantity: nextItems.length, Items: nextItems };
+  }
   const defaultCacheBehavior = {
     ...config.DefaultCacheBehavior,
     TargetOriginId: originId,
@@ -596,10 +600,14 @@ async function ensureDistribution(bucket, oacId, responseHeadersPolicyId, redire
           Compress: true,
           CachePolicyId: cachePolicyOptimized,
           ResponseHeadersPolicyId: responseHeadersPolicyId,
-          FunctionAssociations: {
-            Quantity: 1,
-            Items: [{ EventType: "viewer-request", FunctionARN: redirectFunctionArn }],
-          },
+          ...(redirectFunctionArn
+            ? {
+                FunctionAssociations: {
+                  Quantity: 1,
+                  Items: [{ EventType: "viewer-request", FunctionARN: redirectFunctionArn }],
+                },
+              }
+            : {}),
         },
         CacheBehaviors: {
           Quantity: 1,
@@ -772,7 +780,17 @@ async function main() {
   await ensureBucket(bucket);
   const oacId = await ensureOriginAccessControl(bucket);
   const responseHeadersPolicyId = await ensureSecurityHeadersPolicy();
-  const redirectFunctionArn = await ensureRedirectFunction(accountId);
+  let redirectFunctionArn = null;
+  try {
+    redirectFunctionArn = await ensureRedirectFunction(accountId);
+  } catch (error) {
+    // Best-effort: a missing CloudFront-function IAM permission (or any other
+    // error here) must not break the whole deploy. The plugins.html client-side
+    // fallback still redirects /plugins.html -> /economy.html. Grant the deploy
+    // role cloudfront:{Describe,Get,Create,Update,Publish}Function to enable the
+    // real HTTP 308, then re-run the deploy.
+    log(`WARNING: skipping legacy redirect CloudFront function: ${error?.name || error?.message || error}`);
+  }
   const distribution = await ensureDistribution(bucket, oacId, responseHeadersPolicyId, redirectFunctionArn);
   await allowCloudFrontRead(bucket, accountId, distribution.Id);
   await uploadDist(bucket);
