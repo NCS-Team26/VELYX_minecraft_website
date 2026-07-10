@@ -1231,7 +1231,6 @@ html:not(.is-loading) .transition-screen {
 .stock-dashboard,
 .stock-page,
 .status-dashboard,
-.admin-shell,
 .join-page,
 .rules-page,
 .community-page,
@@ -1471,8 +1470,7 @@ a:focus-visible {
   }
 
   .hero-wordmark {
-    bottom: calc(clamp(9.5rem, 18vh, 11rem) + 0.75rem);
-    color: rgba(232, 232, 227, 0.58);
+    color: rgba(232, 232, 227, 0.55);
     font-size: clamp(4.5rem, 24vw, 7rem);
   }
 
@@ -1586,10 +1584,17 @@ a:focus-visible {
   grid-template-columns: 3.6rem minmax(0, 1fr) auto 2.2rem;
   align-items: center;
   gap: clamp(1rem, 2.6vw, 2rem);
+  width: 100%;
   min-height: clamp(6.5rem, 12vw, 9rem);
   padding: 1.4rem 0;
+  border: 0;
   border-top: 1px solid var(--line);
+  border-radius: 0;
+  background: none;
   color: var(--paper);
+  font: inherit;
+  text-align: left;
+  appearance: none;
 }
 
 .economy-category:last-child {
@@ -1690,7 +1695,7 @@ a.economy-category:focus-visible {
 
 .economy-category.is-soon {
   color: rgba(232, 232, 227, 0.5);
-  cursor: default;
+  cursor: not-allowed;
 }
 
 .economy-category.is-soon .ec-name {
@@ -1726,6 +1731,28 @@ a.economy-category:focus-visible {
 
 .economy-breadcrumb b {
   font-weight: 500;
+  color: var(--paper);
+}
+
+.footer-links {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 1.1rem;
+  align-items: center;
+}
+
+.footer-links a {
+  position: relative;
+  color: var(--paper-faint);
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  transition: color 0.3s var(--ease);
+}
+
+.footer-links a:hover,
+.footer-links a:focus-visible {
   color: var(--paper);
 }
 

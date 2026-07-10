@@ -20,7 +20,6 @@ export default defineConfig({
         resources: resolve(rootDir, "resources.html"),
         rules: resolve(rootDir, "rules.html"),
         join: resolve(rootDir, "join.html"),
-        admin: resolve(rootDir, "admin.html"),
       },
       output: {
         manualChunks(id) {
