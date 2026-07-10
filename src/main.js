@@ -106,7 +106,7 @@ const STOCK_INFO_META = {
       ["Stock", "/stock.html"],
       ["규칙 문서", "/rules.html"],
       ["서버 상태", "/status.html"],
-      ["경제 분석", "/plugins.html"],
+      ["경제 분석", "/economy.html"],
     ],
   },
   FARM: {
@@ -118,7 +118,7 @@ const STOCK_INFO_META = {
       ["Stock", "/stock.html"],
       ["규칙 문서", "/rules.html"],
       ["서버 상태", "/status.html"],
-      ["경제 분석", "/plugins.html"],
+      ["경제 분석", "/economy.html"],
     ],
   },
   LOG: {
@@ -130,7 +130,7 @@ const STOCK_INFO_META = {
       ["Stock", "/stock.html"],
       ["접속 안내", "/join.html"],
       ["서버 상태", "/status.html"],
-      ["경제 분석", "/plugins.html"],
+      ["경제 분석", "/economy.html"],
     ],
   },
   RED: {
@@ -142,7 +142,7 @@ const STOCK_INFO_META = {
       ["Stock", "/stock.html"],
       ["규칙 문서", "/rules.html"],
       ["서버 상태", "/status.html"],
-      ["경제 분석", "/plugins.html"],
+      ["경제 분석", "/economy.html"],
     ],
   },
 };
@@ -384,7 +384,7 @@ const DEFAULT_STOCK_CHART_SETTINGS = {
 };
 const PAGE_LINKS = new Map([
   ["/status.html", "status"],
-  ["/plugins.html", "economy"],
+  ["/economy.html", "economy"],
   ["/stock.html", "economy"],
   ["/notice.html", "notice"],
   ["/community.html", "community"],
@@ -393,9 +393,8 @@ const PAGE_LINKS = new Map([
   ["/join.html", "join"],
 ]);
 const SECTION_ALIASES = new Map([
-  ["plugins", "economy"],
-  ["plugin", "economy"],
-  ["benefits", "economy"],
+  // Stock/Auction/Marketplace live under the Economy hub, so their section
+  // keys resolve to the Economy nav item.
   ["stock", "economy"],
   ["auction", "economy"],
   ["marketplace", "economy"],
@@ -4412,7 +4411,7 @@ function stockInfoMeta(stock) {
       ["Stock", "/stock.html"],
       ["규칙 문서", "/rules.html"],
       ["서버 상태", "/status.html"],
-      ["경제 분석", "/plugins.html"],
+      ["경제 분석", "/economy.html"],
     ],
   };
 }

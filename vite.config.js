@@ -13,6 +13,8 @@ export default defineConfig({
         main: resolve(rootDir, "index.html"),
         login: resolve(rootDir, "login.html"),
         status: resolve(rootDir, "status.html"),
+        economy: resolve(rootDir, "economy.html"),
+        // Legacy /plugins.html kept only as a redirect document to /economy.html.
         plugins: resolve(rootDir, "plugins.html"),
         stock: resolve(rootDir, "stock.html"),
         notice: resolve(rootDir, "notice.html"),

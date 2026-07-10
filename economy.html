@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="VELYX의 주식, 경매, 마켓플레이스 경제 시스템을 확인하세요."
+    />
+    <meta name="theme-color" content="#0d1411" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0d1411" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" type="image/png" href="/assets/server-icon.png" />
+    <title>Economy | VELYX</title>
+    <link rel="canonical" href="https://www.velyx.kr/economy.html" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Economy | VELYX" />
+    <meta property="og:description" content="VELYX의 주식, 경매, 마켓플레이스 경제 시스템을 확인하세요." />
+    <meta property="og:url" content="https://www.velyx.kr/economy.html" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <script>
+      (function () {
+        try {
+          document.documentElement.setAttribute("data-theme", "dark");
+          localStorage.removeItem("nfoifsb.theme");
+          localStorage.removeItem("nfoifsb.themePreset");
+          localStorage.removeItem("nfoifsb.themeCustom");
+        } catch (e) {
+          document.documentElement.setAttribute("data-theme", "dark");
+        }
+      })();
+    </script>
+  </head>
+  <body class="public-page-body economy-page-body">
+    <div id="app">
+      <a class="skip-link" href="#content">본문으로 이동</a>
+      <header class="site-nav" aria-label="주요 메뉴">
+        <a class="brand" href="/" aria-label="VELYX 홈">
+          <img src="/assets/server-icon.png" alt="" />
+          <span>VELYX</span>
+        </a>
+        <button
+          class="nav-toggle"
+          type="button"
+          aria-expanded="false"
+          aria-controls="primary-nav"
+          aria-label="메뉴 열기"
+          data-nav-toggle
+        >
+          <span aria-hidden="true">☰</span>
+        </button>
+        <nav class="nav-links" id="primary-nav" aria-label="사이트 페이지">
+          <a href="/status.html" data-section-link="status">Status</a>
+          <a href="/economy.html" data-section-link="economy">Economy</a>
+          <a href="/community.html" data-section-link="community">Community</a>
+          <a href="/rules.html" data-section-link="rules">Rules</a>
+          <a href="/join.html" data-section-link="join">Join</a>
+          <a class="nav-login" href="/login.html" data-open-login>Login</a>
+        </nav>
+      </header>
+
+      <main id="content" class="screen-main">
+        <div class="plugin-band">
+          <section class="plugin-section page-screen" aria-labelledby="plugin-title">
+            <div class="section-heading" data-reveal>
+              <p class="eyebrow">VELYX Economy</p>
+              <h1 id="plugin-title">Economy</h1>
+              <p class="screen-copy">
+                경제 메뉴에서 Stock · Auction · Marketplace 진입과 서버 경제 요약을 한 곳에서 확인합니다.
+              </p>
+            </div>
+
+            <div class="economy-hub-meta" data-reveal>
+              <span>SYSTEMS 03</span>
+              <span><b class="is-live">LIVE 01</b> / SOON 02</span>
+              <span>velyx.kr / ECONOMY</span>
+            </div>
+
+            <section class="economy-categories" aria-labelledby="economy-categories-title" data-reveal>
+              <h2 id="economy-categories-title" class="economy-categories-title">
+                경제 시스템 선택<span aria-hidden="true"> — Select a system</span>
+              </h2>
+
+              <a class="economy-category" href="/stock.html" data-cursor-label="Stock">
+                <span class="ec-index" aria-hidden="true">01</span>
+                <span class="ec-body">
+                  <strong class="ec-name">Stock</strong>
+                  <span class="ec-desc">실시간 가격과 차트, 보유 주식, 매수·매도를 한 화면에서 확인합니다.</span>
+                </span>
+                <span class="ec-status is-live">실시간 · LIVE</span>
+                <i class="ec-arrow" aria-hidden="true">↗</i>
+              </a>
+
+              <button type="button" class="economy-category is-soon" disabled>
+                <span class="ec-index" aria-hidden="true">02</span>
+                <span class="ec-body">
+                  <strong class="ec-name">Auction</strong>
+                  <span class="ec-desc">플레이어 경매 등록, 입찰, 즉시 구매, 거래 내역. 아직 준비 중이라 이용할 수 없습니다.</span>
+                </span>
+                <span class="ec-status">준비 중 · COMING SOON</span>
+                <i class="ec-arrow" aria-hidden="true">·</i>
+              </button>
+
+              <button type="button" class="economy-category is-soon" disabled>
+                <span class="ec-index" aria-hidden="true">03</span>
+                <span class="ec-body">
+                  <strong class="ec-name">Marketplace</strong>
+                  <span class="ec-desc">고정가 아이템과 플레이어 상점, 아이템 검색과 구매. 아직 준비 중이라 이용할 수 없습니다.</span>
+                </span>
+                <span class="ec-status">준비 중 · COMING SOON</span>
+                <i class="ec-arrow" aria-hidden="true">·</i>
+              </button>
+            </section>
+
+            <section class="stock-marketplace-section" id="economy-overview" aria-labelledby="economy-overview-title">
+              <div class="economy-market-heading" data-reveal>
+                <p class="eyebrow">경제 현황 · Overview</p>
+                <h2 id="economy-overview-title">서버 경제 요약</h2>
+                <p>서버에서 돈이 오가는 핵심 시장을 요약했습니다. 주식 차트와 주문은 Stock 화면에서, 아이템 거래는 준비 중인 Marketplace에서 다룹니다.</p>
+              </div>
+
+              <div class="economy-market-snapshot" data-reveal>
+                <article>
+                  <span>광물 시장</span>
+                  <strong>다이아 · 에메랄드 · 철</strong>
+                  <p>채굴한 자원을 서버 머니로 바꾸는 기본 판매 흐름입니다.</p>
+                </article>
+                <article>
+                  <span>생활 시장</span>
+                  <strong>농작물 · 낚시 · 목재</strong>
+                  <p>농사와 낚시처럼 반복 플레이로 벌 수 있는 품목을 모았습니다.</p>
+                </article>
+                <article>
+                  <span>유저 상점</span>
+                  <strong>개인 가격 · 재고 거래</strong>
+                  <p>상점가에서 플레이어가 직접 가격을 정하고 물건을 팝니다.</p>
+                </article>
+                <article>
+                  <span>주식</span>
+                  <strong>전용 거래 화면</strong>
+                  <p>차트, 호가, 체결, 매수와 매도는 주식 화면에서 따로 봅니다.</p>
+                  <a class="stock-trade-link" href="/stock.html">Stock 거래소 보기</a>
+                </article>
+              </div>
+            </section>
+
+            <div class="economy-subheading" id="economy-plugins" data-reveal>
+              <p class="eyebrow">상점과 경매</p>
+              <h2>상점과 경매를 받쳐주는 경제 구성</h2>
+            </div>
+
+            <div class="plugin-grid" data-reveal>
+              <article>
+                <svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M4 20h4l10-10-4-4L4 16z" />
+                  <path d="M14 6l4 4" />
+                </svg>
+                <span>Vault</span>
+                <strong>경제 연결</strong>
+                <p>잔액, 권한, 상점 플러그인이 같은 지갑을 바라보도록 연결합니다.</p>
+              </article>
+              <article>
+                <svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
+                  <rect x="3" y="4" width="18" height="16" rx="2" />
+                  <path d="M7 9l3 3-3 3M13 15h4" />
+                </svg>
+                <span>EssentialsX</span>
+                <strong>기본 생활</strong>
+                <p>스폰, 워프, 홈, 잔액 확인처럼 경제 야생에 필요한 기본 흐름을 담당합니다.</p>
+              </article>
+              <article>
+                <svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 3l8 3v6c0 5-3.5 7.5-8 9-4.5-1.5-8-4-8-9V6z" />
+                </svg>
+                <span>QuickShop</span>
+                <strong>유저 상점</strong>
+                <p>상자와 표지판 기반 상점으로 플레이어가 직접 가격을 정하고 판매합니다.</p>
+              </article>
+              <article>
+                <svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M7 4L4 7l3 3M4 7h12M17 14l3 3-3 3M20 17H8" />
+                </svg>
+                <span>AuctionHouse</span>
+                <strong>공개 경매</strong>
+                <p>희귀 아이템, 인챈트 장비, 대량 재료를 공개 시장에 올릴 수 있습니다.</p>
+              </article>
+              <article>
+                <svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
+                  <rect x="3" y="3" width="7" height="7" rx="1" />
+                  <rect x="14" y="3" width="7" height="7" rx="1" />
+                  <rect x="3" y="14" width="7" height="7" rx="1" />
+                  <rect x="14" y="14" width="7" height="7" rx="1" />
+                </svg>
+                <span>GriefPrevention</span>
+                <strong>토지 보호</strong>
+                <p>거점, 창고, 상점가를 보호해서 자산 손실과 분쟁을 줄입니다.</p>
+              </article>
+              <article>
+                <svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M21 12a8 8 0 0 1-11.5 7.2L3 21l1.8-6.5A8 8 0 1 1 21 12z" />
+                </svg>
+                <span>Jobs</span>
+                <strong>직업 보상</strong>
+                <p>채굴, 농사, 벌목, 사냥 같은 야생 활동에 자연스러운 수입을 붙입니다.</p>
+              </article>
+            </div>
+
+            <div class="market-board" id="economy-balance" data-reveal>
+              <div class="market-copy">
+                <p class="eyebrow">밸런스 계획</p>
+                <h2>돈이 너무 빨리 풀리지 않게.</h2>
+                <p>
+                  초반에는 기본 재료와 식량 거래를 살리고, 중반부터 장비, 인챈트, 건축 의뢰가
+                  시장을 키우도록 가격과 보상을 천천히 조정합니다.
+                </p>
+              </div>
+              <div class="market-list" aria-label="경제 운영 축">
+                <article>
+                  <span>초반</span>
+                  <strong>식량 · 광물</strong>
+                  <em>기초 자금</em>
+                </article>
+                <article>
+                  <span>중반</span>
+                  <strong>장비 · 인챈트</strong>
+                  <em>전문화</em>
+                </article>
+                <article>
+                  <span>후반</span>
+                  <strong>건축 · 서비스</strong>
+                  <em>유저 경제</em>
+                </article>
+                <article>
+                  <span>운영</span>
+                  <strong>보상 · 회수</strong>
+                  <em>밸런스</em>
+                </article>
+              </div>
+            </div>
+
+            <div class="section-dashboard plugin-dashboard" data-reveal>
+              <article class="dashboard-card">
+                <span>지갑</span>
+                <strong>공통 지갑</strong>
+                <p>보상, 거래, 상점, 경매 수익이 같은 잔액으로 쌓입니다.</p>
+              </article>
+              <article class="dashboard-card">
+                <span>시장</span>
+                <strong>상점가 중심</strong>
+                <p>스폰 주변에 유저 상점 흐름을 모아 신규 유저도 가격을 파악하기 쉽게 합니다.</p>
+              </article>
+              <article class="dashboard-card">
+                <span>안전</span>
+                <strong>거래 기록 우선</strong>
+                <p>거래 분쟁은 채팅 기록, 스크린샷, 좌표를 기준으로 확인합니다.</p>
+              </article>
+              <article class="dashboard-card dashboard-wide">
+                <span>운영 메모</span>
+                <strong>추가 플러그인 기준</strong>
+                <p>경제를 단번에 무너뜨리는 자동 판매, 과한 보상, 무제한 자원 생성 기능은 신중하게 적용합니다.</p>
+              </article>
+            </div>
+          </section>
+        </div>
+      </main>
+
+      <footer class="site-footer" id="site-footer">
+        <div class="footer-info-row">
+          <span class="footer-brand">
+            <img src="/assets/server-icon.png" alt="" />
+            velyx.kr
+          </span>
+          <span>Paper 26.1.2 · 경제 야생 서버</span>
+          <nav class="footer-links" aria-label="보조 링크"><a href="/notice.html">Notice</a> <a href="/resources.html">Resources</a></nav>
+          <a href="#content">맨 위로</a>
+        </div>
+      </footer>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
