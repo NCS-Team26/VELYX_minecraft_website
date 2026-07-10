@@ -159,10 +159,27 @@ html:not(.is-loading) .transition-screen {
 .brand {
   gap: 0.72rem;
   width: fit-content;
+  height: var(--nav-height);
   font-family: var(--mono);
   font-size: 0.78rem;
   font-weight: 600;
   text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.site-nav .brand img {
+  display: block;
+  width: 2rem;
+  height: 2rem;
+  max-width: none;
+  flex: 0 0 2rem;
+  object-fit: contain;
+}
+
+.site-nav .brand > span {
+  display: block;
+  min-width: 0;
+  line-height: 1;
   white-space: nowrap;
 }
 
@@ -1606,7 +1623,7 @@ a:focus-visible {
   grid-template-columns: repeat(12, minmax(0, 1fr));
   gap: 1rem;
   align-items: center;
-  padding-block: clamp(4rem, 10vh, 8rem);
+  padding-block: clamp(2.5rem, 6vh, 5rem);
 }
 
 .status-hero-copy {
@@ -1618,7 +1635,7 @@ a:focus-visible {
   margin: clamp(1.25rem, 3vw, 2.4rem) 0 0;
   color: var(--paper);
   font-family: var(--display);
-  font-size: clamp(3.5rem, 8.8vw, 9rem);
+  font-size: clamp(3.25rem, min(8vw, 12vh), 8rem);
   font-weight: 900;
   line-height: 1.04;
   letter-spacing: -0.02em;
@@ -1628,7 +1645,7 @@ a:focus-visible {
 
 .status-intro {
   max-width: 40rem;
-  margin: clamp(1.5rem, 3vw, 2.8rem) 0 0 clamp(2rem, 9vw, 9rem);
+  margin: clamp(1.25rem, 2.5vw, 2.25rem) 0 0 clamp(0rem, 6vw, 6rem);
   color: var(--paper-soft);
   font-size: clamp(0.98rem, 1.25vw, 1.16rem);
   line-height: 1.65;
@@ -1648,7 +1665,7 @@ a:focus-visible {
   margin-top: 1.2rem;
   color: var(--paper);
   font-family: var(--display);
-  font-size: clamp(3.4rem, 6.6vw, 7rem);
+  font-size: clamp(3rem, min(6vw, 10vh), 6.5rem);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   line-height: 0.92;
@@ -1926,6 +1943,12 @@ a:focus-visible {
     grid-template-columns: repeat(6, minmax(0, 1fr));
   }
 
+  .site-nav .brand img {
+    width: 1.75rem;
+    height: 1.75rem;
+    flex-basis: 1.75rem;
+  }
+
   .status-hero-copy {
     grid-column: 1 / -1;
   }
@@ -1958,6 +1981,12 @@ a:focus-visible {
 
   .status-join-actions {
     grid-column: 3 / -1;
+  }
+}
+
+@media (max-width: 1440px), (max-height: 800px) {
+  .status-intro {
+    margin-left: 0;
   }
 }
 
