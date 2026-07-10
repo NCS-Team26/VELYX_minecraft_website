@@ -618,19 +618,23 @@ function renderPlayerChart() {
   ctx.lineTo(x(n - 1), h);
   ctx.lineTo(x(0), h);
   ctx.closePath();
-  ctx.fillStyle = "rgba(76, 154, 94, 0.16)";
+  ctx.fillStyle = "rgba(232, 232, 227, 0.08)";
   ctx.fill();
 
   line();
-  ctx.strokeStyle = "#3f8a54";
+  ctx.strokeStyle = "#e8e8e3";
   ctx.lineWidth = 2;
   ctx.lineJoin = "round";
   ctx.stroke();
 
   ctx.beginPath();
   ctx.arc(x(n - 1), y(history[n - 1].online), 3, 0, Math.PI * 2);
-  ctx.fillStyle = "#3f8a54";
+  ctx.fillStyle = "#a7f0c1";
   ctx.fill();
+}
+
+if (playerChart && typeof ResizeObserver !== "undefined") {
+  new ResizeObserver(() => renderPlayerChart()).observe(playerChart);
 }
 
 function renderStatusData(data, options = {}) {
@@ -643,7 +647,7 @@ function renderStatusData(data, options = {}) {
 
   statusDot?.classList.toggle("is-online", online);
   statusDot?.classList.toggle("is-cached", Boolean(options.cached));
-  statusDot?.closest(".status-panel")?.classList.toggle("is-online", online);
+  statusDot?.closest(".status-panel, .status-live-summary")?.classList.toggle("is-online", online);
   if (statusLabel) {
     statusLabel.textContent = options.cached ? "캐시된 상태" : online ? "온라인" : "오프라인";
   }

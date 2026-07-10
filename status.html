@@ -9,8 +9,26 @@
     />
     <meta name="theme-color" content="#080807" />
     <link rel="icon" type="image/png" href="/assets/server-icon.png" />
-    <title>상태 - velyx.kr</title>
+    <title>Status | VELYX</title>
     <link rel="canonical" href="https://www.velyx.kr/status.html" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Status | VELYX" />
+    <meta
+      property="og:description"
+      content="VELYX Minecraft 서버의 실시간 접속자, 응답 속도와 시스템 상태를 확인하세요."
+    />
+    <meta property="og:url" content="https://www.velyx.kr/status.html" />
+    <meta property="og:image" content="https://www.velyx.kr/assets/velyx-og-thumbnail.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="VELYX Server Status" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Status | VELYX" />
+    <meta
+      name="twitter:description"
+      content="VELYX Minecraft 서버의 실시간 접속자, 응답 속도와 시스템 상태를 확인하세요."
+    />
+    <meta name="twitter:image" content="https://www.velyx.kr/assets/velyx-og-thumbnail.jpg" />
     <link rel="manifest" href="/site.webmanifest" />
     <script>
       (function () {
@@ -53,144 +71,128 @@
         </nav>
       </header>
 
-      <main id="content" class="screen-main">
-        <section class="status-band page-screen" aria-labelledby="status-title">
-          <div class="section-heading" data-reveal>
-            <p class="eyebrow">실시간 상태</p>
-            <h1 id="status-title"><span>서버 상태를</span> <span>바로 확인.</span></h1>
+      <main id="content" class="status-main">
+        <section class="status-hero" aria-labelledby="status-title">
+          <div class="status-hero-meta" data-reveal>
+            <span>STATUS / LIVE SYSTEM</span>
+            <span>SEOUL · KST</span>
+            <span data-last-checked>상태 값을 아직 받아오지 않았습니다.</span>
           </div>
 
-          <div class="status-layout" data-reveal>
-            <article class="status-panel">
+          <div class="status-hero-grid">
+            <div class="status-hero-copy" data-reveal>
+              <p class="eyebrow"><span></span>VELYX OPERATIONS</p>
+              <h1 id="status-title" data-split="words">서버는 지금도 기록되고 있습니다</h1>
+              <p class="status-intro">
+                접속자와 응답 속도, 시스템 자원을 한 화면에서 확인합니다. 값이 끊기면 마지막 정상 기록을 함께 남깁니다.
+              </p>
+            </div>
+
+            <article class="status-live-summary" aria-label="서버 실시간 상태" aria-live="polite" data-reveal>
               <div class="status-topline">
                 <span class="status-dot" data-status-dot></span>
                 <span data-status-label>상태 확인 중</span>
               </div>
               <strong data-player-count>-- / 10</strong>
               <span class="status-note">현재 접속자 / 최대 인원</span>
-              <div class="meter" aria-hidden="true">
-                <span data-player-meter></span>
-              </div>
+              <div class="meter" aria-hidden="true"><span data-player-meter></span></div>
               <div class="player-heads" data-player-heads hidden aria-label="접속 중인 플레이어"></div>
             </article>
+          </div>
 
-            <div class="detail-grid" aria-label="서버 상세 정보">
-              <article>
-                <svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
-                  <circle cx="12" cy="12" r="9" />
-                  <path d="M3 12h18M12 3c2.5 2.5 2.5 16 0 18M12 3c-2.5 2.5-2.5 16 0 18" />
-                </svg>
-                <span>주소</span>
-                <strong>velyx.kr</strong>
-              </article>
-              <article>
-                <svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M12 2l9 5v10l-9 5-9-5V7z" />
-                  <path d="M12 2v20M3 7l9 5 9-5" />
-                </svg>
-                <span>버전</span>
-                <strong data-version>Paper 26.1.2</strong>
-              </article>
-              <article>
-                <svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" />
-                </svg>
-                <span>월드 경계</span>
-                <strong>59,999,968</strong>
-              </article>
-              <article class="ram-live-card">
-                <svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
-                  <rect x="6" y="6" width="12" height="12" rx="1" />
-                  <rect x="9" y="9" width="6" height="6" rx="1" />
-                  <path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3" />
-                </svg>
-                <span>메모리</span>
-                <strong data-ram-summary>실시간 확인 중</strong>
+          <div class="status-scroll-note" aria-hidden="true">SCROLL TO READ <span>↓</span></div>
+        </section>
+
+        <section class="status-metrics status-section" aria-labelledby="live-signal-title">
+          <div class="status-section-heading" data-reveal>
+            <span>01 / LIVE SIGNAL</span>
+            <h2 id="live-signal-title">지금 이 세계의 신호</h2>
+          </div>
+          <div class="status-metric-list" data-reveal>
+            <article class="status-metric-row">
+              <span class="status-index">01</span>
+              <span class="status-label">PLAYERS</span>
+              <strong data-player-summary>--</strong>
+              <p>현재 접속자와 슬롯 사용률</p>
+            </article>
+            <article class="status-metric-row">
+              <span class="status-index">02</span>
+              <span class="status-label">LATENCY</span>
+              <strong data-latency>-- ms</strong>
+              <p data-status-health>API 응답을 기다리고 있습니다.</p>
+            </article>
+            <article class="status-metric-row">
+              <span class="status-index">03</span>
+              <span class="status-label">SOURCE</span>
+              <strong data-cache-state>확인 중</strong>
+              <p>실시간 응답과 마지막 정상 기록</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="status-infrastructure status-section" aria-labelledby="infrastructure-title">
+          <div class="status-section-heading" data-reveal>
+            <span>02 / INFRASTRUCTURE</span>
+            <h2 id="infrastructure-title">세계를 지탱하는 시스템</h2>
+          </div>
+
+          <div class="status-infra-grid" data-reveal>
+            <div class="status-identity-list">
+              <article><span>ADDRESS</span><strong>velyx.kr</strong></article>
+              <article><span>VERSION</span><strong data-version>Paper 26.1.2</strong></article>
+              <article><span>WORLD BORDER</span><strong>59,999,968</strong></article>
+            </div>
+
+            <div class="status-system-list">
+              <article class="status-system-row">
+                <div><span>RAM</span><strong data-ram-summary>확인 중</strong></div>
                 <em data-ram-percent>--</em>
-                <div class="meter ram-card-meter" aria-hidden="true">
-                  <span data-ram-meter></span>
-                </div>
+                <div class="meter" aria-hidden="true"><span data-ram-meter></span></div>
                 <p data-ram-detail>서버 RAM 사용량을 불러오는 중입니다.</p>
               </article>
-              <article class="metric-live-card">
-                <svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
-                  <rect x="7" y="7" width="10" height="10" rx="2" />
-                  <path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3" />
-                  <path d="M10 12h4" />
-                </svg>
-                <span>CPU</span>
-                <strong data-cpu-summary>실시간 확인 중</strong>
-                <div class="meter metric-card-meter" aria-hidden="true">
-                  <span data-cpu-meter></span>
-                </div>
+              <article class="status-system-row">
+                <div><span>CPU</span><strong data-cpu-summary>확인 중</strong></div>
+                <div class="meter" aria-hidden="true"><span data-cpu-meter></span></div>
                 <p data-cpu-detail>CPU 사용량을 불러오는 중입니다.</p>
               </article>
-              <article class="metric-live-card">
-                <svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M14 14.76V5a4 4 0 0 0-8 0v9.76A6 6 0 1 0 14 14.76z" />
-                  <path d="M10 5v11" />
-                  <path d="M10 20a2 2 0 0 0 2-2" />
-                </svg>
-                <span>온도</span>
-                <strong data-temp-summary>실시간 확인 중</strong>
-                <div class="meter metric-card-meter temperature-meter" aria-hidden="true">
-                  <span data-temp-meter></span>
-                </div>
+              <article class="status-system-row">
+                <div><span>TEMPERATURE</span><strong data-temp-summary>확인 중</strong></div>
+                <div class="meter temperature-meter" aria-hidden="true"><span data-temp-meter></span></div>
                 <p data-temp-detail>온도 센서를 불러오는 중입니다.</p>
               </article>
             </div>
           </div>
+        </section>
 
-          <div class="section-dashboard status-dashboard" data-reveal>
-            <article class="dashboard-card">
-              <span>상태 캐시</span>
-              <strong data-cache-state>실시간 확인 준비 중</strong>
-              <p data-last-checked>상태 값을 아직 받아오지 않았습니다.</p>
-            </article>
-            <article class="dashboard-card">
-              <span>응답 속도</span>
-              <strong data-latency>-- ms</strong>
-              <p data-status-health>API 응답을 기다리고 있습니다.</p>
-            </article>
-            <article class="dashboard-card">
-              <span>서버 RAM</span>
-              <strong data-ram-percent>--</strong>
-              <div class="meter dashboard-meter" aria-hidden="true">
-                <span data-ram-meter></span>
-              </div>
-              <p data-ram-detail>AuroraLink 브리지를 기다리는 중입니다.</p>
-            </article>
-            <article class="dashboard-card">
-              <span>CPU 사용량</span>
-              <strong data-cpu-summary>--</strong>
-              <div class="meter dashboard-meter" aria-hidden="true">
-                <span data-cpu-meter></span>
-              </div>
-              <p data-cpu-detail>AuroraLink 브리지를 기다리는 중입니다.</p>
-            </article>
-            <article class="dashboard-card">
-              <span>온도</span>
-              <strong data-temp-summary>--</strong>
-              <div class="meter dashboard-meter temperature-meter" aria-hidden="true">
-                <span data-temp-meter></span>
-              </div>
-              <p data-temp-detail>AuroraLink 브리지를 기다리는 중입니다.</p>
-            </article>
-            <article class="dashboard-card">
-              <span>접속자</span>
-              <strong data-player-summary>--</strong>
-              <p>접속자 수와 슬롯 사용률을 같이 표시합니다.</p>
-            </article>
-            <article class="dashboard-card dashboard-wide">
-              <span>오늘의 서버 메시지</span>
-              <strong>서버 MOTD</strong>
-              <p data-motd>서버 메시지를 불러오고 있습니다.</p>
-            </article>
-            <article class="dashboard-card dashboard-wide">
-              <span>접속자 기록</span>
-              <canvas class="player-chart" data-player-chart width="480" height="72" aria-hidden="true"></canvas>
-              <p>최근 접속자 추이를 자동으로 기록해서 보여줍니다.</p>
-            </article>
+        <section class="status-activity status-section" aria-labelledby="activity-title">
+          <div class="status-section-heading" data-reveal>
+            <span>03 / ACTIVITY LOG</span>
+            <h2 id="activity-title">접속은 선으로 남습니다</h2>
+          </div>
+          <div class="status-chart-wrap" data-reveal>
+            <div class="status-chart-meta"><span>RECENT PLAYERS</span><span>LOCAL HISTORY / AUTO RECORD</span></div>
+            <canvas class="player-chart" data-player-chart width="960" height="180" aria-hidden="true"></canvas>
+            <p>아직 기록이 충분하지 않으면 현재 브라우저에서 새 기록을 수집합니다.</p>
+          </div>
+        </section>
+
+        <section class="status-message status-section" aria-labelledby="message-title">
+          <div class="status-section-heading" data-reveal>
+            <span>04 / SYSTEM MESSAGE</span>
+            <h2 id="message-title">오늘의 서버 메시지</h2>
+          </div>
+          <blockquote data-reveal>
+            <p data-motd>서버 메시지를 불러오고 있습니다.</p>
+            <footer>VELYX / MESSAGE OF THE DAY</footer>
+          </blockquote>
+        </section>
+
+        <section class="status-join status-section" aria-labelledby="status-join-title">
+          <p class="eyebrow" data-reveal><span></span>ENTER THE REALM</p>
+          <h2 id="status-join-title" data-reveal>상태를 확인했다면,<br />이제 세계로 들어오세요</h2>
+          <div class="status-join-actions" data-reveal>
+            <a class="g-button" href="/join.html">접속 안내 <span aria-hidden="true">→</span></a>
+            <a class="g-button is-quiet" href="/economy.html">경제 시스템 <span aria-hidden="true">↗</span></a>
           </div>
         </section>
       </main>
