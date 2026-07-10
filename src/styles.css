@@ -435,6 +435,8 @@ html:not(.is-loading) .transition-screen {
   font-size: clamp(1.35rem, 2.08vw, 1.95rem);
   font-weight: 800;
   line-height: 1.18;
+  letter-spacing: -0.01em;
+  word-break: keep-all;
   text-wrap: balance;
 }
 
@@ -748,7 +750,9 @@ html:not(.is-loading) .transition-screen {
   font-family: var(--display);
   font-size: clamp(3.25rem, 7.4vw, 7.1rem);
   font-weight: 900;
-  line-height: 0.98;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  word-break: keep-all;
   text-wrap: balance;
   scroll-margin-top: calc(var(--nav-height) + 1.3rem);
 }
@@ -820,13 +824,15 @@ html:not(.is-loading) .transition-screen {
 .gap-section h2 {
   z-index: 2;
   grid-column: 1 / -1;
-  max-width: 12ch;
+  max-width: 16ch;
   margin: 0;
   color: var(--paper);
   font-family: var(--display);
-  font-size: clamp(3.8rem, 9.6vw, 9.2rem);
+  font-size: clamp(3.4rem, 8.4vw, 8rem);
   font-weight: 900;
-  line-height: 0.94;
+  line-height: 1.08;
+  letter-spacing: -0.01em;
+  word-break: keep-all;
   text-wrap: balance;
 }
 
