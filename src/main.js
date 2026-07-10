@@ -1207,7 +1207,7 @@ function initPageNavigation() {
 
 function initAnimationStagger() {
   const animatedGroups = document.querySelectorAll(
-    ".detail-grid, .plugin-grid, .feature-grid, .economy-grid, .market-list, .stock-heading, .stock-ticker, [data-stock-list], .section-dashboard, .rules-list, .rules-tools, .join-steps, .stats-inner, .gallery-strip, .live-facts, .benefit-ledger, .benefit-links, .roster-grid",
+    ".detail-grid, .feature-grid, .economy-grid, .market-list, .stock-heading, .stock-ticker, [data-stock-list], .section-dashboard, .rules-list, .rules-tools, .join-steps, .stats-inner, .gallery-strip, .live-facts, .benefit-ledger, .benefit-links, .roster-grid",
   );
 
   animatedGroups.forEach((group) => {
