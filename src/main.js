@@ -79,7 +79,6 @@ const tempDetails = document.querySelectorAll("[data-temp-detail]");
 const playerHeads = document.querySelector("[data-player-heads]");
 const playerChart = document.querySelector("[data-player-chart]");
 const sectionLinks = document.querySelectorAll("[data-section-link]");
-const adminLinks = document.querySelectorAll("[data-admin-link]");
 const stockAuthLink = document.querySelector("[data-stock-auth-link]");
 const AUTH_STORAGE_KEY = "nfoifsb.googleUser";
 const AUTH_EVENT_KEY = "nfoifsb.authEvent";
@@ -386,18 +385,20 @@ const DEFAULT_STOCK_CHART_SETTINGS = {
 const PAGE_LINKS = new Map([
   ["/status.html", "status"],
   ["/plugins.html", "economy"],
-  ["/stock.html", "stock"],
+  ["/stock.html", "economy"],
   ["/notice.html", "notice"],
   ["/community.html", "community"],
   ["/resources.html", "resources"],
   ["/rules.html", "rules"],
   ["/join.html", "join"],
-  ["/admin.html", "admin"],
 ]);
 const SECTION_ALIASES = new Map([
   ["plugins", "economy"],
   ["plugin", "economy"],
   ["benefits", "economy"],
+  ["stock", "economy"],
+  ["auction", "economy"],
+  ["marketplace", "economy"],
   ["top", "home"],
 ]);
 
@@ -909,10 +910,6 @@ function readStoredUser() {
   }
 }
 
-function isAdminUser(user) {
-  return Array.isArray(user?.roles) && user.roles.includes("admin");
-}
-
 function readJsonStorage(key, fallback) {
   try {
     const raw = localStorage.getItem(key);
@@ -955,9 +952,6 @@ function applyAddressGate(authed) {
 function renderAuthState(user = sessionUser || readStoredUser()) {
   renderStockAuthLink(user);
   applyAddressGate(Boolean(user));
-  adminLinks.forEach((link) => {
-    link.hidden = !isAdminUser(user);
-  });
   if (!loginButton) return;
 
   if (user) {

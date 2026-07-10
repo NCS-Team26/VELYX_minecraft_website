@@ -56,12 +56,10 @@
 
         <nav class="nav-links" id="primary-nav" aria-label="사이트 페이지">
           <a href="/status.html" data-section-link="status" data-cursor-label="Status">Status</a>
-          <a href="/stock.html" data-section-link="stock" data-cursor-label="Market">Stock</a>
           <a href="/plugins.html" data-section-link="economy" data-cursor-label="System">Economy</a>
           <a href="/community.html" data-section-link="community" data-cursor-label="Board">Community</a>
           <a href="/rules.html" data-section-link="rules" data-cursor-label="Rules">Rules</a>
           <a href="/join.html" data-section-link="join" data-cursor-label="Join">Join</a>
-          <a href="/admin.html" data-section-link="admin" data-admin-link hidden>Admin</a>
         </nav>
 
         <div class="nav-actions">
@@ -123,18 +121,20 @@
             </div>
           </div>
 
-          <div class="hero-wordmark" aria-hidden="true">VELYX</div>
+          <div class="hero-baseline">
+            <div class="hero-wordmark" aria-hidden="true">VELYX</div>
 
-          <aside class="hero-status status-panel" id="status" data-reveal aria-label="서버 상태 요약">
-            <div class="status-topline">
-              <span class="status-dot" data-status-dot></span>
-              <span data-status-label>상태 확인 중</span>
-            </div>
-            <strong data-player-count>-- / 10</strong>
-            <span class="status-note">현재 접속 / 최대 슬롯</span>
-            <div class="meter" aria-hidden="true"><span data-player-meter></span></div>
-            <div class="player-heads" data-player-heads hidden aria-label="접속 중인 플레이어"></div>
-          </aside>
+            <aside class="hero-status status-panel" id="status" data-reveal aria-label="서버 상태 요약">
+              <div class="status-topline">
+                <span class="status-dot" data-status-dot></span>
+                <span data-status-label>상태 확인 중</span>
+              </div>
+              <strong data-player-count>-- / 10</strong>
+              <span class="status-note">현재 접속 / 최대 슬롯</span>
+              <div class="meter" aria-hidden="true"><span data-player-meter></span></div>
+              <div class="player-heads" data-player-heads hidden aria-label="접속 중인 플레이어"></div>
+            </aside>
+          </div>
         </section>
 
         <section class="story-section" aria-labelledby="story-title">

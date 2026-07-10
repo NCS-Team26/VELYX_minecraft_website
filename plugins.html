@@ -47,13 +47,11 @@
         <nav class="nav-links" id="primary-nav" aria-label="사이트 페이지">
           <a href="/status.html" data-section-link="status">Status</a>
           <a href="/plugins.html" data-section-link="economy">Economy</a>
-          <a href="/stock.html" data-section-link="stock">Stock</a>
           <a href="/notice.html" data-section-link="notice">Notice</a>
           <a href="/community.html" data-section-link="community">Community</a>
           <a href="/resources.html" data-section-link="resources">Resources</a>
           <a href="/rules.html" data-section-link="rules">Rules</a>
           <a href="/join.html" data-section-link="join">Join</a>
-          <a href="/admin.html" data-section-link="admin" data-admin-link hidden>Admin</a>
           <a class="nav-login" href="/login.html" data-open-login>Login</a>
         </nav>
       </header>
@@ -69,11 +67,47 @@
               </p>
             </div>
 
-            <div class="economy-page-tabs" data-reveal aria-label="경제 페이지 바로가기">
-              <a href="/stock.html">Stock</a>
-              <a href="#economy-plugins">상점 · 경매</a>
-              <a href="#economy-balance">운영 밸런스</a>
+            <div class="economy-hub-meta" data-reveal>
+              <span>SYSTEMS 03</span>
+              <span><b class="is-live">LIVE 01</b> / SOON 02</span>
+              <span>velyx.kr / ECONOMY</span>
             </div>
+
+            <section class="economy-categories" aria-labelledby="economy-categories-title" data-reveal>
+              <h2 id="economy-categories-title" class="economy-categories-title">
+                경제 시스템 선택<span aria-hidden="true"> — Select a system</span>
+              </h2>
+
+              <a class="economy-category" href="/stock.html" data-cursor-label="Stock">
+                <span class="ec-index" aria-hidden="true">01</span>
+                <span class="ec-body">
+                  <strong class="ec-name">Stock</strong>
+                  <span class="ec-desc">실시간 가격과 차트, 보유 주식, 매수·매도를 한 화면에서 확인합니다.</span>
+                </span>
+                <span class="ec-status is-live">실시간 · LIVE</span>
+                <i class="ec-arrow" aria-hidden="true">↗</i>
+              </a>
+
+              <div class="economy-category is-soon">
+                <span class="ec-index" aria-hidden="true">02</span>
+                <span class="ec-body">
+                  <strong class="ec-name">Auction</strong>
+                  <span class="ec-desc">플레이어 경매 등록, 입찰, 즉시 구매, 거래 내역을 준비하고 있습니다.</span>
+                </span>
+                <span class="ec-status">준비 중 · COMING SOON</span>
+                <i class="ec-arrow" aria-hidden="true">·</i>
+              </div>
+
+              <div class="economy-category is-soon">
+                <span class="ec-index" aria-hidden="true">03</span>
+                <span class="ec-body">
+                  <strong class="ec-name">Marketplace</strong>
+                  <span class="ec-desc">고정가 상품과 플레이어 상점, 아이템 검색과 구매를 준비하고 있습니다.</span>
+                </span>
+                <span class="ec-status">준비 중 · COMING SOON</span>
+                <i class="ec-arrow" aria-hidden="true">·</i>
+              </div>
+            </section>
 
             <section class="stock-marketplace-section" id="stock-marketplace" aria-labelledby="stock-marketplace-title">
               <div class="economy-market-heading" data-reveal>
