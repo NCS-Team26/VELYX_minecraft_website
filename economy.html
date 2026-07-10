@@ -66,209 +66,184 @@
         </nav>
       </header>
 
-      <main id="content" class="screen-main">
-        <div class="economy-band">
-          <section class="economy-section page-screen" aria-labelledby="economy-title">
-            <div class="section-heading" data-reveal>
-              <p class="eyebrow">VELYX Economy</p>
-              <h1 id="economy-title">Economy</h1>
-              <p class="screen-copy">
-                경제 메뉴에서 Stock · Auction · Marketplace 진입과 서버 경제 요약을 한 곳에서 확인합니다.
+      <main id="content" class="economy-main">
+        <section class="economy-hero" aria-labelledby="economy-title">
+          <div class="economy-hero-meta" data-reveal>
+            <span>ECONOMY / SYSTEM INDEX</span>
+            <span>SYSTEMS 03</span>
+            <span><b>LIVE 01</b> / SOON 02</span>
+          </div>
+
+          <div class="economy-hero-grid">
+            <div class="economy-hero-copy" data-reveal>
+              <p class="eyebrow"><span></span>VELYX ECONOMY</p>
+              <h1 id="economy-title" data-split="words">가치는 플레이에서 멈추지 않습니다</h1>
+              <p>
+                채굴과 생산, 거래와 투자가 하나의 지갑과 기록으로 이어지는 VELYX의 경제 구조를 확인하세요.
               </p>
             </div>
 
-            <div class="economy-hub-meta" data-reveal>
-              <span>SYSTEMS 03</span>
-              <span><b class="is-live">LIVE 01</b> / SOON 02</span>
-              <span>velyx.kr / ECONOMY</span>
-            </div>
+            <aside class="economy-hero-index" aria-label="경제 시스템 현황" data-reveal>
+              <span>ACTIVE SYSTEM</span>
+              <strong>01 / 03</strong>
+              <p><i aria-hidden="true"></i> Stock market live</p>
+            </aside>
+          </div>
 
-            <section class="economy-categories" aria-labelledby="economy-categories-title" data-reveal>
-              <h2 id="economy-categories-title" class="economy-categories-title">
-                경제 시스템 선택<span aria-hidden="true"> — Select a system</span>
-              </h2>
+          <div class="economy-wordmark" aria-hidden="true">ECONOMY</div>
+          <div class="economy-scroll-note" aria-hidden="true">SCROLL TO EXPLORE <span>↓</span></div>
+        </section>
 
-              <a class="economy-category" href="/stock.html" data-cursor-label="Stock">
-                <span class="ec-index" aria-hidden="true">01</span>
-                <span class="ec-body">
-                  <strong class="ec-name">Stock</strong>
-                  <span class="ec-desc">실시간 가격과 차트, 보유 주식, 매수·매도를 한 화면에서 확인합니다.</span>
-                </span>
-                <span class="ec-status is-live">실시간 · LIVE</span>
-                <i class="ec-arrow" aria-hidden="true">↗</i>
+        <section id="economy-systems" class="economy-selector economy-section" aria-labelledby="economy-categories-title">
+          <header class="economy-section-heading" data-reveal>
+            <span>01 / SYSTEM SELECTOR</span>
+            <h2 id="economy-categories-title">경제 시스템을 선택하세요</h2>
+          </header>
+
+          <div class="economy-categories">
+            <a class="economy-category" href="/stock.html" data-cursor-label="Stock">
+              <span class="ec-index" aria-hidden="true">01</span>
+              <span class="ec-body">
+                <strong class="ec-name">Stock</strong>
+                <span class="ec-desc">실시간 가격과 차트, 보유 주식, 매수·매도를 한 화면에서 확인합니다.</span>
+              </span>
+              <span class="ec-status is-live">실시간 · LIVE</span>
+              <i class="ec-arrow" aria-hidden="true">↗</i>
+            </a>
+
+            <button type="button" class="economy-category is-soon" disabled>
+              <span class="ec-index" aria-hidden="true">02</span>
+              <span class="ec-body">
+                <strong class="ec-name">Auction</strong>
+                <span class="ec-desc">플레이어 경매 등록, 입찰, 즉시 구매와 거래 기록을 준비하고 있습니다.</span>
+              </span>
+              <span class="ec-status">준비 중 · COMING SOON</span>
+              <i class="ec-arrow" aria-hidden="true">·</i>
+            </button>
+
+            <button type="button" class="economy-category is-soon" disabled>
+              <span class="ec-index" aria-hidden="true">03</span>
+              <span class="ec-body">
+                <strong class="ec-name">Marketplace</strong>
+                <span class="ec-desc">고정가 아이템, 플레이어 상점과 검색·구매 기능을 준비하고 있습니다.</span>
+              </span>
+              <span class="ec-status">준비 중 · COMING SOON</span>
+              <i class="ec-arrow" aria-hidden="true">·</i>
+            </button>
+          </div>
+        </section>
+
+        <section class="economy-flow economy-section" aria-labelledby="economy-flow-title">
+          <header class="economy-section-heading" data-reveal>
+            <span>02 / VALUE FLOW</span>
+            <h2 id="economy-flow-title">플레이가 가치가 되는 순서</h2>
+          </header>
+
+          <ol class="economy-flow-list" data-reveal>
+            <li>
+              <span>01 / EARN</span>
+              <h3>생산</h3>
+              <p>채굴과 농사, 낚시와 벌목으로 경제에 들어올 첫 가치를 만듭니다.</p>
+            </li>
+            <li>
+              <span>02 / TRADE</span>
+              <h3>거래</h3>
+              <p>플레이어가 가격과 재고를 결정하고 서로의 필요를 시장으로 연결합니다.</p>
+            </li>
+            <li>
+              <span>03 / BUILD</span>
+              <h3>정착</h3>
+              <p>상점과 토지, 거점이 보호 규칙 안에서 오래 유지되는 자산이 됩니다.</p>
+            </li>
+            <li>
+              <span>04 / INVEST</span>
+              <h3>투자</h3>
+              <p>Stock 시장에서 자본이 이동하고 선택의 결과가 거래 기록으로 남습니다.</p>
+            </li>
+          </ol>
+        </section>
+
+        <section id="economy-overview" class="economy-market economy-section" aria-labelledby="economy-market-title">
+          <header class="economy-section-heading" data-reveal>
+            <span>03 / MARKET OVERVIEW</span>
+            <h2 id="economy-market-title">시장은 역할에 따라 움직입니다</h2>
+          </header>
+
+          <ul class="economy-market-list">
+            <li>
+              <article>
+              <span>광물 시장</span>
+              <strong>다이아 · 에메랄드 · 철</strong>
+              <p>기초 자금</p>
+              <i aria-hidden="true">01</i>
+              </article>
+            </li>
+            <li>
+              <article>
+              <span>생활 시장</span>
+              <strong>농작물 · 낚시 · 목재</strong>
+              <p>반복 수입</p>
+              <i aria-hidden="true">02</i>
+              </article>
+            </li>
+            <li>
+              <article>
+              <span>플레이어 상점</span>
+              <strong>개인 가격 · 재고 거래</strong>
+              <p>직접 거래</p>
+              <i aria-hidden="true">03</i>
+              </article>
+            </li>
+            <li>
+              <a href="/stock.html" aria-label="Stock 거래소 보기">
+                <span>Stock</span>
+                <strong>자본 · 시장 심리</strong>
+                <p>투자 기록</p>
+                <i aria-hidden="true">↗</i>
               </a>
+            </li>
+          </ul>
+        </section>
 
-              <button type="button" class="economy-category is-soon" disabled>
-                <span class="ec-index" aria-hidden="true">02</span>
-                <span class="ec-body">
-                  <strong class="ec-name">Auction</strong>
-                  <span class="ec-desc">플레이어 경매 등록, 입찰, 즉시 구매, 거래 내역. 아직 준비 중이라 이용할 수 없습니다.</span>
-                </span>
-                <span class="ec-status">준비 중 · COMING SOON</span>
-                <i class="ec-arrow" aria-hidden="true">·</i>
-              </button>
+        <section class="economy-infrastructure economy-section" aria-labelledby="economy-infrastructure-title">
+          <header class="economy-section-heading" data-reveal>
+            <span>04 / INFRASTRUCTURE</span>
+            <h2 id="economy-infrastructure-title">경제를 연결하는 기반</h2>
+          </header>
 
-              <button type="button" class="economy-category is-soon" disabled>
-                <span class="ec-index" aria-hidden="true">03</span>
-                <span class="ec-body">
-                  <strong class="ec-name">Marketplace</strong>
-                  <span class="ec-desc">고정가 아이템과 플레이어 상점, 아이템 검색과 구매. 아직 준비 중이라 이용할 수 없습니다.</span>
-                </span>
-                <span class="ec-status">준비 중 · COMING SOON</span>
-                <i class="ec-arrow" aria-hidden="true">·</i>
-              </button>
-            </section>
+          <div class="economy-ledger" data-reveal aria-label="운영 및 지원 경제 인프라">
+            <article><span>01</span><h3>Vault</h3><strong>경제 API</strong><p>운영 연동</p></article>
+            <article><span>02</span><h3>EssentialsX</h3><strong>잔액 · 생활 명령</strong><p>연동 기반</p></article>
+            <article><span>03</span><h3>QuickShop</h3><strong>플레이어 상점</strong><p>지원 설계</p></article>
+            <article><span>04</span><h3>AuctionHouse</h3><strong>공개 경매</strong><p>지원 예정</p></article>
+            <article><span>05</span><h3>GriefPrevention</h3><strong>자산 보호</strong><p>연동 설계</p></article>
+            <article><span>06</span><h3>AuroraLink</h3><strong>Stock engine</strong><p>운영 연동</p></article>
+          </div>
+        </section>
 
-            <section class="stock-marketplace-section" id="economy-overview" aria-labelledby="economy-overview-title">
-              <div class="economy-market-heading" data-reveal>
-                <p class="eyebrow">경제 현황 · Overview</p>
-                <h2 id="economy-overview-title">서버 경제 요약</h2>
-                <p>서버에서 돈이 오가는 핵심 시장을 요약했습니다. 주식 차트와 주문은 Stock 화면에서, 아이템 거래는 준비 중인 Marketplace에서 다룹니다.</p>
-              </div>
+        <section id="economy-balance" class="economy-balance" aria-labelledby="economy-balance-title">
+          <div class="economy-balance-copy" data-reveal>
+            <span>05 / BALANCE PRINCIPLE</span>
+            <h2 id="economy-balance-title">가치는 쌓이되,<br />경제는 무너지지 않게</h2>
+            <p>보상과 소비, 공급과 회수의 속도를 함께 조정해 플레이어가 만든 가치가 오래 남도록 운영합니다.</p>
+          </div>
 
-              <div class="economy-market-snapshot" data-reveal>
-                <article>
-                  <span>광물 시장</span>
-                  <strong>다이아 · 에메랄드 · 철</strong>
-                  <p>채굴한 자원을 서버 머니로 바꾸는 기본 판매 흐름입니다.</p>
-                </article>
-                <article>
-                  <span>생활 시장</span>
-                  <strong>농작물 · 낚시 · 목재</strong>
-                  <p>농사와 낚시처럼 반복 플레이로 벌 수 있는 품목을 모았습니다.</p>
-                </article>
-                <article>
-                  <span>유저 상점</span>
-                  <strong>개인 가격 · 재고 거래</strong>
-                  <p>상점가에서 플레이어가 직접 가격을 정하고 물건을 팝니다.</p>
-                </article>
-                <article>
-                  <span>주식</span>
-                  <strong>전용 거래 화면</strong>
-                  <p>차트, 호가, 체결, 매수와 매도는 주식 화면에서 따로 봅니다.</p>
-                  <a class="stock-trade-link" href="/stock.html">Stock 거래소 보기</a>
-                </article>
-              </div>
-            </section>
+          <div class="economy-phase-list" data-reveal>
+            <article><span>EARLY</span><strong>식량 · 광물</strong><p>기초 자금</p></article>
+            <article><span>MID</span><strong>장비 · 인챈트</strong><p>전문화</p></article>
+            <article><span>LATE</span><strong>건축 · 서비스</strong><p>유저 경제</p></article>
+            <article><span>SYSTEM</span><strong>보상 · 회수</strong><p>장기 밸런스</p></article>
+          </div>
+        </section>
 
-            <div class="economy-subheading" id="economy-systems" data-reveal>
-              <p class="eyebrow">상점과 경매</p>
-              <h2>상점과 경매를 받쳐주는 경제 구성</h2>
-            </div>
-
-            <div class="economy-grid" data-reveal>
-              <article>
-                <svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M4 20h4l10-10-4-4L4 16z" />
-                  <path d="M14 6l4 4" />
-                </svg>
-                <span>Vault</span>
-                <strong>경제 연결</strong>
-                <p>잔액, 권한, 상점 플러그인이 같은 지갑을 바라보도록 연결합니다.</p>
-              </article>
-              <article>
-                <svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
-                  <rect x="3" y="4" width="18" height="16" rx="2" />
-                  <path d="M7 9l3 3-3 3M13 15h4" />
-                </svg>
-                <span>EssentialsX</span>
-                <strong>기본 생활</strong>
-                <p>스폰, 워프, 홈, 잔액 확인처럼 경제 야생에 필요한 기본 흐름을 담당합니다.</p>
-              </article>
-              <article>
-                <svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M12 3l8 3v6c0 5-3.5 7.5-8 9-4.5-1.5-8-4-8-9V6z" />
-                </svg>
-                <span>QuickShop</span>
-                <strong>유저 상점</strong>
-                <p>상자와 표지판 기반 상점으로 플레이어가 직접 가격을 정하고 판매합니다.</p>
-              </article>
-              <article>
-                <svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M7 4L4 7l3 3M4 7h12M17 14l3 3-3 3M20 17H8" />
-                </svg>
-                <span>AuctionHouse</span>
-                <strong>공개 경매</strong>
-                <p>희귀 아이템, 인챈트 장비, 대량 재료를 공개 시장에 올릴 수 있습니다.</p>
-              </article>
-              <article>
-                <svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
-                  <rect x="3" y="3" width="7" height="7" rx="1" />
-                  <rect x="14" y="3" width="7" height="7" rx="1" />
-                  <rect x="3" y="14" width="7" height="7" rx="1" />
-                  <rect x="14" y="14" width="7" height="7" rx="1" />
-                </svg>
-                <span>GriefPrevention</span>
-                <strong>토지 보호</strong>
-                <p>거점, 창고, 상점가를 보호해서 자산 손실과 분쟁을 줄입니다.</p>
-              </article>
-              <article>
-                <svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M21 12a8 8 0 0 1-11.5 7.2L3 21l1.8-6.5A8 8 0 1 1 21 12z" />
-                </svg>
-                <span>Jobs</span>
-                <strong>직업 보상</strong>
-                <p>채굴, 농사, 벌목, 사냥 같은 야생 활동에 자연스러운 수입을 붙입니다.</p>
-              </article>
-            </div>
-
-            <div class="market-board" id="economy-balance" data-reveal>
-              <div class="market-copy">
-                <p class="eyebrow">밸런스 계획</p>
-                <h2>돈이 너무 빨리 풀리지 않게.</h2>
-                <p>
-                  초반에는 기본 재료와 식량 거래를 살리고, 중반부터 장비, 인챈트, 건축 의뢰가
-                  시장을 키우도록 가격과 보상을 천천히 조정합니다.
-                </p>
-              </div>
-              <div class="market-list" aria-label="경제 운영 축">
-                <article>
-                  <span>초반</span>
-                  <strong>식량 · 광물</strong>
-                  <em>기초 자금</em>
-                </article>
-                <article>
-                  <span>중반</span>
-                  <strong>장비 · 인챈트</strong>
-                  <em>전문화</em>
-                </article>
-                <article>
-                  <span>후반</span>
-                  <strong>건축 · 서비스</strong>
-                  <em>유저 경제</em>
-                </article>
-                <article>
-                  <span>운영</span>
-                  <strong>보상 · 회수</strong>
-                  <em>밸런스</em>
-                </article>
-              </div>
-            </div>
-
-            <div class="section-dashboard economy-dashboard" data-reveal>
-              <article class="dashboard-card">
-                <span>지갑</span>
-                <strong>공통 지갑</strong>
-                <p>보상, 거래, 상점, 경매 수익이 같은 잔액으로 쌓입니다.</p>
-              </article>
-              <article class="dashboard-card">
-                <span>시장</span>
-                <strong>상점가 중심</strong>
-                <p>스폰 주변에 유저 상점 흐름을 모아 신규 유저도 가격을 파악하기 쉽게 합니다.</p>
-              </article>
-              <article class="dashboard-card">
-                <span>안전</span>
-                <strong>거래 기록 우선</strong>
-                <p>거래 분쟁은 채팅 기록, 스크린샷, 좌표를 기준으로 확인합니다.</p>
-              </article>
-              <article class="dashboard-card dashboard-wide">
-                <span>운영 메모</span>
-                <strong>추가 플러그인 기준</strong>
-                <p>경제를 단번에 무너뜨리는 자동 판매, 과한 보상, 무제한 자원 생성 기능은 신중하게 적용합니다.</p>
-              </article>
-            </div>
-          </section>
-        </div>
+        <section class="economy-stock-cta" aria-labelledby="economy-stock-title">
+          <div class="economy-stock-meta" data-reveal>
+            <span>LIVE SYSTEM / 01</span>
+            <span>MARKET OPEN</span>
+          </div>
+          <h2 id="economy-stock-title" data-split="words">시장은 지금도 가격을 기록합니다</h2>
+          <a href="/stock.html" data-reveal>Stock 거래소 보기 <span aria-hidden="true">↗</span></a>
+        </section>
       </main>
 
       <footer class="site-footer subpage-footer" id="site-footer">
