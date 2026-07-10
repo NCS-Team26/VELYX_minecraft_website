@@ -2,15 +2,20 @@ import { requireAwsCostOptIn } from "./require-aws-cost-opt-in.mjs";
 import {
   CloudFrontClient,
   CreateDistributionCommand,
+  CreateFunctionCommand,
   CreateInvalidationCommand,
   CreateOriginAccessControlCommand,
   CreateResponseHeadersPolicyCommand,
+  DescribeFunctionCommand,
   GetDistributionConfigCommand,
+  GetFunctionCommand,
   GetResponseHeadersPolicyConfigCommand,
   ListDistributionsCommand,
   ListOriginAccessControlsCommand,
   ListResponseHeadersPoliciesCommand,
+  PublishFunctionCommand,
   UpdateDistributionCommand,
+  UpdateFunctionCommand,
   UpdateResponseHeadersPolicyCommand,
 } from "@aws-sdk/client-cloudfront";
 import {
@@ -53,6 +58,9 @@ const cachePolicyDisabled = "4135ea2d-6df8-44a3-9df3-4b5a84be39ad";
 const originRequestPolicyAllViewerExceptHostHeader = "b689b0a8-53d0-40ab-baf2-68738e2966ac";
 const legacySecurityHeadersPolicyName = "nfoifsb-site-security-headers";
 const securityHeadersPolicyName = "velyx-site-security-headers";
+const redirectFunctionName = "velyx-legacy-redirects";
+const redirectFunctionComment = "Legacy /plugins.html -> /economy.html 308";
+const redirectFunctionCodePath = join(process.cwd(), "infra", "cloudfront", "plugins-redirect.js");
 const siteDomain = process.env.SITE_DOMAIN || "";
 const certificateArn = process.env.CERTIFICATE_ARN || "";
 const emptyOriginCustomHeaders = { Quantity: 0 };
@@ -343,7 +351,62 @@ function comparableViewerCertificate(config = {}) {
   return config;
 }
 
-async function syncDistributionDefaults(distributionId, bucket, oacId, responseHeadersPolicyId) {
+async function ensureRedirectFunction(accountId) {
+  const code = readFileSync(redirectFunctionCodePath, "utf8");
+  const desiredArn = `arn:aws:cloudfront::${accountId}:function/${redirectFunctionName}`;
+  const functionConfig = { Comment: redirectFunctionComment, Runtime: "cloudfront-js-2.0" };
+  let etag;
+  let exists = false;
+
+  try {
+    const described = await cloudfront.send(new DescribeFunctionCommand({ Name: redirectFunctionName }));
+    etag = described.ETag;
+    exists = true;
+  } catch (error) {
+    const notFound = error?.name === "NoSuchFunctionExists" || error?.$metadata?.httpStatusCode === 404;
+    if (!notFound) throw error;
+  }
+
+  if (!exists) {
+    const created = await cloudfront.send(
+      new CreateFunctionCommand({
+        Name: redirectFunctionName,
+        FunctionConfig: functionConfig,
+        FunctionCode: Buffer.from(code, "utf8"),
+      }),
+    );
+    etag = created.ETag;
+    log(`Created CloudFront function: ${redirectFunctionName}`);
+  } else {
+    const currentFn = await cloudfront.send(
+      new GetFunctionCommand({ Name: redirectFunctionName, Stage: "DEVELOPMENT" }),
+    );
+    const currentCode = Buffer.from(currentFn.FunctionCode || []).toString("utf8");
+    if (currentCode !== code) {
+      const updated = await cloudfront.send(
+        new UpdateFunctionCommand({
+          Name: redirectFunctionName,
+          IfMatch: etag,
+          FunctionConfig: functionConfig,
+          FunctionCode: Buffer.from(code, "utf8"),
+        }),
+      );
+      etag = updated.ETag;
+      log(`Updated CloudFront function code: ${redirectFunctionName}`);
+    }
+  }
+
+  // Always publish so the LIVE stage matches DEVELOPMENT, even if a previous
+  // run created the function but failed before publishing. Idempotent.
+  const published = await cloudfront.send(
+    new PublishFunctionCommand({ Name: redirectFunctionName, IfMatch: etag }),
+  );
+  const arn = published.FunctionSummary?.FunctionMetadata?.FunctionARN || desiredArn;
+  log(`Published CloudFront function to LIVE: ${arn}`);
+  return arn;
+}
+
+async function syncDistributionDefaults(distributionId, bucket, oacId, responseHeadersPolicyId, redirectFunctionArn) {
   const current = await cloudfront.send(new GetDistributionConfigCommand({ Id: distributionId }));
   const config = current.DistributionConfig;
   const desiredDomainName = `${bucket}.s3.${region}.amazonaws.com`;
@@ -371,10 +434,18 @@ async function syncDistributionDefaults(distributionId, bucket, oacId, responseH
     desiredPlayerApiOrigin,
     ...originItems.filter((item) => ![existingOrigin.Id, originId, playerApiOriginId].includes(item.Id)),
   ];
+  const existingFunctionItems = config.DefaultCacheBehavior?.FunctionAssociations?.Items || [];
+  const nextFunctionItems = [
+    { EventType: "viewer-request", FunctionARN: redirectFunctionArn },
+    // Preserve any other associations (e.g. a viewer-response function) untouched.
+    ...existingFunctionItems.filter((item) => item.EventType !== "viewer-request"),
+  ];
+  const desiredFunctionAssociations = { Quantity: nextFunctionItems.length, Items: nextFunctionItems };
   const defaultCacheBehavior = {
     ...config.DefaultCacheBehavior,
     TargetOriginId: originId,
     ResponseHeadersPolicyId: responseHeadersPolicyId,
+    FunctionAssociations: desiredFunctionAssociations,
   };
   const cacheBehaviorItems = config.CacheBehaviors?.Items || [];
   const existingPlayerApiBehavior =
@@ -395,6 +466,8 @@ async function syncDistributionDefaults(distributionId, bucket, oacId, responseH
   const behaviorChanged =
     config.DefaultCacheBehavior?.TargetOriginId !== defaultCacheBehavior.TargetOriginId
     || config.DefaultCacheBehavior?.ResponseHeadersPolicyId !== defaultCacheBehavior.ResponseHeadersPolicyId
+    || stableStringify(config.DefaultCacheBehavior?.FunctionAssociations || { Quantity: 0 })
+      !== stableStringify(desiredFunctionAssociations)
     || stableStringify(existingPlayerApiBehavior) !== stableStringify(desiredPlayerApiBehavior);
   const domainChanged =
     config.Comment !== distributionComment
@@ -476,11 +549,11 @@ function playerApiCacheBehavior(existingBehavior = {}, responseHeadersPolicyId) 
   return behavior;
 }
 
-async function ensureDistribution(bucket, oacId, responseHeadersPolicyId) {
+async function ensureDistribution(bucket, oacId, responseHeadersPolicyId, redirectFunctionArn) {
   const existing = await findDistribution();
   if (existing?.Id) {
     log(`CloudFront distribution exists: ${existing.Id}`);
-    await syncDistributionDefaults(existing.Id, bucket, oacId, responseHeadersPolicyId);
+    await syncDistributionDefaults(existing.Id, bucket, oacId, responseHeadersPolicyId, redirectFunctionArn);
     return existing;
   }
 
@@ -523,6 +596,10 @@ async function ensureDistribution(bucket, oacId, responseHeadersPolicyId) {
           Compress: true,
           CachePolicyId: cachePolicyOptimized,
           ResponseHeadersPolicyId: responseHeadersPolicyId,
+          FunctionAssociations: {
+            Quantity: 1,
+            Items: [{ EventType: "viewer-request", FunctionARN: redirectFunctionArn }],
+          },
         },
         CacheBehaviors: {
           Quantity: 1,
@@ -695,7 +772,8 @@ async function main() {
   await ensureBucket(bucket);
   const oacId = await ensureOriginAccessControl(bucket);
   const responseHeadersPolicyId = await ensureSecurityHeadersPolicy();
-  const distribution = await ensureDistribution(bucket, oacId, responseHeadersPolicyId);
+  const redirectFunctionArn = await ensureRedirectFunction(accountId);
+  const distribution = await ensureDistribution(bucket, oacId, responseHeadersPolicyId, redirectFunctionArn);
   await allowCloudFrontRead(bucket, accountId, distribution.Id);
   await uploadDist(bucket);
   await invalidate(distribution.Id);
