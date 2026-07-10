@@ -1119,9 +1119,101 @@ html:not(.is-loading) .transition-screen {
 }
 
 .site-footer {
-  min-height: 78svh;
   align-content: space-between;
   padding-bottom: clamp(1.4rem, 4vw, 3rem);
+}
+
+.home-footer {
+  min-height: 78svh;
+}
+
+.subpage-footer {
+  min-height: clamp(24rem, 48svh, 36rem);
+  align-content: stretch;
+  padding: clamp(2.5rem, 6vw, 5rem) var(--site-margin) clamp(1.5rem, 3vw, 2.5rem);
+}
+
+.footer-info-row {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: clamp(1rem, 2vw, 1.4rem);
+  width: 100%;
+  min-width: 0;
+}
+
+.footer-info-row::before {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  align-self: end;
+  overflow: hidden;
+  content: "VELYX";
+  color: rgba(232, 232, 227, 0.88);
+  font-family: var(--display);
+  font-size: clamp(5rem, 18vw, 17rem);
+  font-weight: 900;
+  line-height: 0.72;
+  letter-spacing: -0.055em;
+  white-space: nowrap;
+}
+
+.footer-info-row > .footer-brand {
+  grid-column: 1 / span 3;
+  grid-row: 1;
+  align-self: start;
+}
+
+.footer-info-row > span:not(.footer-brand) {
+  grid-column: 5 / span 4;
+  grid-row: 1;
+  align-self: start;
+  color: var(--paper-soft);
+  line-height: 1.5;
+}
+
+.footer-info-row > .footer-links {
+  grid-column: 1 / span 8;
+  grid-row: 3;
+  align-self: end;
+}
+
+.footer-info-row > a:last-child {
+  grid-column: 10 / -1;
+  grid-row: 3;
+  align-self: end;
+  justify-self: end;
+  color: var(--paper);
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  text-transform: uppercase;
+  transition: color 0.3s var(--ease), transform 0.3s var(--ease);
+}
+
+.footer-info-row > a:last-child:hover,
+.footer-info-row > a:last-child:focus-visible {
+  color: var(--paper-warm);
+  transform: translateY(-2px);
+}
+
+.subpage-footer .footer-brand {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  gap: 0.7rem;
+  color: var(--paper);
+  font-family: var(--mono);
+  font-size: 0.76rem;
+  text-transform: uppercase;
+}
+
+.subpage-footer .footer-brand img {
+  display: block;
+  width: 2rem;
+  height: 2rem;
+  max-width: none;
+  flex: 0 0 2rem;
+  object-fit: contain;
 }
 
 .footer-top,
@@ -1555,6 +1647,56 @@ a:focus-visible {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .subpage-footer {
+    display: block;
+    min-height: auto;
+    padding-top: 3rem;
+  }
+
+  .footer-info-row {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto auto auto auto;
+    gap: 1rem;
+  }
+
+  .footer-info-row > .footer-brand {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .footer-info-row > span:not(.footer-brand) {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .footer-info-row::before {
+    grid-column: 1;
+    grid-row: 3;
+    margin-top: 3rem;
+    font-size: clamp(4.2rem, 23vw, 7rem);
+    line-height: 0.78;
+  }
+
+  .footer-info-row > .footer-links {
+    grid-column: 1;
+    grid-row: 4;
+    margin-top: 1rem;
+  }
+
+  .footer-info-row > a:last-child {
+    grid-column: 1;
+    grid-row: 5;
+    justify-self: start;
+  }
+
+  .subpage-footer .footer-brand img {
+    width: 1.75rem;
+    height: 1.75rem;
+    flex-basis: 1.75rem;
   }
 }
 
